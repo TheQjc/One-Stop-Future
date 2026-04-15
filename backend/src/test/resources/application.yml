@@ -1,0 +1,37 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:campus;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  sql:
+    init:
+      mode: always
+  jackson:
+    time-zone: Asia/Shanghai
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+
+jwt:
+  secret: test-secret-key-test-secret-key-1234
+  expire-seconds: 3600
+
+platform:
+  integrations:
+    redis:
+      enabled: false
+      host: 127.0.0.1
+      port: 6379
+      database: 0
+    elasticsearch:
+      enabled: false
+      uris: http://127.0.0.1:9200
+      index-prefix: campus-platform-test
+    minio:
+      enabled: false
+      endpoint: http://127.0.0.1:9000
+      access-key: minioadmin
+      secret-key: minioadmin
+      bucket: campus-platform-test

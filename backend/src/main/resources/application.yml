@@ -1,0 +1,42 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: campus-platform
+  datasource:
+    url: ${DB_URL:jdbc:mysql://114.132.220.42:3306/campus_platform?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:Qiao@2541Pass}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  sql:
+    init:
+      mode: always
+  jackson:
+    time-zone: Asia/Shanghai
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+
+jwt:
+  secret: ${JWT_SECRET:test-secret-key-test-secret-key-1234}
+  expire-seconds: ${JWT_EXPIRE_SECONDS:7200}
+
+platform:
+  integrations:
+    redis:
+      enabled: ${REDIS_ENABLED:false}
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      database: ${REDIS_DATABASE:0}
+    elasticsearch:
+      enabled: ${ES_ENABLED:false}
+      uris: ${ES_URIS:http://127.0.0.1:9200}
+      index-prefix: ${ES_INDEX_PREFIX:campus-platform}
+    minio:
+      enabled: ${MINIO_ENABLED:false}
+      endpoint: ${MINIO_ENDPOINT:http://127.0.0.1:9000}
+      access-key: ${MINIO_ACCESS_KEY:minioadmin}
+      secret-key: ${MINIO_SECRET_KEY:minioadmin}
+      bucket: ${MINIO_BUCKET:campus-platform}
