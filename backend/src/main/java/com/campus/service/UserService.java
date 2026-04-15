@@ -3,11 +3,9 @@ package com.campus.service;
 import java.time.LocalDateTime;
 
 import org.springframework.dao.DataAccessException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.campus.common.BusinessException;
-import com.campus.dto.ChangePasswordRequest;
 import com.campus.dto.UpdateProfileRequest;
 import com.campus.dto.UserProfile;
 import com.campus.entity.User;
@@ -17,11 +15,9 @@ import com.campus.mapper.UserMapper;
 public class UserService {
 
     private final UserMapper userMapper;
-    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserMapper userMapper, PasswordEncoder passwordEncoder) {
+    public UserService(UserMapper userMapper) {
         this.userMapper = userMapper;
-        this.passwordEncoder = passwordEncoder;
     }
 
     public User findByPhone(String phone) {
@@ -75,21 +71,19 @@ public class UserService {
     }
 
     public UserProfile updateProfile(String identity, UpdateProfileRequest request) {
+        if (request == null) {
+            throw new BusinessException(400, "invalid request");
+        }
         User user = requireByIdentity(identity);
-        user.setRealName(request.realName());
+        if (request.nickname() != null && !request.nickname().isBlank()) {
+            user.setNickname(request.nickname().trim());
+        }
+        if (request.realName() != null && !request.realName().isBlank()) {
+            user.setRealName(request.realName().trim());
+        }
         user.setUpdatedAt(LocalDateTime.now());
         userMapper.updateById(user);
         return toProfile(user);
-    }
-
-    public void changePassword(String identity, ChangePasswordRequest request) {
-        User user = requireByIdentity(identity);
-        if (!passwordEncoder.matches(request.oldPassword(), user.getPassword())) {
-            throw new BusinessException(400, "old password is incorrect");
-        }
-        user.setPassword(passwordEncoder.encode(request.newPassword()));
-        user.setUpdatedAt(LocalDateTime.now());
-        userMapper.updateById(user);
     }
 
     public UserProfile toProfile(User user) {

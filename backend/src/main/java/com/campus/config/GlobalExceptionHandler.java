@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.campus.common.BusinessException;
 import com.campus.common.Result;
 
+import jakarta.validation.ConstraintViolationException;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -32,6 +34,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public Result<Void> handleBadJson(HttpMessageNotReadableException exception) {
         return Result.error(400, "invalid request");
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public Result<Void> handleConstraintViolation(ConstraintViolationException exception) {
+        return Result.error(400, exception.getMessage());
     }
 
     @ExceptionHandler(AccessDeniedException.class)

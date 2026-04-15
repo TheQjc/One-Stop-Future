@@ -29,36 +29,27 @@ class UserControllerTests {
     }
 
     @Test
-    @WithMockUser(username = "student01", roles = "STUDENT")
+    @WithMockUser(username = "2", roles = "USER")
     void getProfileReturnsCurrentUser() throws Exception {
         mockMvc.perform(get("/api/users/me"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.data.username").value("student01"));
+                .andExpect(jsonPath("$.data.phone").value("13800000001"))
+                .andExpect(jsonPath("$.data.nickname").value("NormalUser"))
+                .andExpect(jsonPath("$.data.verificationStatus").value("UNVERIFIED"));
     }
 
     @Test
-    @WithMockUser(username = "student01", roles = "STUDENT")
-    void changePasswordReturnsSuccess() throws Exception {
-        mockMvc.perform(put("/api/users/me/password")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {"oldPassword":"secret123","newPassword":"secret456"}
-                                """))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value(200));
-    }
-
-    @Test
-    @WithMockUser(username = "student01", roles = "STUDENT")
-    void updateProfileReturnsSuccess() throws Exception {
+    @WithMockUser(username = "2", roles = "USER")
+    void updateProfileReturnsUpdatedFields() throws Exception {
         mockMvc.perform(put("/api/users/me")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"realName":"Student Updated","email":"student-updated@example.com"}
+                                {"nickname":"FutureRunner","realName":"Student Updated"}
                                 """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.nickname").value("FutureRunner"))
                 .andExpect(jsonPath("$.data.realName").value("Student Updated"));
     }
 }

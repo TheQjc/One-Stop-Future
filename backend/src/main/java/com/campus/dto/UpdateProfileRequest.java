@@ -1,4 +1,8 @@
 package com.campus.dto;
 
-public record UpdateProfileRequest(String realName, String email) {
+import jakarta.validation.constraints.Size;
+
+public record UpdateProfileRequest(
+        @Size(max = 50) String nickname,
+        @Size(max = 50) String realName) {
 }
