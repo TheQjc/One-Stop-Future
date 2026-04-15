@@ -1,0 +1,57 @@
+:root {
+  --cp-paper: #f4ecde;
+  --cp-paper-deep: #ede2d0;
+  --cp-surface: rgba(255, 251, 244, 0.92);
+  --cp-surface-strong: #fffdf8;
+  --cp-ink: #18263f;
+  --cp-ink-soft: #50607b;
+  --cp-ink-faint: #7e8aa0;
+  --cp-accent: #c54f2d;
+  --cp-accent-deep: #98371e;
+  --cp-accent-soft: rgba(197, 79, 45, 0.12);
+  --cp-teal: #4c7a74;
+  --cp-teal-deep: #335952;
+  --cp-teal-soft: rgba(76, 122, 116, 0.12);
+  --cp-line: rgba(24, 38, 63, 0.14);
+  --cp-line-strong: rgba(24, 38, 63, 0.24);
+  --cp-success: #25624d;
+  --cp-warning: #91621c;
+  --cp-danger: #8d2b2b;
+  --cp-shadow-soft: 0 12px 30px rgba(24, 38, 63, 0.08);
+  --cp-shadow-card: 0 22px 60px rgba(24, 38, 63, 0.12);
+  --cp-shadow-focus: 0 0 0 3px rgba(197, 79, 45, 0.16);
+  --cp-radius-sm: 12px;
+  --cp-radius-md: 20px;
+  --cp-radius-lg: 28px;
+  --cp-radius-pill: 999px;
+  --cp-max-width: 1200px;
+  --cp-gap-1: 4px;
+  --cp-gap-2: 8px;
+  --cp-gap-3: 12px;
+  --cp-gap-4: 16px;
+  --cp-gap-5: 20px;
+  --cp-gap-6: 24px;
+  --cp-gap-7: 32px;
+  --cp-gap-8: 40px;
+  --cp-gap-9: 56px;
+  --cp-font-display: "Baskerville Old Face", "Times New Roman", "Songti SC", "STSong", serif;
+  --cp-font-body: "Source Han Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --cp-font-mono: "Cascadia Mono", "Consolas", monospace;
+  --cp-text-xs: 12px;
+  --cp-text-sm: 14px;
+  --cp-text-md: 16px;
+  --cp-text-lg: 18px;
+  --cp-text-xl: 24px;
+  --cp-text-2xl: 32px;
+  --cp-text-3xl: clamp(36px, 6vw, 56px);
+  --cp-touch-height: 44px;
+  --cp-transition: 180ms ease;
+}
+
+@media (max-width: 767px) {
+  :root {
+    --cp-gap-7: 28px;
+    --cp-gap-8: 32px;
+    --cp-gap-9: 40px;
+  }
+}
