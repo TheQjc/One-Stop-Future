@@ -10,6 +10,10 @@ const props = defineProps({
 });
 
 const cardMeta = computed(() => {
+  if (props.entry.metaLabel) {
+    return props.entry.metaLabel;
+  }
+
   if (props.entry.badge === "COMING_SOON") {
     return "即将开放";
   }
@@ -18,7 +22,11 @@ const cardMeta = computed(() => {
     return "登录后可用";
   }
 
-  return "立即进入";
+  if (props.entry.enabled) {
+    return "立即进入";
+  }
+
+  return "查看当前阶段";
 });
 </script>
 
@@ -31,6 +39,9 @@ const cardMeta = computed(() => {
   >
     <p class="home-entry-card__code">{{ entry.code }}</p>
     <h3 class="home-entry-card__title">{{ entry.title }}</h3>
+    <p v-if="entry.description" class="home-entry-card__description">
+      {{ entry.description }}
+    </p>
     <p class="home-entry-card__meta">{{ cardMeta }}</p>
   </component>
 </template>
@@ -65,6 +76,7 @@ const cardMeta = computed(() => {
 }
 
 .home-entry-card__code,
+.home-entry-card__description,
 .home-entry-card__meta {
   margin: 0;
   font-size: var(--cp-text-sm);
@@ -81,5 +93,14 @@ const cardMeta = computed(() => {
   font-family: var(--cp-font-display);
   font-size: 26px;
   line-height: 1.1;
+}
+
+.home-entry-card__description {
+  line-height: 1.6;
+}
+
+.home-entry-card__meta {
+  color: var(--cp-accent-deep);
+  font-weight: 600;
 }
 </style>

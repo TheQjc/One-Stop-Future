@@ -54,9 +54,11 @@ export const useUserStore = defineStore("user", {
       const roleMap = {
         USER: "普通用户",
         ADMIN: "管理员",
-        GUEST: "游客",
+        TEACHER: "教师",
+        GUEST: "访客",
       };
-      return roleMap[state.profile?.role || "GUEST"];
+
+      return roleMap[state.profile?.role || "GUEST"] || "访客";
     },
     canManageNotices: (state) => state.profile?.role === "ADMIN",
   },
@@ -72,6 +74,28 @@ export const useUserStore = defineStore("user", {
       this.profile = null;
       window.localStorage.removeItem(TOKEN_KEY);
       window.localStorage.removeItem(PROFILE_KEY);
+    },
+    applyHomeSummary(summary) {
+      if (!summary?.identity) {
+        return;
+      }
+
+      const mergedProfile = normalizeProfile({
+        ...(this.profile || {}),
+        ...summary.identity,
+        role: summary.identity.role ?? this.profile?.role,
+        verificationStatus:
+          summary.verificationStatus
+          ?? summary.identity.verificationStatus
+          ?? this.profile?.verificationStatus,
+        unreadNotificationCount:
+          summary.unreadNotificationCount
+          ?? this.profile?.unreadNotificationCount
+          ?? 0,
+      });
+
+      this.profile = mergedProfile;
+      window.localStorage.setItem(PROFILE_KEY, JSON.stringify(mergedProfile));
     },
     async login(form) {
       this.loading = true;
