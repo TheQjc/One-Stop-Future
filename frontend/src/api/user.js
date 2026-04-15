@@ -1,26 +1,41 @@
 import http from "./http.js";
 
 const preferMock = import.meta.env.MODE === "test";
+const USER_KEY = "one-stop-future-demo-users";
 const PROFILE_KEY = "one-stop-future-profile";
 
+function readJson(key, fallback) {
+  try {
+    const raw = window.localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch (error) {
+    return fallback;
+  }
+}
+
+function writeJson(key, value) {
+  window.localStorage.setItem(key, JSON.stringify(value));
+}
+
 function readUsers() {
-  const raw = window.localStorage.getItem("campus-demo-users");
-  return raw ? JSON.parse(raw) : [];
+  return readJson(USER_KEY, []);
 }
 
 function writeUsers(users) {
-  window.localStorage.setItem("campus-demo-users", JSON.stringify(users));
+  writeJson(USER_KEY, users);
 }
 
-function currentUsername() {
-  const raw = window.localStorage.getItem(PROFILE_KEY);
+function readProfile() {
+  return readJson(PROFILE_KEY, null);
+}
 
-  if (!raw) {
-    return "";
-  }
+function currentPhone() {
+  const profile = readProfile();
+  return profile?.phone || profile?.username || "";
+}
 
-  const profile = JSON.parse(raw);
-  return profile.username || profile.phone || "";
+function findCurrentUserIndex(users) {
+  return users.findIndex((item) => (item.phone || item.username) === currentPhone());
 }
 
 function toProfile(user) {
@@ -36,46 +51,48 @@ function toProfile(user) {
     verificationStatus: user.verificationStatus || "UNVERIFIED",
     studentId: user.studentId || null,
     unreadNotificationCount: user.unreadNotificationCount || 0,
-    email: user.email || "",
-    bio: user.bio || "",
   };
+}
+
+function getFallbackProfile() {
+  const users = readUsers();
+  const index = findCurrentUserIndex(users);
+
+  if (index < 0) {
+    throw new Error("未找到当前用户信息");
+  }
+
+  return toProfile(users[index]);
 }
 
 export async function getProfile() {
   if (preferMock) {
-    const matched = readUsers().find((item) => item.username === currentUsername());
-
-    if (!matched) {
-      throw new Error("未找到当前用户信息");
-    }
-
-    return toProfile(matched);
+    return getFallbackProfile();
   }
 
   try {
     const { data } = await http.get("/users/me");
     return data.data;
   } catch (error) {
-    const matched = readUsers().find((item) => item.username === currentUsername());
-
-    if (!matched) {
-      throw new Error("未找到当前用户信息");
-    }
-
-    return toProfile(matched);
+    return getFallbackProfile();
   }
 }
 
 export async function updateProfile(payload) {
   if (preferMock) {
     const users = readUsers();
-    const index = users.findIndex((item) => item.username === currentUsername());
+    const index = findCurrentUserIndex(users);
 
     if (index < 0) {
       throw new Error("当前用户不存在");
     }
 
-    users[index] = { ...users[index], ...payload };
+    users[index] = {
+      ...users[index],
+      nickname: payload.nickname ?? users[index].nickname,
+      realName: payload.realName ?? users[index].realName,
+    };
+
     writeUsers(users);
     return toProfile(users[index]);
   }
@@ -85,36 +102,19 @@ export async function updateProfile(payload) {
     return data.data;
   } catch (error) {
     const users = readUsers();
-    const index = users.findIndex((item) => item.username === currentUsername());
+    const index = findCurrentUserIndex(users);
 
     if (index < 0) {
       throw new Error("当前用户不存在");
     }
 
-    users[index] = { ...users[index], ...payload };
+    users[index] = {
+      ...users[index],
+      nickname: payload.nickname ?? users[index].nickname,
+      realName: payload.realName ?? users[index].realName,
+    };
+
     writeUsers(users);
     return toProfile(users[index]);
   }
-}
-
-export async function changePassword(payload) {
-  if (preferMock) {
-    const users = readUsers();
-    const index = users.findIndex((item) => item.username === currentUsername());
-
-    if (index < 0) {
-      throw new Error("当前用户不存在");
-    }
-
-    if (users[index].password !== payload.oldPassword) {
-      throw new Error("旧密码不正确");
-    }
-
-    users[index].password = payload.newPassword;
-    writeUsers(users);
-    return true;
-  }
-
-  const { data } = await http.put("/users/me/password", payload);
-  return data.data;
 }

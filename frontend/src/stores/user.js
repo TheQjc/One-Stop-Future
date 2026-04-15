@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { login, logout, register } from "../api/auth.js";
-import { changePassword, getProfile, updateProfile } from "../api/user.js";
+import { getProfile, updateProfile } from "../api/user.js";
 
 const TOKEN_KEY = "one-stop-future-token";
 const PROFILE_KEY = "one-stop-future-profile";
@@ -63,27 +63,44 @@ export const useUserStore = defineStore("user", {
     canManageNotices: (state) => state.profile?.role === "ADMIN",
   },
   actions: {
+    persistProfile(payload) {
+      this.profile = payload ? normalizeProfile(payload) : null;
+
+      if (this.profile) {
+        window.localStorage.setItem(PROFILE_KEY, JSON.stringify(this.profile));
+      } else {
+        window.localStorage.removeItem(PROFILE_KEY);
+      }
+
+      return this.profile;
+    },
+    mergeProfile(payload) {
+      if (!payload) {
+        return this.profile;
+      }
+
+      return this.persistProfile({
+        ...(this.profile || {}),
+        ...payload,
+      });
+    },
     setAuth(payload) {
       this.token = payload.token;
-      this.profile = normalizeProfile(payload.profile || payload);
       window.localStorage.setItem(TOKEN_KEY, payload.token);
-      window.localStorage.setItem(PROFILE_KEY, JSON.stringify(this.profile));
+      this.persistProfile(payload.profile || payload);
     },
     clearAuth() {
       this.token = "";
-      this.profile = null;
       window.localStorage.removeItem(TOKEN_KEY);
-      window.localStorage.removeItem(PROFILE_KEY);
+      this.persistProfile(null);
     },
     applyHomeSummary(summary) {
       if (!summary?.identity) {
-        return;
+        return null;
       }
 
-      const mergedProfile = normalizeProfile({
-        ...(this.profile || {}),
+      return this.mergeProfile({
         ...summary.identity,
-        role: summary.identity.role ?? this.profile?.role,
         verificationStatus:
           summary.verificationStatus
           ?? summary.identity.verificationStatus
@@ -93,9 +110,11 @@ export const useUserStore = defineStore("user", {
           ?? this.profile?.unreadNotificationCount
           ?? 0,
       });
-
-      this.profile = mergedProfile;
-      window.localStorage.setItem(PROFILE_KEY, JSON.stringify(mergedProfile));
+    },
+    setUnreadNotificationCount(count) {
+      return this.mergeProfile({
+        unreadNotificationCount: count,
+      });
     },
     async login(form) {
       this.loading = true;
@@ -122,19 +141,10 @@ export const useUserStore = defineStore("user", {
         return null;
       }
 
-      const profile = normalizeProfile(await getProfile());
-      this.profile = profile;
-      window.localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
-      return this.profile;
+      return this.mergeProfile(await getProfile());
     },
     async saveProfile(form) {
-      const profile = normalizeProfile(await updateProfile(form));
-      this.profile = { ...this.profile, ...profile };
-      window.localStorage.setItem(PROFILE_KEY, JSON.stringify(this.profile));
-      return this.profile;
-    },
-    async updatePassword(form) {
-      return changePassword(form);
+      return this.mergeProfile(await updateProfile(form));
     },
     async logout() {
       await logout();

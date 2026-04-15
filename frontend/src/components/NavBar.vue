@@ -9,18 +9,18 @@ const userStore = useUserStore();
 const router = useRouter();
 
 const navItems = computed(() => {
-  const base = [{ to: "/", label: "首页" }];
+  const items = [{ to: "/", label: "首页" }];
 
   if (userStore.isAuthenticated) {
-    base.push({ to: "/profile", label: "个人中心" });
-    base.push({ to: "/notifications", label: "通知中心" });
+    items.push({ to: "/profile", label: "个人中心" });
+    items.push({ to: "/notifications", label: "通知中心" });
   }
 
   if (userStore.isAdmin) {
-    base.push({ to: "/admin/verifications", label: "认证审核" });
+    items.push({ to: "/admin/verifications", label: "认证审核" });
   }
 
-  return base;
+  return items;
 });
 
 async function handleLogout() {
@@ -56,8 +56,11 @@ async function handleLogout() {
             <VerificationStatusBadge :status="userStore.profile?.verificationStatus" />
           </div>
           <span class="site-user__role">{{ userStore.roleLabel }}</span>
-          <span class="site-user__name">{{ userStore.profile?.nickname || userStore.profile?.phone }}</span>
+          <span class="site-user__name">
+            {{ userStore.profile?.nickname || userStore.profile?.phone }}
+          </span>
         </div>
+
         <RouterLink v-if="!userStore.isAuthenticated" to="/login" class="app-link">
           登录
         </RouterLink>

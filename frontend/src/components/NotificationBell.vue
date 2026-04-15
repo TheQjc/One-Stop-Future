@@ -14,7 +14,7 @@ const displayCount = computed(() => (props.count > 99 ? "99+" : String(props.cou
 
 <template>
   <RouterLink to="/notifications" class="notification-bell" aria-label="通知中心">
-    <span class="notification-bell__icon" aria-hidden="true">●</span>
+    <span class="notification-bell__icon" aria-hidden="true">•</span>
     <span class="notification-bell__label">通知</span>
     <span v-if="count > 0" class="notification-bell__badge">{{ displayCount }}</span>
   </RouterLink>
