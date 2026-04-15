@@ -25,7 +25,7 @@ const router = createRouter({
       path: "/admin/verifications",
       name: "admin-verifications",
       component: AdminVerificationReviewView,
-      meta: { requiresAuth: true, roles: ["ADMIN"] },
+      meta: { requiresAuth: true, roles: ["ADMIN", "TEACHER"] },
     },
   ],
   scrollBehavior() {

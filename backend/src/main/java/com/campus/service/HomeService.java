@@ -73,6 +73,9 @@ public class HomeService {
         if ("ADMIN".equals(user.getRole())) {
             return "ADMIN";
         }
+        if ("TEACHER".equals(user.getRole())) {
+            return "TEACHER";
+        }
         if ("VERIFIED".equals(user.getVerificationStatus())) {
             return "VERIFIED_USER";
         }
@@ -82,6 +85,9 @@ public class HomeService {
     private String roleLabelFor(String role) {
         if ("ADMIN".equals(role)) {
             return "Administrator";
+        }
+        if ("TEACHER".equals(role)) {
+            return "Teacher";
         }
         return "User";
     }
@@ -97,7 +103,7 @@ public class HomeService {
         if (unreadCount > 0) {
             todos.add("You have %d unread notifications.".formatted(unreadCount));
         }
-        if ("ADMIN".equals(user.getRole())) {
+        if ("ADMIN".equals(user.getRole()) || "TEACHER".equals(user.getRole())) {
             int pendingCount = verificationApplicationMapper
                     .selectCount(new LambdaQueryWrapper<VerificationApplication>()
                             .eq(VerificationApplication::getStatus, "PENDING"))
@@ -119,7 +125,7 @@ public class HomeService {
         entries.add(new HomeSummaryResponse.HomeEntryCard("resources", "Resources", "/resources", true, "COMING_SOON"));
         entries.add(new HomeSummaryResponse.HomeEntryCard("assessment", "Assessment", "/assessment", true, "COMING_SOON"));
         entries.add(new HomeSummaryResponse.HomeEntryCard("analytics", "Analytics", "/analytics", true, "COMING_SOON"));
-        if ("ADMIN".equals(user.getRole())) {
+        if ("ADMIN".equals(user.getRole()) || "TEACHER".equals(user.getRole())) {
             entries.add(new HomeSummaryResponse.HomeEntryCard("admin-verifications", "Admin Verification Review",
                     "/admin/verifications", true, null));
         }

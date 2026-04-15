@@ -19,7 +19,7 @@ import com.campus.service.AdminVerificationService;
 
 @Validated
 @RestController
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasAnyRole('TEACHER','ADMIN')")
 @RequestMapping("/api/admin/verifications")
 public class AdminVerificationController {
 

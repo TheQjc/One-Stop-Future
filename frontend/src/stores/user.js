@@ -47,6 +47,7 @@ export const useUserStore = defineStore("user", {
   getters: {
     isAuthenticated: (state) => Boolean(state.token),
     isAdmin: (state) => state.profile?.role === "ADMIN",
+    canReviewVerifications: (state) => ["ADMIN", "TEACHER"].includes(state.profile?.role),
     isVerified: (state) => state.profile?.verificationStatus === "VERIFIED",
     unreadCount: (state) => state.profile?.unreadNotificationCount || 0,
     role: (state) => state.profile?.role || "GUEST",

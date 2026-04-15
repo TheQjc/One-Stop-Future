@@ -16,7 +16,7 @@ const navItems = computed(() => {
     items.push({ to: "/notifications", label: "通知中心" });
   }
 
-  if (userStore.isAdmin) {
+  if (userStore.canReviewVerifications) {
     items.push({ to: "/admin/verifications", label: "认证审核" });
   }
 

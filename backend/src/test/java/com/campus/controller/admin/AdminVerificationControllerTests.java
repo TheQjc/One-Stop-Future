@@ -41,7 +41,7 @@ class AdminVerificationControllerTests {
     void dashboardAndListReturnVerificationApplications() throws Exception {
         insertPendingApplication(201L, 2L, "Normal User", "20260009", LocalDateTime.now().minusHours(2));
         insertReviewedApplication(202L, 3L, "Verified User", "20260001", LocalDateTime.now().minusHours(4),
-                LocalDateTime.now().minusHours(1));
+                LocalDateTime.now().minusMinutes(10));
 
         mockMvc.perform(get("/api/admin/verifications/dashboard"))
                 .andExpect(status().isOk())
@@ -54,6 +54,22 @@ class AdminVerificationControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data[0].status").isNotEmpty());
+    }
+
+    @Test
+    @WithMockUser(username = "4", roles = "TEACHER")
+    void teacherCanAccessDashboardAndList() throws Exception {
+        insertPendingApplication(201L, 2L, "Normal User", "20260009", LocalDateTime.now().minusHours(2));
+
+        mockMvc.perform(get("/api/admin/verifications/dashboard"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.pendingCount").value(1));
+
+        mockMvc.perform(get("/api/admin/verifications"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data[0].status").value("PENDING"));
     }
 
     @Test

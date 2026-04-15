@@ -29,6 +29,11 @@ const demoAccounts = [
     label: "已认证用户账号",
     note: "用于查看已认证状态与通知入口",
   },
+  {
+    phone: "13800000003",
+    label: "教师审核账号",
+    note: "可进入认证审核台并处理待审申请",
+  },
 ];
 
 const errorMessage = ref("");

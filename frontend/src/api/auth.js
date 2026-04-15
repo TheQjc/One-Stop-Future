@@ -29,6 +29,14 @@ const demoUsers = [
     status: "ACTIVE",
     verificationStatus: "VERIFIED",
   },
+  {
+    id: 4,
+    phone: "13800000003",
+    nickname: "TeacherReviewer",
+    role: "TEACHER",
+    status: "ACTIVE",
+    verificationStatus: "UNVERIFIED",
+  },
 ];
 
 function readJson(key, fallback) {

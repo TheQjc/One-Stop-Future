@@ -3,6 +3,7 @@ import http from "./http.js";
 const preferMock = import.meta.env.MODE === "test";
 const USER_KEY = "one-stop-future-demo-users";
 const PROFILE_KEY = "one-stop-future-profile";
+const APPLICATION_KEY = "one-stop-future-demo-verification-applications";
 
 function readJson(key, fallback) {
   try {
@@ -67,6 +68,28 @@ export async function submitVerification(payload) {
     };
 
     writeUsers(users);
+    const applications = readJson(APPLICATION_KEY, []);
+    const pendingIndex = applications.findIndex(
+      (item) => item.userId === users[index].id && item.status === "PENDING",
+    );
+    const nextApplication = {
+      id: pendingIndex >= 0 ? applications[pendingIndex].id : Date.now(),
+      userId: users[index].id,
+      realName: payload.realName,
+      studentId: payload.studentId,
+      status: "PENDING",
+      rejectReason: null,
+      createdAt: pendingIndex >= 0 ? applications[pendingIndex].createdAt : new Date().toISOString(),
+      reviewedAt: null,
+    };
+
+    if (pendingIndex >= 0) {
+      applications[pendingIndex] = nextApplication;
+    } else {
+      applications.unshift(nextApplication);
+    }
+
+    writeJson(APPLICATION_KEY, applications);
     return toProfile(users[index]);
   }
 

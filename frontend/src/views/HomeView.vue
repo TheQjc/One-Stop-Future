@@ -123,9 +123,9 @@ function formatNotificationTime(value) {
 }
 
 const isGuest = computed(() => summary.value.viewerType === "GUEST");
-const isAdmin = computed(() => {
+const canReviewVerifications = computed(() => {
   const currentRole = summary.value.identity?.role || userStore.profile?.role;
-  return currentRole === "ADMIN";
+  return currentRole === "ADMIN" || currentRole === "TEACHER";
 });
 
 const viewerName = computed(() => (
@@ -264,7 +264,7 @@ const serviceCards = computed(() => {
     },
   ];
 
-  if (isAdmin.value) {
+  if (canReviewVerifications.value) {
     cards.push({
       code: "Desk 06",
       title: "认证审核台",
@@ -346,7 +346,7 @@ onMounted(loadSummary);
           <RouterLink v-if="!isGuest" to="/notifications" class="ghost-btn">
             查看通知中心
           </RouterLink>
-          <RouterLink v-if="isAdmin" to="/admin/verifications" class="app-link">
+          <RouterLink v-if="canReviewVerifications" to="/admin/verifications" class="app-link">
             进入认证审核台
           </RouterLink>
         </div>
