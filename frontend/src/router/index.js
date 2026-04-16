@@ -28,6 +28,12 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: "/resources/:id/edit",
+      name: "resource-edit",
+      component: () => import("../views/ResourceEditView.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
       path: "/resources/:id",
       name: "resource-detail",
       component: () => import("../views/ResourceDetailView.vue"),

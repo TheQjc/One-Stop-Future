@@ -24,6 +24,15 @@ export async function createResourceUpload(formData) {
   return data.data;
 }
 
+export async function updateResource(id, formData) {
+  const { data } = await http.put(`/resources/${id}`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return data.data;
+}
+
 export async function favoriteResource(id) {
   const { data } = await http.post(`/resources/${id}/favorite`);
   return data.data;
