@@ -1,1 +1,10 @@
 .idea/
+.codex-runlogs/
+.superpowers/
+backend/target/
+frontend/node_modules/
+frontend/dist/
+.env
+.env.*
+*-local.out.log
+*-local.err.log
