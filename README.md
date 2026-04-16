@@ -1,6 +1,6 @@
 # One-Stop Future
 
-Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice`.
+Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice`.
 
 ## Current Scope
 
@@ -22,13 +22,14 @@ Implemented now:
 - admin jobs create / edit / publish / offline / delete
 - admin resource publish / reject / offline review workspace
 - unified search across published posts / jobs / resources
+- discover board across published posts / jobs / resources
+- homepage discover preview with weekly public picks
 
 Explicitly not implemented yet:
 
 - batch job import
 - third-party job sync
 - in-site application / resume workflow
-- recommendation / hot ranking
 - MinIO resource storage
 - online preview, chunk upload, or resume upload
 - resource edit / resubmit after rejection
@@ -98,6 +99,7 @@ Public / user:
 
 - `/`
 - `/search`
+- `/discover`
 - `/community`
 - `/community/:id`
 - `/community/create`
@@ -150,12 +152,44 @@ Current search scope:
 - published resources only
 - guest-accessible public results only
 
+## Discover Ranking
+
+Public backend endpoint:
+
+- `GET /api/discover`
+
+Supported query params:
+
+- `tab`
+- `period`
+- `limit`
+
+Supported discover tabs:
+
+- `ALL`
+- `POST`
+- `JOB`
+- `RESOURCE`
+
+Supported period values:
+
+- `WEEK`
+- `ALL`
+
+Current discover scope:
+
+- ranks published community posts, published jobs, and published resources on one public board
+- `WEEK` covers the last 7 rolling days and sorts by current cumulative heat
+- `ALL` covers all published history
+- homepage includes a `discoverPreview` payload for the weekly board
+
 ## Permissions
 
 Guest:
 
 - can browse home, community, jobs, and published resources
 - can use unified search for published posts, jobs, and resources
+- can browse the public discover board
 - cannot create content, save favorites, or download resource files
 
 Authenticated user:
@@ -232,6 +266,10 @@ Resource statuses:
 11. Use the homepage search box or `/search` to search `resume`.
 12. Switch `ALL / POST / JOB / RESOURCE` and `RELEVANCE / LATEST`.
 13. Refresh `/search` and confirm the search state stays in the URL.
+14. Open `/discover` as a guest and confirm the page loads a ranked public board.
+15. Switch discover `ALL / POST / JOB / RESOURCE` and `WEEK / ALL`.
+16. Refresh `/discover?tab=JOB&period=ALL` and confirm the state stays in the URL.
+17. Return to `/` and confirm the homepage discover preview shows items or a graceful empty state.
 
 ## Targeted Unified Search Verification
 
@@ -239,12 +277,12 @@ Resource statuses:
 
 ```bash
 cd backend
-mvn -q -Dtest=SearchControllerTests test
+mvn -q -Dtest=SearchControllerTests,DiscoverControllerTests,HomeControllerTests,HomeServiceTests test
 ```
 
 ### Frontend
 
 ```bash
 cd frontend
-npx vitest run src/views/SearchView.spec.js src/views/HomeView.spec.js src/components/NavBar.spec.js
+npx vitest run src/views/SearchView.spec.js src/views/DiscoverView.spec.js src/views/HomeView.spec.js src/components/NavBar.spec.js
 ```
