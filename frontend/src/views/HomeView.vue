@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from "vue";
 import { RouterLink, useRouter } from "vue-router";
 import { getHomeSummary } from "../api/home.js";
+import DiscoverItemCard from "../components/DiscoverItemCard.vue";
 import HomeEntryCard from "../components/HomeEntryCard.vue";
 import VerificationStatusBadge from "../components/VerificationStatusBadge.vue";
 import { useUserStore } from "../stores/user.js";
@@ -21,6 +22,10 @@ const summary = ref({
   todos: [],
   entries: [],
   latestNotifications: [],
+  discoverPreview: {
+    period: "WEEK",
+    items: [],
+  },
 });
 
 const entryMetaMap = {
@@ -313,6 +318,19 @@ const roadmapSignals = computed(() => (
 ));
 
 const latestNotifications = computed(() => summary.value.latestNotifications || []);
+const discoverPreview = computed(() => summary.value.discoverPreview || { period: "WEEK", items: [] });
+const discoverPreviewEmptyCopy = computed(() => (
+  discoverPreview.value.period === "ALL"
+    ? "No discover picks have entered the all-time desk yet."
+    : "No discover picks have entered this weekly desk yet."
+));
+const homeDiscoverLink = computed(() => ({
+  name: "discover",
+  query: {
+    tab: "ALL",
+    period: "WEEK",
+  },
+}));
 
 async function loadSummary() {
   loading.value = true;
@@ -514,6 +532,34 @@ onMounted(loadSummary);
           v-for="card in serviceCards"
           :key="card.code"
           :entry="card"
+        />
+      </div>
+    </article>
+
+    <article class="section-card">
+      <div class="section-header">
+        <div>
+          <span class="section-eyebrow">Discover Preview</span>
+          <h2 class="page-title" style="margin-top: 16px;">Spot what is gathering momentum before you search for it.</h2>
+          <p class="page-subtitle" style="margin-top: 16px;">
+            Homepage preview keeps the weekly public board visible, then hands off to the dedicated discover desk for the full ranking view.
+          </p>
+        </div>
+        <RouterLink :to="homeDiscoverLink" class="app-link discover-preview__cta">
+          Enter Discover
+        </RouterLink>
+      </div>
+
+      <div v-if="loading" class="empty-state">Loading discover preview...</div>
+      <div v-else-if="discoverPreview.items.length === 0" class="empty-state discover-preview__empty">
+        <strong>Weekly desk is still quiet</strong>
+        <p class="meta-copy">{{ discoverPreviewEmptyCopy }}</p>
+      </div>
+      <div v-else class="discover-preview-grid">
+        <DiscoverItemCard
+          v-for="item in discoverPreview.items"
+          :key="`${item.type}-${item.id}`"
+          :item="item"
         />
       </div>
     </article>
@@ -770,6 +816,21 @@ onMounted(loadSummary);
   gap: var(--cp-gap-4);
 }
 
+.discover-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--cp-gap-4);
+}
+
+.discover-preview__cta {
+  align-self: start;
+}
+
+.discover-preview__empty {
+  display: grid;
+  gap: 8px;
+}
+
 .notification-list {
   display: grid;
   gap: var(--cp-gap-4);
@@ -814,6 +875,10 @@ onMounted(loadSummary);
 @media (max-width: 1023px) {
   .service-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .discover-preview-grid {
+    grid-template-columns: 1fr;
   }
 }
 

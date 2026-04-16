@@ -34,6 +34,23 @@ const guestSummary = {
     { code: "assessment", title: "Assessment", path: "/assessment", enabled: false, badge: "LOGIN_REQUIRED" },
   ],
   latestNotifications: [],
+  discoverPreview: {
+    period: "WEEK",
+    items: [
+      {
+        id: 11,
+        type: "RESOURCE",
+        title: "Resume Pack",
+        summary: "A practical starter pack.",
+        primaryMeta: "Career Desk",
+        secondaryMeta: "RESUME_TEMPLATE",
+        path: "/resources/11",
+        publishedAt: "2026-04-16T08:00:00",
+        hotScore: 12,
+        hotLabel: "本周高频下载",
+      },
+    ],
+  },
 };
 
 const authenticatedSummary = {
@@ -68,6 +85,23 @@ const authenticatedSummary = {
       createdAt: "2026-04-15T08:30:00",
     },
   ],
+  discoverPreview: {
+    period: "WEEK",
+    items: [
+      {
+        id: 21,
+        type: "POST",
+        title: "Hiring Diary",
+        summary: "A verified post with weekly traction.",
+        primaryMeta: "SignedInUser",
+        secondaryMeta: "CAREER",
+        path: "/community/21",
+        publishedAt: "2026-04-16T09:30:00",
+        hotScore: 18,
+        hotLabel: "本周热议",
+      },
+    ],
+  },
 };
 
 beforeEach(() => {
@@ -100,6 +134,9 @@ test("renders guest aggregation home with a live resources link", async () => {
   expect(getHomeSummary).toHaveBeenCalledTimes(1);
   expect(wrapper.html()).toContain('data-to="/resources"');
   expect(wrapper.html()).toContain('data-to="/jobs"');
+  expect(wrapper.text()).toContain("Resume Pack");
+  expect(wrapper.html()).toContain('data-to="/resources/11"');
+  expect(wrapper.html()).toContain('data-to="{&quot;name&quot;:&quot;discover&quot;,&quot;query&quot;:{&quot;tab&quot;:&quot;ALL&quot;,&quot;period&quot;:&quot;WEEK&quot;}}"');
 });
 
 test("hydrates authenticated summary into store", async () => {
@@ -137,6 +174,7 @@ test("hydrates authenticated summary into store", async () => {
   expect(userStore.unreadCount).toBe(3);
   expect(wrapper.html()).toContain('data-to="/resources"');
   expect(wrapper.text()).toContain("Verification Update");
+  expect(wrapper.text()).toContain("Hiring Diary");
 });
 
 test("home search submits into the unified search page", async () => {
@@ -164,4 +202,19 @@ test("blank home search input does not navigate", async () => {
   await wrapper.find('[data-test="home-search-form"]').trigger("submit.prevent");
 
   expect(push).not.toHaveBeenCalled();
+});
+
+test("home preview shows a graceful empty state when preview items are empty", async () => {
+  getHomeSummary.mockResolvedValue({
+    ...guestSummary,
+    discoverPreview: {
+      period: "WEEK",
+      items: [],
+    },
+  });
+
+  const wrapper = mountView();
+  await flushPromises();
+
+  expect(wrapper.text()).toContain("No discover picks have entered this weekly desk yet.");
 });
