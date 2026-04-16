@@ -23,6 +23,11 @@ jwt:
   secret: ${JWT_SECRET:test-secret-key-test-secret-key-1234}
   expire-seconds: ${JWT_EXPIRE_SECONDS:7200}
 
+app:
+  resource-storage:
+    type: ${RESOURCE_STORAGE_TYPE:local}
+    local-root: ${RESOURCE_STORAGE_LOCAL_ROOT:.local-storage/resources}
+
 platform:
   integrations:
     redis:

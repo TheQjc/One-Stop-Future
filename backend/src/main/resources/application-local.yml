@@ -8,6 +8,11 @@ spring:
     init:
       mode: always
 
+app:
+  resource-storage:
+    type: local
+    local-root: .local-storage/resources
+
 platform:
   integrations:
     redis:

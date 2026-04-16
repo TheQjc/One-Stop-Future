@@ -19,12 +19,15 @@ class ApplicationConfigSafetyTests {
     }
 
     @Test
-    void localProfileUsesEmbeddedDatabaseInitialization() {
+    void localProfileUsesEmbeddedDatabaseInitializationAndLocalResourceStorage() {
         Properties properties = loadYaml("application-local.yml");
 
         assertThat(properties.getProperty("spring.datasource.url"))
                 .startsWith("jdbc:h2:mem:campus-local");
         assertThat(properties.getProperty("spring.sql.init.mode")).isEqualTo("always");
+        assertThat(properties.getProperty("app.resource-storage.type")).isEqualTo("local");
+        assertThat(properties.getProperty("app.resource-storage.local-root"))
+                .isEqualTo(".local-storage/resources");
     }
 
     private Properties loadYaml(String resourcePath) {

@@ -20,7 +20,7 @@ class CampusApplicationTests {
     private DataSource dataSource;
 
     @Test
-    void phaseABaseAndCommunityTablesExist() throws Exception {
+    void phaseABaseCommunityJobAndResourceTablesExist() throws Exception {
         try (Connection connection = dataSource.getConnection()) {
             DatabaseMetaData metaData = connection.getMetaData();
             assertThat(tableExists(metaData, "t_user")).isTrue();
@@ -32,6 +32,7 @@ class CampusApplicationTests {
             assertThat(tableExists(metaData, "t_community_post_like")).isTrue();
             assertThat(tableExists(metaData, "t_user_favorite")).isTrue();
             assertThat(tableExists(metaData, "t_job_posting")).isTrue();
+            assertThat(tableExists(metaData, "t_resource_item")).isTrue();
         }
     }
 

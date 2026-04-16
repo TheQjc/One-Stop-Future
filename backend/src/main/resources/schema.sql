@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS t_notice;
+DROP TABLE IF EXISTS t_resource_item;
 DROP TABLE IF EXISTS t_job_posting;
 DROP TABLE IF EXISTS t_user_favorite;
 DROP TABLE IF EXISTS t_community_post_like;
@@ -97,6 +98,29 @@ CREATE TABLE t_user_favorite (
   target_id BIGINT NOT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY uk_favorite_user_target (user_id, target_type, target_id)
+);
+
+CREATE TABLE t_resource_item (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  title VARCHAR(120) NOT NULL,
+  category VARCHAR(32) NOT NULL,
+  summary VARCHAR(300) NOT NULL,
+  description TEXT NULL,
+  status VARCHAR(20) NOT NULL,
+  uploader_id BIGINT NOT NULL,
+  reviewed_by BIGINT NULL,
+  reject_reason VARCHAR(300) NULL,
+  file_name VARCHAR(255) NOT NULL,
+  file_ext VARCHAR(20) NOT NULL,
+  content_type VARCHAR(120) NOT NULL,
+  file_size BIGINT NOT NULL,
+  storage_key VARCHAR(500) NOT NULL,
+  download_count INT NOT NULL DEFAULT 0,
+  favorite_count INT NOT NULL DEFAULT 0,
+  published_at DATETIME NULL,
+  reviewed_at DATETIME NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE t_job_posting (

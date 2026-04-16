@@ -47,6 +47,7 @@ public class UserController {
         return switch (targetType) {
             case POST -> Result.success(communityService.listMyPostFavorites(authentication.getName(), targetType.name()));
             case JOB -> Result.success(jobService.listMyJobFavorites(authentication.getName()));
+            default -> throw new BusinessException(400, "unsupported favorite type");
         };
     }
 
