@@ -17,7 +17,7 @@ const guestSummary = {
   unreadNotificationCount: 0,
   todos: ["Sign in to unlock profile, verification, and notifications."],
   entries: [
-    { code: "jobs", title: "Jobs", path: "/jobs", enabled: true, badge: "COMING_SOON" },
+    { code: "jobs", title: "Jobs", path: "/jobs", enabled: true, badge: null },
     { code: "resources", title: "Resources", path: "/resources", enabled: true, badge: "COMING_SOON" },
     { code: "assessment", title: "Assessment", path: "/assessment", enabled: false, badge: "LOGIN_REQUIRED" },
   ],
@@ -41,7 +41,7 @@ const authenticatedSummary = {
     "You have 3 unread notifications.",
   ],
   entries: [
-    { code: "jobs", title: "Jobs", path: "/jobs", enabled: true, badge: "COMING_SOON" },
+    { code: "jobs", title: "Jobs", path: "/jobs", enabled: true, badge: null },
     { code: "resources", title: "Resources", path: "/resources", enabled: true, badge: "COMING_SOON" },
     { code: "assessment", title: "Assessment", path: "/assessment", enabled: true, badge: "COMING_SOON" },
   ],

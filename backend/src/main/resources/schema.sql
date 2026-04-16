@@ -1,3 +1,9 @@
+DROP TABLE IF EXISTS t_notice;
+DROP TABLE IF EXISTS t_job_posting;
+DROP TABLE IF EXISTS t_user_favorite;
+DROP TABLE IF EXISTS t_community_post_like;
+DROP TABLE IF EXISTS t_community_comment;
+DROP TABLE IF EXISTS t_community_post;
 DROP TABLE IF EXISTS t_notification;
 DROP TABLE IF EXISTS t_verification_application;
 DROP TABLE IF EXISTS t_verification_code;
@@ -50,4 +56,65 @@ CREATE TABLE t_notification (
   source_id BIGINT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   read_at DATETIME NULL
+);
+
+CREATE TABLE t_community_post (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  author_id BIGINT NOT NULL,
+  tag VARCHAR(20) NOT NULL,
+  title VARCHAR(120) NOT NULL,
+  content TEXT NOT NULL,
+  status VARCHAR(20) NOT NULL,
+  like_count INT NOT NULL DEFAULT 0,
+  comment_count INT NOT NULL DEFAULT 0,
+  favorite_count INT NOT NULL DEFAULT 0,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE t_community_comment (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  post_id BIGINT NOT NULL,
+  author_id BIGINT NOT NULL,
+  content VARCHAR(1000) NOT NULL,
+  status VARCHAR(20) NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE t_community_post_like (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  post_id BIGINT NOT NULL,
+  user_id BIGINT NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_post_like_user_post (post_id, user_id)
+);
+
+CREATE TABLE t_user_favorite (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  user_id BIGINT NOT NULL,
+  target_type VARCHAR(20) NOT NULL,
+  target_id BIGINT NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_favorite_user_target (user_id, target_type, target_id)
+);
+
+CREATE TABLE t_job_posting (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  title VARCHAR(120) NOT NULL,
+  company_name VARCHAR(80) NOT NULL,
+  city VARCHAR(80) NOT NULL,
+  job_type VARCHAR(20) NOT NULL,
+  education_requirement VARCHAR(20) NOT NULL,
+  source_platform VARCHAR(50) NOT NULL,
+  source_url VARCHAR(500) NOT NULL,
+  summary VARCHAR(300) NOT NULL,
+  content TEXT NULL,
+  deadline_at DATETIME NULL,
+  published_at DATETIME NULL,
+  status VARCHAR(20) NOT NULL,
+  created_by BIGINT NOT NULL,
+  updated_by BIGINT NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

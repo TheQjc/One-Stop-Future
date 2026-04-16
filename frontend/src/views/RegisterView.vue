@@ -112,7 +112,7 @@ onBeforeUnmount(() => {
           Phase A 默认开放普通用户自主注册。注册成功后会直接建立登录态，并把你带回独立首页聚合视图。
         </p>
 
-        <div class="notice-list" style="margin-top: 24px;">
+        <div class="info-card-list" style="margin-top: 24px;">
           <article class="panel-card">
             <strong>手机号即账号</strong>
             <p class="meta-copy">
@@ -213,7 +213,7 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.notice-list {
+.info-card-list {
   display: grid;
   gap: var(--cp-gap-4);
 }

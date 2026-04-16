@@ -57,22 +57,6 @@ class AdminVerificationControllerTests {
     }
 
     @Test
-    @WithMockUser(username = "4", roles = "TEACHER")
-    void teacherCanAccessDashboardAndList() throws Exception {
-        insertPendingApplication(201L, 2L, "Normal User", "20260009", LocalDateTime.now().minusHours(2));
-
-        mockMvc.perform(get("/api/admin/verifications/dashboard"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.data.pendingCount").value(1));
-
-        mockMvc.perform(get("/api/admin/verifications"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.data[0].status").value("PENDING"));
-    }
-
-    @Test
     @WithMockUser(username = "1", roles = "ADMIN")
     void approveReviewUpdatesUserStatusAndCreatesNotification() throws Exception {
         insertPendingApplication(201L, 2L, "Normal User", "20260009", LocalDateTime.now().minusHours(1));

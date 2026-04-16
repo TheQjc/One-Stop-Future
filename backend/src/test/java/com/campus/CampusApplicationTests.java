@@ -20,13 +20,18 @@ class CampusApplicationTests {
     private DataSource dataSource;
 
     @Test
-    void phaseATablesExist() throws Exception {
+    void phaseABaseAndCommunityTablesExist() throws Exception {
         try (Connection connection = dataSource.getConnection()) {
             DatabaseMetaData metaData = connection.getMetaData();
             assertThat(tableExists(metaData, "t_user")).isTrue();
             assertThat(tableExists(metaData, "t_verification_code")).isTrue();
             assertThat(tableExists(metaData, "t_verification_application")).isTrue();
             assertThat(tableExists(metaData, "t_notification")).isTrue();
+            assertThat(tableExists(metaData, "t_community_post")).isTrue();
+            assertThat(tableExists(metaData, "t_community_comment")).isTrue();
+            assertThat(tableExists(metaData, "t_community_post_like")).isTrue();
+            assertThat(tableExists(metaData, "t_user_favorite")).isTrue();
+            assertThat(tableExists(metaData, "t_job_posting")).isTrue();
         }
     }
 

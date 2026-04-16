@@ -33,7 +33,10 @@ class HomeControllerTests {
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.viewerType").value("GUEST"))
                 .andExpect(jsonPath("$.data.unreadNotificationCount").value(0))
-                .andExpect(jsonPath("$.data.entries[0].code").value("community"));
+                .andExpect(jsonPath("$.data.entries[0].code").value("community"))
+                .andExpect(jsonPath("$.data.entries[1].code").value("jobs"))
+                .andExpect(jsonPath("$.data.entries[1].path").value("/jobs"))
+                .andExpect(jsonPath("$.data.entries[1].badge").value(org.hamcrest.Matchers.nullValue()));
     }
 
     @Test

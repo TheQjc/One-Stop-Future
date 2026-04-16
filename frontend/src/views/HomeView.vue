@@ -49,7 +49,6 @@ function badgeToText(badge) {
 function translateRole(role) {
   const roleMap = {
     ADMIN: "管理员",
-    TEACHER: "教师",
     USER: "普通用户",
     GUEST: "访客",
   };
@@ -125,7 +124,7 @@ function formatNotificationTime(value) {
 const isGuest = computed(() => summary.value.viewerType === "GUEST");
 const canReviewVerifications = computed(() => {
   const currentRole = summary.value.identity?.role || userStore.profile?.role;
-  return currentRole === "ADMIN" || currentRole === "TEACHER";
+  return currentRole === "ADMIN";
 });
 
 const viewerName = computed(() => (
@@ -185,7 +184,7 @@ const strategyTracks = computed(() => [
     description: "把岗位情报、宣讲会和简历准备放在同一张桌面上，减少分散查找。",
     bullets: ["岗位更新集中浏览", "简历材料分阶段准备", "宣讲与面试节奏统一感知"],
     tone: "career",
-    badge: badgeToText(findEntry("jobs")?.badge || "COMING_SOON"),
+    badge: findEntry("jobs")?.enabled ? "已开放岗位浏览" : badgeToText(findEntry("jobs")?.badge),
   },
   {
     eyebrow: "考研",
@@ -208,6 +207,16 @@ const strategyTracks = computed(() => [
 const serviceCards = computed(() => {
   const verificationStatus = summary.value.verificationStatus || userStore.profile?.verificationStatus || "UNVERIFIED";
   const cards = [
+    {
+      code: "Desk 00",
+      title: "社区讨论",
+      description: isGuest.value
+        ? "先浏览经验帖和方向讨论，登录后再参与评论、点赞和收藏。"
+        : "从社区继续查看经验帖、发帖补充观点，并沉淀你关注的话题。",
+      path: "/community",
+      enabled: true,
+      metaLabel: isGuest.value ? "公开浏览 / 登录后互动" : "已开放社区主入口",
+    },
     {
       code: "Desk 01",
       title: "个人中心",
@@ -242,9 +251,9 @@ const serviceCards = computed(() => {
       code: "Track 03",
       title: "就业方向",
       description: "岗位、实习和宣讲信息会继续并入首页总览。",
-      path: "/profile",
-      enabled: false,
-      metaLabel: badgeToText(findEntry("jobs")?.badge || "COMING_SOON"),
+      path: "/jobs",
+      enabled: true,
+      metaLabel: findEntry("jobs")?.enabled ? "进入岗位聚合" : badgeToText(findEntry("jobs")?.badge),
     },
     {
       code: "Track 04",
@@ -272,6 +281,22 @@ const serviceCards = computed(() => {
       path: "/admin/verifications",
       enabled: true,
       metaLabel: "进入审核队列",
+    });
+    cards.push({
+      code: "Desk 07",
+      title: "社区治理台",
+      description: "查看帖子状态和基础计数，并执行下架或删除操作。",
+      path: "/admin/community",
+      enabled: true,
+      metaLabel: "管理员专属工作台",
+    });
+    cards.push({
+      code: "Desk 08",
+      title: "岗位管理台",
+      description: "创建、编辑、发布和下线岗位卡片，保持前台岗位聚合数据可用。",
+      path: "/admin/jobs",
+      enabled: true,
+      metaLabel: "管理员岗位维护入口",
     });
   }
 
@@ -517,9 +542,9 @@ onMounted(loadSummary);
             </p>
           </article>
           <article class="panel-card">
-            <strong>为后续课表与方向功能留出位置</strong>
+            <strong>为后续方向功能留出位置</strong>
             <p class="meta-copy">
-              就业、考研、留学与课表数据会继续向首页汇聚，当前先把结构和决策顺序固定下来。
+              就业、考研、留学方向能力会继续向首页汇聚，当前先把结构和决策顺序固定下来。
             </p>
           </article>
         </div>
@@ -721,3 +746,4 @@ onMounted(loadSummary);
   }
 }
 </style>
+

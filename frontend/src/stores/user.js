@@ -47,7 +47,7 @@ export const useUserStore = defineStore("user", {
   getters: {
     isAuthenticated: (state) => Boolean(state.token),
     isAdmin: (state) => state.profile?.role === "ADMIN",
-    canReviewVerifications: (state) => ["ADMIN", "TEACHER"].includes(state.profile?.role),
+    canReviewVerifications: (state) => state.profile?.role === "ADMIN",
     isVerified: (state) => state.profile?.verificationStatus === "VERIFIED",
     unreadCount: (state) => state.profile?.unreadNotificationCount || 0,
     role: (state) => state.profile?.role || "GUEST",
@@ -55,13 +55,11 @@ export const useUserStore = defineStore("user", {
       const roleMap = {
         USER: "普通用户",
         ADMIN: "管理员",
-        TEACHER: "教师",
         GUEST: "访客",
       };
 
       return roleMap[state.profile?.role || "GUEST"] || "访客";
     },
-    canManageNotices: (state) => state.profile?.role === "ADMIN",
   },
   actions: {
     persistProfile(payload) {

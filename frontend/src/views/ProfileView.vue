@@ -169,6 +169,38 @@ onMounted(initialize);
       </div>
     </article>
 
+    <article class="section-card">
+      <div class="section-header">
+        <div>
+          <span class="section-eyebrow">Community Desk</span>
+          <h2 class="page-title" style="margin-top: 16px;">社区入口</h2>
+          <p class="page-subtitle" style="margin-top: 16px;">
+            在个人中心里统一管理你的帖子发布和收藏，不需要再回到社区列表里查找记录。
+          </p>
+        </div>
+      </div>
+
+      <div class="quick-link-grid">
+        <RouterLink to="/profile/posts" class="panel-card profile-link-card">
+          <span class="profile-link-card__eyebrow">My Posts</span>
+          <strong>我的发布</strong>
+          <p class="meta-copy">查看你已经发布的经验帖和讨论贴。</p>
+        </RouterLink>
+
+        <RouterLink to="/profile/favorites" class="panel-card profile-link-card">
+          <span class="profile-link-card__eyebrow">My Favorites</span>
+          <strong>我的收藏</strong>
+          <p class="meta-copy">统一整理你收藏过的帖子，方便后续回看。</p>
+        </RouterLink>
+
+        <RouterLink to="/community/create" class="panel-card profile-link-card">
+          <span class="profile-link-card__eyebrow">Write</span>
+          <strong>发布新帖</strong>
+          <p class="meta-copy">直接进入发布页，继续补充就业、考研或留学讨论。</p>
+        </RouterLink>
+      </div>
+    </article>
+
     <div class="two-col-grid">
       <article class="section-card">
         <div class="section-header">
@@ -318,6 +350,20 @@ onMounted(initialize);
 .verification-panel {
   display: grid;
   gap: var(--cp-gap-4);
+}
+
+.profile-link-card {
+  min-height: 170px;
+  display: grid;
+  gap: 10px;
+  align-content: end;
+}
+
+.profile-link-card__eyebrow {
+  color: var(--cp-accent-deep);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 @media (max-width: 1023px) {

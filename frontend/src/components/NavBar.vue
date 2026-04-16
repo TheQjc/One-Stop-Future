@@ -9,7 +9,10 @@ const userStore = useUserStore();
 const router = useRouter();
 
 const navItems = computed(() => {
-  const items = [{ to: "/", label: "首页" }];
+  const items = [
+    { to: "/", label: "首页" },
+    { to: "/community", label: "社区" },
+  ];
 
   if (userStore.isAuthenticated) {
     items.push({ to: "/profile", label: "个人中心" });
@@ -18,6 +21,7 @@ const navItems = computed(() => {
 
   if (userStore.canReviewVerifications) {
     items.push({ to: "/admin/verifications", label: "认证审核" });
+    items.push({ to: "/admin/community", label: "社区治理" });
   }
 
   return items;

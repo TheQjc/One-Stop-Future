@@ -255,3 +255,48 @@ export async function reviewVerification(id, payload) {
   const { data } = await http.post(`/admin/verifications/${id}/review`, payload);
   return data.data;
 }
+
+export async function getAdminCommunityPosts() {
+  const { data } = await http.get("/admin/community/posts");
+  return data.data;
+}
+
+export async function hideCommunityPost(id) {
+  const { data } = await http.post(`/admin/community/posts/${id}/hide`);
+  return data.data;
+}
+
+export async function deleteCommunityPost(id) {
+  const { data } = await http.post(`/admin/community/posts/${id}/delete`);
+  return data.data;
+}
+
+export async function getAdminJobs() {
+  const { data } = await http.get("/admin/jobs");
+  return data.data;
+}
+
+export async function createAdminJob(payload) {
+  const { data } = await http.post("/admin/jobs", payload);
+  return data.data;
+}
+
+export async function updateAdminJob(id, payload) {
+  const { data } = await http.put(`/admin/jobs/${id}`, payload);
+  return data.data;
+}
+
+export async function publishAdminJob(id) {
+  const { data } = await http.post(`/admin/jobs/${id}/publish`);
+  return data.data;
+}
+
+export async function offlineAdminJob(id) {
+  const { data } = await http.post(`/admin/jobs/${id}/offline`);
+  return data.data;
+}
+
+export async function deleteAdminJob(id) {
+  const { data } = await http.post(`/admin/jobs/${id}/delete`);
+  return data.data;
+}
