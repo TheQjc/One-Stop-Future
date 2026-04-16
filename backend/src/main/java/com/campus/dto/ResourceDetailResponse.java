@@ -21,5 +21,8 @@ public record ResourceDetailResponse(
         LocalDateTime reviewedAt,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
-        boolean favoritedByMe) {
+        String rejectReason,
+        boolean favoritedByMe,
+        boolean editableByMe,
+        boolean previewAvailable) {
 }

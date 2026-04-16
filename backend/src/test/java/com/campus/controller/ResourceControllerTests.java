@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 
 import org.junit.jupiter.api.AfterEach;
@@ -89,6 +90,22 @@ class ResourceControllerTests {
     }
 
     @Test
+    @WithMockUser(username = "2", roles = "USER")
+    void ownerCanReadRejectedResourceDetailAndSeeLifecycleFlags() throws Exception {
+        insertResource(4L, 2L, "REJECTED", "Please simplify the intro section",
+                "resume-template-revision.pdf", "pdf", "application/pdf",
+                "seed/2026/04/resume-template-revision.pdf");
+
+        mockMvc.perform(get("/api/resources/4"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.status").value("REJECTED"))
+                .andExpect(jsonPath("$.data.rejectReason").value("Please simplify the intro section"))
+                .andExpect(jsonPath("$.data.editableByMe").value(true))
+                .andExpect(jsonPath("$.data.previewAvailable").value(true));
+    }
+
+    @Test
     void guestCannotFavoriteOrDownloadResource() throws Exception {
         mockMvc.perform(post("/api/resources/1/favorite"))
                 .andExpect(status().isUnauthorized());
@@ -137,6 +154,50 @@ class ResourceControllerTests {
     }
 
     @Test
+    void guestCanPreviewPublishedPdfInline() throws Exception {
+        writeStoredFile("seed/2026/04/resume-template-pack.pdf", "pdf");
+
+        mockMvc.perform(get("/api/resources/1/preview"))
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, containsString("inline")))
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, containsString("application/pdf")));
+    }
+
+    @Test
+    void guestCannotPreviewRejectedPdf() throws Exception {
+        insertResource(4L, 2L, "REJECTED", "Please simplify the intro section",
+                "resume-template-revision.pdf", "pdf", "application/pdf",
+                "seed/2026/04/resume-template-revision.pdf");
+
+        mockMvc.perform(get("/api/resources/4/preview"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(404))
+                .andExpect(jsonPath("$.message").value("resource not found"));
+    }
+
+    @Test
+    void previewRejectsNonPdfResources() throws Exception {
+        mockMvc.perform(get("/api/resources/2/preview"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.message").value("resource preview only supports pdf"));
+    }
+
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
+    void ownerCanPreviewOwnRejectedPdfInline() throws Exception {
+        insertResource(4L, 2L, "REJECTED", "Please simplify the intro section",
+                "resume-template-revision.pdf", "pdf", "application/pdf",
+                "seed/2026/04/resume-template-revision.pdf");
+        writeStoredFile("seed/2026/04/resume-template-revision.pdf", "pdf");
+
+        mockMvc.perform(get("/api/resources/4/preview"))
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, containsString("inline")))
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, containsString("application/pdf")));
+    }
+
+    @Test
     @WithMockUser(username = "2", roles = "USER")
     void loggedInUserCanUploadResource() throws Exception {
         MockMultipartFile file = new MockMultipartFile(
@@ -181,5 +242,39 @@ class ResourceControllerTests {
         Path filePath = STORAGE_ROOT.resolve(storageKey);
         Files.createDirectories(filePath.getParent());
         Files.writeString(filePath, content, StandardCharsets.UTF_8);
+    }
+
+    private void insertResource(Long id, Long uploaderId, String status, String rejectReason, String fileName,
+            String fileExt, String contentType, String storageKey) {
+        LocalDateTime now = LocalDateTime.now();
+        jdbcTemplate.update(
+                """
+                        INSERT INTO t_resource_item (
+                          id, title, category, summary, description, status, uploader_id, reviewed_by, reject_reason,
+                          file_name, file_ext, content_type, file_size, storage_key, download_count, favorite_count,
+                          published_at, reviewed_at, created_at, updated_at
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        """,
+                id,
+                "Inserted Resource " + id,
+                "RESUME_TEMPLATE",
+                "Inserted resource summary",
+                "Inserted resource description",
+                status,
+                uploaderId,
+                "REJECTED".equals(status) ? 1L : null,
+                rejectReason,
+                fileName,
+                fileExt,
+                contentType,
+                2048L,
+                storageKey,
+                0,
+                0,
+                "PUBLISHED".equals(status) ? now.minusHours(2) : null,
+                "PUBLISHED".equals(status) || "REJECTED".equals(status) || "OFFLINE".equals(status) ? now.minusHours(2)
+                        : null,
+                now.minusHours(3),
+                now.minusHours(1));
     }
 }

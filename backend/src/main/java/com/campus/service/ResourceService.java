@@ -78,7 +78,7 @@ public class ResourceService {
 
     public ResourceDetailResponse getResourceDetail(Long resourceId, String identity) {
         User viewer = findViewer(identity);
-        return toResourceDetail(requireVisibleResource(resourceId, viewer), viewer);
+        return toResourceDetail(requireVisibleResourceForViewer(resourceId, viewer), viewer);
     }
 
     public List<SearchResponse.SearchResultItem> searchPublishedResources(String keyword) {
@@ -222,43 +222,47 @@ public class ResourceService {
         return toResourceDetail(requirePublishedResource(resourceId), viewer);
     }
 
+    public ResourceFileStream previewResource(Long resourceId, String identity) {
+        User viewer = findViewer(identity);
+        ResourceItem resource = requireVisibleResourceForViewer(resourceId, viewer);
+        if (!isPdf(resource)) {
+            throw new BusinessException(400, "resource preview only supports pdf");
+        }
+        return openResourceFile(resource);
+    }
+
     @Transactional
     public DownloadedResource downloadResource(String identity, Long resourceId) {
         userService.requireByIdentity(identity);
         ResourceItem resource = requirePublishedResource(resourceId);
-        if (!resourceFileStorage.exists(resource.getStorageKey())) {
-            throw new BusinessException(500, "resource file unavailable");
-        }
 
         resource.setDownloadCount(safeCount(resource.getDownloadCount()) + 1);
         resource.setUpdatedAt(LocalDateTime.now());
         resourceItemMapper.updateById(resource);
 
-        try {
-            return new DownloadedResource(resource.getFileName(), resource.getContentType(),
-                    resourceFileStorage.open(resource.getStorageKey()));
-        } catch (IOException exception) {
-            throw new BusinessException(500, "resource file unavailable");
-        }
+        ResourceFileStream openedResource = openResourceFile(resource);
+        return new DownloadedResource(openedResource.fileName(), openedResource.contentType(), openedResource.inputStream());
     }
 
-    private ResourceItem requireVisibleResource(Long resourceId, User viewer) {
-        ResourceItem resource = resourceItemMapper.selectById(resourceId);
-        if (resource == null) {
-            throw new BusinessException(404, "resource not found");
-        }
-        if (viewer != null && "ADMIN".equals(viewer.getRole())) {
+    private ResourceItem requireVisibleResourceForViewer(Long resourceId, User viewer) {
+        ResourceItem resource = requireExistingResource(resourceId);
+        if (canViewerSeeResource(resource, viewer)) {
             return resource;
         }
+        throw new BusinessException(404, "resource not found");
+    }
+
+    private ResourceItem requirePublishedResource(Long resourceId) {
+        ResourceItem resource = requireExistingResource(resourceId);
         if (!ResourceStatus.PUBLISHED.name().equals(resource.getStatus())) {
             throw new BusinessException(404, "resource not found");
         }
         return resource;
     }
 
-    private ResourceItem requirePublishedResource(Long resourceId) {
+    private ResourceItem requireExistingResource(Long resourceId) {
         ResourceItem resource = resourceItemMapper.selectById(resourceId);
-        if (resource == null || !ResourceStatus.PUBLISHED.name().equals(resource.getStatus())) {
+        if (resource == null) {
             throw new BusinessException(404, "resource not found");
         }
         return resource;
@@ -299,7 +303,10 @@ public class ResourceService {
                 resource.getReviewedAt(),
                 resource.getCreatedAt(),
                 resource.getUpdatedAt(),
-                viewer != null && hasFavorite(resource.getId(), viewer.getId()));
+                resource.getRejectReason(),
+                viewer != null && hasFavorite(resource.getId(), viewer.getId()),
+                isEditableByViewer(resource, viewer),
+                canPreviewResource(resource, viewer));
     }
 
     private MyResourceListResponse.ResourceItem toMyResourceItem(ResourceItem resource) {
@@ -315,6 +322,48 @@ public class ResourceService {
                 resource.getCreatedAt(),
                 resource.getPublishedAt(),
                 resource.getUpdatedAt());
+    }
+
+    private ResourceFileStream openResourceFile(ResourceItem resource) {
+        if (!resourceFileStorage.exists(resource.getStorageKey())) {
+            throw new BusinessException(500, "resource file unavailable");
+        }
+        try {
+            return new ResourceFileStream(resource.getFileName(), resource.getContentType(),
+                    resourceFileStorage.open(resource.getStorageKey()));
+        } catch (IOException exception) {
+            throw new BusinessException(500, "resource file unavailable");
+        }
+    }
+
+    private boolean canViewerSeeResource(ResourceItem resource, User viewer) {
+        if (ResourceStatus.PUBLISHED.name().equals(resource.getStatus())) {
+            return true;
+        }
+        if (viewer == null) {
+            return false;
+        }
+        if ("ADMIN".equals(viewer.getRole())) {
+            return true;
+        }
+        return resource.getUploaderId() != null && resource.getUploaderId().equals(viewer.getId());
+    }
+
+    private boolean canPreviewResource(ResourceItem resource, User viewer) {
+        return canViewerSeeResource(resource, viewer) && isPdf(resource);
+    }
+
+    private boolean isEditableByViewer(ResourceItem resource, User viewer) {
+        return viewer != null
+                && !"ADMIN".equals(viewer.getRole())
+                && resource.getUploaderId() != null
+                && resource.getUploaderId().equals(viewer.getId())
+                && ResourceStatus.REJECTED.name().equals(resource.getStatus());
+    }
+
+    private boolean isPdf(ResourceItem resource) {
+        return "pdf".equalsIgnoreCase(resource.getFileExt())
+                || "application/pdf".equalsIgnoreCase(resource.getContentType());
     }
 
     private boolean hasFavorite(Long resourceId, Long userId) {
@@ -417,6 +466,9 @@ public class ResourceService {
     }
 
     public record DownloadedResource(String fileName, String contentType, InputStream inputStream) {
+    }
+
+    public record ResourceFileStream(String fileName, String contentType, InputStream inputStream) {
     }
 
     private record ValidatedFile(String originalFilename, String extension, String contentType, long size) {

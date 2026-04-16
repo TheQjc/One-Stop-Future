@@ -25,6 +25,7 @@ import com.campus.dto.ResourceDetailResponse;
 import com.campus.dto.ResourceListResponse;
 import com.campus.service.ResourceService;
 import com.campus.service.ResourceService.DownloadedResource;
+import com.campus.service.ResourceService.ResourceFileStream;
 
 @Validated
 @RestController
@@ -65,6 +66,18 @@ public class ResourceController {
                         .build()
                         .toString())
                 .body(new InputStreamResource(download.inputStream()));
+    }
+
+    @GetMapping("/{id}/preview")
+    public ResponseEntity<InputStreamResource> preview(@PathVariable Long id, Authentication authentication) {
+        ResourceFileStream preview = resourceService.previewResource(id, identityOf(authentication));
+        return ResponseEntity.ok()
+                .contentType(resolveMediaType(preview.contentType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.inline()
+                        .filename(preview.fileName(), StandardCharsets.UTF_8)
+                        .build()
+                        .toString())
+                .body(new InputStreamResource(preview.inputStream()));
     }
 
     @PostMapping
