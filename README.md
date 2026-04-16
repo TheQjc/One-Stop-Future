@@ -1,6 +1,6 @@
 # One-Stop Future
 
-Current repo status: `Phase A foundation + Phase B community + Phase C jobs first slice`.
+Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice`.
 
 ## Current Scope
 
@@ -12,26 +12,33 @@ Implemented now:
 - notification center
 - community list / detail / create / comment / like / favorite
 - my posts / my favorites
-- admin verification review
-- admin community moderation
 - jobs list / detail / filters / source jump
 - job favorite / unfavorite
+- public resource list / detail / upload
+- resource download / favorite / unfavorite
+- my resources / resource favorites
+- admin verification review
+- admin community moderation
 - admin jobs create / edit / publish / offline / delete
+- admin resource publish / reject / offline review workspace
 
 Explicitly not implemented yet:
 
 - batch job import
 - third-party job sync
 - in-site application / resume workflow
-- resource library
 - unified search
 - recommendation / hot ranking
+- MinIO resource storage
+- online preview, chunk upload, or resume upload
+- resource edit / resubmit after rejection
 
 ## Project Structure
 
 - `backend/`: Spring Boot 3, Spring Security, MyBatis-Plus, JWT
 - `frontend/`: Vue 3, Pinia, Vue Router, Axios, Vite, Vitest
 - `docs/superpowers/`: requirements, specs, plans
+- `.local-storage/resources/`: local resource file storage in the `local` profile
 
 ## Local Run
 
@@ -45,8 +52,7 @@ mvn spring-boot:run "-Dspring-boot.run.profiles=local"
 Notes:
 
 - local development must use the `local` profile
-- `local` uses embedded H2 and local seed data
-- default `application.yml` still contains remote MySQL settings, but SQL init is disabled there
+- `local` uses embedded H2, seeded demo data, and local filesystem resource storage
 - local backend address: `http://127.0.0.1:8080`
 
 ### Frontend
@@ -54,7 +60,7 @@ Notes:
 ```bash
 cd frontend
 npm install
-npm run dev
+npm run dev -- --host 127.0.0.1
 ```
 
 Notes:
@@ -76,7 +82,7 @@ mvn -q test
 
 ```bash
 cd frontend
-npm run test -- --run
+npm run test
 ```
 
 ### Frontend Build
@@ -96,9 +102,13 @@ Public / user:
 - `/community/create`
 - `/jobs`
 - `/jobs/:id`
+- `/resources`
+- `/resources/:id`
+- `/resources/upload`
 - `/profile`
 - `/profile/posts`
 - `/profile/favorites`
+- `/profile/resources`
 - `/notifications`
 
 Admin:
@@ -106,36 +116,38 @@ Admin:
 - `/admin/verifications`
 - `/admin/community`
 - `/admin/jobs`
+- `/admin/resources`
 
 ## Permissions
 
 Guest:
 
-- can browse home, community, and jobs
-- cannot create content or save favorites
+- can browse home, community, jobs, and published resources
+- cannot create content, save favorites, or download resource files
 
 Authenticated user:
 
 - can create community posts
 - can comment / like / favorite community posts
 - can favorite jobs
-- can view profile favorites for both `POST` and `JOB`
+- can upload, favorite, unfavorite, and download published resources
+- can view profile favorites for `POST`, `JOB`, and `RESOURCE`
+- can view read-only `/profile/resources`
 
 Admin:
 
 - can review verification applications
 - can moderate community posts
 - can maintain job cards
+- can review resources through publish / reject / offline actions
 
 ## Current Data Shapes
 
-Community favorite type:
+Favorite target types:
 
 - `POST`
-
-Job favorite type:
-
 - `JOB`
+- `RESOURCE`
 
 Job statuses:
 
@@ -157,14 +169,30 @@ Education requirements:
 - `MASTER`
 - `DOCTOR`
 
+Resource categories:
+
+- `EXAM_PAPER`
+- `LANGUAGE_TEST`
+- `RESUME_TEMPLATE`
+- `INTERVIEW_EXPERIENCE`
+- `OTHER`
+
+Resource statuses:
+
+- `PENDING`
+- `PUBLISHED`
+- `REJECTED`
+- `OFFLINE`
+
 ## Manual Smoke Checklist
 
 1. Start backend with `mvn spring-boot:run "-Dspring-boot.run.profiles=local"`.
-2. Start frontend with `npm run dev`.
-3. As guest, open `/community` and `/jobs`.
-4. As guest, open `/jobs/:id` and confirm the source link is visible.
-5. Log in as a normal user and favorite a published job.
-6. Open `/profile/favorites` and switch between `POST` and `JOB`.
-7. Log in as admin and open `/admin/jobs`.
-8. Create a draft, publish it, confirm it appears in `/jobs`, then offline it.
-9. Confirm an offlined job no longer opens for a guest on `/jobs/:id`.
+2. Start frontend with `npm run dev -- --host 127.0.0.1`.
+3. As guest, open `/community`, `/jobs`, and `/resources`.
+4. As guest, open `/resources/:id` and confirm the download action is blocked by login.
+5. Log in as a normal user and upload a resource from `/resources/upload`.
+6. Open `/profile/resources` and confirm the new file appears as `PENDING`.
+7. Open `/profile/favorites` and switch between `POST`, `JOB`, and `RESOURCE`.
+8. Log in as admin and open `/admin/resources`.
+9. Publish the pending resource and confirm it appears in the public `/resources` list.
+10. Favorite and download a published resource as a normal user.
