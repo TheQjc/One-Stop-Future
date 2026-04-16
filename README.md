@@ -1,6 +1,6 @@
 # One-Stop Future
 
-Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice`.
+Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice`.
 
 ## Current Scope
 
@@ -15,8 +15,8 @@ Implemented now:
 - jobs list / detail / filters / source jump
 - job favorite / unfavorite
 - public resource list / detail / upload
-- resource download / favorite / unfavorite
-- my resources / resource favorites
+- resource preview / download / favorite / unfavorite
+- my resources / resource favorites / rejected edit-resubmit
 - admin verification review
 - admin community moderation
 - admin jobs create / edit / publish / offline / delete
@@ -31,8 +31,8 @@ Explicitly not implemented yet:
 - third-party job sync
 - in-site application / resume workflow
 - MinIO resource storage
-- online preview, chunk upload, or resume upload
-- resource edit / resubmit after rejection
+- DOCX / PPTX / ZIP online preview
+- version history, chunk upload, or resume upload
 
 ## Project Structure
 
@@ -107,6 +107,7 @@ Public / user:
 - `/jobs/:id`
 - `/resources`
 - `/resources/:id`
+- `/resources/:id/edit`
 - `/resources/upload`
 - `/profile`
 - `/profile/posts`
@@ -190,6 +191,7 @@ Guest:
 - can browse home, community, jobs, and published resources
 - can use unified search for published posts, jobs, and resources
 - can browse the public discover board
+- can preview published PDF resources inline
 - cannot create content, save favorites, or download resource files
 
 Authenticated user:
@@ -197,9 +199,12 @@ Authenticated user:
 - can create community posts
 - can comment / like / favorite community posts
 - can favorite jobs
-- can upload, favorite, unfavorite, and download published resources
+- can upload resources
+- can preview published PDFs and their own unpublished PDF resources
+- can favorite, unfavorite, and download published resources
+- can edit and resubmit their own rejected resources from `/resources/:id/edit`
 - can view profile favorites for `POST`, `JOB`, and `RESOURCE`
-- can view read-only `/profile/resources`
+- can view `/profile/resources` with lifecycle actions
 
 Admin:
 
@@ -207,6 +212,7 @@ Admin:
 - can moderate community posts
 - can maintain job cards
 - can review resources through publish / reject / offline actions
+- can preview PDF resources from the admin resource board
 
 ## Current Data Shapes
 
@@ -256,20 +262,43 @@ Resource statuses:
 1. Start backend with `mvn spring-boot:run "-Dspring-boot.run.profiles=local"`.
 2. Start frontend with `npm run dev -- --host 127.0.0.1`.
 3. As guest, open `/community`, `/jobs`, and `/resources`.
-4. As guest, open `/resources/:id` and confirm the download action is blocked by login.
-5. Log in as a normal user and upload a resource from `/resources/upload`.
-6. Open `/profile/resources` and confirm the new file appears as `PENDING`.
-7. Open `/profile/favorites` and switch between `POST`, `JOB`, and `RESOURCE`.
-8. Log in as admin and open `/admin/resources`.
-9. Publish the pending resource and confirm it appears in the public `/resources` list.
-10. Favorite and download a published resource as a normal user.
-11. Use the homepage search box or `/search` to search `resume`.
-12. Switch `ALL / POST / JOB / RESOURCE` and `RELEVANCE / LATEST`.
-13. Refresh `/search` and confirm the search state stays in the URL.
-14. Open `/discover` as a guest and confirm the page loads a ranked public board.
-15. Switch discover `ALL / POST / JOB / RESOURCE` and `WEEK / ALL`.
-16. Refresh `/discover?tab=JOB&period=ALL` and confirm the state stays in the URL.
-17. Return to `/` and confirm the homepage discover preview shows items or a graceful empty state.
+4. As guest, open a published PDF `/resources/:id` and confirm `Preview PDF` works without login.
+5. As guest, open a non-PDF published resource and confirm no preview action is shown.
+6. As guest, confirm the download action is still blocked by login.
+7. Log in as a normal user and upload a resource from `/resources/upload`.
+8. Open `/profile/resources` and confirm the new file appears as `PENDING`.
+9. Log in as admin and open `/admin/resources`.
+10. Reject a pending resource with a clear review note.
+11. Log back in as the owner, open `/profile/resources`, click `Edit And Resubmit`, revise metadata, and submit without replacing the file.
+12. Repeat the resubmission flow with a PDF replacement file and confirm the record returns to `PENDING`.
+13. As the owner, preview the unpublished PDF from `/profile/resources` or `/resources/:id`.
+14. As admin, confirm preview is shown only for PDF rows in `/admin/resources`.
+15. Publish the pending resource and confirm it appears in the public `/resources` list.
+16. Favorite and download a published resource as a normal user.
+17. Open `/profile/favorites` and switch between `POST`, `JOB`, and `RESOURCE`.
+18. Use the homepage search box or `/search` to search `resume`.
+19. Switch `ALL / POST / JOB / RESOURCE` and `RELEVANCE / LATEST`.
+20. Refresh `/search` and confirm the search state stays in the URL.
+21. Open `/discover` as a guest and confirm the page loads a ranked public board.
+22. Switch discover `ALL / POST / JOB / RESOURCE` and `WEEK / ALL`.
+23. Refresh `/discover?tab=JOB&period=ALL` and confirm the state stays in the URL.
+24. Return to `/` and confirm the homepage discover preview shows items or a graceful empty state.
+
+## Targeted Resource Lifecycle Verification
+
+### Backend
+
+```bash
+cd backend
+mvn -q "-Dtest=ResourceControllerTests,AdminResourceControllerTests" test
+```
+
+### Frontend
+
+```bash
+cd frontend
+npx vitest run src/views/ResourceUploadView.spec.js src/views/ResourceEditView.spec.js src/views/ResourceDetailView.spec.js src/views/ProfileResourcesView.spec.js src/views/admin/AdminResourceManageView.spec.js
+```
 
 ## Targeted Unified Search Verification
 
