@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.campus.common.Result;
+import com.campus.dto.MyResourceListResponse;
 import com.campus.dto.ResourceDetailResponse;
 import com.campus.dto.ResourceListResponse;
 import com.campus.service.ResourceService;
@@ -42,6 +43,11 @@ public class ResourceController {
             @RequestParam(required = false) String category,
             Authentication authentication) {
         return Result.success(resourceService.listResources(keyword, category, identityOf(authentication)));
+    }
+
+    @GetMapping("/mine")
+    public Result<MyResourceListResponse> mine(Authentication authentication) {
+        return Result.success(resourceService.listMyResources(authentication.getName()));
     }
 
     @GetMapping("/{id}")

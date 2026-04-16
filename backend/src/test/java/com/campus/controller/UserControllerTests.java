@@ -84,4 +84,18 @@ class UserControllerTests {
                 .andExpect(jsonPath("$.data.total").value(1))
                 .andExpect(jsonPath("$.data.jobs[0].title").value("Java Backend Intern"));
     }
+
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
+    void resourceFavoritesReturnPublishedResources() throws Exception {
+        jdbcTemplate.update(
+                "INSERT INTO t_user_favorite (id, user_id, target_type, target_id, created_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)",
+                103L, 2L, "RESOURCE", 1L);
+
+        mockMvc.perform(get("/api/users/me/favorites").param("type", "RESOURCE"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.total").value(1))
+                .andExpect(jsonPath("$.data.resources[0].title").value("2026 Resume Template Pack"));
+    }
 }

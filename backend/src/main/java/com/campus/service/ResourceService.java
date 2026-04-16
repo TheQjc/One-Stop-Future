@@ -16,6 +16,7 @@ import com.campus.common.BusinessException;
 import com.campus.common.FavoriteTargetType;
 import com.campus.common.ResourceCategory;
 import com.campus.common.ResourceStatus;
+import com.campus.dto.MyResourceListResponse;
 import com.campus.dto.ResourceDetailResponse;
 import com.campus.dto.ResourceListResponse;
 import com.campus.entity.ResourceItem;
@@ -77,6 +78,37 @@ public class ResourceService {
     public ResourceDetailResponse getResourceDetail(Long resourceId, String identity) {
         User viewer = findViewer(identity);
         return toResourceDetail(requireVisibleResource(resourceId, viewer), viewer);
+    }
+
+    public MyResourceListResponse listMyResources(String identity) {
+        User viewer = userService.requireByIdentity(identity);
+        List<MyResourceListResponse.ResourceItem> resources = resourceItemMapper.selectList(
+                new LambdaQueryWrapper<ResourceItem>()
+                        .eq(ResourceItem::getUploaderId, viewer.getId())
+                        .orderByDesc(ResourceItem::getCreatedAt)
+                        .orderByDesc(ResourceItem::getId)
+                        .last("LIMIT " + DEFAULT_LIST_LIMIT))
+                .stream()
+                .map(this::toMyResourceItem)
+                .toList();
+        return new MyResourceListResponse(resources.size(), resources);
+    }
+
+    public ResourceListResponse listMyResourceFavorites(String identity) {
+        User viewer = userService.requireByIdentity(identity);
+        List<ResourceListResponse.ResourceSummary> resources = userFavoriteMapper.selectList(
+                new LambdaQueryWrapper<UserFavorite>()
+                        .eq(UserFavorite::getUserId, viewer.getId())
+                        .eq(UserFavorite::getTargetType, FavoriteTargetType.RESOURCE.name())
+                        .orderByDesc(UserFavorite::getCreatedAt)
+                        .orderByDesc(UserFavorite::getId)
+                        .last("LIMIT " + DEFAULT_LIST_LIMIT))
+                .stream()
+                .map(favorite -> resourceItemMapper.selectById(favorite.getTargetId()))
+                .filter(resource -> resource != null && ResourceStatus.PUBLISHED.name().equals(resource.getStatus()))
+                .map(resource -> toResourceSummary(resource, viewer))
+                .toList();
+        return new ResourceListResponse(null, null, resources.size(), resources);
     }
 
     @Transactional
@@ -234,6 +266,21 @@ public class ResourceService {
                 resource.getCreatedAt(),
                 resource.getUpdatedAt(),
                 viewer != null && hasFavorite(resource.getId(), viewer.getId()));
+    }
+
+    private MyResourceListResponse.ResourceItem toMyResourceItem(ResourceItem resource) {
+        return new MyResourceListResponse.ResourceItem(
+                resource.getId(),
+                resource.getTitle(),
+                resource.getCategory(),
+                resource.getSummary(),
+                resource.getStatus(),
+                resource.getFileName(),
+                resource.getFileSize(),
+                resource.getRejectReason(),
+                resource.getCreatedAt(),
+                resource.getPublishedAt(),
+                resource.getUpdatedAt());
     }
 
     private boolean hasFavorite(Long resourceId, Long userId) {

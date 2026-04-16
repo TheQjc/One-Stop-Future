@@ -16,6 +16,7 @@ import com.campus.dto.UpdateProfileRequest;
 import com.campus.dto.UserProfile;
 import com.campus.service.CommunityService;
 import com.campus.service.JobService;
+import com.campus.service.ResourceService;
 import com.campus.service.UserService;
 
 import java.util.Locale;
@@ -28,11 +29,14 @@ public class UserController {
     private final UserService userService;
     private final CommunityService communityService;
     private final JobService jobService;
+    private final ResourceService resourceService;
 
-    public UserController(UserService userService, CommunityService communityService, JobService jobService) {
+    public UserController(UserService userService, CommunityService communityService, JobService jobService,
+            ResourceService resourceService) {
         this.userService = userService;
         this.communityService = communityService;
         this.jobService = jobService;
+        this.resourceService = resourceService;
     }
 
     @GetMapping("/me")
@@ -47,7 +51,7 @@ public class UserController {
         return switch (targetType) {
             case POST -> Result.success(communityService.listMyPostFavorites(authentication.getName(), targetType.name()));
             case JOB -> Result.success(jobService.listMyJobFavorites(authentication.getName()));
-            default -> throw new BusinessException(400, "unsupported favorite type");
+            case RESOURCE -> Result.success(resourceService.listMyResourceFavorites(authentication.getName()));
         };
     }
 

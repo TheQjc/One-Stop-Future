@@ -167,6 +167,16 @@ class ResourceControllerTests {
                 .andExpect(jsonPath("$.message").value("invalid resource category"));
     }
 
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
+    void authenticatedUserCanReadMyResourcesAcrossStatuses() throws Exception {
+        mockMvc.perform(get("/api/resources/mine"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.total").value(2))
+                .andExpect(jsonPath("$.data.resources[0].status").isNotEmpty());
+    }
+
     private void writeStoredFile(String storageKey, String content) throws IOException {
         Path filePath = STORAGE_ROOT.resolve(storageKey);
         Files.createDirectories(filePath.getParent());

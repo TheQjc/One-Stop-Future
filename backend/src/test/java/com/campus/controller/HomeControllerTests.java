@@ -36,7 +36,10 @@ class HomeControllerTests {
                 .andExpect(jsonPath("$.data.entries[0].code").value("community"))
                 .andExpect(jsonPath("$.data.entries[1].code").value("jobs"))
                 .andExpect(jsonPath("$.data.entries[1].path").value("/jobs"))
-                .andExpect(jsonPath("$.data.entries[1].badge").value(org.hamcrest.Matchers.nullValue()));
+                .andExpect(jsonPath("$.data.entries[1].badge").value(org.hamcrest.Matchers.nullValue()))
+                .andExpect(jsonPath("$.data.entries[2].code").value("resources"))
+                .andExpect(jsonPath("$.data.entries[2].path").value("/resources"))
+                .andExpect(jsonPath("$.data.entries[2].badge").value(org.hamcrest.Matchers.nullValue()));
     }
 
     @Test
@@ -52,6 +55,8 @@ class HomeControllerTests {
                 .andExpect(jsonPath("$.data.identity.userId").value(2))
                 .andExpect(jsonPath("$.data.identity.phone").value("13800000001"))
                 .andExpect(jsonPath("$.data.unreadNotificationCount").value(1))
+                .andExpect(jsonPath("$.data.entries[2].code").value("resources"))
+                .andExpect(jsonPath("$.data.entries[2].badge").value(org.hamcrest.Matchers.nullValue()))
                 .andExpect(jsonPath("$.data.latestNotifications[0].title").value("Newest"));
     }
 

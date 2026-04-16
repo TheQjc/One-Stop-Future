@@ -56,7 +56,7 @@ public class HomeService {
         List<HomeSummaryResponse.HomeEntryCard> entries = List.of(
                 new HomeSummaryResponse.HomeEntryCard("community", "Community", "/community", true, null),
                 new HomeSummaryResponse.HomeEntryCard("jobs", "Jobs", "/jobs", true, null),
-                new HomeSummaryResponse.HomeEntryCard("resources", "Resources", "/resources", true, "COMING_SOON"),
+                new HomeSummaryResponse.HomeEntryCard("resources", "Resources", "/resources", true, null),
                 new HomeSummaryResponse.HomeEntryCard("assessment", "Assessment", "/assessment", false, "LOGIN_REQUIRED"));
         return new HomeSummaryResponse(
                 "GUEST",
@@ -116,7 +116,7 @@ public class HomeService {
         List<HomeSummaryResponse.HomeEntryCard> entries = new ArrayList<>();
         entries.add(new HomeSummaryResponse.HomeEntryCard("community", "Community", "/community", true, null));
         entries.add(new HomeSummaryResponse.HomeEntryCard("jobs", "Jobs", "/jobs", true, null));
-        entries.add(new HomeSummaryResponse.HomeEntryCard("resources", "Resources", "/resources", true, "COMING_SOON"));
+        entries.add(new HomeSummaryResponse.HomeEntryCard("resources", "Resources", "/resources", true, null));
         entries.add(new HomeSummaryResponse.HomeEntryCard("assessment", "Assessment", "/assessment", true, "COMING_SOON"));
         entries.add(new HomeSummaryResponse.HomeEntryCard("analytics", "Analytics", "/analytics", true, "COMING_SOON"));
         if ("ADMIN".equals(user.getRole())) {
