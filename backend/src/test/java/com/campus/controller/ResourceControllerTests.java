@@ -221,6 +221,70 @@ class ResourceControllerTests {
     }
 
     @Test
+    @WithMockUser(username = "2", roles = "USER")
+    void ownerCanResubmitRejectedResourceWithoutReplacingFile() throws Exception {
+        insertResource(4L, 2L, "REJECTED", "Please simplify the intro section",
+                "resume-template-revision.pdf", "pdf", "application/pdf",
+                "seed/2026/04/resume-template-revision.pdf");
+
+        mockMvc.perform(multipart("/api/resources/4")
+                        .with(request -> {
+                            request.setMethod("PUT");
+                            return request;
+                        })
+                        .param("title", "Revised Resume Pack")
+                        .param("category", "RESUME_TEMPLATE")
+                        .param("summary", "Revised summary")
+                        .param("description", "Revised description"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.status").value("PENDING"))
+                .andExpect(jsonPath("$.data.rejectReason").isEmpty());
+    }
+
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
+    void ownerCanReplaceFileWhileResubmittingRejectedResource() throws Exception {
+        insertResource(4L, 2L, "REJECTED", "Please simplify the intro section",
+                "resume-template-revision.pdf", "pdf", "application/pdf",
+                "seed/2026/04/resume-template-revision.pdf");
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "revised-pack.pdf", "application/pdf", "new-pdf".getBytes(StandardCharsets.UTF_8));
+
+        mockMvc.perform(multipart("/api/resources/4")
+                        .file(file)
+                        .with(request -> {
+                            request.setMethod("PUT");
+                            return request;
+                        })
+                        .param("title", "Revised Resume Pack")
+                        .param("category", "RESUME_TEMPLATE")
+                        .param("summary", "Revised summary")
+                        .param("description", "Revised description"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.fileName").value("revised-pack.pdf"))
+                .andExpect(jsonPath("$.data.status").value("PENDING"));
+    }
+
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
+    void publishedResourceCannotBeResubmitted() throws Exception {
+        mockMvc.perform(multipart("/api/resources/2")
+                        .with(request -> {
+                            request.setMethod("PUT");
+                            return request;
+                        })
+                        .param("title", "Nope")
+                        .param("category", "RESUME_TEMPLATE")
+                        .param("summary", "Nope"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.message").value("only rejected resource can be resubmitted"));
+    }
+
+    @Test
     void invalidEnumFilterReturnsBusinessError() throws Exception {
         mockMvc.perform(get("/api/resources").param("category", "BOOK"))
                 .andExpect(status().isOk())

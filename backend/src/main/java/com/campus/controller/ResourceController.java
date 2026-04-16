@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -90,6 +91,19 @@ public class ResourceController {
             Authentication authentication) {
         return Result.success(resourceService.uploadResource(authentication.getName(), title, category, summary,
                 description, file));
+    }
+
+    @PutMapping("/{id}")
+    public Result<ResourceDetailResponse> update(
+            @PathVariable Long id,
+            @RequestParam String title,
+            @RequestParam String category,
+            @RequestParam String summary,
+            @RequestParam(required = false) String description,
+            @RequestParam(name = "file", required = false) MultipartFile file,
+            Authentication authentication) {
+        return Result.success(resourceService.updateRejectedResource(authentication.getName(), id, title, category,
+                summary, description, file));
     }
 
     @PostMapping("/{id}/favorite")

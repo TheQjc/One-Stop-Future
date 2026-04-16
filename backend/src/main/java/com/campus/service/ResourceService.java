@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,6 +35,7 @@ public class ResourceService {
     private static final int DEFAULT_LIST_LIMIT = 50;
     private static final long MAX_FILE_SIZE_BYTES = 100L * 1024 * 1024;
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("pdf", "docx", "pptx", "zip");
+    private static final Logger log = LoggerFactory.getLogger(ResourceService.class);
 
     private final ResourceItemMapper resourceItemMapper;
     private final UserFavoriteMapper userFavoriteMapper;
@@ -154,13 +157,7 @@ public class ResourceService {
         String normalizedSummary = requireText(summary, "summary");
         String normalizedDescription = normalizeOptional(description);
         ValidatedFile validatedFile = validateFile(file);
-
-        String storageKey;
-        try (InputStream inputStream = file.getInputStream()) {
-            storageKey = resourceFileStorage.store(validatedFile.originalFilename(), inputStream);
-        } catch (IOException exception) {
-            throw new BusinessException(500, "failed to store resource file");
-        }
+        String storageKey = storeValidatedFile(validatedFile, file);
 
         ResourceItem resource = new ResourceItem();
         resource.setTitle(normalizedTitle);
@@ -184,6 +181,40 @@ public class ResourceService {
         resource.setUpdatedAt(LocalDateTime.now());
         resourceItemMapper.insert(resource);
         return toResourceDetail(resource, uploader);
+    }
+
+    @Transactional
+    public ResourceDetailResponse updateRejectedResource(String identity, Long resourceId, String title, String category,
+            String summary, String description, MultipartFile file) {
+        User viewer = userService.requireByIdentity(identity);
+        ResourceItem resource = requireEditableRejectedResource(resourceId, viewer);
+
+        resource.setTitle(requireText(title, "title"));
+        resource.setCategory(normalizeRequiredCategory(category));
+        resource.setSummary(requireText(summary, "summary"));
+        resource.setDescription(normalizeOptional(description));
+
+        String previousStorageKey = resource.getStorageKey();
+        if (file != null && !file.isEmpty()) {
+            ValidatedFile validatedFile = validateFile(file);
+            String replacementKey = storeValidatedFile(validatedFile, file);
+            resource.setFileName(validatedFile.originalFilename());
+            resource.setFileExt(validatedFile.extension());
+            resource.setContentType(validatedFile.contentType());
+            resource.setFileSize(validatedFile.size());
+            resource.setStorageKey(replacementKey);
+        }
+
+        resource.setStatus(ResourceStatus.PENDING.name());
+        resource.setRejectReason(null);
+        resource.setReviewedAt(null);
+        resource.setReviewedBy(null);
+        resource.setPublishedAt(null);
+        resource.setUpdatedAt(LocalDateTime.now());
+        resourceItemMapper.updateById(resource);
+
+        tryDeleteReplacedFile(previousStorageKey, resource.getStorageKey());
+        return toResourceDetail(resource, viewer);
     }
 
     @Transactional
@@ -256,6 +287,17 @@ public class ResourceService {
         ResourceItem resource = requireExistingResource(resourceId);
         if (!ResourceStatus.PUBLISHED.name().equals(resource.getStatus())) {
             throw new BusinessException(404, "resource not found");
+        }
+        return resource;
+    }
+
+    private ResourceItem requireEditableRejectedResource(Long resourceId, User viewer) {
+        ResourceItem resource = requireExistingResource(resourceId);
+        if (resource.getUploaderId() == null || !resource.getUploaderId().equals(viewer.getId())) {
+            throw new BusinessException(404, "resource not found");
+        }
+        if (!ResourceStatus.REJECTED.name().equals(resource.getStatus())) {
+            throw new BusinessException(400, "only rejected resource can be resubmitted");
         }
         return resource;
     }
@@ -333,6 +375,28 @@ public class ResourceService {
                     resourceFileStorage.open(resource.getStorageKey()));
         } catch (IOException exception) {
             throw new BusinessException(500, "resource file unavailable");
+        }
+    }
+
+    private String storeValidatedFile(ValidatedFile validatedFile, MultipartFile file) {
+        try (InputStream inputStream = file.getInputStream()) {
+            return resourceFileStorage.store(validatedFile.originalFilename(), inputStream);
+        } catch (IOException exception) {
+            throw new BusinessException(500, "failed to store resource file");
+        }
+    }
+
+    private void tryDeleteReplacedFile(String previousStorageKey, String currentStorageKey) {
+        if (previousStorageKey == null || previousStorageKey.isBlank() || previousStorageKey.equals(currentStorageKey)) {
+            return;
+        }
+        if (!resourceFileStorage.exists(previousStorageKey)) {
+            return;
+        }
+        try {
+            resourceFileStorage.delete(previousStorageKey);
+        } catch (IOException exception) {
+            log.warn("Failed to delete replaced resource file: {}", previousStorageKey, exception);
         }
     }
 
