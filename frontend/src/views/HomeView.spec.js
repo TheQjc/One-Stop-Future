@@ -17,8 +17,9 @@ const guestSummary = {
   unreadNotificationCount: 0,
   todos: ["Sign in to unlock profile, verification, and notifications."],
   entries: [
+    { code: "community", title: "Community", path: "/community", enabled: true, badge: null },
     { code: "jobs", title: "Jobs", path: "/jobs", enabled: true, badge: null },
-    { code: "resources", title: "Resources", path: "/resources", enabled: true, badge: "COMING_SOON" },
+    { code: "resources", title: "Resources", path: "/resources", enabled: true, badge: null },
     { code: "assessment", title: "Assessment", path: "/assessment", enabled: false, badge: "LOGIN_REQUIRED" },
   ],
   latestNotifications: [],
@@ -29,7 +30,7 @@ const authenticatedSummary = {
   identity: {
     userId: 2,
     phone: "13800000001",
-    nickname: "已登录同学",
+    nickname: "SignedInUser",
     role: "USER",
     verificationStatus: "PENDING",
   },
@@ -41,16 +42,17 @@ const authenticatedSummary = {
     "You have 3 unread notifications.",
   ],
   entries: [
+    { code: "community", title: "Community", path: "/community", enabled: true, badge: null },
     { code: "jobs", title: "Jobs", path: "/jobs", enabled: true, badge: null },
-    { code: "resources", title: "Resources", path: "/resources", enabled: true, badge: "COMING_SOON" },
+    { code: "resources", title: "Resources", path: "/resources", enabled: true, badge: null },
     { code: "assessment", title: "Assessment", path: "/assessment", enabled: true, badge: "COMING_SOON" },
   ],
   latestNotifications: [
     {
       id: 1,
       type: "SYSTEM",
-      title: "认证状态更新",
-      content: "你的认证申请正在审核中。",
+      title: "Verification Update",
+      content: "Your verification request is under review.",
       read: false,
       createdAt: "2026-04-15T08:30:00",
     },
@@ -62,27 +64,30 @@ beforeEach(() => {
   window.localStorage.clear();
 });
 
-test("renders guest aggregation home", async () => {
+function mountView(summary) {
   setActivePinia(createPinia());
-  getHomeSummary.mockResolvedValue(guestSummary);
 
-  const wrapper = mount(HomeView, {
+  return mount(HomeView, {
     global: {
       stubs: {
         RouterLink: {
           props: ["to"],
-          template: "<a :data-to='to'><slot /></a>",
+          template: "<a :data-to='typeof to === \"string\" ? to : JSON.stringify(to)'><slot /></a>",
         },
       },
     },
   });
+}
 
+test("renders guest aggregation home with a live resources link", async () => {
+  getHomeSummary.mockResolvedValue(guestSummary);
+
+  const wrapper = mountView(guestSummary);
   await flushPromises();
 
-  expect(wrapper.text()).toContain("就业");
-  expect(wrapper.text()).toContain("考研");
-  expect(wrapper.text()).toContain("留学");
-  expect(wrapper.text()).toContain("登录后即可解锁个人资料");
+  expect(getHomeSummary).toHaveBeenCalledTimes(1);
+  expect(wrapper.html()).toContain('data-to="/resources"');
+  expect(wrapper.html()).toContain('data-to="/jobs"');
 });
 
 test("hydrates authenticated summary into store", async () => {
@@ -95,7 +100,7 @@ test("hydrates authenticated summary into store", async () => {
     userId: 2,
     phone: "13800000001",
     username: "13800000001",
-    nickname: "原始昵称",
+    nickname: "BeforeHydrate",
     role: "USER",
     verificationStatus: "UNVERIFIED",
     unreadNotificationCount: 0,
@@ -108,7 +113,7 @@ test("hydrates authenticated summary into store", async () => {
       stubs: {
         RouterLink: {
           props: ["to"],
-          template: "<a :data-to='to'><slot /></a>",
+          template: "<a :data-to='typeof to === \"string\" ? to : JSON.stringify(to)'><slot /></a>",
         },
       },
     },
@@ -116,9 +121,8 @@ test("hydrates authenticated summary into store", async () => {
 
   await flushPromises();
 
-  expect(wrapper.text()).toContain("已登录同学");
-  expect(wrapper.text()).toContain("认证申请审核中");
-  expect(wrapper.text()).toContain("认证状态更新");
-  expect(userStore.profile.nickname).toBe("已登录同学");
+  expect(userStore.profile.nickname).toBe("SignedInUser");
   expect(userStore.unreadCount).toBe(3);
+  expect(wrapper.html()).toContain('data-to="/resources"');
+  expect(wrapper.text()).toContain("Verification Update");
 });

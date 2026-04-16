@@ -192,7 +192,7 @@ const strategyTracks = computed(() => [
     description: "把备考节点、资料收集和后续导师联系，收进一个更清晰的学习路径。",
     bullets: ["目标院校与方向对照", "材料与时间节点梳理", "后续课程与通知承接"],
     tone: "exam",
-    badge: badgeToText(findEntry("resources")?.badge || "COMING_SOON"),
+    badge: badgeToText(findEntry("resources")?.badge),
   },
   {
     eyebrow: "留学",
@@ -259,9 +259,9 @@ const serviceCards = computed(() => {
       code: "Track 04",
       title: "考研方向",
       description: "目标院校资料、课程安排与备考提醒正在接入。",
-      path: "/profile",
-      enabled: false,
-      metaLabel: badgeToText(findEntry("resources")?.badge || "COMING_SOON"),
+      path: "/resources",
+      enabled: true,
+      metaLabel: findEntry("resources")?.enabled ? "进入资料库" : badgeToText(findEntry("resources")?.badge),
     },
     {
       code: "Track 05",

@@ -7,6 +7,22 @@ const router = createRouter({
   routes: [
     { path: "/", name: "home", component: () => import("../views/HomeView.vue") },
     {
+      path: "/resources",
+      name: "resources",
+      component: () => import("../views/ResourcesListView.vue"),
+    },
+    {
+      path: "/resources/upload",
+      name: "resource-upload",
+      component: () => import("../views/ResourceUploadView.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/resources/:id",
+      name: "resource-detail",
+      component: () => import("../views/ResourceDetailView.vue"),
+    },
+    {
       path: "/jobs",
       name: "jobs",
       component: () => import("../views/JobsListView.vue"),
