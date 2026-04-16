@@ -136,7 +136,8 @@ public class AdminResourceService {
                 resource.getRejectReason(),
                 resource.getCreatedAt(),
                 resource.getReviewedAt(),
-                resource.getPublishedAt());
+                resource.getPublishedAt(),
+                resourceService.isPreviewAvailableForAdmin(resource));
     }
 
     private boolean isBlank(String value) {

@@ -302,6 +302,25 @@ class ResourceControllerTests {
                 .andExpect(jsonPath("$.data.resources[0].status").isNotEmpty());
     }
 
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
+    void myResourcesExposeEditableAndPreviewFlags() throws Exception {
+        insertResource(4L, 2L, "REJECTED", "Please simplify the intro section",
+                "resume-template-revision.pdf", "pdf", "application/pdf",
+                "seed/2026/04/resume-template-revision.pdf");
+
+        mockMvc.perform(get("/api/resources/mine"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.total").value(3))
+                .andExpect(jsonPath("$.data.resources[0].id").value(4))
+                .andExpect(jsonPath("$.data.resources[0].editable").value(true))
+                .andExpect(jsonPath("$.data.resources[0].previewAvailable").value(true))
+                .andExpect(jsonPath("$.data.resources[1].id").value(3))
+                .andExpect(jsonPath("$.data.resources[1].editable").value(false))
+                .andExpect(jsonPath("$.data.resources[1].previewAvailable").value(false));
+    }
+
     private void writeStoredFile(String storageKey, String content) throws IOException {
         Path filePath = STORAGE_ROOT.resolve(storageKey);
         Files.createDirectories(filePath.getParent());
@@ -338,7 +357,7 @@ class ResourceControllerTests {
                 "PUBLISHED".equals(status) ? now.minusHours(2) : null,
                 "PUBLISHED".equals(status) || "REJECTED".equals(status) || "OFFLINE".equals(status) ? now.minusHours(2)
                         : null,
-                now.minusHours(3),
-                now.minusHours(1));
+                now.plusSeconds(id),
+                now.plusSeconds(id + 1));
     }
 }

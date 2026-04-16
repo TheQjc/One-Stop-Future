@@ -49,6 +49,48 @@ class AdminResourceControllerTests {
 
     @Test
     @WithMockUser(username = "1", roles = "ADMIN")
+    void adminResourcesExposePreviewAvailability() throws Exception {
+        jdbcTemplate.update(
+                """
+                        INSERT INTO t_resource_item (
+                          id, title, category, summary, description, status, uploader_id, reviewed_by, reject_reason,
+                          file_name, file_ext, content_type, file_size, storage_key, download_count, favorite_count,
+                          published_at, reviewed_at, created_at, updated_at
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        """,
+                4L,
+                "Admin Preview Resource",
+                "RESUME_TEMPLATE",
+                "Admin preview summary",
+                "Admin preview description",
+                "REJECTED",
+                2L,
+                1L,
+                "Needs copy revision",
+                "admin-preview.pdf",
+                "pdf",
+                "application/pdf",
+                2048L,
+                "seed/2026/04/admin-preview.pdf",
+                0,
+                0,
+                null,
+                LocalDateTime.now().minusHours(1),
+                LocalDateTime.now().plusSeconds(4),
+                LocalDateTime.now().plusSeconds(5));
+
+        mockMvc.perform(get("/api/admin/resources"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.total").value(4))
+                .andExpect(jsonPath("$.data.resources[0].id").value(4))
+                .andExpect(jsonPath("$.data.resources[0].previewAvailable").value(true))
+                .andExpect(jsonPath("$.data.resources[1].id").value(3))
+                .andExpect(jsonPath("$.data.resources[1].previewAvailable").value(false));
+    }
+
+    @Test
+    @WithMockUser(username = "1", roles = "ADMIN")
     void adminCanPublishRejectAndOfflineResources() throws Exception {
         jdbcTemplate.update(
                 """

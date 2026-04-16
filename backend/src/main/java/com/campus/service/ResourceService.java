@@ -126,7 +126,7 @@ public class ResourceService {
                         .orderByDesc(ResourceItem::getId)
                         .last("LIMIT " + DEFAULT_LIST_LIMIT))
                 .stream()
-                .map(this::toMyResourceItem)
+                .map(resource -> toMyResourceItem(resource, viewer))
                 .toList();
         return new MyResourceListResponse(resources.size(), resources);
     }
@@ -351,7 +351,7 @@ public class ResourceService {
                 canPreviewResource(resource, viewer));
     }
 
-    private MyResourceListResponse.ResourceItem toMyResourceItem(ResourceItem resource) {
+    private MyResourceListResponse.ResourceItem toMyResourceItem(ResourceItem resource, User viewer) {
         return new MyResourceListResponse.ResourceItem(
                 resource.getId(),
                 resource.getTitle(),
@@ -363,7 +363,9 @@ public class ResourceService {
                 resource.getRejectReason(),
                 resource.getCreatedAt(),
                 resource.getPublishedAt(),
-                resource.getUpdatedAt());
+                resource.getUpdatedAt(),
+                isEditableByOwner(resource),
+                canPreviewResource(resource, viewer));
     }
 
     private ResourceFileStream openResourceFile(ResourceItem resource) {
@@ -422,12 +424,20 @@ public class ResourceService {
                 && !"ADMIN".equals(viewer.getRole())
                 && resource.getUploaderId() != null
                 && resource.getUploaderId().equals(viewer.getId())
-                && ResourceStatus.REJECTED.name().equals(resource.getStatus());
+                && isEditableByOwner(resource);
     }
 
     private boolean isPdf(ResourceItem resource) {
         return "pdf".equalsIgnoreCase(resource.getFileExt())
                 || "application/pdf".equalsIgnoreCase(resource.getContentType());
+    }
+
+    boolean isPreviewAvailableForAdmin(ResourceItem resource) {
+        return isPdf(resource);
+    }
+
+    private boolean isEditableByOwner(ResourceItem resource) {
+        return ResourceStatus.REJECTED.name().equals(resource.getStatus());
     }
 
     private boolean hasFavorite(Long resourceId, Long userId) {

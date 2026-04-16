@@ -19,6 +19,7 @@ public record AdminResourceListResponse(
             String rejectReason,
             LocalDateTime createdAt,
             LocalDateTime reviewedAt,
-            LocalDateTime publishedAt) {
+            LocalDateTime publishedAt,
+            boolean previewAvailable) {
     }
 }

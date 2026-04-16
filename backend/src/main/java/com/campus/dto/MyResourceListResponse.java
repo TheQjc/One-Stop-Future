@@ -18,6 +18,8 @@ public record MyResourceListResponse(
             String rejectReason,
             LocalDateTime createdAt,
             LocalDateTime publishedAt,
-            LocalDateTime updatedAt) {
+            LocalDateTime updatedAt,
+            boolean editable,
+            boolean previewAvailable) {
     }
 }
