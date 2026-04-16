@@ -1,13 +1,24 @@
 import { flushPromises, mount } from "@vue/test-utils";
 import { createPinia, setActivePinia } from "pinia";
 import { beforeEach, expect, test, vi } from "vitest";
-import HomeView from "./HomeView.vue";
 import { useUserStore } from "../stores/user.js";
 import { getHomeSummary } from "../api/home.js";
+
+const push = vi.fn();
+
+vi.mock("vue-router", async () => {
+  const actual = await vi.importActual("vue-router");
+  return {
+    ...actual,
+    useRouter: () => ({ push }),
+  };
+});
 
 vi.mock("../api/home.js", () => ({
   getHomeSummary: vi.fn(),
 }));
+
+import HomeView from "./HomeView.vue";
 
 const guestSummary = {
   viewerType: "GUEST",
@@ -62,6 +73,7 @@ const authenticatedSummary = {
 beforeEach(() => {
   vi.clearAllMocks();
   window.localStorage.clear();
+  push.mockReset();
 });
 
 function mountView(summary) {
@@ -125,4 +137,31 @@ test("hydrates authenticated summary into store", async () => {
   expect(userStore.unreadCount).toBe(3);
   expect(wrapper.html()).toContain('data-to="/resources"');
   expect(wrapper.text()).toContain("Verification Update");
+});
+
+test("home search submits into the unified search page", async () => {
+  getHomeSummary.mockResolvedValue(guestSummary);
+
+  const wrapper = mountView();
+  await flushPromises();
+
+  await wrapper.find('input[name="home-search"]').setValue("  resume  ");
+  await wrapper.find('[data-test="home-search-form"]').trigger("submit.prevent");
+
+  expect(push).toHaveBeenCalledWith({
+    name: "search",
+    query: { q: "resume", type: "ALL", sort: "RELEVANCE" },
+  });
+});
+
+test("blank home search input does not navigate", async () => {
+  getHomeSummary.mockResolvedValue(guestSummary);
+
+  const wrapper = mountView();
+  await flushPromises();
+
+  await wrapper.find('input[name="home-search"]').setValue("   ");
+  await wrapper.find('[data-test="home-search-form"]').trigger("submit.prevent");
+
+  expect(push).not.toHaveBeenCalled();
 });

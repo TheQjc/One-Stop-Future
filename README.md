@@ -1,6 +1,6 @@
 # One-Stop Future
 
-Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice`.
+Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice`.
 
 ## Current Scope
 
@@ -21,13 +21,13 @@ Implemented now:
 - admin community moderation
 - admin jobs create / edit / publish / offline / delete
 - admin resource publish / reject / offline review workspace
+- unified search across published posts / jobs / resources
 
 Explicitly not implemented yet:
 
 - batch job import
 - third-party job sync
 - in-site application / resume workflow
-- unified search
 - recommendation / hot ranking
 - MinIO resource storage
 - online preview, chunk upload, or resume upload
@@ -97,6 +97,7 @@ npm run build
 Public / user:
 
 - `/`
+- `/search`
 - `/community`
 - `/community/:id`
 - `/community/create`
@@ -118,11 +119,43 @@ Admin:
 - `/admin/jobs`
 - `/admin/resources`
 
+## Unified Search
+
+Public backend endpoint:
+
+- `GET /api/search`
+
+Supported query params:
+
+- `q`
+- `type`
+- `sort`
+
+Supported search types:
+
+- `ALL`
+- `POST`
+- `JOB`
+- `RESOURCE`
+
+Supported sort types:
+
+- `RELEVANCE`
+- `LATEST`
+
+Current search scope:
+
+- published community posts only
+- published jobs only
+- published resources only
+- guest-accessible public results only
+
 ## Permissions
 
 Guest:
 
 - can browse home, community, jobs, and published resources
+- can use unified search for published posts, jobs, and resources
 - cannot create content, save favorites, or download resource files
 
 Authenticated user:
@@ -196,3 +229,22 @@ Resource statuses:
 8. Log in as admin and open `/admin/resources`.
 9. Publish the pending resource and confirm it appears in the public `/resources` list.
 10. Favorite and download a published resource as a normal user.
+11. Use the homepage search box or `/search` to search `resume`.
+12. Switch `ALL / POST / JOB / RESOURCE` and `RELEVANCE / LATEST`.
+13. Refresh `/search` and confirm the search state stays in the URL.
+
+## Targeted Unified Search Verification
+
+### Backend
+
+```bash
+cd backend
+mvn -q -Dtest=SearchControllerTests test
+```
+
+### Frontend
+
+```bash
+cd frontend
+npx vitest run src/views/SearchView.spec.js src/views/HomeView.spec.js src/components/NavBar.spec.js
+```

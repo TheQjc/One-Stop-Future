@@ -19,6 +19,7 @@ import com.campus.common.ResourceStatus;
 import com.campus.dto.MyResourceListResponse;
 import com.campus.dto.ResourceDetailResponse;
 import com.campus.dto.ResourceListResponse;
+import com.campus.dto.SearchResponse;
 import com.campus.entity.ResourceItem;
 import com.campus.entity.User;
 import com.campus.entity.UserFavorite;
@@ -78,6 +79,32 @@ public class ResourceService {
     public ResourceDetailResponse getResourceDetail(Long resourceId, String identity) {
         User viewer = findViewer(identity);
         return toResourceDetail(requireVisibleResource(resourceId, viewer), viewer);
+    }
+
+    public List<SearchResponse.SearchResultItem> searchPublishedResources(String keyword) {
+        String normalizedKeyword = normalizeOptional(keyword);
+        if (normalizedKeyword == null) {
+            return List.of();
+        }
+
+        return resourceItemMapper.selectList(new LambdaQueryWrapper<ResourceItem>()
+                .eq(ResourceItem::getStatus, ResourceStatus.PUBLISHED.name())
+                .orderByDesc(ResourceItem::getPublishedAt)
+                .orderByDesc(ResourceItem::getId))
+                .stream()
+                .filter(resource -> containsKeyword(resource.getTitle(), normalizedKeyword)
+                        || containsKeyword(resource.getSummary(), normalizedKeyword)
+                        || containsKeyword(resource.getDescription(), normalizedKeyword))
+                .map(resource -> new SearchResponse.SearchResultItem(
+                        resource.getId(),
+                        "RESOURCE",
+                        resource.getTitle(),
+                        resource.getSummary(),
+                        uploaderNicknameOf(resource.getUploaderId()),
+                        resource.getCategory(),
+                        "/resources/" + resource.getId(),
+                        resource.getPublishedAt()))
+                .toList();
     }
 
     public MyResourceListResponse listMyResources(String identity) {
@@ -372,6 +399,10 @@ public class ResourceService {
 
     private int safeCount(Integer value) {
         return value == null ? 0 : value;
+    }
+
+    private boolean containsKeyword(String value, String keyword) {
+        return value != null && value.toLowerCase(Locale.ROOT).contains(keyword.toLowerCase(Locale.ROOT));
     }
 
     public record DownloadedResource(String fileName, String contentType, InputStream inputStream) {

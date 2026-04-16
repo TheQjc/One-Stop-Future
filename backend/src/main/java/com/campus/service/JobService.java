@@ -15,6 +15,7 @@ import com.campus.common.JobPostingStatus;
 import com.campus.common.JobType;
 import com.campus.dto.JobDetailResponse;
 import com.campus.dto.JobListResponse;
+import com.campus.dto.SearchResponse;
 import com.campus.entity.JobPosting;
 import com.campus.entity.User;
 import com.campus.entity.UserFavorite;
@@ -89,6 +90,33 @@ public class JobService {
     public JobDetailResponse getJobDetail(Long jobId, String identity) {
         User viewer = findViewer(identity);
         return toJobDetail(requireVisibleJob(jobId, viewer), viewer);
+    }
+
+    public List<SearchResponse.SearchResultItem> searchPublishedJobs(String keyword) {
+        String normalizedKeyword = normalizeOptional(keyword);
+        if (normalizedKeyword == null) {
+            return List.of();
+        }
+
+        return jobPostingMapper.selectList(new LambdaQueryWrapper<JobPosting>()
+                .eq(JobPosting::getStatus, JobPostingStatus.PUBLISHED.name())
+                .orderByDesc(JobPosting::getPublishedAt)
+                .orderByDesc(JobPosting::getId))
+                .stream()
+                .filter(job -> containsKeyword(job.getTitle(), normalizedKeyword)
+                        || containsKeyword(job.getCompanyName(), normalizedKeyword)
+                        || containsKeyword(job.getSummary(), normalizedKeyword)
+                        || containsKeyword(job.getContent(), normalizedKeyword))
+                .map(job -> new SearchResponse.SearchResultItem(
+                        job.getId(),
+                        "JOB",
+                        job.getTitle(),
+                        job.getSummary(),
+                        job.getCompanyName(),
+                        jobMetaSecondaryOf(job),
+                        "/jobs/" + job.getId(),
+                        job.getPublishedAt()))
+                .toList();
     }
 
     public JobListResponse listMyJobFavorites(String identity) {
@@ -237,5 +265,15 @@ public class JobService {
         } catch (IllegalArgumentException exception) {
             throw new BusinessException(400, "invalid education requirement");
         }
+    }
+
+    private String jobMetaSecondaryOf(JobPosting job) {
+        String city = job.getCity() == null ? "" : job.getCity();
+        String jobType = job.getJobType() == null ? "" : job.getJobType();
+        return city + " / " + jobType;
+    }
+
+    private boolean containsKeyword(String value, String keyword) {
+        return value != null && value.toLowerCase(Locale.ROOT).contains(keyword.toLowerCase(Locale.ROOT));
     }
 }

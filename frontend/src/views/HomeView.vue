@@ -1,15 +1,17 @@
 <script setup>
 import { computed, onMounted, ref } from "vue";
-import { RouterLink } from "vue-router";
+import { RouterLink, useRouter } from "vue-router";
 import { getHomeSummary } from "../api/home.js";
 import HomeEntryCard from "../components/HomeEntryCard.vue";
 import VerificationStatusBadge from "../components/VerificationStatusBadge.vue";
 import { useUserStore } from "../stores/user.js";
 
 const userStore = useUserStore();
+const router = useRouter();
 
 const loading = ref(true);
 const errorMessage = ref("");
+const searchKeyword = ref("");
 const summary = ref({
   viewerType: userStore.isAuthenticated ? "USER" : "GUEST",
   identity: null,
@@ -330,6 +332,23 @@ async function loadSummary() {
   }
 }
 
+function submitSearch() {
+  const keyword = searchKeyword.value.trim();
+
+  if (!keyword) {
+    return;
+  }
+
+  router.push({
+    name: "search",
+    query: {
+      q: keyword,
+      type: "ALL",
+      sort: "RELEVANCE",
+    },
+  });
+}
+
 onMounted(loadSummary);
 </script>
 
@@ -341,6 +360,26 @@ onMounted(loadSummary);
         <h1 class="hero-title">{{ heroTitle }}</h1>
         <hr class="editorial-rule" />
         <p class="hero-copy">{{ heroCopy }}</p>
+
+        <form class="hero-search" data-test="home-search-form" @submit.prevent="submitSearch">
+          <label class="hero-search__label" for="home-search">
+            Unified search
+          </label>
+          <div class="hero-search__controls">
+            <input
+              id="home-search"
+              v-model="searchKeyword"
+              name="home-search"
+              type="search"
+              class="hero-search__input"
+              placeholder="Search posts, jobs, and resources"
+              autocomplete="off"
+            />
+            <button type="submit" class="app-btn hero-search__submit">
+              Search
+            </button>
+          </div>
+        </form>
 
         <div class="chip-row" style="margin-top: 24px;">
           <span class="status-badge approved">
@@ -559,6 +598,53 @@ onMounted(loadSummary);
   overflow: hidden;
 }
 
+.hero-search {
+  display: grid;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.hero-search__label {
+  color: var(--cp-ink-soft);
+  font-size: var(--cp-text-sm);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hero-search__controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.hero-search__input {
+  min-height: 52px;
+  width: 100%;
+  padding: 0 18px;
+  border: 1px solid rgba(24, 38, 63, 0.14);
+  border-radius: var(--cp-radius-pill);
+  background: rgba(255, 255, 255, 0.86);
+  color: var(--cp-ink);
+  font: inherit;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.hero-search__input:focus {
+  outline: 2px solid rgba(197, 79, 45, 0.25);
+  outline-offset: 2px;
+  border-color: rgba(197, 79, 45, 0.4);
+}
+
+.hero-search__input::placeholder {
+  color: rgba(24, 38, 63, 0.52);
+}
+
+.hero-search__submit {
+  justify-content: center;
+}
+
 .signal-row {
   display: flex;
   flex-wrap: wrap;
@@ -732,6 +818,14 @@ onMounted(loadSummary);
 }
 
 @media (max-width: 767px) {
+  .hero-search__controls {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-search__submit {
+    width: 100%;
+  }
+
   .service-grid {
     grid-template-columns: 1fr;
   }

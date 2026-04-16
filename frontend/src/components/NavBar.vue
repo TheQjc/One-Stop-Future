@@ -12,6 +12,7 @@ const navItems = computed(() => {
   const items = [
     { to: "/", label: "首页" },
     { to: "/community", label: "社区" },
+    { to: "/search", label: "搜索" },
   ];
 
   if (userStore.isAuthenticated) {

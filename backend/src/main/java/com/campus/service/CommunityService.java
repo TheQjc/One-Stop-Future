@@ -17,6 +17,7 @@ import com.campus.dto.CommunityPostDetailResponse;
 import com.campus.dto.CommunityPostListResponse;
 import com.campus.dto.CreateCommunityCommentRequest;
 import com.campus.dto.CreateCommunityPostRequest;
+import com.campus.dto.SearchResponse;
 import com.campus.entity.CommunityComment;
 import com.campus.entity.CommunityPost;
 import com.campus.entity.CommunityPostLike;
@@ -102,6 +103,31 @@ public class CommunityService {
 
     public CommunityPostDetailResponse getPostDetail(Long postId, String identity) {
         return toPostDetail(requirePublishedPost(postId), findViewer(identity));
+    }
+
+    public List<SearchResponse.SearchResultItem> searchPublishedPosts(String keyword) {
+        String normalizedKeyword = normalizeOptional(keyword);
+        if (normalizedKeyword == null) {
+            return List.of();
+        }
+
+        return communityPostMapper.selectList(new LambdaQueryWrapper<CommunityPost>()
+                .eq(CommunityPost::getStatus, CommunityPostStatus.PUBLISHED.name())
+                .orderByDesc(CommunityPost::getCreatedAt)
+                .orderByDesc(CommunityPost::getId))
+                .stream()
+                .filter(post -> containsKeyword(post.getTitle(), normalizedKeyword)
+                        || containsKeyword(post.getContent(), normalizedKeyword))
+                .map(post -> new SearchResponse.SearchResultItem(
+                        post.getId(),
+                        "POST",
+                        post.getTitle(),
+                        abbreviate(post.getContent(), CONTENT_PREVIEW_LIMIT),
+                        authorNicknameOf(post.getAuthorId()),
+                        post.getTag(),
+                        "/community/" + post.getId(),
+                        post.getCreatedAt()))
+                .toList();
     }
 
     @Transactional
@@ -242,6 +268,13 @@ public class CommunityService {
         return userService.requireByIdentity(identity);
     }
 
+    private String normalizeOptional(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        return value.trim();
+    }
+
     private void recalculatePostStats(Long postId) {
         CommunityPost post = communityPostMapper.selectById(postId);
         if (post == null) {
@@ -263,7 +296,6 @@ public class CommunityService {
     }
 
     private CommunityPostListResponse.PostSummary toPostSummary(CommunityPost post, User viewer) {
-        User author = userService.findByUserId(post.getAuthorId());
         return new CommunityPostListResponse.PostSummary(
                 post.getId(),
                 post.getTag(),
@@ -271,7 +303,7 @@ public class CommunityService {
                 abbreviate(post.getContent(), CONTENT_PREVIEW_LIMIT),
                 post.getStatus(),
                 post.getAuthorId(),
-                author == null ? "Unknown" : author.getNickname(),
+                authorNicknameOf(post.getAuthorId()),
                 safeCount(post.getLikeCount()),
                 safeCount(post.getCommentCount()),
                 safeCount(post.getFavoriteCount()),
@@ -301,6 +333,11 @@ public class CommunityService {
                 post.getCreatedAt(),
                 post.getUpdatedAt(),
                 loadVisibleComments(post.getId(), viewer == null ? null : viewer.getId()));
+    }
+
+    private String authorNicknameOf(Long authorId) {
+        User author = userService.findByUserId(authorId);
+        return author == null ? "Unknown" : author.getNickname();
     }
 
     private List<CommunityPostDetailResponse.CommentItem> loadVisibleComments(Long postId, Long viewerId) {
@@ -346,5 +383,9 @@ public class CommunityService {
             return content;
         }
         return content.substring(0, limit) + "...";
+    }
+
+    private boolean containsKeyword(String value, String keyword) {
+        return value != null && value.toLowerCase(Locale.ROOT).contains(keyword.toLowerCase(Locale.ROOT));
     }
 }
