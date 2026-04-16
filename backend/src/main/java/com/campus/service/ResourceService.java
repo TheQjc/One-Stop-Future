@@ -107,6 +107,13 @@ public class ResourceService {
                 .toList();
     }
 
+    public List<ResourceItem> listPublishedDiscoverResources() {
+        return resourceItemMapper.selectList(new LambdaQueryWrapper<ResourceItem>()
+                .eq(ResourceItem::getStatus, ResourceStatus.PUBLISHED.name())
+                .orderByDesc(ResourceItem::getPublishedAt)
+                .orderByDesc(ResourceItem::getId));
+    }
+
     public MyResourceListResponse listMyResources(String identity) {
         User viewer = userService.requireByIdentity(identity);
         List<MyResourceListResponse.ResourceItem> resources = resourceItemMapper.selectList(
@@ -320,6 +327,10 @@ public class ResourceService {
     private String uploaderNicknameOf(Long uploaderId) {
         User uploader = userService.findByUserId(uploaderId);
         return uploader != null ? uploader.getNickname() : "Unknown User";
+    }
+
+    public String findUploaderNickname(Long uploaderId) {
+        return uploaderNicknameOf(uploaderId);
     }
 
     private User findViewer(String identity) {
