@@ -3,6 +3,8 @@ package com.campus.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -16,16 +18,21 @@ import com.campus.mapper.VerificationApplicationMapper;
 public class HomeService {
 
     private static final int HOME_LATEST_NOTIFICATION_LIMIT = 5;
+    private static final int HOME_DISCOVER_PREVIEW_LIMIT = 4;
+
+    private static final Logger log = LoggerFactory.getLogger(HomeService.class);
 
     private final UserService userService;
     private final NotificationService notificationService;
     private final VerificationApplicationMapper verificationApplicationMapper;
+    private final DiscoverService discoverService;
 
     public HomeService(UserService userService, NotificationService notificationService,
-            VerificationApplicationMapper verificationApplicationMapper) {
+            VerificationApplicationMapper verificationApplicationMapper, DiscoverService discoverService) {
         this.userService = userService;
         this.notificationService = notificationService;
         this.verificationApplicationMapper = verificationApplicationMapper;
+        this.discoverService = discoverService;
     }
 
     public HomeSummaryResponse getSummary(Authentication authentication) {
@@ -49,7 +56,8 @@ public class HomeService {
                 unreadCount,
                 todos,
                 entries,
-                notificationService.listLatestSnippets(user.getId(), HOME_LATEST_NOTIFICATION_LIMIT));
+                notificationService.listLatestSnippets(user.getId(), HOME_LATEST_NOTIFICATION_LIMIT),
+                loadDiscoverPreview());
     }
 
     private HomeSummaryResponse guestSummary() {
@@ -66,7 +74,19 @@ public class HomeService {
                 0,
                 List.of("Sign in to unlock profile, verification, and notifications."),
                 entries,
-                List.of());
+                List.of(),
+                loadDiscoverPreview());
+    }
+
+    private HomeSummaryResponse.DiscoverPreview loadDiscoverPreview() {
+        try {
+            return new HomeSummaryResponse.DiscoverPreview(
+                    "WEEK",
+                    discoverService.previewForHome(HOME_DISCOVER_PREVIEW_LIMIT));
+        } catch (RuntimeException exception) {
+            log.warn("Failed to load home discover preview", exception);
+            return new HomeSummaryResponse.DiscoverPreview("WEEK", List.of());
+        }
     }
 
     private String viewerTypeFor(User user) {

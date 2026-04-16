@@ -11,7 +11,8 @@ public record HomeSummaryResponse(
         int unreadNotificationCount,
         List<String> todos,
         List<HomeEntryCard> entries,
-        List<NotificationSnippet> latestNotifications) {
+        List<NotificationSnippet> latestNotifications,
+        DiscoverPreview discoverPreview) {
 
     public record IdentitySnapshot(
             Long userId,
@@ -36,5 +37,10 @@ public record HomeSummaryResponse(
             String content,
             boolean read,
             LocalDateTime createdAt) {
+    }
+
+    public record DiscoverPreview(
+            String period,
+            List<DiscoverItemView> items) {
     }
 }
