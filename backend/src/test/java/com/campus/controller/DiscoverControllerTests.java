@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -18,6 +19,9 @@ class DiscoverControllerTests {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Test
     void guestCanUsePublicDiscoverEndpointForResources() throws Exception {
@@ -43,7 +47,7 @@ class DiscoverControllerTests {
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.tab").value("ALL"))
                 .andExpect(jsonPath("$.data.period").value("WEEK"))
-                .andExpect(jsonPath("$.data.total").value(2));
+                .andExpect(jsonPath("$.data.total").value(7));
 
         mockMvc.perform(get("/api/discover").param("tab", "ARTICLE"))
                 .andExpect(status().isOk())
@@ -59,5 +63,90 @@ class DiscoverControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
                 .andExpect(jsonPath("$.message").value("invalid discover limit"));
+    }
+
+    @Test
+    void allTabAggregatesPostJobAndResourceItems() throws Exception {
+        replaceDiscoverFixtures();
+
+        mockMvc.perform(get("/api/discover")
+                        .param("tab", "ALL")
+                        .param("period", "ALL"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.total").value(4))
+                .andExpect(jsonPath("$.data.items[0].path").value("/resources/101"))
+                .andExpect(jsonPath("$.data.items[1].path").value("/community/101"))
+                .andExpect(jsonPath("$.data.items[2].path").value("/jobs/101"))
+                .andExpect(jsonPath("$.data.items[3].path").value("/community/102"));
+    }
+
+    @Test
+    void weekPeriodOnlyIncludesItemsPublishedInTheLastSevenDays() throws Exception {
+        replaceDiscoverFixtures();
+
+        mockMvc.perform(get("/api/discover")
+                        .param("tab", "ALL")
+                        .param("period", "WEEK"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.total").value(3))
+                .andExpect(jsonPath("$.data.items[0].path").value("/resources/101"))
+                .andExpect(jsonPath("$.data.items[1].path").value("/community/101"))
+                .andExpect(jsonPath("$.data.items[2].path").value("/jobs/101"));
+    }
+
+    @Test
+    void tabFilterReturnsOnlyMatchingTypeButKeepsSharedItemShape() throws Exception {
+        replaceDiscoverFixtures();
+
+        mockMvc.perform(get("/api/discover")
+                        .param("tab", "JOB")
+                        .param("period", "ALL"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.total").value(1))
+                .andExpect(jsonPath("$.data.items[0].type").value("JOB"))
+                .andExpect(jsonPath("$.data.items[0].path").value("/jobs/101"))
+                .andExpect(jsonPath("$.data.items[0].hotLabel").value("持续关注"));
+    }
+
+    private void replaceDiscoverFixtures() {
+        jdbcTemplate.update("DELETE FROM t_user_favorite");
+        jdbcTemplate.update("DELETE FROM t_community_post_like");
+        jdbcTemplate.update("DELETE FROM t_community_comment");
+        jdbcTemplate.update("DELETE FROM t_resource_item");
+        jdbcTemplate.update("DELETE FROM t_job_posting");
+        jdbcTemplate.update("DELETE FROM t_community_post");
+
+        jdbcTemplate.update("""
+                INSERT INTO t_community_post (id, author_id, tag, title, content, status, like_count, comment_count, favorite_count, created_at, updated_at)
+                VALUES (101, 3, 'CAREER', 'Verified post momentum', 'A verified-user post with stable engagement.', 'PUBLISHED', 2, 1, 1, TIMESTAMPADD(DAY, -1, CURRENT_TIMESTAMP), TIMESTAMPADD(DAY, -1, CURRENT_TIMESTAMP))
+                """);
+        jdbcTemplate.update("""
+                INSERT INTO t_community_post (id, author_id, tag, title, content, status, like_count, comment_count, favorite_count, created_at, updated_at)
+                VALUES (102, 2, 'EXAM', 'Old but visible planning post', 'An older planning note kept for total ranking only.', 'PUBLISHED', 4, 0, 0, TIMESTAMPADD(DAY, -10, CURRENT_TIMESTAMP), TIMESTAMPADD(DAY, -10, CURRENT_TIMESTAMP))
+                """);
+        jdbcTemplate.update("""
+                INSERT INTO t_job_posting (id, title, company_name, city, job_type, education_requirement, source_platform, source_url, summary, content, deadline_at, published_at, status, created_by, updated_by, created_at, updated_at)
+                VALUES (101, 'Discover backend role', 'Campus Discover Labs', 'Shenzhen', 'INTERNSHIP', 'BACHELOR', 'Official Site', 'https://jobs.example.com/discover-role', 'A job card used for discover ranking.', 'Job body', TIMESTAMPADD(DAY, 15, CURRENT_TIMESTAMP), TIMESTAMPADD(DAY, -2, CURRENT_TIMESTAMP), 'PUBLISHED', 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                """);
+        jdbcTemplate.update("""
+                INSERT INTO t_resource_item (id, title, category, summary, description, status, uploader_id, reviewed_by, reject_reason, file_name, file_ext, content_type, file_size, storage_key, download_count, favorite_count, published_at, reviewed_at, created_at, updated_at)
+                VALUES (101, 'Discover resume resource', 'RESUME_TEMPLATE', 'A strong resource candidate for discover.', 'Resource body', 'PUBLISHED', 3, 1, NULL, 'discover-pack.pdf', 'pdf', 'application/pdf', 1234, 'seed/discover-pack.pdf', 9, 1, TIMESTAMPADD(DAY, -3, CURRENT_TIMESTAMP), TIMESTAMPADD(DAY, -3, CURRENT_TIMESTAMP), CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                """);
+
+        jdbcTemplate.update("""
+                INSERT INTO t_user_favorite (id, user_id, target_type, target_id, created_at)
+                VALUES (201, 1, 'JOB', 101, CURRENT_TIMESTAMP)
+                """);
+        jdbcTemplate.update("""
+                INSERT INTO t_user_favorite (id, user_id, target_type, target_id, created_at)
+                VALUES (202, 2, 'JOB', 101, CURRENT_TIMESTAMP)
+                """);
+        jdbcTemplate.update("""
+                INSERT INTO t_user_favorite (id, user_id, target_type, target_id, created_at)
+                VALUES (203, 3, 'JOB', 101, CURRENT_TIMESTAMP)
+                """);
     }
 }

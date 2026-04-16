@@ -3,6 +3,8 @@ package com.campus.service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -117,6 +119,25 @@ public class JobService {
                         "/jobs/" + job.getId(),
                         job.getPublishedAt()))
                 .toList();
+    }
+
+    public List<JobPosting> listPublishedDiscoverJobs() {
+        return jobPostingMapper.selectList(new LambdaQueryWrapper<JobPosting>()
+                .eq(JobPosting::getStatus, JobPostingStatus.PUBLISHED.name())
+                .orderByDesc(JobPosting::getPublishedAt)
+                .orderByDesc(JobPosting::getId));
+    }
+
+    public Map<Long, Integer> favoriteCountsByJobIds(List<Long> jobIds) {
+        if (jobIds == null || jobIds.isEmpty()) {
+            return Map.of();
+        }
+        return userFavoriteMapper.selectList(new LambdaQueryWrapper<UserFavorite>()
+                        .eq(UserFavorite::getTargetType, FavoriteTargetType.JOB.name())
+                        .in(UserFavorite::getTargetId, jobIds))
+                .stream()
+                .collect(Collectors.groupingBy(UserFavorite::getTargetId,
+                        Collectors.collectingAndThen(Collectors.counting(), Long::intValue)));
     }
 
     public JobListResponse listMyJobFavorites(String identity) {

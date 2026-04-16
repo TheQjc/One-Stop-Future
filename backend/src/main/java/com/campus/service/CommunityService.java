@@ -130,6 +130,13 @@ public class CommunityService {
                 .toList();
     }
 
+    public List<CommunityPost> listPublishedDiscoverPosts() {
+        return communityPostMapper.selectList(new LambdaQueryWrapper<CommunityPost>()
+                .eq(CommunityPost::getStatus, CommunityPostStatus.PUBLISHED.name())
+                .orderByDesc(CommunityPost::getCreatedAt)
+                .orderByDesc(CommunityPost::getId));
+    }
+
     @Transactional
     public CommunityPostDetailResponse createPost(String identity, CreateCommunityPostRequest request) {
         User author = userService.requireByIdentity(identity);
