@@ -12,6 +12,7 @@ const navItems = computed(() => {
   const items = [
     { to: "/", label: "首页" },
     { to: "/community", label: "社区" },
+    { to: "/discover", label: "发现" },
     { to: "/search", label: "搜索" },
   ];
 

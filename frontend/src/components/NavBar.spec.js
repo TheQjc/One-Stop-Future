@@ -37,15 +37,16 @@ beforeEach(() => {
   setActivePinia(createPinia());
 });
 
-test("navbar exposes a search entry for guests", () => {
+test("navbar exposes discover and search entries for guests", () => {
   const wrapper = mountNavBar();
 
+  expect(wrapper.html()).toContain('data-to="/discover"');
   expect(wrapper.html()).toContain('data-to="/search"');
   expect(wrapper.html()).toContain('data-to="/login"');
   expect(wrapper.html()).toContain('data-to="/register"');
 });
 
-test("navbar keeps authenticated navigation while exposing search", () => {
+test("navbar keeps authenticated navigation while exposing discover and search", () => {
   const userStore = useUserStore();
   userStore.token = "demo-token";
   userStore.profile = {
@@ -60,6 +61,7 @@ test("navbar keeps authenticated navigation while exposing search", () => {
 
   const wrapper = mountNavBar();
 
+  expect(wrapper.html()).toContain('data-to="/discover"');
   expect(wrapper.html()).toContain('data-to="/search"');
   expect(wrapper.html()).toContain('data-to="/profile"');
   expect(wrapper.html()).toContain('data-to="/notifications"');
