@@ -5,6 +5,7 @@ import {
   downloadResource,
   favoriteResource,
   getResourceDetail,
+  previewResource,
   unfavoriteResource,
 } from "../api/resources.js";
 import { useUserStore } from "../stores/user.js";
@@ -145,6 +146,21 @@ async function handleDownload() {
   }
 }
 
+async function handlePreview() {
+  actionError.value = "";
+  actionMessage.value = "";
+  actionLoading.value = "preview";
+
+  try {
+    await previewResource(detail.value.id);
+    actionMessage.value = "Preview opened in a new tab.";
+  } catch (error) {
+    actionError.value = error.message || "Preview failed. Please try again.";
+  } finally {
+    actionLoading.value = "";
+  }
+}
+
 watch(() => route.params.id, () => {
   loadDetail();
 }, { immediate: true });
@@ -200,6 +216,16 @@ watch(() => route.params.id, () => {
                 @click="handleToggleFavorite"
               >
                 {{ detail.favoritedByMe ? "Remove From Collection" : "Save To Collection" }}
+              </button>
+              <button
+                v-if="detail.previewAvailable"
+                data-testid="preview-action"
+                type="button"
+                class="ghost-btn"
+                :disabled="actionLoading === 'preview'"
+                @click="handlePreview"
+              >
+                {{ actionLoading === "preview" ? "Opening Preview..." : "Preview PDF" }}
               </button>
               <button
                 data-testid="download-action"

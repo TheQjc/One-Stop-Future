@@ -6,6 +6,7 @@ import {
   publishAdminResource,
   rejectAdminResource,
 } from "../../api/admin.js";
+import { previewResource } from "../../api/resources.js";
 
 const loading = ref(true);
 const errorMessage = ref("");
@@ -161,6 +162,22 @@ async function handleReject() {
   }
 }
 
+async function handlePreview(id) {
+  actionMessage.value = "";
+  errorMessage.value = "";
+  actionLoadingId.value = `preview-${id}`;
+
+  try {
+    const resource = summary.value.resources.find((item) => item.id === id);
+    await previewResource(id);
+    actionMessage.value = `Preview opened for ${resource?.title || `resource #${id}`}.`;
+  } catch (error) {
+    errorMessage.value = error.message || "Preview failed. Please try again.";
+  } finally {
+    actionLoadingId.value = "";
+  }
+}
+
 onMounted(loadResources);
 </script>
 
@@ -244,6 +261,15 @@ onMounted(loadResources);
 
           <div class="inline-form-actions">
             <button
+              v-if="selectedResource.previewAvailable"
+              type="button"
+              class="ghost-btn preview-action"
+              :disabled="Boolean(actionLoadingId)"
+              @click="handlePreview(selectedResource.id)"
+            >
+              {{ actionLoadingId === `preview-${selectedResource.id}` ? "Opening Preview..." : "Preview" }}
+            </button>
+            <button
               v-if="selectedResource.status === 'PENDING' || selectedResource.status === 'OFFLINE'"
               type="button"
               class="app-btn publish-action"
@@ -318,6 +344,15 @@ onMounted(loadResources);
                       Select
                     </button>
                     <button
+                      v-if="resource.previewAvailable"
+                      type="button"
+                      class="ghost-btn preview-action"
+                      :disabled="actionLoadingId === `preview-${resource.id}`"
+                      @click="handlePreview(resource.id)"
+                    >
+                      Preview
+                    </button>
+                    <button
                       type="button"
                       class="ghost-btn publish-action"
                       :disabled="!['PENDING', 'OFFLINE'].includes(resource.status) || actionLoadingId === `publish-${resource.id}`"
@@ -351,6 +386,15 @@ onMounted(loadResources);
               <div class="inline-form-actions" style="margin-top: 12px;">
                 <button type="button" class="ghost-btn select-action" @click="selectResource(resource)">
                   Select
+                </button>
+                <button
+                  v-if="resource.previewAvailable"
+                  type="button"
+                  class="ghost-btn preview-action"
+                  :disabled="actionLoadingId === `preview-${resource.id}`"
+                  @click="handlePreview(resource.id)"
+                >
+                  Preview
                 </button>
                 <button
                   type="button"

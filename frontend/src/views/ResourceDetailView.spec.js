@@ -7,6 +7,7 @@ import {
   downloadResource,
   favoriteResource,
   getResourceDetail,
+  previewResource,
   unfavoriteResource,
 } from "../api/resources.js";
 
@@ -33,6 +34,7 @@ vi.mock("../api/resources.js", () => ({
   downloadResource: vi.fn(),
   favoriteResource: vi.fn(),
   getResourceDetail: vi.fn(),
+  previewResource: vi.fn(),
   unfavoriteResource: vi.fn(),
 }));
 
@@ -100,6 +102,27 @@ test("redirects guests to login when they try to download a resource", async () 
     query: { redirect: "/resources/11" },
   });
   expect(downloadResource).not.toHaveBeenCalled();
+});
+
+test("resource detail shows a preview action when preview is available", async () => {
+  getResourceDetail.mockResolvedValue({
+    ...baseDetail,
+    fileName: "resume-preview.pdf",
+    fileExt: "pdf",
+    contentType: "application/pdf",
+    previewAvailable: true,
+  });
+  previewResource.mockResolvedValue("blob:resource-preview");
+
+  const wrapper = mountView();
+  await flushPromises();
+
+  expect(wrapper.text()).toContain("Preview PDF");
+
+  await wrapper.find('[data-testid="preview-action"]').trigger("click");
+  await flushPromises();
+
+  expect(previewResource).toHaveBeenCalledWith(11);
 });
 
 test("favorites and downloads a resource for authenticated users", async () => {

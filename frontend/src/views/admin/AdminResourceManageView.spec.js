@@ -7,12 +7,17 @@ import {
   publishAdminResource,
   rejectAdminResource,
 } from "../../api/admin.js";
+import { previewResource } from "../../api/resources.js";
 
 vi.mock("../../api/admin.js", () => ({
   getAdminResources: vi.fn(),
   offlineAdminResource: vi.fn(),
   publishAdminResource: vi.fn(),
   rejectAdminResource: vi.fn(),
+}));
+
+vi.mock("../../api/resources.js", () => ({
+  previewResource: vi.fn(),
 }));
 
 const pendingResource = {
@@ -86,4 +91,30 @@ test("rejects a selected pending resource with a reason", async () => {
 
   expect(rejectAdminResource).toHaveBeenCalledWith(41, { reason: "Need a clearer title" });
   expect(getAdminResources).toHaveBeenCalledTimes(2);
+});
+
+test("admin resource board exposes preview actions for previewable resources", async () => {
+  getAdminResources.mockResolvedValue({
+    total: 1,
+    resources: [
+      {
+        id: 41,
+        title: "Pending archive",
+        uploaderNickname: "NormalUser",
+        status: "PENDING",
+        previewAvailable: true,
+      },
+    ],
+  });
+  previewResource.mockResolvedValue("blob:resource-preview");
+
+  const wrapper = mount(AdminResourceManageView);
+  await flushPromises();
+
+  expect(wrapper.text()).toContain("Preview");
+
+  await wrapper.find(".preview-action").trigger("click");
+  await flushPromises();
+
+  expect(previewResource).toHaveBeenCalledWith(41);
 });

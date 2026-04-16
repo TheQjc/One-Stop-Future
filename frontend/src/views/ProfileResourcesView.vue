@@ -1,10 +1,13 @@
 <script setup>
 import { computed, onMounted, ref } from "vue";
 import { RouterLink } from "vue-router";
-import { getMyResources } from "../api/resources.js";
+import { getMyResources, previewResource } from "../api/resources.js";
 
 const loading = ref(true);
 const errorMessage = ref("");
+const actionError = ref("");
+const actionMessage = ref("");
+const actionLoadingId = ref("");
 const summary = ref({
   total: 0,
   resources: [],
@@ -91,6 +94,21 @@ async function loadResources() {
   }
 }
 
+async function handlePreview(resource) {
+  actionError.value = "";
+  actionMessage.value = "";
+  actionLoadingId.value = `preview-${resource.id}`;
+
+  try {
+    await previewResource(resource.id);
+    actionMessage.value = `Preview opened for ${resource.title}.`;
+  } catch (error) {
+    actionError.value = error.message || "Preview failed. Please try again.";
+  } finally {
+    actionLoadingId.value = "";
+  }
+}
+
 onMounted(loadResources);
 </script>
 
@@ -135,6 +153,9 @@ onMounted(loadResources);
         You have not uploaded any resource files yet.
       </div>
       <div v-else class="resource-record-list">
+        <p v-if="actionMessage" class="field-hint">{{ actionMessage }}</p>
+        <p v-if="actionError" class="field-error" role="alert">{{ actionError }}</p>
+
         <article
           v-for="resource in summary.resources"
           :key="resource.id"
@@ -161,6 +182,28 @@ onMounted(loadResources);
           <p class="meta-copy">
             {{ resource.summary || "No summary available for this record." }}
           </p>
+
+          <div
+            v-if="resource.editable || resource.previewAvailable"
+            class="inline-form-actions resource-record-card__actions"
+          >
+            <RouterLink
+              v-if="resource.editable"
+              :to="`/resources/${resource.id}/edit`"
+              class="app-link"
+            >
+              Edit And Resubmit
+            </RouterLink>
+            <button
+              v-if="resource.previewAvailable"
+              type="button"
+              class="ghost-btn preview-action"
+              :disabled="actionLoadingId === `preview-${resource.id}`"
+              @click="handlePreview(resource)"
+            >
+              {{ actionLoadingId === `preview-${resource.id}` ? "Opening Preview..." : "Preview PDF" }}
+            </button>
+          </div>
 
           <article
             v-if="resource.rejectReason"
@@ -206,6 +249,10 @@ onMounted(loadResources);
 .resource-record-card {
   display: grid;
   gap: var(--cp-gap-4);
+}
+
+.resource-record-card__actions {
+  margin-top: -4px;
 }
 
 .resource-record-card__header {
