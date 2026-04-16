@@ -234,12 +234,27 @@ class ResourceControllerTests {
                         })
                         .param("title", "Revised Resume Pack")
                         .param("category", "RESUME_TEMPLATE")
-                        .param("summary", "Revised summary")
-                        .param("description", "Revised description"))
+                        .param("summary", "Revised summary"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.status").value("PENDING"))
                 .andExpect(jsonPath("$.data.rejectReason").isEmpty());
+
+        String description = jdbcTemplate.queryForObject(
+                "SELECT description FROM t_resource_item WHERE id = 4", String.class);
+        String rejectReason = jdbcTemplate.queryForObject(
+                "SELECT reject_reason FROM t_resource_item WHERE id = 4", String.class);
+        Long reviewedBy = jdbcTemplate.query(
+                "SELECT reviewed_by FROM t_resource_item WHERE id = 4",
+                resultSet -> resultSet.next() ? resultSet.getObject(1, Long.class) : null);
+        LocalDateTime reviewedAt = jdbcTemplate.query(
+                "SELECT reviewed_at FROM t_resource_item WHERE id = 4",
+                resultSet -> resultSet.next() ? resultSet.getObject(1, LocalDateTime.class) : null);
+
+        assertThat(description).isNull();
+        assertThat(rejectReason).isNull();
+        assertThat(reviewedBy).isNull();
+        assertThat(reviewedAt).isNull();
     }
 
     @Test
