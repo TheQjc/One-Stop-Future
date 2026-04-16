@@ -300,3 +300,23 @@ export async function deleteAdminJob(id) {
   const { data } = await http.post(`/admin/jobs/${id}/delete`);
   return data.data;
 }
+
+export async function getAdminResources() {
+  const { data } = await http.get("/admin/resources");
+  return data.data;
+}
+
+export async function publishAdminResource(id) {
+  const { data } = await http.post(`/admin/resources/${id}/publish`);
+  return data.data;
+}
+
+export async function rejectAdminResource(id, payload) {
+  const { data } = await http.post(`/admin/resources/${id}/reject`, payload);
+  return data.data;
+}
+
+export async function offlineAdminResource(id) {
+  const { data } = await http.post(`/admin/resources/${id}/offline`);
+  return data.data;
+}

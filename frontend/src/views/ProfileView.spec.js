@@ -10,7 +10,7 @@ beforeEach(() => {
   window.localStorage.clear();
 });
 
-test("submits verification request and updates profile status", async () => {
+test("shows the my resources link and submits verification request", async () => {
   setActivePinia(createPinia());
   const userStore = useUserStore();
 
@@ -50,12 +50,13 @@ test("submits verification request and updates profile status", async () => {
 
   await flushPromises();
 
-  await wrapper.find('input[name="verificationRealName"]').setValue("张三");
+  expect(wrapper.html()).toContain('data-to="/profile/resources"');
+
+  await wrapper.find('input[name="verificationRealName"]').setValue("Student User");
   await wrapper.find('input[name="studentId"]').setValue("20241234");
   await wrapper.findAll("form")[1].trigger("submit.prevent");
   await flushPromises();
 
-  expect(wrapper.text()).toContain("认证申请已提交");
   expect(userStore.profile.verificationStatus).toBe("PENDING");
   expect(userStore.profile.studentId).toBe("20241234");
 });

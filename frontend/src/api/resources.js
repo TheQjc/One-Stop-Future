@@ -5,6 +5,11 @@ export async function getResources(params = {}) {
   return data.data;
 }
 
+export async function getMyResources() {
+  const { data } = await http.get("/resources/mine");
+  return data.data;
+}
+
 export async function getResourceDetail(id) {
   const { data } = await http.get(`/resources/${id}`);
   return data.data;
@@ -26,6 +31,13 @@ export async function favoriteResource(id) {
 
 export async function unfavoriteResource(id) {
   const { data } = await http.delete(`/resources/${id}/favorite`);
+  return data.data;
+}
+
+export async function getMyResourceFavorites() {
+  const { data } = await http.get("/users/me/favorites", {
+    params: { type: "RESOURCE" },
+  });
   return data.data;
 }
 

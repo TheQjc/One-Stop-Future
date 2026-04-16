@@ -25,9 +25,7 @@ const verificationForm = reactive({
   studentId: "",
 });
 
-const verificationStatus = computed(() => (
-  userStore.profile?.verificationStatus || "UNVERIFIED"
-));
+const verificationStatus = computed(() => userStore.profile?.verificationStatus || "UNVERIFIED");
 
 const verificationLocked = computed(() => (
   verificationStatus.value === "PENDING" || verificationStatus.value === "VERIFIED"
@@ -35,14 +33,14 @@ const verificationLocked = computed(() => (
 
 const verificationHint = computed(() => {
   if (verificationStatus.value === "VERIFIED") {
-    return "当前已完成学生身份认证，无需重复提交。";
+    return "Student verification is complete. No further action is required.";
   }
 
   if (verificationStatus.value === "PENDING") {
-    return "认证申请已提交，教师或管理员审核后会通过通知中心反馈结果。";
+    return "Your verification request is under review. Results will return through notifications.";
   }
 
-  return "请填写真实姓名和学号提交学生认证，审核通过后将解锁后续能力。";
+  return "Submit your real name and student ID to enter the review queue.";
 });
 
 function syncForms() {
@@ -63,7 +61,7 @@ async function initialize() {
 
     syncForms();
   } catch (error) {
-    pageError.value = error.message || "个人资料加载失败，请稍后重试。";
+    pageError.value = error.message || "Profile loading failed. Please try again.";
   } finally {
     loading.value = false;
   }
@@ -74,7 +72,7 @@ async function submitProfile() {
   profileError.value = "";
 
   if (!profileForm.nickname.trim()) {
-    profileError.value = "请输入昵称";
+    profileError.value = "Nickname is required.";
     return;
   }
 
@@ -85,9 +83,9 @@ async function submitProfile() {
     });
 
     syncForms();
-    profileMessage.value = "个人资料已更新。";
+    profileMessage.value = "Profile updated.";
   } catch (error) {
-    profileError.value = error.message || "资料保存失败，请稍后重试。";
+    profileError.value = error.message || "Profile save failed. Please try again.";
   }
 }
 
@@ -96,12 +94,12 @@ async function handleSubmitVerification() {
   verificationError.value = "";
 
   if (!verificationForm.realName.trim()) {
-    verificationError.value = "请输入真实姓名";
+    verificationError.value = "Real name is required.";
     return;
   }
 
   if (!verificationForm.studentId.trim()) {
-    verificationError.value = "请输入学号";
+    verificationError.value = "Student ID is required.";
     return;
   }
 
@@ -115,9 +113,9 @@ async function handleSubmitVerification() {
 
     userStore.mergeProfile(profile);
     syncForms();
-    verificationMessage.value = "认证申请已提交，请等待教师或管理员审核。";
+    verificationMessage.value = "Verification request submitted.";
   } catch (error) {
-    verificationError.value = error.message || "认证申请提交失败，请稍后重试。";
+    verificationError.value = error.message || "Verification submission failed. Please try again.";
   } finally {
     verificationSubmitting.value = false;
   }
@@ -132,39 +130,40 @@ onMounted(initialize);
       <div class="section-header">
         <div>
           <span class="section-eyebrow">Profile Desk</span>
-          <h1 class="page-title" style="margin-top: 16px;">个人中心</h1>
+          <h1 class="page-title" style="margin-top: 16px;">Personal Center</h1>
           <p class="page-subtitle" style="margin-top: 16px;">
-            在这里维护基础资料、查看认证状态，并把学生认证申请送入统一审核流程。
+            Manage identity details, review your saved records, and keep the student-verification
+            flow on one working surface.
           </p>
         </div>
         <RouterLink to="/notifications" class="app-link">
-          查看通知中心
+          Open Notifications
         </RouterLink>
       </div>
 
-      <div v-if="loading" class="empty-state">正在整理个人资料...</div>
+      <div v-if="loading" class="empty-state">Preparing your profile desk...</div>
       <div v-else-if="pageError" class="field-grid">
         <p class="field-error" role="alert">{{ pageError }}</p>
         <button type="button" class="ghost-btn" @click="initialize">
-          重新加载
+          Retry
         </button>
       </div>
       <div v-else class="identity-grid">
         <article class="panel-card identity-card">
-          <p class="identity-card__label">手机号</p>
+          <p class="identity-card__label">Phone</p>
           <strong>{{ userStore.profile?.phone || "--" }}</strong>
         </article>
         <article class="panel-card identity-card">
-          <p class="identity-card__label">当前角色</p>
+          <p class="identity-card__label">Role</p>
           <strong>{{ userStore.roleLabel }}</strong>
         </article>
         <article class="panel-card identity-card">
-          <p class="identity-card__label">认证状态</p>
+          <p class="identity-card__label">Verification</p>
           <VerificationStatusBadge :status="verificationStatus" />
         </article>
         <article class="panel-card identity-card">
-          <p class="identity-card__label">学号</p>
-          <strong>{{ userStore.profile?.studentId || "待补充" }}</strong>
+          <p class="identity-card__label">Student ID</p>
+          <strong>{{ userStore.profile?.studentId || "Not submitted" }}</strong>
         </article>
       </div>
     </article>
@@ -172,10 +171,11 @@ onMounted(initialize);
     <article class="section-card">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Community Desk</span>
-          <h2 class="page-title" style="margin-top: 16px;">社区入口</h2>
+          <span class="section-eyebrow">Workspace Links</span>
+          <h2 class="page-title" style="margin-top: 16px;">Return surfaces</h2>
           <p class="page-subtitle" style="margin-top: 16px;">
-            在个人中心里统一管理你的帖子发布和收藏，不需要再回到社区列表里查找记录。
+            Keep posting, collecting, and uploading reachable without jumping back through list
+            pages.
           </p>
         </div>
       </div>
@@ -183,20 +183,26 @@ onMounted(initialize);
       <div class="quick-link-grid">
         <RouterLink to="/profile/posts" class="panel-card profile-link-card">
           <span class="profile-link-card__eyebrow">My Posts</span>
-          <strong>我的发布</strong>
-          <p class="meta-copy">查看你已经发布的经验帖和讨论贴。</p>
+          <strong>Published Posts</strong>
+          <p class="meta-copy">Review community posts you have already published.</p>
         </RouterLink>
 
         <RouterLink to="/profile/favorites" class="panel-card profile-link-card">
           <span class="profile-link-card__eyebrow">My Favorites</span>
-          <strong>我的收藏</strong>
-          <p class="meta-copy">统一整理你收藏过的帖子，方便后续回看。</p>
+          <strong>Saved Board</strong>
+          <p class="meta-copy">Keep posts, jobs, and resources ready for the next revisit.</p>
+        </RouterLink>
+
+        <RouterLink to="/profile/resources" class="panel-card profile-link-card">
+          <span class="profile-link-card__eyebrow">My Resources</span>
+          <strong>Resource Records</strong>
+          <p class="meta-copy">Track uploaded files, status changes, and rejection notes.</p>
         </RouterLink>
 
         <RouterLink to="/community/create" class="panel-card profile-link-card">
           <span class="profile-link-card__eyebrow">Write</span>
-          <strong>发布新帖</strong>
-          <p class="meta-copy">直接进入发布页，继续补充就业、考研或留学讨论。</p>
+          <strong>New Community Post</strong>
+          <p class="meta-copy">Jump straight into a new discussion without leaving the desk.</p>
         </RouterLink>
       </div>
     </article>
@@ -206,44 +212,45 @@ onMounted(initialize);
         <div class="section-header">
           <div>
             <span class="section-eyebrow">Basic Info</span>
-            <h2 class="page-title" style="margin-top: 16px;">资料维护</h2>
+            <h2 class="page-title" style="margin-top: 16px;">Profile details</h2>
           </div>
         </div>
 
         <form class="field-grid" @submit.prevent="submitProfile">
           <label class="field-label">
-            昵称
+            Nickname
             <input
               v-model.trim="profileForm.nickname"
               class="field-control"
               name="nickname"
               type="text"
               autocomplete="nickname"
-              placeholder="请输入你的展示昵称"
+              placeholder="Enter a display name"
             />
           </label>
 
           <label class="field-label">
-            真实姓名
+            Real Name
             <input
               v-model.trim="profileForm.realName"
               class="field-control"
               name="realName"
               type="text"
               autocomplete="name"
-              placeholder="如已知可先补充真实姓名"
+              placeholder="Optional before verification"
             />
           </label>
 
           <p class="field-hint">
-            Phase A 当前仅开放昵称和真实姓名维护，后续会把更多校园信息逐步汇总到这里。
+            Keep this section limited to the identity fields already supported by the current
+            backend slice.
           </p>
           <p v-if="profileMessage" class="field-hint">{{ profileMessage }}</p>
           <p v-if="profileError" class="field-error" role="alert">{{ profileError }}</p>
 
           <div class="inline-form-actions">
             <button type="submit" class="app-btn">
-              保存资料
+              Save Profile
             </button>
           </div>
         </form>
@@ -253,20 +260,20 @@ onMounted(initialize);
         <div class="section-header">
           <div>
             <span class="section-eyebrow">Student Verification</span>
-            <h2 class="page-title" style="margin-top: 16px;">学生认证</h2>
+            <h2 class="page-title" style="margin-top: 16px;">Verification queue</h2>
           </div>
         </div>
 
         <div class="verification-panel">
           <article class="panel-card">
-            <strong>审核说明</strong>
+            <strong>Review Notice</strong>
             <p class="meta-copy" style="margin-top: 12px;">
-              认证申请提交后，将由教师或管理员统一审核，结果会通过通知中心反馈。
+              Teacher or admin reviewers handle the request after submission.
             </p>
           </article>
 
           <article class="panel-card">
-            <strong>当前状态</strong>
+            <strong>Current State</strong>
             <p class="meta-copy" style="margin-top: 12px;">
               {{ verificationHint }}
             </p>
@@ -275,26 +282,26 @@ onMounted(initialize);
 
         <form class="field-grid" style="margin-top: 24px;" @submit.prevent="handleSubmitVerification">
           <label class="field-label">
-            真实姓名
+            Real Name
             <input
               v-model.trim="verificationForm.realName"
               class="field-control"
               name="verificationRealName"
               type="text"
               autocomplete="name"
-              placeholder="请输入真实姓名"
+              placeholder="Enter your real name"
               :disabled="verificationLocked"
             />
           </label>
 
           <label class="field-label">
-            学号
+            Student ID
             <input
               v-model.trim="verificationForm.studentId"
               class="field-control"
               name="studentId"
               type="text"
-              placeholder="请输入学号"
+              placeholder="Enter your student ID"
               :disabled="verificationLocked"
             />
           </label>
@@ -310,8 +317,8 @@ onMounted(initialize);
             >
               {{
                 verificationLocked
-                  ? (verificationStatus === "VERIFIED" ? "已完成认证" : "审核中")
-                  : (verificationSubmitting ? "提交中..." : "提交认证申请")
+                  ? (verificationStatus === "VERIFIED" ? "Verified" : "Under Review")
+                  : (verificationSubmitting ? "Submitting..." : "Submit Verification")
               }}
             </button>
           </div>
