@@ -1,6 +1,6 @@
 # One-Stop Future
 
-Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice`.
+Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice + Phase H resource preview expansion first slice`.
 
 ## Current Scope
 
@@ -24,6 +24,9 @@ Implemented now:
 - unified search across published posts / jobs / resources
 - discover board across published posts / jobs / resources
 - homepage discover preview with weekly public picks
+- PDF inline preview for visible resources
+- PPTX inline preview via cached PDF conversion
+- ZIP directory-tree preview for visible resources
 
 Explicitly not implemented yet:
 
@@ -31,7 +34,7 @@ Explicitly not implemented yet:
 - third-party job sync
 - in-site application / resume workflow
 - MinIO resource storage
-- DOCX / PPTX / ZIP online preview
+- DOCX online preview
 - version history, chunk upload, or resume upload
 
 ## Project Structure
@@ -40,6 +43,7 @@ Explicitly not implemented yet:
 - `frontend/`: Vue 3, Pinia, Vue Router, Axios, Vite, Vitest
 - `docs/superpowers/`: requirements, specs, plans
 - `.local-storage/resources/`: local resource file storage in the `local` profile
+- `.local-storage/previews/`: cached PPTX-to-PDF and ZIP preview artifacts in the `local` profile
 
 ## Local Run
 
@@ -206,6 +210,8 @@ Guest:
 - can use unified search for published posts, jobs, and resources
 - can browse the public discover board
 - can preview published PDF resources inline
+- can preview published PPTX resources inline as converted PDF
+- can preview published ZIP resources as directory trees
 - cannot create content, save favorites, or download resource files
 
 Authenticated user:
@@ -214,7 +220,7 @@ Authenticated user:
 - can comment / like / favorite community posts
 - can favorite jobs
 - can upload resources
-- can preview published PDFs and their own unpublished PDF resources
+- can preview published PDFs, visible PPTX resources, and visible ZIP directory trees
 - can favorite, unfavorite, and download published resources
 - can edit and resubmit their own rejected resources from `/resources/:id/edit`
 - can view profile favorites for `POST`, `JOB`, and `RESOURCE`
@@ -226,7 +232,7 @@ Admin:
 - can moderate community posts
 - can maintain job cards
 - can review resources through publish / reject / offline actions
-- can preview PDF resources from the admin resource board
+- can preview PDF and PPTX resources inline and ZIP contents from the admin resource board
 
 ## Current Data Shapes
 
@@ -276,8 +282,8 @@ Resource statuses:
 1. Start backend with `mvn spring-boot:run "-Dspring-boot.run.profiles=local"`.
 2. Start frontend with `npm run dev -- --host 127.0.0.1`.
 3. As guest, open `/community`, `/jobs`, and `/resources`.
-4. As guest, open a published PDF `/resources/:id` and confirm `Preview PDF` works without login.
-5. As guest, open a non-PDF published resource and confirm no preview action is shown.
+4. As guest, open a published PDF `/resources/:id` and confirm `Preview` works without login.
+5. As guest, open a published ZIP `/resources/:id` and confirm `Preview Contents` loads a directory tree inline.
 6. As guest, confirm the download action is still blocked by login.
 7. Log in as the normal user `13800000001` and upload a resource from `/resources/upload`.
 8. Open `/profile/resources` and confirm the new file appears as `PENDING`.
@@ -285,8 +291,8 @@ Resource statuses:
 10. Reject a pending resource with a clear review note.
 11. Log back in as the owner, open `/profile/resources`, click `Edit And Resubmit`, revise metadata, and submit without replacing the file.
 12. Repeat the resubmission flow with a PDF replacement file and confirm the record returns to `PENDING`.
-13. As the owner, preview the unpublished PDF from `/profile/resources` or `/resources/:id`.
-14. As admin, confirm preview is shown only for PDF rows in `/admin/resources`.
+13. As the owner, preview an unpublished visible PDF or PPTX from `/profile/resources` or `/resources/:id`.
+14. As admin, confirm preview is shown for visible PDF / PPTX rows and `Preview Contents` is shown for ZIP rows in `/admin/resources`.
 15. Publish the pending resource and confirm it appears in the public `/resources` list.
 16. Favorite and download a published resource as a normal user.
 17. Open `/profile/favorites` and switch between `POST`, `JOB`, and `RESOURCE`.
@@ -298,20 +304,20 @@ Resource statuses:
 23. Refresh `/discover?tab=JOB&period=ALL` and confirm the state stays in the URL.
 24. Return to `/` and confirm the homepage discover preview shows items or a graceful empty state.
 
-## Targeted Resource Lifecycle Verification
+## Targeted Resource Preview Verification
 
 ### Backend
 
 ```bash
 cd backend
-mvn -q "-Dtest=ResourceControllerTests,AdminResourceControllerTests" test
+mvn -q "-Dtest=ResourceControllerTests,AdminResourceControllerTests,ResourcePreviewServiceTests,ApachePoiPptxPreviewGeneratorTests" test
 ```
 
 ### Frontend
 
 ```bash
 cd frontend
-npx vitest run src/views/ResourceUploadView.spec.js src/views/ResourceEditView.spec.js src/views/ResourceDetailView.spec.js src/views/ProfileResourcesView.spec.js src/views/admin/AdminResourceManageView.spec.js
+npx vitest run src/components/ResourceZipPreviewPanel.spec.js src/views/ResourceDetailView.spec.js src/views/ProfileResourcesView.spec.js src/views/admin/AdminResourceManageView.spec.js
 ```
 
 ## Targeted Unified Search Verification
