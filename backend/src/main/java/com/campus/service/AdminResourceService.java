@@ -137,7 +137,8 @@ public class AdminResourceService {
                 resource.getCreatedAt(),
                 resource.getReviewedAt(),
                 resource.getPublishedAt(),
-                resourceService.isPreviewAvailableForAdmin(resource));
+                resourceService.isPreviewAvailableForAdmin(resource),
+                resourceService.previewKindForAdmin(resource));
     }
 
     private boolean isBlank(String value) {

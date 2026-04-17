@@ -17,16 +17,19 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.campus.common.BusinessException;
 import com.campus.common.FavoriteTargetType;
 import com.campus.common.ResourceCategory;
+import com.campus.common.ResourcePreviewKind;
 import com.campus.common.ResourceStatus;
 import com.campus.dto.MyResourceListResponse;
 import com.campus.dto.ResourceDetailResponse;
 import com.campus.dto.ResourceListResponse;
+import com.campus.dto.ResourceZipPreviewResponse;
 import com.campus.dto.SearchResponse;
 import com.campus.entity.ResourceItem;
 import com.campus.entity.User;
 import com.campus.entity.UserFavorite;
 import com.campus.mapper.ResourceItemMapper;
 import com.campus.mapper.UserFavoriteMapper;
+import com.campus.preview.ResourcePreviewService;
 import com.campus.storage.ResourceFileStorage;
 
 @Service
@@ -41,13 +44,16 @@ public class ResourceService {
     private final UserFavoriteMapper userFavoriteMapper;
     private final UserService userService;
     private final ResourceFileStorage resourceFileStorage;
+    private final ResourcePreviewService resourcePreviewService;
 
     public ResourceService(ResourceItemMapper resourceItemMapper, UserFavoriteMapper userFavoriteMapper,
-            UserService userService, ResourceFileStorage resourceFileStorage) {
+            UserService userService, ResourceFileStorage resourceFileStorage,
+            ResourcePreviewService resourcePreviewService) {
         this.resourceItemMapper = resourceItemMapper;
         this.userFavoriteMapper = userFavoriteMapper;
         this.userService = userService;
         this.resourceFileStorage = resourceFileStorage;
+        this.resourcePreviewService = resourcePreviewService;
     }
 
     public ResourceListResponse listResources(String keyword, String category, String identity) {
@@ -256,10 +262,24 @@ public class ResourceService {
     public ResourceFileStream previewResource(Long resourceId, String identity) {
         User viewer = findViewer(identity);
         ResourceItem resource = requireVisibleResourceForViewer(resourceId, viewer);
-        if (!isPdf(resource)) {
-            throw new BusinessException(400, "resource preview only supports pdf");
+        if (isPdf(resource)) {
+            return openResourceFile(resource);
         }
-        return openResourceFile(resource);
+        if (isPptx(resource)) {
+            ResourcePreviewService.PreviewFile previewFile = resourcePreviewService.previewFile(resource,
+                    () -> openResourceFile(resource).inputStream());
+            return new ResourceFileStream(previewFile.fileName(), previewFile.contentType(), previewFile.inputStream());
+        }
+        throw new BusinessException(400, "resource preview only supports pdf or pptx");
+    }
+
+    public ResourceZipPreviewResponse previewZipResource(Long resourceId, String identity) {
+        User viewer = findViewer(identity);
+        ResourceItem resource = requireVisibleResourceForViewer(resourceId, viewer);
+        if (!isZip(resource)) {
+            throw new BusinessException(400, "zip preview only supports zip resources");
+        }
+        return resourcePreviewService.previewZip(resource, () -> openResourceFile(resource).inputStream());
     }
 
     @Transactional
@@ -326,6 +346,7 @@ public class ResourceService {
     }
 
     private ResourceDetailResponse toResourceDetail(ResourceItem resource, User viewer) {
+        ResourcePreviewKind previewKind = previewKindOf(resource);
         return new ResourceDetailResponse(
                 resource.getId(),
                 resource.getTitle(),
@@ -348,10 +369,12 @@ public class ResourceService {
                 resource.getRejectReason(),
                 viewer != null && hasFavorite(resource.getId(), viewer.getId()),
                 isEditableByViewer(resource, viewer),
-                canPreviewResource(resource, viewer));
+                canPreviewResource(resource, viewer),
+                previewKind);
     }
 
     private MyResourceListResponse.ResourceItem toMyResourceItem(ResourceItem resource, User viewer) {
+        ResourcePreviewKind previewKind = previewKindOf(resource);
         return new MyResourceListResponse.ResourceItem(
                 resource.getId(),
                 resource.getTitle(),
@@ -365,7 +388,8 @@ public class ResourceService {
                 resource.getPublishedAt(),
                 resource.getUpdatedAt(),
                 isEditableByOwner(resource),
-                canPreviewResource(resource, viewer));
+                canPreviewResource(resource, viewer),
+                previewKind);
     }
 
     private ResourceFileStream openResourceFile(ResourceItem resource) {
@@ -416,7 +440,7 @@ public class ResourceService {
     }
 
     private boolean canPreviewResource(ResourceItem resource, User viewer) {
-        return canViewerSeeResource(resource, viewer) && isPdf(resource);
+        return canViewerSeeResource(resource, viewer) && previewKindOf(resource) != ResourcePreviewKind.NONE;
     }
 
     private boolean isEditableByViewer(ResourceItem resource, User viewer) {
@@ -432,8 +456,33 @@ public class ResourceService {
                 || "application/pdf".equalsIgnoreCase(resource.getContentType());
     }
 
+    private boolean isPptx(ResourceItem resource) {
+        return "pptx".equalsIgnoreCase(resource.getFileExt())
+                || "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+                        .equalsIgnoreCase(resource.getContentType());
+    }
+
+    private boolean isZip(ResourceItem resource) {
+        return "zip".equalsIgnoreCase(resource.getFileExt())
+                || "application/zip".equalsIgnoreCase(resource.getContentType());
+    }
+
+    ResourcePreviewKind previewKindOf(ResourceItem resource) {
+        if (isZip(resource)) {
+            return ResourcePreviewKind.ZIP_TREE;
+        }
+        if (isPdf(resource) || isPptx(resource)) {
+            return ResourcePreviewKind.FILE;
+        }
+        return ResourcePreviewKind.NONE;
+    }
+
     boolean isPreviewAvailableForAdmin(ResourceItem resource) {
-        return isPdf(resource);
+        return previewKindOf(resource) != ResourcePreviewKind.NONE;
+    }
+
+    ResourcePreviewKind previewKindForAdmin(ResourceItem resource) {
+        return previewKindOf(resource);
     }
 
     private boolean isEditableByOwner(ResourceItem resource) {

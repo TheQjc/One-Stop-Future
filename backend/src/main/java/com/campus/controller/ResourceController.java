@@ -24,6 +24,7 @@ import com.campus.common.Result;
 import com.campus.dto.MyResourceListResponse;
 import com.campus.dto.ResourceDetailResponse;
 import com.campus.dto.ResourceListResponse;
+import com.campus.dto.ResourceZipPreviewResponse;
 import com.campus.service.ResourceService;
 import com.campus.service.ResourceService.DownloadedResource;
 import com.campus.service.ResourceService.ResourceFileStream;
@@ -79,6 +80,11 @@ public class ResourceController {
                         .build()
                         .toString())
                 .body(new InputStreamResource(preview.inputStream()));
+    }
+
+    @GetMapping("/{id}/preview-zip")
+    public Result<ResourceZipPreviewResponse> previewZip(@PathVariable Long id, Authentication authentication) {
+        return Result.success(resourceService.previewZipResource(id, identityOf(authentication)));
     }
 
     @PostMapping

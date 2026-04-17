@@ -3,6 +3,8 @@ package com.campus.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.campus.common.ResourcePreviewKind;
+
 public record MyResourceListResponse(
         int total,
         List<ResourceItem> resources) {
@@ -20,6 +22,7 @@ public record MyResourceListResponse(
             LocalDateTime publishedAt,
             LocalDateTime updatedAt,
             boolean editable,
-            boolean previewAvailable) {
+            boolean previewAvailable,
+            ResourcePreviewKind previewKind) {
     }
 }

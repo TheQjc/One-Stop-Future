@@ -10,13 +10,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.awt.Rectangle;
 import java.io.IOException;
+import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
+import org.apache.poi.xslf.usermodel.XMLSlideShow;
+import org.apache.poi.xslf.usermodel.XSLFSlide;
+import org.apache.poi.xslf.usermodel.XSLFTextBox;
+import org.apache.poi.xslf.usermodel.XSLFTextParagraph;
+import org.apache.poi.xslf.usermodel.XSLFTextRun;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +44,7 @@ import org.springframework.test.web.servlet.MockMvc;
 class ResourceControllerTests {
 
     private static final Path STORAGE_ROOT = Path.of(".local-storage", "resources");
+    private static final Path PREVIEW_ROOT = Path.of(".local-storage", "previews");
 
     @Autowired
     private MockMvc mockMvc;
@@ -44,19 +54,8 @@ class ResourceControllerTests {
 
     @AfterEach
     void cleanLocalStorage() throws IOException {
-        if (!Files.exists(STORAGE_ROOT)) {
-            return;
-        }
-        try (var paths = Files.walk(STORAGE_ROOT)) {
-            paths.sorted(Comparator.reverseOrder())
-                    .forEach(path -> {
-                        try {
-                            Files.deleteIfExists(path);
-                        } catch (IOException exception) {
-                            throw new IllegalStateException(exception);
-                        }
-                    });
-        }
+        deleteTreeIfExists(STORAGE_ROOT);
+        deleteTreeIfExists(PREVIEW_ROOT);
     }
 
     @Test
@@ -81,12 +80,23 @@ class ResourceControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.id").value(1))
-                .andExpect(jsonPath("$.data.fileName").value("resume-template-pack.pdf"));
+                .andExpect(jsonPath("$.data.fileName").value("resume-template-pack.pdf"))
+                .andExpect(jsonPath("$.data.previewAvailable").value(true))
+                .andExpect(jsonPath("$.data.previewKind").value("FILE"));
 
         mockMvc.perform(get("/api/resources/3"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(404))
                 .andExpect(jsonPath("$.message").value("resource not found"));
+    }
+
+    @Test
+    void publishedZipDetailExposesZipPreviewKind() throws Exception {
+        mockMvc.perform(get("/api/resources/2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.previewAvailable").value(true))
+                .andExpect(jsonPath("$.data.previewKind").value("ZIP_TREE"));
     }
 
     @Test
@@ -102,7 +112,8 @@ class ResourceControllerTests {
                 .andExpect(jsonPath("$.data.status").value("REJECTED"))
                 .andExpect(jsonPath("$.data.rejectReason").value("Please simplify the intro section"))
                 .andExpect(jsonPath("$.data.editableByMe").value(true))
-                .andExpect(jsonPath("$.data.previewAvailable").value(true));
+                .andExpect(jsonPath("$.data.previewAvailable").value(true))
+                .andExpect(jsonPath("$.data.previewKind").value("FILE"));
     }
 
     @Test
@@ -164,6 +175,38 @@ class ResourceControllerTests {
     }
 
     @Test
+    void guestCanPreviewPublishedPptxAsInlinePdf() throws Exception {
+        insertResource(4L, 2L, "PUBLISHED", null, "career-deck.pptx", "pptx",
+                "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                "seed/2026/04/career-deck.pptx");
+        writeStoredBinaryFile("seed/2026/04/career-deck.pptx", simplePptxBytes("Career Deck"));
+
+        mockMvc.perform(get("/api/resources/4/preview"))
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, containsString("inline")))
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, containsString("application/pdf")));
+    }
+
+    @Test
+    void guestCanPreviewPublishedZipDirectory() throws Exception {
+        writeStoredBinaryFile("seed/2026/04/interview-experience-notes.zip", sampleZipBytes());
+
+        mockMvc.perform(get("/api/resources/2/preview-zip"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.fileName").value("interview-experience-notes.zip"))
+                .andExpect(jsonPath("$.data.entries[0].path").isNotEmpty());
+    }
+
+    @Test
+    void previewZipRejectsNonZipResources() throws Exception {
+        mockMvc.perform(get("/api/resources/1/preview-zip"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.message").value("zip preview only supports zip resources"));
+    }
+
+    @Test
     void guestCannotPreviewRejectedPdf() throws Exception {
         insertResource(4L, 2L, "REJECTED", "Please simplify the intro section",
                 "resume-template-revision.pdf", "pdf", "application/pdf",
@@ -176,11 +219,11 @@ class ResourceControllerTests {
     }
 
     @Test
-    void previewRejectsNonPdfResources() throws Exception {
+    void previewRejectsNonPdfOrPptxResources() throws Exception {
         mockMvc.perform(get("/api/resources/2/preview"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("resource preview only supports pdf"));
+                .andExpect(jsonPath("$.message").value("resource preview only supports pdf or pptx"));
     }
 
     @Test
@@ -192,6 +235,20 @@ class ResourceControllerTests {
         writeStoredFile("seed/2026/04/resume-template-revision.pdf", "pdf");
 
         mockMvc.perform(get("/api/resources/4/preview"))
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, containsString("inline")))
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, containsString("application/pdf")));
+    }
+
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
+    void ownerCanPreviewOwnPendingPptxAsInlinePdf() throws Exception {
+        insertResource(5L, 2L, "PENDING", null, "owner-deck.pptx", "pptx",
+                "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                "seed/2026/04/owner-deck.pptx");
+        writeStoredBinaryFile("seed/2026/04/owner-deck.pptx", simplePptxBytes("Owner Deck"));
+
+        mockMvc.perform(get("/api/resources/5/preview"))
                 .andExpect(status().isOk())
                 .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, containsString("inline")))
                 .andExpect(header().string(HttpHeaders.CONTENT_TYPE, containsString("application/pdf")));
@@ -314,7 +371,8 @@ class ResourceControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.total").value(2))
-                .andExpect(jsonPath("$.data.resources[0].status").isNotEmpty());
+                .andExpect(jsonPath("$.data.resources[0].status").isNotEmpty())
+                .andExpect(jsonPath("$.data.resources[0].previewKind").isNotEmpty());
     }
 
     @Test
@@ -331,15 +389,66 @@ class ResourceControllerTests {
                 .andExpect(jsonPath("$.data.resources[0].id").value(4))
                 .andExpect(jsonPath("$.data.resources[0].editable").value(true))
                 .andExpect(jsonPath("$.data.resources[0].previewAvailable").value(true))
+                .andExpect(jsonPath("$.data.resources[0].previewKind").value("FILE"))
                 .andExpect(jsonPath("$.data.resources[1].id").value(3))
                 .andExpect(jsonPath("$.data.resources[1].editable").value(false))
-                .andExpect(jsonPath("$.data.resources[1].previewAvailable").value(false));
+                .andExpect(jsonPath("$.data.resources[1].previewAvailable").value(false))
+                .andExpect(jsonPath("$.data.resources[1].previewKind").value("NONE"));
     }
 
     private void writeStoredFile(String storageKey, String content) throws IOException {
         Path filePath = STORAGE_ROOT.resolve(storageKey);
         Files.createDirectories(filePath.getParent());
         Files.writeString(filePath, content, StandardCharsets.UTF_8);
+    }
+
+    private void writeStoredBinaryFile(String storageKey, byte[] content) throws IOException {
+        Path filePath = STORAGE_ROOT.resolve(storageKey);
+        Files.createDirectories(filePath.getParent());
+        Files.write(filePath, content);
+    }
+
+    private byte[] sampleZipBytes() throws IOException {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream, StandardCharsets.UTF_8)) {
+            zipOutputStream.putNextEntry(new ZipEntry("backend/"));
+            zipOutputStream.closeEntry();
+            zipOutputStream.putNextEntry(new ZipEntry("backend/questions.md"));
+            zipOutputStream.write("q".getBytes(StandardCharsets.UTF_8));
+            zipOutputStream.closeEntry();
+            zipOutputStream.finish();
+            return outputStream.toByteArray();
+        }
+    }
+
+    private byte[] simplePptxBytes(String title) throws IOException {
+        try (XMLSlideShow slideShow = new XMLSlideShow();
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            XSLFSlide slide = slideShow.createSlide();
+            XSLFTextBox textBox = slide.createTextBox();
+            textBox.setAnchor(new Rectangle(48, 48, 600, 100));
+            XSLFTextParagraph paragraph = textBox.addNewTextParagraph();
+            XSLFTextRun textRun = paragraph.addNewTextRun();
+            textRun.setText(title);
+            slideShow.write(outputStream);
+            return outputStream.toByteArray();
+        }
+    }
+
+    private void deleteTreeIfExists(Path root) throws IOException {
+        if (!Files.exists(root)) {
+            return;
+        }
+        try (var paths = Files.walk(root)) {
+            paths.sorted(Comparator.reverseOrder())
+                    .forEach(path -> {
+                        try {
+                            Files.deleteIfExists(path);
+                        } catch (IOException exception) {
+                            throw new IllegalStateException(exception);
+                        }
+                    });
+        }
     }
 
     private void insertResource(Long id, Long uploaderId, String status, String rejectReason, String fileName,

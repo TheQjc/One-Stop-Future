@@ -16,6 +16,8 @@ app:
   resource-storage:
     type: local
     local-root: .local-storage/resources
+  resource-preview:
+    local-root: .local-storage/previews
 
 platform:
   integrations:

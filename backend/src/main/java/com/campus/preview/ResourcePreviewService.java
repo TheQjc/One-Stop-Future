@@ -1,0 +1,160 @@
+package com.campus.preview;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HexFormat;
+import java.util.Objects;
+
+import org.springframework.stereotype.Service;
+
+import com.campus.common.BusinessException;
+import com.campus.dto.ResourceZipPreviewResponse;
+import com.campus.entity.ResourceItem;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+@Service
+public class ResourcePreviewService {
+
+    private static final DateTimeFormatter FINGERPRINT_TIME_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+
+    private final ResourcePreviewArtifactStorage artifactStorage;
+    private final ObjectMapper objectMapper;
+    private final PptxPreviewGenerator pptxPreviewGenerator;
+    private final ZipPreviewGenerator zipPreviewGenerator;
+
+    public ResourcePreviewService(ResourcePreviewArtifactStorage artifactStorage, ObjectMapper objectMapper,
+            PptxPreviewGenerator pptxPreviewGenerator, ZipPreviewGenerator zipPreviewGenerator) {
+        this.artifactStorage = Objects.requireNonNull(artifactStorage, "artifactStorage");
+        this.objectMapper = Objects.requireNonNull(objectMapper, "objectMapper");
+        this.pptxPreviewGenerator = Objects.requireNonNull(pptxPreviewGenerator, "pptxPreviewGenerator");
+        this.zipPreviewGenerator = Objects.requireNonNull(zipPreviewGenerator, "zipPreviewGenerator");
+    }
+
+    public String pptxArtifactKeyOf(ResourceItem resource) {
+        return "pptx/" + resource.getId() + "/" + fingerprintOf(resource) + ".pdf";
+    }
+
+    public String zipArtifactKeyOf(ResourceItem resource) {
+        return "zip/" + resource.getId() + "/" + fingerprintOf(resource) + ".json";
+    }
+
+    public PreviewFile previewFile(ResourceItem resource, PptxSourceSupplier pptxSourceSupplier) {
+        String artifactKey = pptxArtifactKeyOf(resource);
+        if (artifactStorage.exists(artifactKey)) {
+            return openPptxArtifact(resource, artifactKey);
+        }
+
+        try (InputStream pptxInputStream = pptxSourceSupplier.open()) {
+            byte[] pdfBytes = pptxPreviewGenerator.generate(pptxInputStream);
+            artifactStorage.write(artifactKey, new ByteArrayInputStream(pdfBytes));
+            return new PreviewFile(previewFileName(resource.getFileName()), "application/pdf",
+                    new ByteArrayInputStream(pdfBytes));
+        } catch (IOException | RuntimeException exception) {
+            throw new BusinessException(500, "pptx preview unavailable");
+        }
+    }
+
+    public ResourceZipPreviewResponse previewZip(ResourceItem resource, ZipSourceSupplier zipSourceSupplier) {
+        String artifactKey = zipArtifactKeyOf(resource);
+        if (artifactStorage.exists(artifactKey)) {
+            return readZipArtifact(artifactKey);
+        }
+
+        try (InputStream zipInputStream = zipSourceSupplier.open()) {
+            ResourceZipPreviewResponse generated = zipPreviewGenerator.generate(resource.getId(), resource.getFileName(),
+                    zipInputStream);
+            byte[] serialized = objectMapper.writeValueAsBytes(generated);
+            artifactStorage.write(artifactKey, new ByteArrayInputStream(serialized));
+            return generated;
+        } catch (IOException exception) {
+            throw new BusinessException(500, "zip preview unavailable");
+        }
+    }
+
+    String fingerprintOf(ResourceItem resource) {
+        String source = safe(resource.getStorageKey())
+                + "|"
+                + formatDateTime(resource.getUpdatedAt())
+                + "|"
+                + safeNumber(resource.getFileSize());
+        return sha256Hex(source);
+    }
+
+    private String sha256Hex(String value) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(value.getBytes(StandardCharsets.UTF_8));
+            return HexFormat.of().formatHex(hash);
+        } catch (NoSuchAlgorithmException exception) {
+            throw new IllegalStateException("SHA-256 algorithm unavailable", exception);
+        }
+    }
+
+    private String formatDateTime(LocalDateTime value) {
+        if (value == null) {
+            return "";
+        }
+        return value.format(FINGERPRINT_TIME_FORMATTER);
+    }
+
+    private String safe(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value;
+    }
+
+    private String safeNumber(Long value) {
+        if (value == null) {
+            return "0";
+        }
+        return Long.toString(value);
+    }
+
+    private ResourceZipPreviewResponse readZipArtifact(String artifactKey) {
+        try (InputStream artifactInputStream = artifactStorage.open(artifactKey)) {
+            return objectMapper.readValue(artifactInputStream, ResourceZipPreviewResponse.class);
+        } catch (IOException exception) {
+            throw new BusinessException(500, "zip preview unavailable");
+        }
+    }
+
+    private PreviewFile openPptxArtifact(ResourceItem resource, String artifactKey) {
+        try {
+            return new PreviewFile(previewFileName(resource.getFileName()), "application/pdf",
+                    artifactStorage.open(artifactKey));
+        } catch (IOException exception) {
+            throw new BusinessException(500, "pptx preview unavailable");
+        }
+    }
+
+    private String previewFileName(String fileName) {
+        if (fileName == null || fileName.isBlank()) {
+            return "preview.pdf";
+        }
+        int lastDot = fileName.lastIndexOf('.');
+        if (lastDot <= 0) {
+            return fileName + ".pdf";
+        }
+        return fileName.substring(0, lastDot) + ".pdf";
+    }
+
+    public record PreviewFile(String fileName, String contentType, InputStream inputStream) {
+    }
+
+    @FunctionalInterface
+    public interface PptxSourceSupplier {
+        InputStream open() throws IOException;
+    }
+
+    @FunctionalInterface
+    public interface ZipSourceSupplier {
+        InputStream open() throws IOException;
+    }
+}

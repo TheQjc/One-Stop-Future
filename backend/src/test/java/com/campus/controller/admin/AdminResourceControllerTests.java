@@ -1,15 +1,28 @@
 package com.campus.controller.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.awt.Rectangle;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 
+import org.apache.poi.xslf.usermodel.XMLSlideShow;
+import org.apache.poi.xslf.usermodel.XSLFSlide;
+import org.apache.poi.xslf.usermodel.XSLFTextBox;
+import org.apache.poi.xslf.usermodel.XSLFTextParagraph;
+import org.apache.poi.xslf.usermodel.XSLFTextRun;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,6 +36,8 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 @Sql(scripts = { "/schema.sql", "/data.sql" }, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 class AdminResourceControllerTests {
+
+    private static final Path STORAGE_ROOT = Path.of(".local-storage", "resources");
 
     @Autowired
     private MockMvc mockMvc;
@@ -44,7 +59,8 @@ class AdminResourceControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.total").value(3))
-                .andExpect(jsonPath("$.data.resources[0].status").isNotEmpty());
+                .andExpect(jsonPath("$.data.resources[0].status").isNotEmpty())
+                .andExpect(jsonPath("$.data.resources[0].previewKind").isNotEmpty());
     }
 
     @Test
@@ -85,8 +101,10 @@ class AdminResourceControllerTests {
                 .andExpect(jsonPath("$.data.total").value(4))
                 .andExpect(jsonPath("$.data.resources[0].id").value(4))
                 .andExpect(jsonPath("$.data.resources[0].previewAvailable").value(true))
+                .andExpect(jsonPath("$.data.resources[0].previewKind").value("FILE"))
                 .andExpect(jsonPath("$.data.resources[1].id").value(3))
-                .andExpect(jsonPath("$.data.resources[1].previewAvailable").value(false));
+                .andExpect(jsonPath("$.data.resources[1].previewAvailable").value(false))
+                .andExpect(jsonPath("$.data.resources[1].previewKind").value("NONE"));
     }
 
     @Test
@@ -133,5 +151,73 @@ class AdminResourceControllerTests {
         String statusValue = jdbcTemplate.queryForObject(
                 "SELECT status FROM t_resource_item WHERE id = 3", String.class);
         assertThat(statusValue).isEqualTo("REJECTED");
+    }
+
+    @Test
+    @WithMockUser(username = "1", roles = "ADMIN")
+    void adminCanPreviewPendingPptxAsInlinePdf() throws Exception {
+        insertResource(4L, 2L, "PENDING", "admin-preview.pptx", "pptx",
+                "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                "seed/2026/04/admin-preview.pptx");
+        writeStoredBinaryFile("seed/2026/04/admin-preview.pptx", simplePptxBytes("Admin PPTX"));
+
+        mockMvc.perform(get("/api/resources/4/preview"))
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, containsString("inline")))
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, containsString("application/pdf")));
+    }
+
+    private void writeStoredBinaryFile(String storageKey, byte[] content) throws IOException {
+        Path filePath = STORAGE_ROOT.resolve(storageKey);
+        Files.createDirectories(filePath.getParent());
+        Files.write(filePath, content);
+    }
+
+    private byte[] simplePptxBytes(String title) throws IOException {
+        try (XMLSlideShow slideShow = new XMLSlideShow();
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            XSLFSlide slide = slideShow.createSlide();
+            XSLFTextBox textBox = slide.createTextBox();
+            textBox.setAnchor(new Rectangle(48, 48, 600, 100));
+            XSLFTextParagraph paragraph = textBox.addNewTextParagraph();
+            XSLFTextRun textRun = paragraph.addNewTextRun();
+            textRun.setText(title);
+            slideShow.write(outputStream);
+            return outputStream.toByteArray();
+        }
+    }
+
+    private void insertResource(Long id, Long uploaderId, String status, String fileName, String fileExt,
+            String contentType, String storageKey) {
+        LocalDateTime now = LocalDateTime.now();
+        jdbcTemplate.update(
+                """
+                        INSERT INTO t_resource_item (
+                          id, title, category, summary, description, status, uploader_id, reviewed_by, reject_reason,
+                          file_name, file_ext, content_type, file_size, storage_key, download_count, favorite_count,
+                          published_at, reviewed_at, created_at, updated_at
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        """,
+                id,
+                "Inserted Resource " + id,
+                "RESUME_TEMPLATE",
+                "Inserted resource summary",
+                "Inserted resource description",
+                status,
+                uploaderId,
+                null,
+                null,
+                fileName,
+                fileExt,
+                contentType,
+                2048L,
+                storageKey,
+                0,
+                0,
+                "PUBLISHED".equals(status) ? now.minusHours(2) : null,
+                "PUBLISHED".equals(status) || "REJECTED".equals(status) || "OFFLINE".equals(status) ? now.minusHours(2)
+                        : null,
+                now.plusSeconds(id),
+                now.plusSeconds(id + 1));
     }
 }

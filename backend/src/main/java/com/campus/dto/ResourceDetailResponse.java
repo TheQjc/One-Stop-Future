@@ -2,6 +2,8 @@ package com.campus.dto;
 
 import java.time.LocalDateTime;
 
+import com.campus.common.ResourcePreviewKind;
+
 public record ResourceDetailResponse(
         Long id,
         String title,
@@ -24,5 +26,6 @@ public record ResourceDetailResponse(
         String rejectReason,
         boolean favoritedByMe,
         boolean editableByMe,
-        boolean previewAvailable) {
+        boolean previewAvailable,
+        ResourcePreviewKind previewKind) {
 }

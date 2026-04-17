@@ -31,6 +31,8 @@ app:
   resource-storage:
     type: ${RESOURCE_STORAGE_TYPE:local}
     local-root: ${RESOURCE_STORAGE_LOCAL_ROOT:.local-storage/resources}
+  resource-preview:
+    local-root: ${RESOURCE_PREVIEW_LOCAL_ROOT:.local-storage/previews}
 
 platform:
   integrations:
