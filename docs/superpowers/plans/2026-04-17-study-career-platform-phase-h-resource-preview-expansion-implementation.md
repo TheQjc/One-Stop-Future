@@ -8,6 +8,8 @@
 
 **Tech Stack:** Java 17, Spring Boot 3, Spring Security, MyBatis-Plus, Jackson, Apache POI, PDFBox, local filesystem storage, Vue 3, Vue Router, Pinia, Axios, Vite, Vitest
 
+**Implementation Outcome:** Completed on `2026-04-17`. Commits: `31fe89e` backend preview expansion, `5f82028` frontend type-aware preview UI, `e94866e` README updates, `c17f2eb` local artifact ignore rules. Local smoke evidence captured in `.local-smoke/phase-h-acceptance-backend.json` and `.local-smoke/phase-h-acceptance-frontend.json`.
+
 ---
 
 ## Context Before Starting
@@ -181,7 +183,7 @@ Preserve the current visual system:
 - Modify: `backend/src/test/java/com/campus/controller/ResourceControllerTests.java`
 - Modify: `backend/src/test/java/com/campus/controller/admin/AdminResourceControllerTests.java`
 
-- [ ] **Step 1: Write the failing preview-contract and cache-behavior tests**
+- [x] **Step 1: Write the failing preview-contract and cache-behavior tests**
 
 Add controller assertions so the contract is explicit:
 
@@ -223,7 +225,7 @@ void fingerprintChangesWhenStorageKeyOrUpdatedAtChanges() {
 }
 ```
 
-- [ ] **Step 2: Run the failing backend tests**
+- [x] **Step 2: Run the failing backend tests**
 
 Run:
 
@@ -234,7 +236,7 @@ mvn -q "-Dtest=ResourceControllerTests,AdminResourceControllerTests,ResourcePrev
 
 Expected: FAIL because `previewKind`, preview-cache configuration, and `ResourcePreviewService` do not exist yet.
 
-- [ ] **Step 3: Implement the preview-kind and cache foundation**
+- [x] **Step 3: Implement the preview-kind and cache foundation**
 
 Add the enum:
 
@@ -308,7 +310,7 @@ Implementation notes:
 - keep `ResourcePreviewService` free of authentication logic
 - expose a package-visible `fingerprintOf(ResourceItem resource)` helper so unit tests can pin cache invalidation behavior
 
-- [ ] **Step 4: Run the backend tests again and make them pass**
+- [x] **Step 4: Run the backend tests again and make them pass**
 
 Run:
 
@@ -319,7 +321,7 @@ mvn -q "-Dtest=ResourceControllerTests,AdminResourceControllerTests,ResourcePrev
 
 Expected: PASS with stable `previewKind` serialization and fingerprint behavior.
 
-- [ ] **Step 5: Commit the preview-contract foundation**
+- [x] **Step 5: Commit the preview-contract foundation**
 
 ```bash
 git add backend/src/main/java/com/campus/common/ResourcePreviewKind.java backend/src/main/java/com/campus/config/ResourcePreviewProperties.java backend/src/main/java/com/campus/preview/ResourcePreviewArtifactStorage.java backend/src/main/java/com/campus/preview/LocalResourcePreviewArtifactStorage.java backend/src/main/java/com/campus/preview/ResourcePreviewService.java backend/src/test/java/com/campus/preview/ResourcePreviewServiceTests.java backend/src/main/java/com/campus/service/ResourceService.java backend/src/main/java/com/campus/service/AdminResourceService.java backend/src/main/java/com/campus/dto/ResourceDetailResponse.java backend/src/main/java/com/campus/dto/MyResourceListResponse.java backend/src/main/java/com/campus/dto/AdminResourceListResponse.java backend/src/main/resources/application.yml backend/src/main/resources/application-local.yml backend/src/test/java/com/campus/controller/ResourceControllerTests.java backend/src/test/java/com/campus/controller/admin/AdminResourceControllerTests.java
@@ -339,7 +341,7 @@ git commit -m "feat: add resource preview contract foundation"
 - Modify: `backend/src/test/java/com/campus/controller/ResourceControllerTests.java`
 - Modify: `backend/src/test/java/com/campus/preview/ResourcePreviewServiceTests.java`
 
-- [ ] **Step 1: Write the failing ZIP preview tests**
+- [x] **Step 1: Write the failing ZIP preview tests**
 
 Add controller coverage:
 
@@ -378,7 +380,7 @@ void zipPreviewReusesCachedArtifactUntilFingerprintChanges() {
 }
 ```
 
-- [ ] **Step 2: Run the failing ZIP backend tests**
+- [x] **Step 2: Run the failing ZIP backend tests**
 
 Run:
 
@@ -389,7 +391,7 @@ mvn -q "-Dtest=ResourceControllerTests,ResourcePreviewServiceTests" test
 
 Expected: FAIL because `/preview-zip` and ZIP artifact generation are not implemented.
 
-- [ ] **Step 3: Implement ZIP preview generation and caching**
+- [x] **Step 3: Implement ZIP preview generation and caching**
 
 Add the response DTO:
 
@@ -435,7 +437,7 @@ Implementation notes:
 - cache the serialized JSON artifact, not a Java object dump
 - make directory ordering deterministic so Vitest and MockMvc assertions stay stable
 
-- [ ] **Step 4: Run the ZIP backend tests again and make them pass**
+- [x] **Step 4: Run the ZIP backend tests again and make them pass**
 
 Run:
 
@@ -446,7 +448,7 @@ mvn -q "-Dtest=ResourceControllerTests,ResourcePreviewServiceTests" test
 
 Expected: PASS with published/visible ZIP preview, non-ZIP rejection, and cache reuse covered.
 
-- [ ] **Step 5: Commit the ZIP backend slice**
+- [x] **Step 5: Commit the ZIP backend slice**
 
 ```bash
 git add backend/src/main/java/com/campus/dto/ResourceZipPreviewResponse.java backend/src/main/java/com/campus/preview/ZipPreviewGenerator.java backend/src/main/java/com/campus/preview/DefaultZipPreviewGenerator.java backend/src/main/java/com/campus/config/SecurityConfig.java backend/src/main/java/com/campus/controller/ResourceController.java backend/src/main/java/com/campus/service/ResourceService.java backend/src/main/java/com/campus/preview/ResourcePreviewService.java backend/src/test/java/com/campus/controller/ResourceControllerTests.java backend/src/test/java/com/campus/preview/ResourcePreviewServiceTests.java
@@ -466,7 +468,7 @@ git commit -m "feat: add zip directory preview backend"
 - Modify: `backend/src/test/java/com/campus/controller/admin/AdminResourceControllerTests.java`
 - Modify: `backend/src/test/java/com/campus/preview/ResourcePreviewServiceTests.java`
 
-- [ ] **Step 1: Write the failing PPTX preview tests**
+- [x] **Step 1: Write the failing PPTX preview tests**
 
 Add controller coverage:
 
@@ -512,7 +514,7 @@ void filePreviewReusesCachedPdfUntilFingerprintChanges() {
 }
 ```
 
-- [ ] **Step 2: Run the failing PPTX backend tests**
+- [x] **Step 2: Run the failing PPTX backend tests**
 
 Run:
 
@@ -523,7 +525,7 @@ mvn -q "-Dtest=ResourceControllerTests,AdminResourceControllerTests,ResourcePrev
 
 Expected: FAIL because `PPTX` is still rejected by `/preview`, no conversion dependencies exist, and no cached artifact path is implemented.
 
-- [ ] **Step 3: Implement PPTX conversion and cached file preview**
+- [x] **Step 3: Implement PPTX conversion and cached file preview**
 
 Add the dependencies:
 
@@ -581,7 +583,7 @@ Implementation notes:
 - controller responses for converted files should still use `ContentDisposition.inline(...)`
 - on conversion failure, return `BusinessException(500, "pptx preview unavailable")`
 
-- [ ] **Step 4: Run the PPTX backend tests again and make them pass**
+- [x] **Step 4: Run the PPTX backend tests again and make them pass**
 
 Run:
 
@@ -592,7 +594,7 @@ mvn -q "-Dtest=ResourceControllerTests,AdminResourceControllerTests,ResourcePrev
 
 Expected: PASS with guest, owner, and admin visible-PPTX preview behavior covered.
 
-- [ ] **Step 5: Commit the PPTX backend slice**
+- [x] **Step 5: Commit the PPTX backend slice**
 
 ```bash
 git add backend/pom.xml backend/src/main/java/com/campus/preview/PptxPreviewGenerator.java backend/src/main/java/com/campus/preview/ApachePoiPptxPreviewGenerator.java backend/src/test/java/com/campus/preview/ApachePoiPptxPreviewGeneratorTests.java backend/src/main/java/com/campus/service/ResourceService.java backend/src/main/java/com/campus/preview/ResourcePreviewService.java backend/src/test/java/com/campus/controller/ResourceControllerTests.java backend/src/test/java/com/campus/controller/admin/AdminResourceControllerTests.java backend/src/test/java/com/campus/preview/ResourcePreviewServiceTests.java
@@ -612,7 +614,7 @@ git commit -m "feat: add pptx preview generation"
 - Modify: `frontend/src/views/admin/AdminResourceManageView.vue`
 - Modify: `frontend/src/views/admin/AdminResourceManageView.spec.js`
 
-- [ ] **Step 1: Write the failing frontend preview-kind and ZIP-panel tests**
+- [x] **Step 1: Write the failing frontend preview-kind and ZIP-panel tests**
 
 Use `@frontend-design` before touching the screens.
 
@@ -661,7 +663,7 @@ test("docx resources still do not expose preview actions", async () => {
 });
 ```
 
-- [ ] **Step 2: Run the failing frontend tests**
+- [x] **Step 2: Run the failing frontend tests**
 
 Run:
 
@@ -672,7 +674,7 @@ npx vitest run src/components/ResourceZipPreviewPanel.spec.js src/views/Resource
 
 Expected: FAIL because there is no ZIP preview helper, no ZIP panel component, and the views still hardcode `Preview PDF`.
 
-- [ ] **Step 3: Implement the type-aware preview helpers and inline ZIP panel**
+- [x] **Step 3: Implement the type-aware preview helpers and inline ZIP panel**
 
 Add the API helper:
 
@@ -712,7 +714,7 @@ Implementation notes:
 - admin board should render ZIP preview in the selected-resource column rather than inside every table row
 - `DOCX` must continue to show no preview button anywhere
 
-- [ ] **Step 4: Run the frontend tests again and make them pass**
+- [x] **Step 4: Run the frontend tests again and make them pass**
 
 Run:
 
@@ -723,7 +725,7 @@ npx vitest run src/components/ResourceZipPreviewPanel.spec.js src/views/Resource
 
 Expected: PASS with correct labels, ZIP tree rendering, and no preview action for `DOCX`.
 
-- [ ] **Step 5: Commit the frontend preview expansion**
+- [x] **Step 5: Commit the frontend preview expansion**
 
 Use `@ui-ux-pro-max` before closing the task, then commit:
 
@@ -737,7 +739,7 @@ git commit -m "feat: add expanded resource preview frontend"
 **Files:**
 - Modify: `README.md`
 
-- [ ] **Step 1: Update README for the completed Phase H preview behavior**
+- [x] **Step 1: Update README for the completed Phase H preview behavior**
 
 Document:
 
@@ -747,7 +749,7 @@ Document:
 - local preview cache root under `.local-storage/previews`
 - no external LibreOffice requirement because conversion is pure Java
 
-- [ ] **Step 2: Run targeted backend verification**
+- [x] **Step 2: Run targeted backend verification**
 
 Run:
 
@@ -758,7 +760,7 @@ mvn -q "-Dtest=ResourceControllerTests,AdminResourceControllerTests,ResourcePrev
 
 Expected: PASS
 
-- [ ] **Step 3: Run targeted frontend verification**
+- [x] **Step 3: Run targeted frontend verification**
 
 Run:
 
@@ -769,7 +771,7 @@ npx vitest run src/components/ResourceZipPreviewPanel.spec.js src/views/Resource
 
 Expected: PASS
 
-- [ ] **Step 4: Run full regression and build checks**
+- [x] **Step 4: Run full regression and build checks**
 
 Run:
 
@@ -786,7 +788,7 @@ npm run build
 
 Expected: PASS across the full backend suite, full frontend suite, and production build.
 
-- [ ] **Step 5: Manual smoke, evidence capture, and final commit**
+- [x] **Step 5: Manual smoke, evidence capture, and final commit**
 
 Manual smoke checklist:
 
