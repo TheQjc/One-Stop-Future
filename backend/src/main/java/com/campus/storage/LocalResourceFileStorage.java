@@ -12,10 +12,12 @@ import com.campus.config.ResourceStorageProperties;
 public class LocalResourceFileStorage implements ResourceFileStorage {
 
     private final Path rootPath;
+    private final LocalStoragePathResolver pathResolver;
     private final StorageKeyFactory storageKeyFactory;
 
     public LocalResourceFileStorage(ResourceStorageProperties properties, StorageKeyFactory storageKeyFactory) {
         this.rootPath = Path.of(properties.getLocalRoot()).toAbsolutePath().normalize();
+        this.pathResolver = new LocalStoragePathResolver(rootPath);
         this.storageKeyFactory = storageKeyFactory;
         try {
             Files.createDirectories(rootPath);
@@ -29,37 +31,28 @@ public class LocalResourceFileStorage implements ResourceFileStorage {
         Objects.requireNonNull(inputStream, "inputStream");
 
         String storageKey = storageKeyFactory.newStorageKey(originalFilename);
-        Path filePath = resolve(storageKey);
+        Path filePath = pathResolver.resolve(storageKey);
 
-        Files.createDirectories(filePath.getParent());
+        Path parentPath = filePath.getParent();
+        if (parentPath != null) {
+            Files.createDirectories(parentPath);
+        }
         Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
-        return normalizeStorageKey(storageKey);
+        return rootPath.relativize(filePath).toString().replace("\\", "/");
     }
 
     @Override
     public InputStream open(String storageKey) throws IOException {
-        return Files.newInputStream(resolve(storageKey));
+        return Files.newInputStream(pathResolver.resolve(storageKey));
     }
 
     @Override
     public void delete(String storageKey) throws IOException {
-        Files.deleteIfExists(resolve(storageKey));
+        Files.deleteIfExists(pathResolver.resolve(storageKey));
     }
 
     @Override
     public boolean exists(String storageKey) throws IOException {
-        return Files.exists(resolve(storageKey));
-    }
-
-    private Path resolve(String storageKey) {
-        Path resolvedPath = rootPath.resolve(normalizeStorageKey(storageKey)).normalize();
-        if (!resolvedPath.startsWith(rootPath)) {
-            throw new IllegalArgumentException("storage key escapes local resource root");
-        }
-        return resolvedPath;
-    }
-
-    private String normalizeStorageKey(String storageKey) {
-        return storageKey.replace("\\", "/");
+        return Files.exists(pathResolver.resolve(storageKey));
     }
 }
