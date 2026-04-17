@@ -8,7 +8,11 @@
 
 **Tech Stack:** Java 17, Spring Boot 3, Spring Security, MyBatis-Plus, Jackson, Apache POI, PDFBox, local filesystem storage, Vue 3, Vue Router, Pinia, Axios, Vite, Vitest
 
-**Implementation Outcome:** Completed on `2026-04-17`. Commits: `31fe89e` backend preview expansion, `5f82028` frontend type-aware preview UI, `e94866e` README updates, `c17f2eb` local artifact ignore rules. Local smoke evidence captured in `.local-smoke/phase-h-acceptance-backend.json` and `.local-smoke/phase-h-acceptance-frontend.json`.
+> **Completion status:** Completed on 2026-04-17.
+> Delivered by commits `31fe89e`, `5f82028`, `e94866e`, `c17f2eb`, and `bb72049`.
+> Verification completed with targeted backend/frontend tests, full backend/frontend regression, production frontend build, and local smoke across guest/owner/admin preview paths.
+> Local evidence artifacts: `.local-smoke/phase-h-acceptance-backend.json` and `.local-smoke/phase-h-acceptance-frontend.json`.
+> Smoke highlights: guest published `PDF` preview `200 inline`, guest published `ZIP` tree preview `200`, owner/admin pending `PPTX` preview `200 application/pdf`, published `DOCX` stayed `previewKind=NONE`, and rejected `PPTX` replacement refreshed cached preview artifacts.
 
 ---
 
