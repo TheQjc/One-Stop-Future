@@ -1,6 +1,6 @@
 # One-Stop Future
 
-Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice + Phase H resource preview expansion first slice`.
+Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice + Phase H resource preview expansion first slice + Phase J historical local resource MinIO migration first slice`.
 
 ## Current Scope
 
@@ -21,6 +21,7 @@ Implemented now:
 - admin community moderation
 - admin jobs create / edit / publish / offline / delete
 - admin resource publish / reject / offline review workspace
+- admin historical local-resource MinIO migration with dry-run and bounded batch execution
 - unified search across published posts / jobs / resources
 - discover board across published posts / jobs / resources
 - homepage discover preview with weekly public picks
@@ -33,7 +34,6 @@ Explicitly not implemented yet:
 - batch job import
 - third-party job sync
 - in-site application / resume workflow
-- historical local-resource migration into MinIO
 - MinIO-backed preview artifact storage
 - DOCX online preview
 - version history, chunk upload, or resume upload
@@ -96,7 +96,7 @@ Notes:
 - backend is only exposed inside the Compose network and is reached through the frontend Nginx proxy
 - backend stores raw resource files in MinIO and keeps preview artifacts in the `backend-data` named volume
 - current recommendation for day-to-day development is still the local backend + local frontend flow above
-- switching an existing local-file database directly to MinIO is not a supported migration path in the current phase
+- switching an existing local-file database to MinIO is a manual admin-triggered backend migration flow in this phase, not an automatic runtime cutover
 
 ## Local Demo Accounts
 
@@ -225,6 +225,22 @@ Current discover scope:
 - `WEEK` covers the last 7 rolling days and sorts by current cumulative heat
 - `ALL` covers all published history
 - homepage includes a `discoverPreview` payload for the weekly board
+
+## Historical Local Resource MinIO Migration
+
+Admin backend endpoint:
+
+- `POST /api/admin/resources/migrate-to-minio`
+
+Current migration scope:
+
+- admin-triggered and backend-only; there is no frontend migration UI in this phase
+- supports dry-run and bounded batch execution for historical raw resource files
+- keeps the existing `storageKey` and leaves the original local files in place after successful upload
+- reads source files from `app.resource-storage.local-root`
+- requires `platform.integrations.minio.enabled=true` even when active raw resource storage is still local
+- environment-variable-based deployments supply that enablement through the existing mapping `MINIO_ENABLED=true`
+- preview artifacts remain out of scope; cached preview files are not migrated to MinIO in this phase
 
 ## Permissions
 
