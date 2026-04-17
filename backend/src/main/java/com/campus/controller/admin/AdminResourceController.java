@@ -12,8 +12,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.campus.common.Result;
 import com.campus.dto.AdminResourceListResponse;
+import com.campus.dto.AdminResourceMigrationRequest;
+import com.campus.dto.AdminResourceMigrationResponse;
 import com.campus.dto.AdminResourceReviewRequest;
 import com.campus.dto.ResourceDetailResponse;
+import com.campus.service.AdminResourceMigrationService;
 import com.campus.service.AdminResourceService;
 
 @Validated
@@ -23,9 +26,12 @@ import com.campus.service.AdminResourceService;
 public class AdminResourceController {
 
     private final AdminResourceService adminResourceService;
+    private final AdminResourceMigrationService adminResourceMigrationService;
 
-    public AdminResourceController(AdminResourceService adminResourceService) {
+    public AdminResourceController(AdminResourceService adminResourceService,
+            AdminResourceMigrationService adminResourceMigrationService) {
         this.adminResourceService = adminResourceService;
+        this.adminResourceMigrationService = adminResourceMigrationService;
     }
 
     @GetMapping
@@ -48,5 +54,16 @@ public class AdminResourceController {
     @PostMapping("/{id}/offline")
     public Result<ResourceDetailResponse> offline(@PathVariable Long id, Authentication authentication) {
         return Result.success(adminResourceService.offlineResource(authentication.getName(), id));
+    }
+
+    @PostMapping("/migrate-to-minio")
+    public Result<AdminResourceMigrationResponse> migrateToMinio(
+            Authentication authentication,
+            @Validated @RequestBody(required = false) AdminResourceMigrationRequest request) {
+        AdminResourceMigrationRequest normalizedRequest = request == null
+                ? new AdminResourceMigrationRequest(null, null, null, null, null, null)
+                : request;
+        return Result.success(
+                adminResourceMigrationService.migrateResources(authentication.getName(), normalizedRequest));
     }
 }

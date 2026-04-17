@@ -1,6 +1,9 @@
 package com.campus.controller.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -15,6 +18,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.apache.poi.xslf.usermodel.XMLSlideShow;
 import org.apache.poi.xslf.usermodel.XSLFSlide;
@@ -26,11 +30,15 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
+
+import com.campus.dto.AdminResourceMigrationResponse;
+import com.campus.service.AdminResourceMigrationService;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -44,6 +52,9 @@ class AdminResourceControllerTests {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @MockBean
+    private AdminResourceMigrationService adminResourceMigrationService;
 
     @Test
     @WithMockUser(username = "2", roles = "USER")
@@ -61,6 +72,61 @@ class AdminResourceControllerTests {
                 .andExpect(jsonPath("$.data.total").value(3))
                 .andExpect(jsonPath("$.data.resources[0].status").isNotEmpty())
                 .andExpect(jsonPath("$.data.resources[0].previewKind").isNotEmpty());
+    }
+
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
+    void normalUserCannotTriggerHistoricalMinioMigration() throws Exception {
+        mockMvc.perform(post("/api/admin/resources/migrate-to-minio")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(username = "1", roles = "ADMIN")
+    void adminCanDryRunHistoricalMinioMigration() throws Exception {
+        when(adminResourceMigrationService.migrateResources(eq("1"), any()))
+                .thenReturn(new AdminResourceMigrationResponse(
+                        true,
+                        100,
+                        1,
+                        1,
+                        1,
+                        0,
+                        0,
+                        List.of(new AdminResourceMigrationResponse.Item(
+                                7L,
+                                "Campus Resume",
+                                "PUBLISHED",
+                                "2026/04/17/resume.pdf",
+                                "SUCCESS",
+                                "ready to migrate"))));
+
+        mockMvc.perform(post("/api/admin/resources/migrate-to-minio")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"dryRun":true,"statuses":["PUBLISHED"],"keyword":"resume","limit":100}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.dryRun").value(true))
+                .andExpect(jsonPath("$.data.requestedLimit").value(100))
+                .andExpect(jsonPath("$.data.successCount").value(1))
+                .andExpect(jsonPath("$.data.items[0].resourceId").value(7))
+                .andExpect(jsonPath("$.data.items[0].message").value("ready to migrate"));
+    }
+
+    @Test
+    @WithMockUser(username = "1", roles = "ADMIN")
+    void invalidMigrationLimitReturnsBodyCode400() throws Exception {
+        mockMvc.perform(post("/api/admin/resources/migrate-to-minio")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"limit":201}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(400));
     }
 
     @Test
