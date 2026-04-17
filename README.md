@@ -70,6 +70,20 @@ Notes:
 - Vite proxies `/api/**` to `http://127.0.0.1:8080`
 - current recommendation is local backend + local frontend, not Docker
 
+## Local Demo Accounts
+
+When running the backend with the `local` profile, the seeded accounts are:
+
+- admin: `13800000000` (`PlatformAdmin`)
+- normal user: `13800000001` (`NormalUser`)
+- verified user: `13800000002` (`VerifiedUser`)
+
+Login uses phone-code authentication:
+
+- open `/login`
+- request a login code for the target phone number
+- in the local profile, the backend returns a debug code that can be used immediately
+
 ## Test And Build
 
 ### Backend
@@ -265,9 +279,9 @@ Resource statuses:
 4. As guest, open a published PDF `/resources/:id` and confirm `Preview PDF` works without login.
 5. As guest, open a non-PDF published resource and confirm no preview action is shown.
 6. As guest, confirm the download action is still blocked by login.
-7. Log in as a normal user and upload a resource from `/resources/upload`.
+7. Log in as the normal user `13800000001` and upload a resource from `/resources/upload`.
 8. Open `/profile/resources` and confirm the new file appears as `PENDING`.
-9. Log in as admin and open `/admin/resources`.
+9. Log in as the admin `13800000000` and open `/admin/resources`.
 10. Reject a pending resource with a clear review note.
 11. Log back in as the owner, open `/profile/resources`, click `Edit And Resubmit`, revise metadata, and submit without replacing the file.
 12. Repeat the resubmission flow with a PDF replacement file and confirm the record returns to `PENDING`.
