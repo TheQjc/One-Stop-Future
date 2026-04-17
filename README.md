@@ -72,7 +72,8 @@ npm run dev -- --host 127.0.0.1
 
 Notes:
 
-- frontend address: `http://127.0.0.1:5173`
+- frontend address is usually `http://127.0.0.1:5173`
+- if `5173` is occupied, Vite will select the next free port; use the actual port printed in the dev server log
 - Vite proxies `/api/**` to `http://127.0.0.1:8080`
 - current recommendation is local backend + local frontend, not Docker
 
