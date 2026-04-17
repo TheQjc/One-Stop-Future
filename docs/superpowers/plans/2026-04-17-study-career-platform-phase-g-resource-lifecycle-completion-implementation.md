@@ -11,7 +11,7 @@
 
 **Architecture:** Keep the current Spring Boot monolith and Vue SPA structure intact. Extend the existing `ResourceController` and `ResourceService` so detail visibility, resubmission, and preview all share one resource-visibility model, then expose small lifecycle flags in the existing DTOs so the frontend can render actions without guessing from raw status strings. On the frontend, split the current upload page into a shared resource editor form plus a dedicated edit view, and implement preview through authenticated Axios blob fetches instead of raw `window.open("/api/...")` so unpublished owner/admin PDF preview works with JWT stored in `localStorage`.
 
-**Tech Stack:** Java 21, Spring Boot 3, Spring Security, MyBatis-Plus, local filesystem resource storage, Vue 3, Vue Router, Pinia, Axios, Vite, Vitest
+**Tech Stack:** Java 17, Spring Boot 3, Spring Security, MyBatis-Plus, local filesystem resource storage, Vue 3, Vue Router, Pinia, Axios, Vite, Vitest
 
 ---
 
