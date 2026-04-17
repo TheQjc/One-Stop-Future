@@ -86,6 +86,7 @@ This plan explicitly does not implement:
   - `pptx/<resource-id>/<fingerprint>.pdf`
   - `zip/<resource-id>/<fingerprint>.json`
 - Build the fingerprint from `storageKey + updatedAt + fileSize`.
+- With the current local run flow (`cd backend`), the relative default resolves on disk to `backend/.local-storage/previews/...`.
 
 ### PPTX Conversion Strategy
 
@@ -751,6 +752,7 @@ Document:
 - `ZIP` directory-tree preview
 - `DOCX` remains download-only
 - local preview cache root under `.local-storage/previews`
+- current local run layout resolves the default storage roots to `backend/.local-storage/resources/` and `backend/.local-storage/previews/`
 - no external LibreOffice requirement because conversion is pure Java
 
 - [x] **Step 2: Run targeted backend verification**

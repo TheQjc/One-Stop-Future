@@ -42,8 +42,8 @@ Explicitly not implemented yet:
 - `backend/`: Spring Boot 3, Spring Security, MyBatis-Plus, JWT
 - `frontend/`: Vue 3, Pinia, Vue Router, Axios, Vite, Vitest
 - `docs/superpowers/`: requirements, specs, plans
-- `.local-storage/resources/`: local resource file storage in the `local` profile
-- `.local-storage/previews/`: cached PPTX-to-PDF and ZIP preview artifacts in the `local` profile
+- `backend/.local-storage/resources/`: default local resource file storage in the `local` profile
+- `backend/.local-storage/previews/`: default cached PPTX-to-PDF and ZIP preview artifacts in the `local` profile
 
 ## Local Run
 
@@ -58,6 +58,7 @@ Notes:
 
 - local development must use the `local` profile
 - `local` uses embedded H2, seeded demo data, and local filesystem resource storage
+- current defaults are relative paths; with `cd backend` they resolve to `backend/.local-storage/resources/` and `backend/.local-storage/previews/`
 - local backend address: `http://127.0.0.1:8080`
 
 ### Frontend
