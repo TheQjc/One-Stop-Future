@@ -78,6 +78,22 @@ Notes:
 - Vite proxies `/api/**` to `http://127.0.0.1:8080`
 - current recommendation is local backend + local frontend, not Docker
 
+### Optional Docker Stack
+
+If Docker and Docker Compose are available locally, an optional deployment scaffold is included:
+
+```bash
+docker compose up --build
+```
+
+Notes:
+
+- frontend is exposed on `http://127.0.0.1:5173`
+- MySQL is exposed on `127.0.0.1:3306`
+- backend is only exposed inside the Compose network and is reached through the frontend Nginx proxy
+- uploaded resource files and generated preview artifacts persist in the `backend-data` named volume
+- current recommendation for day-to-day development is still the local backend + local frontend flow above
+
 ## Local Demo Accounts
 
 When running the backend with the `local` profile, the seeded accounts are:
