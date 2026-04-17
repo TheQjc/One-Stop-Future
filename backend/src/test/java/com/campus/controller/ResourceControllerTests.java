@@ -256,6 +256,18 @@ class ResourceControllerTests {
 
     @Test
     @WithMockUser(username = "2", roles = "USER")
+    void missingVisibleFileStillReturnsInfrastructureFailure() throws Exception {
+        insertResource(6L, 2L, "PENDING", null, "owner-only.pdf", "pdf", "application/pdf",
+                "seed/2026/04/owner-only.pdf");
+
+        mockMvc.perform(get("/api/resources/6/preview"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(500))
+                .andExpect(jsonPath("$.message").value("resource file unavailable"));
+    }
+
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
     void loggedInUserCanUploadResource() throws Exception {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "resume-template.pdf", "application/pdf", "demo".getBytes(StandardCharsets.UTF_8));

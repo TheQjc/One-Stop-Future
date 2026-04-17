@@ -393,10 +393,10 @@ public class ResourceService {
     }
 
     private ResourceFileStream openResourceFile(ResourceItem resource) {
-        if (!resourceFileStorage.exists(resource.getStorageKey())) {
-            throw new BusinessException(500, "resource file unavailable");
-        }
         try {
+            if (!resourceFileStorage.exists(resource.getStorageKey())) {
+                throw new BusinessException(500, "resource file unavailable");
+            }
             return new ResourceFileStream(resource.getFileName(), resource.getContentType(),
                     resourceFileStorage.open(resource.getStorageKey()));
         } catch (IOException exception) {
@@ -416,10 +416,10 @@ public class ResourceService {
         if (previousStorageKey == null || previousStorageKey.isBlank() || previousStorageKey.equals(currentStorageKey)) {
             return;
         }
-        if (!resourceFileStorage.exists(previousStorageKey)) {
-            return;
-        }
         try {
+            if (!resourceFileStorage.exists(previousStorageKey)) {
+                return;
+            }
             resourceFileStorage.delete(previousStorageKey);
         } catch (IOException exception) {
             log.warn("Failed to delete replaced resource file: {}", previousStorageKey, exception);

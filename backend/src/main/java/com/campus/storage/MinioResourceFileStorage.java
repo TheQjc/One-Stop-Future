@@ -2,7 +2,6 @@ package com.campus.storage;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.util.Objects;
 
 public class MinioResourceFileStorage implements ResourceFileStorage {
@@ -39,12 +38,8 @@ public class MinioResourceFileStorage implements ResourceFileStorage {
     }
 
     @Override
-    public boolean exists(String storageKey) {
-        try {
-            return operations.objectExists(bucketName, normalizeKey(storageKey));
-        } catch (IOException exception) {
-            throw new UncheckedIOException("failed to check minio object existence", exception);
-        }
+    public boolean exists(String storageKey) throws IOException {
+        return operations.objectExists(bucketName, normalizeKey(storageKey));
     }
 
     private void ensureBucket() throws IOException {

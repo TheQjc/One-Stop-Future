@@ -7,11 +7,8 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 
-import org.springframework.stereotype.Component;
-
 import com.campus.config.ResourceStorageProperties;
 
-@Component
 public class LocalResourceFileStorage implements ResourceFileStorage {
 
     private final Path rootPath;
@@ -50,7 +47,7 @@ public class LocalResourceFileStorage implements ResourceFileStorage {
     }
 
     @Override
-    public boolean exists(String storageKey) {
+    public boolean exists(String storageKey) throws IOException {
         return Files.exists(resolve(storageKey));
     }
 

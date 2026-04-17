@@ -11,5 +11,5 @@ public interface ResourceFileStorage {
 
     void delete(String storageKey) throws IOException;
 
-    boolean exists(String storageKey);
+    boolean exists(String storageKey) throws IOException;
 }
