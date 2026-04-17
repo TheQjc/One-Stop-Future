@@ -1,10 +1,10 @@
-# Study-Career Platform Phase G Resource Lifecycle Completion Implementation Plan
+﻿# Study-Career Platform Phase G Resource Lifecycle Completion Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 > **Completion status:** Completed on 2026-04-17.
 > Delivered by commits `b078a70`, `43d6956`, `d16c0eb`, `6f97c9a`, `34d4d30`, `e1c18c4`, and follow-up fix `e35938b`.
-> Verification completed with targeted and full backend/frontend test runs plus local live smoke for upload, reject, preview, resubmit, and publish flows.
+> Verification completed with targeted and full backend/frontend test runs plus local live smoke for upload, reject, preview, resubmit, and publish flows.`r`n> Evidence artifacts: `.local-smoke/phase-g-acceptance-backend.json` and `.local-smoke/phase-g-acceptance-frontend.json`.
 
 **Goal:** Complete the first resource-lifecycle follow-up slice by adding rejected-resource edit/resubmit, PDF preview, and the related owner/admin/public UI entry points without introducing version history or document conversion infrastructure.
 
@@ -276,8 +276,7 @@ Implementation notes:
 - keep `/api/resources/{id}/download` login-only
 - explicitly permit `GET /api/resources/*/preview` in `SecurityConfig`
 - compute `editableByMe` and `previewAvailable` inside `toResourceDetail(...)`
-- `previewAvailable` should mean “current viewer can preview this resource now,” not only “fileExt == pdf”
-
+- `previewAvailable` should mean 鈥渃urrent viewer can preview this resource now,鈥?not only 鈥渇ileExt == pdf鈥?
 - [ ] **Step 4: Run the backend tests again and make them pass**
 
 Run:
@@ -546,7 +545,7 @@ Implementation notes:
 
 - owner-list `editable` means rejected only
 - owner/admin `previewAvailable` means PDF only
-- do not leak per-row “admin can edit” or “publishable” flags into this slice
+- do not leak per-row 鈥渁dmin can edit鈥?or 鈥減ublishable鈥?flags into this slice
 
 - [ ] **Step 4: Run the backend list tests again and make them pass**
 
@@ -897,3 +896,4 @@ git commit -m "docs: update resource lifecycle documentation"
 - Preserve existing resource download behavior.
 - Preserve current public resource list and detail behavior for published resources.
 - Do not add a version table, document converter, or extra preview backend in this slice.
+
