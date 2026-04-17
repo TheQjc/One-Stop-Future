@@ -1,5 +1,7 @@
 # Study-Career Platform Phase H Resource Preview Expansion Design
 
+> **Validation note:** This design was implemented and validated on 2026-04-17. Execution record: `docs/superpowers/plans/2026-04-17-study-career-platform-phase-h-resource-preview-expansion-implementation.md`. Local evidence: `.local-smoke/phase-h-acceptance-backend.json` and `.local-smoke/phase-h-acceptance-frontend.json`.
+
 ## 1. Goal
 
 Phase H extends the resource preview capability beyond the Phase G PDF-only flow while keeping the current Spring Boot monolith, Vue SPA, and local filesystem development model intact.
