@@ -286,26 +286,28 @@ Resource statuses:
 2. Start frontend with `npm run dev -- --host 127.0.0.1`.
 3. As guest, open `/community`, `/jobs`, and `/resources`.
 4. As guest, open a published PDF `/resources/:id` and confirm `Preview` works without login.
-5. As guest, open a published ZIP `/resources/:id` and confirm `Preview Contents` loads a directory tree inline.
-6. As guest, confirm the download action is still blocked by login.
-7. Log in as the normal user `13800000001` and upload a resource from `/resources/upload`.
-8. Open `/profile/resources` and confirm the new file appears as `PENDING`.
-9. Log in as the admin `13800000000` and open `/admin/resources`.
-10. Reject a pending resource with a clear review note.
-11. Log back in as the owner, open `/profile/resources`, click `Edit And Resubmit`, revise metadata, and submit without replacing the file.
-12. Repeat the resubmission flow with a PDF replacement file and confirm the record returns to `PENDING`.
-13. As the owner, preview an unpublished visible PDF or PPTX from `/profile/resources` or `/resources/:id`.
-14. As admin, confirm preview is shown for visible PDF / PPTX rows and `Preview Contents` is shown for ZIP rows in `/admin/resources`.
-15. Publish the pending resource and confirm it appears in the public `/resources` list.
-16. Favorite and download a published resource as a normal user.
-17. Open `/profile/favorites` and switch between `POST`, `JOB`, and `RESOURCE`.
-18. Use the homepage search box or `/search` to search `resume`.
-19. Switch `ALL / POST / JOB / RESOURCE` and `RELEVANCE / LATEST`.
-20. Refresh `/search` and confirm the search state stays in the URL.
-21. Open `/discover` as a guest and confirm the page loads a ranked public board.
-22. Switch discover `ALL / POST / JOB / RESOURCE` and `WEEK / ALL`.
-23. Refresh `/discover?tab=JOB&period=ALL` and confirm the state stays in the URL.
-24. Return to `/` and confirm the homepage discover preview shows items or a graceful empty state.
+5. As guest, open a published PPTX `/resources/:id` and confirm `Preview` opens converted PDF output without login.
+6. As guest, open a published ZIP `/resources/:id` and confirm `Preview Contents` loads a directory tree inline.
+7. As guest, open a published DOCX `/resources/:id` and confirm no preview action is shown.
+8. As guest, confirm the download action is still blocked by login.
+9. Log in as the normal user `13800000001` and upload a resource from `/resources/upload`.
+10. Open `/profile/resources` and confirm the new file appears as `PENDING`.
+11. Log in as the admin `13800000000` and open `/admin/resources`.
+12. Reject a pending resource with a clear review note.
+13. Log back in as the owner, open `/profile/resources`, click `Edit And Resubmit`, revise metadata, and submit without replacing the file.
+14. Repeat the resubmission flow with a PDF replacement file and confirm the record returns to `PENDING`.
+15. As the owner, preview an unpublished visible PDF or PPTX from `/profile/resources` or `/resources/:id`.
+16. As admin, confirm preview is shown for visible PDF / PPTX rows and `Preview Contents` is shown for ZIP rows in `/admin/resources`.
+17. Publish the pending resource and confirm it appears in the public `/resources` list.
+18. Favorite and download a published resource as a normal user.
+19. Open `/profile/favorites` and switch between `POST`, `JOB`, and `RESOURCE`.
+20. Use the homepage search box or `/search` to search `resume`.
+21. Switch `ALL / POST / JOB / RESOURCE` and `RELEVANCE / LATEST`.
+22. Refresh `/search` and confirm the search state stays in the URL.
+23. Open `/discover` as a guest and confirm the page loads a ranked public board.
+24. Switch discover `ALL / POST / JOB / RESOURCE` and `WEEK / ALL`.
+25. Refresh `/discover?tab=JOB&period=ALL` and confirm the state stays in the URL.
+26. Return to `/` and confirm the homepage discover preview shows items or a graceful empty state.
 
 ## Targeted Resource Preview Verification
 
