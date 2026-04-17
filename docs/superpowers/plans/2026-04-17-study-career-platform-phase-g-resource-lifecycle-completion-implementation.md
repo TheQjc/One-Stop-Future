@@ -6,6 +6,7 @@
 > Delivered by commits `b078a70`, `43d6956`, `d16c0eb`, `6f97c9a`, `34d4d30`, `e1c18c4`, and follow-up fix `e35938b`.
 > Verification completed with targeted and full backend/frontend test runs plus local live smoke for upload, reject, preview, resubmit, and publish flows.
 > Evidence artifacts: .local-smoke/phase-g-acceptance-backend.json and .local-smoke/phase-g-acceptance-frontend.json.
+> **Historical scope note:** Preview behavior in this document reflects the Phase G delivery boundary only. Phase H later expanded preview support beyond PDF-only behavior; see `docs/superpowers/specs/2026-04-17-study-career-platform-phase-h-resource-preview-expansion-design.md` and `docs/superpowers/plans/2026-04-17-study-career-platform-phase-h-resource-preview-expansion-implementation.md`.
 
 **Goal:** Complete the first resource-lifecycle follow-up slice by adding rejected-resource edit/resubmit, PDF preview, and the related owner/admin/public UI entry points without introducing version history or document conversion infrastructure.
 
