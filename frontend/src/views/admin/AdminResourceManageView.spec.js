@@ -7,7 +7,7 @@ import {
   publishAdminResource,
   rejectAdminResource,
 } from "../../api/admin.js";
-import { previewResource } from "../../api/resources.js";
+import { previewResource, previewZipResource } from "../../api/resources.js";
 
 vi.mock("../../api/admin.js", () => ({
   getAdminResources: vi.fn(),
@@ -18,6 +18,7 @@ vi.mock("../../api/admin.js", () => ({
 
 vi.mock("../../api/resources.js", () => ({
   previewResource: vi.fn(),
+  previewZipResource: vi.fn(),
 }));
 
 const pendingResource = {
@@ -93,7 +94,7 @@ test("rejects a selected pending resource with a reason", async () => {
   expect(getAdminResources).toHaveBeenCalledTimes(2);
 });
 
-test("admin resource board exposes preview actions for previewable resources", async () => {
+test("admin selected panel uses Preview for FILE resources", async () => {
   getAdminResources.mockResolvedValue({
     total: 1,
     resources: [
@@ -103,6 +104,7 @@ test("admin resource board exposes preview actions for previewable resources", a
         uploaderNickname: "NormalUser",
         status: "PENDING",
         previewAvailable: true,
+        previewKind: "FILE",
       },
     ],
   });
@@ -111,10 +113,75 @@ test("admin resource board exposes preview actions for previewable resources", a
   const wrapper = mount(AdminResourceManageView);
   await flushPromises();
 
+  await wrapper.find(".select-action").trigger("click");
+  await flushPromises();
+
   expect(wrapper.text()).toContain("Preview");
 
-  await wrapper.find(".preview-action").trigger("click");
+  await wrapper.find('[data-testid="selected-preview-action"]').trigger("click");
   await flushPromises();
 
   expect(previewResource).toHaveBeenCalledWith(41);
+});
+
+test("admin selected panel shows Preview Contents for ZIP resources and renders inline tree", async () => {
+  getAdminResources.mockResolvedValue({
+    total: 1,
+    resources: [
+      {
+        id: 41,
+        title: "Archive bundle",
+        uploaderNickname: "NormalUser",
+        status: "PENDING",
+        previewAvailable: true,
+        previewKind: "ZIP_TREE",
+      },
+    ],
+  });
+  previewZipResource.mockResolvedValue({
+    resourceId: 41,
+    fileName: "archive.zip",
+    entryCount: 1,
+    entries: [
+      { path: "backend/questions.md", name: "questions.md", directory: false, size: 1834 },
+    ],
+  });
+
+  const wrapper = mount(AdminResourceManageView);
+  await flushPromises();
+
+  await wrapper.find(".select-action").trigger("click");
+  await flushPromises();
+
+  expect(wrapper.text()).toContain("Preview Contents");
+
+  await wrapper.find('[data-testid="selected-preview-action"]').trigger("click");
+  await flushPromises();
+
+  expect(previewZipResource).toHaveBeenCalledWith(41);
+  expect(wrapper.text()).toContain("backend/questions.md");
+});
+
+test("docx resources still do not expose preview actions", async () => {
+  getAdminResources.mockResolvedValue({
+    total: 1,
+    resources: [
+      {
+        id: 41,
+        title: "Workbook",
+        uploaderNickname: "NormalUser",
+        status: "PENDING",
+        previewAvailable: false,
+        previewKind: "NONE",
+      },
+    ],
+  });
+
+  const wrapper = mount(AdminResourceManageView);
+  await flushPromises();
+
+  await wrapper.find(".select-action").trigger("click");
+  await flushPromises();
+
+  expect(wrapper.find('[data-testid="selected-preview-action"]').exists()).toBe(false);
 });

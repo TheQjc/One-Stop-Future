@@ -83,6 +83,11 @@ export async function previewResource(id) {
   return objectUrl;
 }
 
+export async function previewZipResource(id) {
+  const { data } = await http.get(`/resources/${id}/preview-zip`);
+  return data.data;
+}
+
 function extractFilename(contentDisposition = "") {
   const utf8Match = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i);
   if (utf8Match?.[1]) {

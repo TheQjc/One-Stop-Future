@@ -8,6 +8,7 @@ import {
   favoriteResource,
   getResourceDetail,
   previewResource,
+  previewZipResource,
   unfavoriteResource,
 } from "../api/resources.js";
 
@@ -35,6 +36,7 @@ vi.mock("../api/resources.js", () => ({
   favoriteResource: vi.fn(),
   getResourceDetail: vi.fn(),
   previewResource: vi.fn(),
+  previewZipResource: vi.fn(),
   unfavoriteResource: vi.fn(),
 }));
 
@@ -104,25 +106,71 @@ test("redirects guests to login when they try to download a resource", async () 
   expect(downloadResource).not.toHaveBeenCalled();
 });
 
-test("resource detail shows a preview action when preview is available", async () => {
+test("resource detail shows Preview for FILE resources and opens blob preview", async () => {
   getResourceDetail.mockResolvedValue({
     ...baseDetail,
     fileName: "resume-preview.pdf",
     fileExt: "pdf",
     contentType: "application/pdf",
     previewAvailable: true,
+    previewKind: "FILE",
   });
   previewResource.mockResolvedValue("blob:resource-preview");
 
   const wrapper = mountView();
   await flushPromises();
 
-  expect(wrapper.text()).toContain("Preview PDF");
+  expect(wrapper.text()).toContain("Preview");
+  expect(wrapper.text()).not.toContain("Preview PDF");
 
   await wrapper.find('[data-testid="preview-action"]').trigger("click");
   await flushPromises();
 
   expect(previewResource).toHaveBeenCalledWith(11);
+});
+
+test("resource detail shows Preview Contents for ZIP resources and loads the tree inline", async () => {
+  getResourceDetail.mockResolvedValue({
+    ...baseDetail,
+    previewAvailable: true,
+    previewKind: "ZIP_TREE",
+  });
+  previewZipResource.mockResolvedValue({
+    resourceId: 11,
+    fileName: "interview-archive.zip",
+    entryCount: 2,
+    entries: [
+      { path: "backend/", name: "backend", directory: true, size: null },
+      { path: "backend/questions.md", name: "questions.md", directory: false, size: 1834 },
+    ],
+  });
+
+  const wrapper = mountView();
+  await flushPromises();
+
+  expect(wrapper.text()).toContain("Preview Contents");
+
+  await wrapper.find('[data-testid="preview-action"]').trigger("click");
+  await flushPromises();
+
+  expect(previewZipResource).toHaveBeenCalledWith(11);
+  expect(wrapper.text()).toContain("backend/questions.md");
+});
+
+test("resource detail does not show preview action for NONE preview kind", async () => {
+  getResourceDetail.mockResolvedValue({
+    ...baseDetail,
+    fileName: "interview-notes.docx",
+    fileExt: "docx",
+    contentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    previewAvailable: false,
+    previewKind: "NONE",
+  });
+
+  const wrapper = mountView();
+  await flushPromises();
+
+  expect(wrapper.find('[data-testid="preview-action"]').exists()).toBe(false);
 });
 
 test("favorites and downloads a resource for authenticated users", async () => {

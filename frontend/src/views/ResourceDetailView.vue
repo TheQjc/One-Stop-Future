@@ -1,11 +1,13 @@
 <script setup>
 import { computed, ref, watch } from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
+import ResourceZipPreviewPanel from "../components/ResourceZipPreviewPanel.vue";
 import {
   downloadResource,
   favoriteResource,
   getResourceDetail,
   previewResource,
+  previewZipResource,
   unfavoriteResource,
 } from "../api/resources.js";
 import { useUserStore } from "../stores/user.js";
@@ -20,6 +22,8 @@ const actionError = ref("");
 const actionMessage = ref("");
 const actionLoading = ref("");
 const detail = ref(null);
+const zipPreview = ref(null);
+const zipPreviewError = ref("");
 
 const categoryLabels = {
   EXAM_PAPER: "Exam Paper",
@@ -77,9 +81,19 @@ function formatSize(value) {
   return `${size} B`;
 }
 
+function previewKindOf(resource) {
+  const kind = resource?.previewKind;
+  if (kind === "FILE" || kind === "ZIP_TREE" || kind === "NONE") {
+    return kind;
+  }
+  return resource?.previewAvailable ? "FILE" : "NONE";
+}
+
 async function loadDetail() {
   loading.value = true;
   errorMessage.value = "";
+  zipPreview.value = null;
+  zipPreviewError.value = "";
 
   try {
     detail.value = await getResourceDetail(route.params.id);
@@ -147,19 +161,46 @@ async function handleDownload() {
 }
 
 async function handlePreview() {
+  const kind = previewKindOf(detail.value);
+  if (kind === "NONE") {
+    return;
+  }
+
   actionError.value = "";
   actionMessage.value = "";
   actionLoading.value = "preview";
+  zipPreviewError.value = "";
 
   try {
+    if (kind === "ZIP_TREE") {
+      zipPreview.value = await previewZipResource(detail.value.id);
+      actionMessage.value = "Contents loaded below.";
+      return;
+    }
+
     await previewResource(detail.value.id);
     actionMessage.value = "Preview opened in a new tab.";
   } catch (error) {
-    actionError.value = error.message || "Preview failed. Please try again.";
+    if (kind === "ZIP_TREE") {
+      zipPreviewError.value = error.message || "Contents preview failed. Please try again.";
+    } else {
+      actionError.value = error.message || "Preview failed. Please try again.";
+    }
   } finally {
     actionLoading.value = "";
   }
 }
+
+const previewLabel = computed(() => (
+  previewKindOf(detail.value) === "ZIP_TREE" ? "Preview Contents" : "Preview"
+));
+
+const canPreview = computed(() => {
+  const kind = previewKindOf(detail.value);
+  return kind === "FILE" || kind === "ZIP_TREE";
+});
+
+const showZipPreview = computed(() => previewKindOf(detail.value) === "ZIP_TREE");
 
 watch(() => route.params.id, () => {
   loadDetail();
@@ -202,6 +243,13 @@ watch(() => route.params.id, () => {
             <span class="section-eyebrow">Archive Note</span>
             <p class="resource-detail__body">{{ detail.description || detail.summary }}</p>
           </article>
+
+          <ResourceZipPreviewPanel
+            v-if="showZipPreview && (actionLoading === 'preview' || zipPreview || zipPreviewError)"
+            :loading="actionLoading === 'preview'"
+            :error-message="zipPreviewError"
+            :preview="zipPreview"
+          />
         </div>
 
         <aside class="resource-detail__aside">
@@ -218,14 +266,16 @@ watch(() => route.params.id, () => {
                 {{ detail.favoritedByMe ? "Remove From Collection" : "Save To Collection" }}
               </button>
               <button
-                v-if="detail.previewAvailable"
+                v-if="canPreview"
                 data-testid="preview-action"
                 type="button"
                 class="ghost-btn"
                 :disabled="actionLoading === 'preview'"
                 @click="handlePreview"
               >
-                {{ actionLoading === "preview" ? "Opening Preview..." : "Preview PDF" }}
+                {{ actionLoading === "preview"
+                  ? (showZipPreview ? "Loading Contents..." : "Opening Preview...")
+                  : previewLabel }}
               </button>
               <button
                 data-testid="download-action"

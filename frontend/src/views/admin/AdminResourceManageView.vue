@@ -1,12 +1,13 @@
 <script setup>
 import { computed, onMounted, ref } from "vue";
+import ResourceZipPreviewPanel from "../../components/ResourceZipPreviewPanel.vue";
 import {
   getAdminResources,
   offlineAdminResource,
   publishAdminResource,
   rejectAdminResource,
 } from "../../api/admin.js";
-import { previewResource } from "../../api/resources.js";
+import { previewResource, previewZipResource } from "../../api/resources.js";
 
 const loading = ref(true);
 const errorMessage = ref("");
@@ -14,6 +15,9 @@ const actionMessage = ref("");
 const actionLoadingId = ref("");
 const selectedResourceId = ref(null);
 const rejectReason = ref("");
+const zipPreviewError = ref("");
+const zipPreviewData = ref(null);
+const zipPreviewResourceId = ref(null);
 const summary = ref({
   total: 0,
   resources: [],
@@ -77,6 +81,19 @@ function statusClass(status) {
   return "pending";
 }
 
+function previewKindOf(resource) {
+  const kind = resource?.previewKind;
+  if (kind === "FILE" || kind === "ZIP_TREE" || kind === "NONE") {
+    return kind;
+  }
+  return resource?.previewAvailable ? "FILE" : "NONE";
+}
+
+function canPreview(resource) {
+  const kind = previewKindOf(resource);
+  return kind === "FILE" || kind === "ZIP_TREE";
+}
+
 async function loadResources() {
   loading.value = true;
   errorMessage.value = "";
@@ -95,11 +112,18 @@ function selectResource(resource) {
   rejectReason.value = resource.rejectReason || "";
   actionMessage.value = "";
   errorMessage.value = "";
+  if (zipPreviewResourceId.value !== resource.id) {
+    zipPreviewData.value = null;
+    zipPreviewError.value = "";
+  }
 }
 
 function clearSelection() {
   selectedResourceId.value = null;
   rejectReason.value = "";
+  zipPreviewError.value = "";
+  zipPreviewData.value = null;
+  zipPreviewResourceId.value = null;
 }
 
 async function handlePublish(id) {
@@ -163,20 +187,50 @@ async function handleReject() {
 }
 
 async function handlePreview(id) {
+  const resource = summary.value.resources.find((item) => item.id === id);
+  const kind = previewKindOf(resource);
+  if (kind === "NONE") {
+    return;
+  }
+
   actionMessage.value = "";
   errorMessage.value = "";
   actionLoadingId.value = `preview-${id}`;
+  zipPreviewError.value = "";
 
   try {
-    const resource = summary.value.resources.find((item) => item.id === id);
+    if (kind === "ZIP_TREE") {
+      selectedResourceId.value = id;
+      rejectReason.value = resource.rejectReason || "";
+      zipPreviewData.value = await previewZipResource(id);
+      zipPreviewResourceId.value = id;
+      actionMessage.value = `Contents loaded for ${resource?.title || `resource #${id}`}.`;
+      return;
+    }
+
+    zipPreviewData.value = null;
+    zipPreviewResourceId.value = null;
     await previewResource(id);
     actionMessage.value = `Preview opened for ${resource?.title || `resource #${id}`}.`;
   } catch (error) {
+    if (kind === "ZIP_TREE") {
+      zipPreviewResourceId.value = id;
+      zipPreviewError.value = error.message || "Contents preview failed. Please try again.";
+    }
     errorMessage.value = error.message || "Preview failed. Please try again.";
   } finally {
     actionLoadingId.value = "";
   }
 }
+
+function previewLabel(resource) {
+  return previewKindOf(resource) === "ZIP_TREE" ? "Preview Contents" : "Preview";
+}
+
+const showSelectedZipPreview = computed(() => (
+  previewKindOf(selectedResource.value) === "ZIP_TREE"
+    && zipPreviewResourceId.value === selectedResource.value?.id
+));
 
 onMounted(loadResources);
 </script>
@@ -261,13 +315,16 @@ onMounted(loadResources);
 
           <div class="inline-form-actions">
             <button
-              v-if="selectedResource.previewAvailable"
+              v-if="canPreview(selectedResource)"
               type="button"
               class="ghost-btn preview-action"
+              data-testid="selected-preview-action"
               :disabled="Boolean(actionLoadingId)"
               @click="handlePreview(selectedResource.id)"
             >
-              {{ actionLoadingId === `preview-${selectedResource.id}` ? "Opening Preview..." : "Preview" }}
+              {{ actionLoadingId === `preview-${selectedResource.id}`
+                ? (previewKindOf(selectedResource) === "ZIP_TREE" ? "Loading Contents..." : "Opening Preview...")
+                : previewLabel(selectedResource) }}
             </button>
             <button
               v-if="selectedResource.status === 'PENDING' || selectedResource.status === 'OFFLINE'"
@@ -300,6 +357,13 @@ onMounted(loadResources);
               Clear Selection
             </button>
           </div>
+
+          <ResourceZipPreviewPanel
+            v-if="showSelectedZipPreview || (previewKindOf(selectedResource) === 'ZIP_TREE' && actionLoadingId === `preview-${selectedResource.id}`)"
+            :loading="actionLoadingId === `preview-${selectedResource.id}`"
+            :error-message="showSelectedZipPreview ? zipPreviewError : ''"
+            :preview="showSelectedZipPreview ? zipPreviewData : null"
+          />
         </div>
       </article>
 
@@ -344,13 +408,15 @@ onMounted(loadResources);
                       Select
                     </button>
                     <button
-                      v-if="resource.previewAvailable"
+                      v-if="canPreview(resource)"
                       type="button"
                       class="ghost-btn preview-action"
                       :disabled="actionLoadingId === `preview-${resource.id}`"
                       @click="handlePreview(resource.id)"
                     >
-                      Preview
+                      {{ actionLoadingId === `preview-${resource.id}`
+                        ? (previewKindOf(resource) === "ZIP_TREE" ? "Loading Contents..." : "Opening Preview...")
+                        : previewLabel(resource) }}
                     </button>
                     <button
                       type="button"
@@ -388,13 +454,15 @@ onMounted(loadResources);
                   Select
                 </button>
                 <button
-                  v-if="resource.previewAvailable"
+                  v-if="canPreview(resource)"
                   type="button"
                   class="ghost-btn preview-action"
                   :disabled="actionLoadingId === `preview-${resource.id}`"
                   @click="handlePreview(resource.id)"
                 >
-                  Preview
+                  {{ actionLoadingId === `preview-${resource.id}`
+                    ? (previewKindOf(resource) === "ZIP_TREE" ? "Loading Contents..." : "Opening Preview...")
+                    : previewLabel(resource) }}
                 </button>
                 <button
                   type="button"

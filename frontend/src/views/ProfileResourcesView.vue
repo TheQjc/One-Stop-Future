@@ -1,13 +1,17 @@
 <script setup>
 import { computed, onMounted, ref } from "vue";
 import { RouterLink } from "vue-router";
-import { getMyResources, previewResource } from "../api/resources.js";
+import ResourceZipPreviewPanel from "../components/ResourceZipPreviewPanel.vue";
+import { getMyResources, previewResource, previewZipResource } from "../api/resources.js";
 
 const loading = ref(true);
 const errorMessage = ref("");
 const actionError = ref("");
 const actionMessage = ref("");
 const actionLoadingId = ref("");
+const zipPreviewError = ref("");
+const zipPreviewResourceId = ref(null);
+const zipPreviewData = ref(null);
 const summary = ref({
   total: 0,
   resources: [],
@@ -81,9 +85,25 @@ function statusClass(status) {
   return "pending";
 }
 
+function previewKindOf(resource) {
+  const kind = resource?.previewKind;
+  if (kind === "FILE" || kind === "ZIP_TREE" || kind === "NONE") {
+    return kind;
+  }
+  return resource?.previewAvailable ? "FILE" : "NONE";
+}
+
+function canPreview(resource) {
+  const kind = previewKindOf(resource);
+  return kind === "FILE" || kind === "ZIP_TREE";
+}
+
 async function loadResources() {
   loading.value = true;
   errorMessage.value = "";
+  zipPreviewError.value = "";
+  zipPreviewResourceId.value = null;
+  zipPreviewData.value = null;
 
   try {
     summary.value = await getMyResources();
@@ -95,18 +115,45 @@ async function loadResources() {
 }
 
 async function handlePreview(resource) {
+  const kind = previewKindOf(resource);
+  if (kind === "NONE") {
+    return;
+  }
+
   actionError.value = "";
   actionMessage.value = "";
   actionLoadingId.value = `preview-${resource.id}`;
+  zipPreviewError.value = "";
 
   try {
+    if (kind === "ZIP_TREE") {
+      zipPreviewData.value = await previewZipResource(resource.id);
+      zipPreviewResourceId.value = resource.id;
+      actionMessage.value = `Contents loaded for ${resource.title}.`;
+      return;
+    }
+
+    zipPreviewResourceId.value = null;
+    zipPreviewData.value = null;
     await previewResource(resource.id);
     actionMessage.value = `Preview opened for ${resource.title}.`;
   } catch (error) {
+    if (kind === "ZIP_TREE") {
+      zipPreviewResourceId.value = resource.id;
+      zipPreviewError.value = error.message || "Contents preview failed. Please try again.";
+    }
     actionError.value = error.message || "Preview failed. Please try again.";
   } finally {
     actionLoadingId.value = "";
   }
+}
+
+function previewLabel(resource) {
+  return previewKindOf(resource) === "ZIP_TREE" ? "Preview Contents" : "Preview";
+}
+
+function showZipPreview(resource) {
+  return previewKindOf(resource) === "ZIP_TREE" && zipPreviewResourceId.value === resource.id;
 }
 
 onMounted(loadResources);
@@ -184,7 +231,7 @@ onMounted(loadResources);
           </p>
 
           <div
-            v-if="resource.editable || resource.previewAvailable"
+            v-if="resource.editable || canPreview(resource)"
             class="inline-form-actions resource-record-card__actions"
           >
             <RouterLink
@@ -195,15 +242,25 @@ onMounted(loadResources);
               Edit And Resubmit
             </RouterLink>
             <button
-              v-if="resource.previewAvailable"
+              v-if="canPreview(resource)"
               type="button"
               class="ghost-btn preview-action"
+              :data-testid="`preview-action-${resource.id}`"
               :disabled="actionLoadingId === `preview-${resource.id}`"
               @click="handlePreview(resource)"
             >
-              {{ actionLoadingId === `preview-${resource.id}` ? "Opening Preview..." : "Preview PDF" }}
+              {{ actionLoadingId === `preview-${resource.id}`
+                ? (previewKindOf(resource) === "ZIP_TREE" ? "Loading Contents..." : "Opening Preview...")
+                : previewLabel(resource) }}
             </button>
           </div>
+
+          <ResourceZipPreviewPanel
+            v-if="showZipPreview(resource) && (zipPreviewData || zipPreviewError || actionLoadingId === `preview-${resource.id}`)"
+            :loading="actionLoadingId === `preview-${resource.id}`"
+            :error-message="showZipPreview(resource) ? zipPreviewError : ''"
+            :preview="showZipPreview(resource) ? zipPreviewData : null"
+          />
 
           <article
             v-if="resource.rejectReason"
