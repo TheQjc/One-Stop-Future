@@ -32,6 +32,7 @@ This phase does not implement:
 - annotation, highlight, page comments, or review markup
 - upload-time preview pre-generation
 - preview analytics
+- preview-artifact garbage collection
 - MinIO-backed preview storage
 - a standalone conversion microservice
 - a full version-history model for preview artifacts
@@ -173,6 +174,7 @@ Recommended local cache layout:
 This gives a predictable structure, keeps raw files separate from derived artifacts, and avoids immediate need for a preview-artifact table.
 
 With the current local run flow (`cd backend` before starting Spring Boot) and relative defaults from `application-local.yml`, these artifacts are written under `backend/.local-storage/previews/...`.
+When a resource file changes, cache invalidation in this phase works by writing a new fingerprinted artifact path; old preview artifacts are left in place until manual cleanup.
 
 ## 8. API Design
 

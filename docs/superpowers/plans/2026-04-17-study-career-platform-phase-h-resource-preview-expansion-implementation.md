@@ -62,6 +62,7 @@ This plan explicitly does not implement:
 - `DOCX` online preview
 - archive entry download from ZIP preview
 - upload-time preview pre-generation
+- preview-artifact garbage collection
 - MinIO-backed preview storage
 - conversion workers or queue-based processing
 - annotations, comments, or page-level markup
@@ -87,6 +88,7 @@ This plan explicitly does not implement:
   - `zip/<resource-id>/<fingerprint>.json`
 - Build the fingerprint from `storageKey + updatedAt + fileSize`.
 - With the current local run flow (`cd backend`), the relative default resolves on disk to `backend/.local-storage/previews/...`.
+- cache invalidation in this phase is append-only at the filesystem level: a changed fingerprint produces a new artifact path, and old artifacts are not deleted automatically.
 
 ### PPTX Conversion Strategy
 

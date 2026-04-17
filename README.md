@@ -44,6 +44,7 @@ Explicitly not implemented yet:
 - `docs/superpowers/`: requirements, specs, plans
 - `backend/.local-storage/resources/`: default local resource file storage in the `local` profile
 - `backend/.local-storage/previews/`: default cached PPTX-to-PDF and ZIP preview artifacts in the `local` profile
+  - current Phase H behavior invalidates preview cache by fingerprinting and writing a new artifact; old preview artifacts are not garbage-collected automatically
 
 ## Local Run
 
