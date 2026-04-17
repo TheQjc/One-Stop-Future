@@ -2,6 +2,10 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> **Completion status:** Completed on 2026-04-17.
+> Delivered by commits `b078a70`, `43d6956`, `d16c0eb`, `6f97c9a`, `34d4d30`, `e1c18c4`, and follow-up fix `e35938b`.
+> Verification completed with targeted and full backend/frontend test runs plus local live smoke for upload, reject, preview, resubmit, and publish flows.
+
 **Goal:** Complete the first resource-lifecycle follow-up slice by adding rejected-resource edit/resubmit, PDF preview, and the related owner/admin/public UI entry points without introducing version history or document conversion infrastructure.
 
 **Architecture:** Keep the current Spring Boot monolith and Vue SPA structure intact. Extend the existing `ResourceController` and `ResourceService` so detail visibility, resubmission, and preview all share one resource-visibility model, then expose small lifecycle flags in the existing DTOs so the frontend can render actions without guessing from raw status strings. On the frontend, split the current upload page into a shared resource editor form plus a dedicated edit view, and implement preview through authenticated Axios blob fetches instead of raw `window.open("/api/...")` so unpublished owner/admin PDF preview works with JWT stored in `localStorage`.
