@@ -69,9 +69,7 @@ TODO-FR-COMMON
 TODO-FR-USER
 ### 4.3 通知公告
 TODO-FR-NOTICE
-### 4.4 课表查询
-TODO-FR-SCHEDULE
-### 4.5 校园活动
+### 4.4 校园活动
 TODO-FR-ACTIVITY
 
 ## 5. 约束需求
@@ -167,7 +165,6 @@ Include at minimum:
 
 ### 优先级
 - P0：用户中心、通知公告
-- P1：课表查询
 - P2：校园活动
 ```
 
@@ -176,7 +173,6 @@ Then add one short paragraph each for:
 - 通用平台能力
 - 用户中心
 - 通知公告
-- 课表查询
 - 校园活动
 
 - [ ] **Step 4: Verify these placeholders are removed**
@@ -209,7 +205,7 @@ At minimum, add entries shaped like:
 ```markdown
 - `FR-COMMON-001`
   - 名称：独立首页聚合展示
-  - 描述：系统应提供独立首页，作为用户登录后的统一入口页面，并聚合公告、课表、活动等核心信息入口。
+  - 描述：系统应提供独立首页，作为用户登录后的统一入口页面，并聚合公告、身份状态与核心业务入口。
   - 类型：已确认补充需求
   - 适用角色：学生、教师、管理员
   - 优先级：P0
@@ -265,7 +261,7 @@ git add docs/superpowers/requirements/2026-04-14-campus-platform-formal-requirem
 git commit -m "docs: add common platform and user requirements"
 ```
 
-### Task 4: Write Notice, Schedule, and Activity Functional Requirements
+### Task 4: Write Notice and Activity Functional Requirements
 
 **Files:**
 - Modify: `docs/superpowers/requirements/2026-04-14-campus-platform-formal-requirements.md`
@@ -284,19 +280,7 @@ Cover at minimum:
 - `FR-NOTICE-007` 公告删除
 - `FR-NOTICE-008` 公告审核
 
-- [ ] **Step 2: Add schedule requirements**
-
-Cover at minimum:
-
-- `FR-SCHEDULE-001` 学生查看本人课表
-- `FR-SCHEDULE-002` 教师查看授课课表
-- `FR-SCHEDULE-003` 课表按周展示
-- `FR-SCHEDULE-004` 管理员录入课表
-- `FR-SCHEDULE-005` 管理员维护课表数据
-
-Mark the teacher-view requirement as either explicit or confirmed supplemental according to the final source interpretation; do not leave it ambiguous.
-
-- [ ] **Step 3: Add activity requirements**
+- [ ] **Step 2: Add activity requirements**
 
 Cover at minimum:
 
@@ -308,17 +292,17 @@ Cover at minimum:
 - `FR-ACTIVITY-006` 学生取消报名
 - `FR-ACTIVITY-007` 报名人数限制
 
-- [ ] **Step 4: Verify all functional ID families exist**
+- [ ] **Step 3: Verify all functional ID families exist**
 
 Run:
 
 ```powershell
-rg "FR-(NOTICE|SCHEDULE|ACTIVITY)-" "docs/superpowers/requirements/2026-04-14-campus-platform-formal-requirements.md"
+rg "FR-(NOTICE|ACTIVITY)-" "docs/superpowers/requirements/2026-04-14-campus-platform-formal-requirements.md"
 ```
 
-Expected: all three requirement families appear with no remaining functional placeholders.
+Expected: both requirement families appear with no remaining functional placeholders.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 4: Commit**
 
 ```bash
 git add docs/superpowers/requirements/2026-04-14-campus-platform-formal-requirements.md
@@ -365,7 +349,7 @@ Include at minimum:
 
 - `CR-DATA-001` 用户名唯一
 - `CR-DATA-002` 活动报名唯一约束
-- `CR-DATA-003` 课表记录字段完整性
+- `CR-DATA-003` 活动字段完整性
 - `CR-DATA-004` 通知公告字段完整性
 
 - [ ] **Step 4: Verify no constraint placeholders remain**
@@ -427,7 +411,6 @@ Then manually confirm coverage against:
 
 - 用户中心
 - 通知公告
-- 课表查询
 - 校园活动
 - 独立首页聚合展示
 - JWT / 权限 / 统一响应 / 分页 / 数据约束
@@ -455,3 +438,4 @@ git commit -m "docs: finalize formal campus platform requirements"
 - When a requirement comes from the approved conversation rather than the original project document, mark it as `已确认补充需求`.
 - Keep requirement descriptions short, testable, and implementation-oriented.
 - If a statement cannot be traced to either the source document or approved follow-up confirmation, do not turn it into a formal requirement.
+

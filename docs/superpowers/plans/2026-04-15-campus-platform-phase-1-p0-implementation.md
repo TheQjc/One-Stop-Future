@@ -4,7 +4,7 @@
 
 **Goal:** Build the first working slice of the campus platform using the approved stack, covering project scaffolding, authentication and user center, the independent home page, and the notice module.
 
-**Architecture:** This plan implements the `P0` scope only: shared platform infrastructure, user center, home aggregation, and notices. The codebase remains a Spring Boot 3 monolith plus a Vue 3 SPA, with MySQL-backed persistence and JWT-based auth; full `课表查询` and `校园活动` implementations are intentionally deferred to later plans, while the home page exposes quick links for those future modules. All frontend-facing tasks must use `@frontend-design` to lock a deliberate visual direction before coding and `@ui-ux-pro-max` to validate UX, accessibility, and responsive behavior before closing the task.
+**Architecture:** This plan implements the `P0` scope only: shared platform infrastructure, user center, home aggregation, and notices. The codebase remains a Spring Boot 3 monolith plus a Vue 3 SPA, with MySQL-backed persistence and JWT-based auth; full `校园活动` implementation is intentionally deferred to later plans, while the home page keeps only current Phase A entries and directional aggregation content. All frontend-facing tasks must use `@frontend-design` to lock a deliberate visual direction before coding and `@ui-ux-pro-max` to validate UX, accessibility, and responsive behavior before closing the task.
 
 **Tech Stack:** Vue 3, Vue Router, Pinia, Element Plus, Axios, Vite, Vitest, Spring Boot 3, Spring Security, MyBatis-Plus, MySQL 8, JWT, Lombok, JUnit 5, MockMvc
 
@@ -21,7 +21,6 @@ This platform is too broad for one safe implementation plan. This plan covers on
 
 Follow-up plans should cover:
 
-- `课表查询` (`P1`)
 - `校园活动` (`P2`)
 
 ## Frontend Design Skill Baseline
@@ -1128,7 +1127,7 @@ Implement:
 - notice list with pagination/filter controls
 - notice detail page
 - teacher/admin notice management page
-- home page latest-notice block plus quick links to schedule/activity placeholders
+- home page latest-notice block plus activity planning copy
 - root `README.md` with local startup and smoke-test instructions
 - demo account section that includes `admin01`, `teacher01`, and `student01`
 - keep notice browse pages visually lighter and more editorial; keep teacher/admin management pages denser but still on the same token system instead of switching to a separate backend theme
@@ -1141,7 +1140,6 @@ Minimal home page requirement:
     <h1>校园一站式信息平台</h1>
     <div class="quick-links">
       <router-link to="/notices">通知公告</router-link>
-      <span>课表查询（Phase 2）</span>
       <span>校园活动（Phase 2）</span>
     </div>
   </section>
@@ -1190,3 +1188,4 @@ Manual smoke checklist:
 - Verify profile read/update/password change.
 
 If any of those fail, fix before starting the Phase 2 plan.
+
