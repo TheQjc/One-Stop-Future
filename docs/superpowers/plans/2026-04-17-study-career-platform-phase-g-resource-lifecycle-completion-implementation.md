@@ -1,10 +1,11 @@
-﻿# Study-Career Platform Phase G Resource Lifecycle Completion Implementation Plan
+# Study-Career Platform Phase G Resource Lifecycle Completion Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 > **Completion status:** Completed on 2026-04-17.
 > Delivered by commits `b078a70`, `43d6956`, `d16c0eb`, `6f97c9a`, `34d4d30`, `e1c18c4`, and follow-up fix `e35938b`.
-> Verification completed with targeted and full backend/frontend test runs plus local live smoke for upload, reject, preview, resubmit, and publish flows.`r`n> Evidence artifacts: `.local-smoke/phase-g-acceptance-backend.json` and `.local-smoke/phase-g-acceptance-frontend.json`.
+> Verification completed with targeted and full backend/frontend test runs plus local live smoke for upload, reject, preview, resubmit, and publish flows.
+> Evidence artifacts: .local-smoke/phase-g-acceptance-backend.json and .local-smoke/phase-g-acceptance-frontend.json.
 
 **Goal:** Complete the first resource-lifecycle follow-up slice by adding rejected-resource edit/resubmit, PDF preview, and the related owner/admin/public UI entry points without introducing version history or document conversion infrastructure.
 
@@ -141,7 +142,7 @@ Use the current visual system as the base:
 - Modify: `backend/src/main/java/com/campus/dto/ResourceDetailResponse.java`
 - Modify: `backend/src/test/java/com/campus/controller/ResourceControllerTests.java`
 
-- [ ] **Step 1: Write the failing detail-visibility and preview tests**
+- [x] **Step 1: Write the failing detail-visibility and preview tests**
 
 ```java
 @Test
@@ -182,7 +183,7 @@ void previewRejectsNonPdfResources() throws Exception {
 }
 ```
 
-- [ ] **Step 2: Run the failing backend tests**
+- [x] **Step 2: Run the failing backend tests**
 
 Run:
 
@@ -193,7 +194,7 @@ mvn -q "-Dtest=ResourceControllerTests" test
 
 Expected: FAIL because owners still cannot read unpublished detail, the preview endpoint does not exist, and the lifecycle flags are not returned.
 
-- [ ] **Step 3: Implement the detail-visibility and preview contract**
+- [x] **Step 3: Implement the detail-visibility and preview contract**
 
 Extend the detail DTO:
 
@@ -276,8 +277,9 @@ Implementation notes:
 - keep `/api/resources/{id}/download` login-only
 - explicitly permit `GET /api/resources/*/preview` in `SecurityConfig`
 - compute `editableByMe` and `previewAvailable` inside `toResourceDetail(...)`
-- `previewAvailable` should mean 鈥渃urrent viewer can preview this resource now,鈥?not only 鈥渇ileExt == pdf鈥?
-- [ ] **Step 4: Run the backend tests again and make them pass**
+- `previewAvailable` should mean “current viewer can preview this resource now,” not only “fileExt == pdf”
+
+- [x] **Step 4: Run the backend tests again and make them pass**
 
 Run:
 
@@ -288,7 +290,7 @@ mvn -q "-Dtest=ResourceControllerTests" test
 
 Expected: PASS with owner detail visibility, guest published-PDF preview, rejected-resource preview blocking, and non-PDF preview validation all covered.
 
-- [ ] **Step 5: Commit the detail-visibility and preview backend slice**
+- [x] **Step 5: Commit the detail-visibility and preview backend slice**
 
 ```bash
 git add backend/src/main/java/com/campus/config/SecurityConfig.java backend/src/main/java/com/campus/controller/ResourceController.java backend/src/main/java/com/campus/service/ResourceService.java backend/src/main/java/com/campus/dto/ResourceDetailResponse.java backend/src/test/java/com/campus/controller/ResourceControllerTests.java
@@ -302,7 +304,7 @@ git commit -m "feat: add resource detail visibility and pdf preview"
 - Modify: `backend/src/main/java/com/campus/service/ResourceService.java`
 - Modify: `backend/src/test/java/com/campus/controller/ResourceControllerTests.java`
 
-- [ ] **Step 1: Write the failing resubmission tests**
+- [x] **Step 1: Write the failing resubmission tests**
 
 ```java
 @Test
@@ -352,7 +354,7 @@ void publishedResourceCannotBeResubmitted() throws Exception {
 }
 ```
 
-- [ ] **Step 2: Run the failing backend resubmission tests**
+- [x] **Step 2: Run the failing backend resubmission tests**
 
 Run:
 
@@ -363,7 +365,7 @@ mvn -q "-Dtest=ResourceControllerTests" test
 
 Expected: FAIL because the `PUT /api/resources/{id}` endpoint and rejected-resource resubmission behavior do not exist yet.
 
-- [ ] **Step 3: Implement the resubmission flow**
+- [x] **Step 3: Implement the resubmission flow**
 
 Add the HTTP contract:
 
@@ -426,7 +428,7 @@ Guardrails:
 - `file` remains optional
 - if replacement storage succeeds and old-file deletion fails, log a warning and keep the request successful
 
-- [ ] **Step 4: Run the backend tests again and make them pass**
+- [x] **Step 4: Run the backend tests again and make them pass**
 
 Run:
 
@@ -437,7 +439,7 @@ mvn -q "-Dtest=ResourceControllerTests" test
 
 Expected: PASS with metadata-only resubmission, file-replacement resubmission, and state-guard failures covered.
 
-- [ ] **Step 5: Commit the resubmission backend slice**
+- [x] **Step 5: Commit the resubmission backend slice**
 
 ```bash
 git add backend/src/main/java/com/campus/controller/ResourceController.java backend/src/main/java/com/campus/service/ResourceService.java backend/src/test/java/com/campus/controller/ResourceControllerTests.java
@@ -454,7 +456,7 @@ git commit -m "feat: add resource resubmission flow"
 - Modify: `backend/src/test/java/com/campus/controller/ResourceControllerTests.java`
 - Modify: `backend/src/test/java/com/campus/controller/admin/AdminResourceControllerTests.java`
 
-- [ ] **Step 1: Write the failing lifecycle-flag list tests**
+- [x] **Step 1: Write the failing lifecycle-flag list tests**
 
 ```java
 @Test
@@ -475,7 +477,7 @@ void adminResourcesExposePreviewAvailability() throws Exception {
 }
 ```
 
-- [ ] **Step 2: Run the failing backend list tests**
+- [x] **Step 2: Run the failing backend list tests**
 
 Run:
 
@@ -486,7 +488,7 @@ mvn -q "-Dtest=ResourceControllerTests,AdminResourceControllerTests" test
 
 Expected: FAIL because the owner/admin list DTOs do not expose lifecycle action flags yet.
 
-- [ ] **Step 3: Implement list-level lifecycle flags**
+- [x] **Step 3: Implement list-level lifecycle flags**
 
 Extend the owner list DTO:
 
@@ -545,9 +547,9 @@ Implementation notes:
 
 - owner-list `editable` means rejected only
 - owner/admin `previewAvailable` means PDF only
-- do not leak per-row 鈥渁dmin can edit鈥?or 鈥減ublishable鈥?flags into this slice
+- do not leak per-row “admin can edit” or “publishable” flags into this slice
 
-- [ ] **Step 4: Run the backend list tests again and make them pass**
+- [x] **Step 4: Run the backend list tests again and make them pass**
 
 Run:
 
@@ -558,7 +560,7 @@ mvn -q "-Dtest=ResourceControllerTests,AdminResourceControllerTests" test
 
 Expected: PASS with stable list-level lifecycle flags for both owner and admin views.
 
-- [ ] **Step 5: Commit the lifecycle-flag DTO slice**
+- [x] **Step 5: Commit the lifecycle-flag DTO slice**
 
 ```bash
 git add backend/src/main/java/com/campus/dto/MyResourceListResponse.java backend/src/main/java/com/campus/dto/AdminResourceListResponse.java backend/src/main/java/com/campus/service/ResourceService.java backend/src/main/java/com/campus/service/AdminResourceService.java backend/src/test/java/com/campus/controller/ResourceControllerTests.java backend/src/test/java/com/campus/controller/admin/AdminResourceControllerTests.java
@@ -576,7 +578,7 @@ git commit -m "feat: expose resource lifecycle list flags"
 - Modify: `frontend/src/views/ResourceUploadView.vue`
 - Modify: `frontend/src/views/ResourceUploadView.spec.js`
 
-- [ ] **Step 1: Write the failing create/edit resource editor tests**
+- [x] **Step 1: Write the failing create/edit resource editor tests**
 
 Use `@frontend-design` before touching the create/edit form split.
 
@@ -615,7 +617,7 @@ test("edit view blocks when the resource is not editable by the current user", a
 });
 ```
 
-- [ ] **Step 2: Run the failing frontend editor tests**
+- [x] **Step 2: Run the failing frontend editor tests**
 
 Run:
 
@@ -626,7 +628,7 @@ npm run test -- src/views/ResourceUploadView.spec.js src/views/ResourceEditView.
 
 Expected: FAIL because there is no shared form, no edit route, and no resource update API helper.
 
-- [ ] **Step 3: Implement the shared editor form and edit route**
+- [x] **Step 3: Implement the shared editor form and edit route**
 
 Add a shared form component:
 
@@ -675,7 +677,7 @@ Implementation notes:
 - the edit form must keep file replacement optional
 - the edit success path should redirect to `/profile/resources`
 
-- [ ] **Step 4: Run the frontend editor tests again and make them pass**
+- [x] **Step 4: Run the frontend editor tests again and make them pass**
 
 Run:
 
@@ -686,7 +688,7 @@ npm run test -- src/views/ResourceUploadView.spec.js src/views/ResourceEditView.
 
 Expected: PASS with the shared create/edit form, edit prefill, and editability blocking behavior working.
 
-- [ ] **Step 5: Commit the editor form and edit route**
+- [x] **Step 5: Commit the editor form and edit route**
 
 ```bash
 git add frontend/src/components/ResourceEditorForm.vue frontend/src/views/ResourceEditView.vue frontend/src/views/ResourceEditView.spec.js frontend/src/router/index.js frontend/src/api/resources.js frontend/src/views/ResourceUploadView.vue frontend/src/views/ResourceUploadView.spec.js
@@ -704,7 +706,7 @@ git commit -m "feat: add resource edit and resubmit page"
 - Modify: `frontend/src/views/admin/AdminResourceManageView.vue`
 - Modify: `frontend/src/views/admin/AdminResourceManageView.spec.js`
 
-- [ ] **Step 1: Write the failing preview-action frontend tests**
+- [x] **Step 1: Write the failing preview-action frontend tests**
 
 Use `@frontend-design` before editing the action layouts, then `@ui-ux-pro-max` before closing the task.
 
@@ -753,7 +755,7 @@ test("admin resource board exposes preview actions for previewable resources", a
 });
 ```
 
-- [ ] **Step 2: Run the failing preview-action tests**
+- [x] **Step 2: Run the failing preview-action tests**
 
 Run:
 
@@ -764,7 +766,7 @@ npm run test -- src/views/ResourceDetailView.spec.js src/views/ProfileResourcesV
 
 Expected: FAIL because preview helper behavior and lifecycle-driven preview buttons are not implemented yet.
 
-- [ ] **Step 3: Implement the preview helper and preview actions**
+- [x] **Step 3: Implement the preview helper and preview actions**
 
 Implement preview through Axios blob fetch instead of raw route opening:
 
@@ -795,7 +797,7 @@ Implementation notes:
   - `Preview PDF` when `previewAvailable`
 - `AdminResourceManageView.vue` should show `Preview` only when `previewAvailable`
 
-- [ ] **Step 4: Run the preview-action tests again and make them pass**
+- [x] **Step 4: Run the preview-action tests again and make them pass**
 
 Run:
 
@@ -806,7 +808,7 @@ npm run test -- src/views/ResourceDetailView.spec.js src/views/ProfileResourcesV
 
 Expected: PASS with authenticated/public preview behavior routed through the shared helper and all three screens showing the correct actions.
 
-- [ ] **Step 5: Commit the preview frontend slice**
+- [x] **Step 5: Commit the preview frontend slice**
 
 ```bash
 git add frontend/src/api/resources.js frontend/src/views/ResourceDetailView.vue frontend/src/views/ResourceDetailView.spec.js frontend/src/views/ProfileResourcesView.vue frontend/src/views/ProfileResourcesView.spec.js frontend/src/views/admin/AdminResourceManageView.vue frontend/src/views/admin/AdminResourceManageView.spec.js
@@ -818,7 +820,7 @@ git commit -m "feat: add resource preview actions"
 **Files:**
 - Modify: `README.md`
 
-- [ ] **Step 1: Update README for the completed resource lifecycle flow**
+- [x] **Step 1: Update README for the completed resource lifecycle flow**
 
 Document:
 
@@ -828,7 +830,7 @@ Document:
 - owners can view their own unpublished resources
 - preview remains PDF-only; DOCX/PPTX/ZIP still download-only
 
-- [ ] **Step 2: Run targeted backend verification**
+- [x] **Step 2: Run targeted backend verification**
 
 Run:
 
@@ -839,7 +841,7 @@ mvn -q "-Dtest=ResourceControllerTests,AdminResourceControllerTests" test
 
 Expected: PASS
 
-- [ ] **Step 3: Run targeted frontend verification**
+- [x] **Step 3: Run targeted frontend verification**
 
 Run:
 
@@ -850,7 +852,7 @@ npm run test -- src/views/ResourceUploadView.spec.js src/views/ResourceEditView.
 
 Expected: PASS
 
-- [ ] **Step 4: Run full regression and build checks**
+- [x] **Step 4: Run full regression and build checks**
 
 Run:
 
@@ -867,7 +869,7 @@ npm run build
 
 Expected: PASS across the full backend suite, full frontend suite, and production build.
 
-- [ ] **Step 5: Manual smoke and final commit**
+- [x] **Step 5: Manual smoke and final commit**
 
 Manual smoke checklist:
 
@@ -896,4 +898,3 @@ git commit -m "docs: update resource lifecycle documentation"
 - Preserve existing resource download behavior.
 - Preserve current public resource list and detail behavior for published resources.
 - Do not add a version table, document converter, or extra preview backend in this slice.
-
