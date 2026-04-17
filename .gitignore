@@ -11,3 +11,4 @@ frontend/dist/
 .local-smoke/
 .local-storage/
 backend/.local-storage/
+extract_docx.py
