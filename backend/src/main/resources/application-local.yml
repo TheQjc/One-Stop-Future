@@ -27,3 +27,7 @@ platform:
       enabled: false
     minio:
       enabled: false
+      endpoint: http://127.0.0.1:9000
+      access-key: minioadmin
+      secret-key: minioadmin
+      bucket: campus-platform

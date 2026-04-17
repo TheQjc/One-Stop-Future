@@ -18,6 +18,11 @@ jwt:
   secret: test-secret-key-test-secret-key-1234
   expire-seconds: 3600
 
+app:
+  resource-storage:
+    type: local
+    local-root: .local-storage/resources
+
 platform:
   integrations:
     redis:
