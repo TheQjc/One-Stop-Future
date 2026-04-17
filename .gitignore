@@ -8,3 +8,6 @@ frontend/dist/
 .env.*
 *-local.out.log
 *-local.err.log
+.local-smoke/
+.local-storage/
+backend/.local-storage/
