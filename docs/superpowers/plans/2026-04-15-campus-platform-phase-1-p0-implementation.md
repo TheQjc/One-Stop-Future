@@ -1,6 +1,8 @@
 # Campus Platform Phase 1 (P0) Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **Historical scope note:** This legacy campus-platform P0 plan was superseded on 2026-04-15 by the regenerated study-career-platform scope in `docs/superpowers/specs/2026-04-15-study-career-platform-regeneration-design.md` and `docs/superpowers/plans/2026-04-15-study-career-platform-phase-a-foundation-implementation.md`.
+> Keep this document only as pre-regeneration history; do not treat its notice-based scope as the active implementation baseline.
 
 **Goal:** Build the first working slice of the campus platform using the approved stack, covering project scaffolding, authentication and user center, the independent home page, and the notice module.
 

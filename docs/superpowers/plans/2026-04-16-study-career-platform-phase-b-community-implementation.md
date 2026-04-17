@@ -1,6 +1,9 @@
 # Study-Career Platform Phase B Community Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **Completion status:** Completed on 2026-04-16.
+> Delivered together with the Phase C groundwork by commit `af7c1b7`, with plan/design and delivery-note documentation added in `0ab0d3a`.
+> This slice remains part of the active baseline referenced by Phases C-H and the current README; later full backend/frontend regression runs through Phase H cover it as part of the integrated application.
 
 **Goal:** Build the first Phase B community vertical slice on top of the existing Phase A foundation: public browse, authenticated posting, comments, likes, favorites, profile-side post/favorite views, and minimal admin governance.
 

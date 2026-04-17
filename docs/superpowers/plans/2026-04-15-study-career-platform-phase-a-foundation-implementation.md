@@ -1,6 +1,9 @@
 # Study-Career Platform Phase A Foundation Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **Completion status:** Completed on 2026-04-16.
+> Delivered by commits `b7af75a`, `792001b`, `5001697`, `b2972aa`, `390a1c0`, `7e804da`, `a02f3bc`, and `1d64c76`.
+> This slice remains the active foundation baseline referenced by Phases B-H and the current README; later full backend/frontend regression runs through Phase H cover it as part of the integrated application.
 
 **Goal:** Replace the current legacy notice prototype with the approved Phase A foundation for phone-code auth, independent home aggregation, personal center, student verification review, notifications, and the minimal admin backbone.
 

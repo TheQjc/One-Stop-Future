@@ -1,6 +1,9 @@
 # Study-Career Platform Phase C Job Aggregation Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **Completion status:** Completed on 2026-04-16.
+> Delivered together with the Phase B community slice by commit `af7c1b7`, with plan/design and delivery-note documentation added in `0ab0d3a`.
+> This slice remains part of the active baseline referenced by Phases D-H and the current README; later full backend/frontend regression runs through Phase H cover it as part of the integrated application.
 
 **Goal:** Build the first Phase C jobs vertical slice: admin-maintained job cards, public browse/filter/detail pages, job favorites, home entry activation, and a minimal admin jobs workspace.
 

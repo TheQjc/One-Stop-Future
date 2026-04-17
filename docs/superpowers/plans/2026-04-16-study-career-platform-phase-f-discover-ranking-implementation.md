@@ -1,6 +1,9 @@
 # Study-Career Platform Phase F Discover Ranking Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **Completion status:** Completed on 2026-04-16.
+> Delivered by commits `30e02fe`, `838dff9`, `ae5cf94`, `a969324`, and `a639a9e`, with documentation follow-up `f21f9fa`.
+> This slice remains part of the current README baseline and is covered by later full backend/frontend regression runs through Phase H.
 
 **Goal:** Build the Phase F first-slice discover ranking flow: a public backend `/api/discover` API plus homepage discover preview, navbar entry, and a dedicated `/discover` page that can browse weekly and all-time hot content across published community posts, jobs, and resources.
 

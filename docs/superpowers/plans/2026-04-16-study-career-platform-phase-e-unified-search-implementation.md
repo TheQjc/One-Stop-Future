@@ -1,6 +1,9 @@
 # Study-Career Platform Phase E Unified Search Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **Completion status:** Completed on 2026-04-16.
+> Delivered by commit `e23d998`.
+> This slice became the baseline extended by Phase F and remains covered by later full backend/frontend regression runs through Phase H.
 
 **Goal:** Build the Phase E first-slice unified search: a public backend aggregate search API plus homepage/nav entry points and a dedicated `/search` page that can search published community posts, jobs, and resources.
 

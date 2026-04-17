@@ -1,6 +1,9 @@
 # Study-Career Platform Phase D Resource Library Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **Completion status:** Completed on 2026-04-16.
+> Delivered by commits `d364a59`, `45b8153`, `56d85cb`, `5a0f634`, and `e0cf53c`, with follow-up doc/test alignment in `ae78b90`.
+> This slice became the baseline extended by Phases E-H and remains covered by later full backend/frontend regression runs through Phase H.
 
 **Goal:** Build the first Phase D resource-library vertical slice: real file upload/storage, public resource browse/detail/download, resource favorites, read-only "my resources", homepage activation, and a minimal admin review workspace.
 

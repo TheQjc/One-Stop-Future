@@ -1,6 +1,7 @@
 # Campus Platform Formal Requirements Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **Historical workflow note:** This plan produced the earlier campus-platform requirements artifact. Active implementation work now follows the regenerated study-career-platform baseline in `docs/superpowers/specs/2026-04-15-study-career-platform-regeneration-design.md` and `docs/superpowers/requirements/2026-04-15-study-career-platform-formal-requirements.md`.
 
 **Goal:** Produce a formal, developer-facing requirements catalog for the campus platform by extracting explicit requirements, implicit constraints, and confirmed supplemental decisions from the approved source documents.
 
