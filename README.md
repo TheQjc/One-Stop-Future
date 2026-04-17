@@ -45,6 +45,7 @@ Explicitly not implemented yet:
 - `backend/.local-storage/resources/`: default local resource file storage in the `local` profile
 - `backend/.local-storage/previews/`: default cached PPTX-to-PDF and ZIP preview artifacts in the `local` profile
   - current Phase H behavior invalidates preview cache by fingerprinting and writing a new artifact; old preview artifacts are not garbage-collected automatically
+  - to reset derived preview state during local development, stop the backend and delete `backend/.local-storage/previews/`
 
 ## Local Run
 
@@ -296,18 +297,19 @@ Resource statuses:
 12. Reject a pending resource with a clear review note.
 13. Log back in as the owner, open `/profile/resources`, click `Edit And Resubmit`, revise metadata, and submit without replacing the file.
 14. Repeat the resubmission flow with a PDF replacement file and confirm the record returns to `PENDING`.
-15. As the owner, preview an unpublished visible PDF or PPTX from `/profile/resources` or `/resources/:id`.
-16. As admin, confirm preview is shown for visible PDF / PPTX rows and `Preview Contents` is shown for ZIP rows in `/admin/resources`.
-17. Publish the pending resource and confirm it appears in the public `/resources` list.
-18. Favorite and download a published resource as a normal user.
-19. Open `/profile/favorites` and switch between `POST`, `JOB`, and `RESOURCE`.
-20. Use the homepage search box or `/search` to search `resume`.
-21. Switch `ALL / POST / JOB / RESOURCE` and `RELEVANCE / LATEST`.
-22. Refresh `/search` and confirm the search state stays in the URL.
-23. Open `/discover` as a guest and confirm the page loads a ranked public board.
-24. Switch discover `ALL / POST / JOB / RESOURCE` and `WEEK / ALL`.
-25. Refresh `/discover?tab=JOB&period=ALL` and confirm the state stays in the URL.
-26. Return to `/` and confirm the homepage discover preview shows items or a graceful empty state.
+15. Repeat the resubmission flow with a PPTX replacement file and confirm the next preview opens regenerated PDF output instead of stale cached content.
+16. As the owner, preview an unpublished visible PDF or PPTX from `/profile/resources` or `/resources/:id`.
+17. As admin, confirm preview is shown for visible PDF / PPTX rows and `Preview Contents` is shown for ZIP rows in `/admin/resources`.
+18. Publish the pending resource and confirm it appears in the public `/resources` list.
+19. Favorite and download a published resource as a normal user.
+20. Open `/profile/favorites` and switch between `POST`, `JOB`, and `RESOURCE`.
+21. Use the homepage search box or `/search` to search `resume`.
+22. Switch `ALL / POST / JOB / RESOURCE` and `RELEVANCE / LATEST`.
+23. Refresh `/search` and confirm the search state stays in the URL.
+24. Open `/discover` as a guest and confirm the page loads a ranked public board.
+25. Switch discover `ALL / POST / JOB / RESOURCE` and `WEEK / ALL`.
+26. Refresh `/discover?tab=JOB&period=ALL` and confirm the state stays in the URL.
+27. Return to `/` and confirm the homepage discover preview shows items or a graceful empty state.
 
 ## Targeted Resource Preview Verification
 
