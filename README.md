@@ -33,7 +33,8 @@ Explicitly not implemented yet:
 - batch job import
 - third-party job sync
 - in-site application / resume workflow
-- MinIO resource storage
+- historical local-resource migration into MinIO
+- MinIO-backed preview artifact storage
 - DOCX online preview
 - version history, chunk upload, or resume upload
 
@@ -42,8 +43,8 @@ Explicitly not implemented yet:
 - `backend/`: Spring Boot 3, Spring Security, MyBatis-Plus, JWT
 - `frontend/`: Vue 3, Pinia, Vue Router, Axios, Vite, Vitest
 - `docs/superpowers/`: requirements, specs, plans
-- `backend/.local-storage/resources/`: default local resource file storage in the `local` profile
-- `backend/.local-storage/previews/`: default cached PPTX-to-PDF and ZIP preview artifacts in the `local` profile
+- `backend/.local-storage/resources/`: default local raw resource storage in the `local` profile
+- `backend/.local-storage/previews/`: default cached PPTX-to-PDF and ZIP preview artifacts in the `local` profile; still local even when raw resource storage uses MinIO
   - current Phase H behavior invalidates preview cache by fingerprinting and writing a new artifact; old preview artifacts are not garbage-collected automatically
   - to reset derived preview state during local development, stop the backend and delete `backend/.local-storage/previews/`
 
@@ -90,9 +91,12 @@ Notes:
 
 - frontend is exposed on `http://127.0.0.1:5173`
 - MySQL is exposed on `127.0.0.1:3306`
+- MinIO API is exposed on `http://127.0.0.1:9000`
+- MinIO console is exposed on `http://127.0.0.1:9001`
 - backend is only exposed inside the Compose network and is reached through the frontend Nginx proxy
-- uploaded resource files and generated preview artifacts persist in the `backend-data` named volume
+- backend stores raw resource files in MinIO and keeps preview artifacts in the `backend-data` named volume
 - current recommendation for day-to-day development is still the local backend + local frontend flow above
+- switching an existing local-file database directly to MinIO is not a supported migration path in the current phase
 
 ## Local Demo Accounts
 

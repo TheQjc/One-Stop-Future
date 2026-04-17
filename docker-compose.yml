@@ -19,6 +19,20 @@ services:
       timeout: 5s
       retries: 10
 
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+      TZ: Asia/Shanghai
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+
   backend:
     build:
       context: .
@@ -28,12 +42,20 @@ services:
       DB_URL: jdbc:mysql://mysql:3306/campus_platform?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
       DB_USERNAME: root
       DB_PASSWORD: Qiao@2541Pass
+      RESOURCE_STORAGE_TYPE: minio
+      MINIO_ENABLED: "true"
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET: campus-platform
       JWT_SECRET: test-secret-key-test-secret-key-1234
       JWT_EXPIRE_SECONDS: 7200
       TZ: Asia/Shanghai
     depends_on:
       mysql:
         condition: service_healthy
+      minio:
+        condition: service_started
     expose:
       - "8080"
     volumes:
@@ -51,4 +73,5 @@ services:
 
 volumes:
   mysql-data:
+  minio-data:
   backend-data:
