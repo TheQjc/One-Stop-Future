@@ -1,4 +1,7 @@
 DROP TABLE IF EXISTS t_notice;
+DROP TABLE IF EXISTS t_decision_school_metric;
+DROP TABLE IF EXISTS t_decision_school_metric_definition;
+DROP TABLE IF EXISTS t_decision_school_profile;
 DROP TABLE IF EXISTS t_decision_timeline_milestone;
 DROP TABLE IF EXISTS t_decision_assessment_session;
 DROP TABLE IF EXISTS t_decision_assessment_option;
@@ -204,4 +207,43 @@ CREATE TABLE t_decision_timeline_milestone (
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   KEY idx_decision_timeline_track_order (track, display_order)
+);
+
+CREATE TABLE t_decision_school_profile (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(120) NOT NULL,
+  track VARCHAR(20) NOT NULL,
+  region VARCHAR(80) NOT NULL,
+  tier_label VARCHAR(40) NOT NULL,
+  is_active TINYINT NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_decision_school_profile_track (track)
+);
+
+CREATE TABLE t_decision_school_metric_definition (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  track VARCHAR(20) NOT NULL,
+  metric_code VARCHAR(40) NOT NULL,
+  metric_label VARCHAR(120) NOT NULL,
+  metric_unit VARCHAR(20) NULL,
+  value_type VARCHAR(20) NOT NULL,
+  chartable TINYINT NOT NULL DEFAULT 0,
+  metric_order INT NOT NULL,
+  is_active TINYINT NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_decision_school_metric_def_code_track (track, metric_code),
+  KEY idx_decision_school_metric_def_track_order (track, metric_order)
+);
+
+CREATE TABLE t_decision_school_metric (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  school_id BIGINT NOT NULL,
+  metric_code VARCHAR(40) NOT NULL,
+  metric_value VARCHAR(255) NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_decision_school_metric_school_code (school_id, metric_code),
+  KEY idx_decision_school_metric_school (school_id)
 );

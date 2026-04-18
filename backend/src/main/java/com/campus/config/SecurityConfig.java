@@ -46,6 +46,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/community/posts/mine").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/community/posts", "/api/community/posts/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/jobs", "/api/jobs/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/decision/schools").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/decision/schools/compare").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/resources/mine").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/resources/*/preview").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/resources/*/preview-zip").permitAll()
