@@ -120,3 +120,48 @@ VALUES
   (62, 6, 'Q6_B', 'Within 3-6 months', 'Medium timeline; interviews and projects can fit.', 2, 3, 0, 0, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
   (63, 6, 'Q6_C', '6-12 months', 'Longer timeline; applications and tests can fit.', 3, 0, 0, 3, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
   (64, 6, 'Q6_D', 'No fixed deadline', 'Choose a balanced exploration plan.', 4, 1, 1, 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO t_decision_timeline_milestone (
+  id, track, phase_code, phase_label, title, summary,
+  offset_months, offset_days, action_checklist, resource_hint,
+  display_order, is_active, created_at, updated_at
+)
+VALUES
+  (1001, 'EXAM', 'EXAM_P0', 'Baseline', 'Set targets and baseline', 'Choose target schools, define score goals, and measure your current baseline.', 0, 0,
+   'Pick 1-2 target schools and exam subjects\nCollect last 2 years of exam papers\nTake a baseline mock to measure weak areas',
+   'Start with a simple weekly plan and 2 mock sessions.', 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (1002, 'EXAM', 'EXAM_P1', 'Routine', 'Build a weekly study routine', 'Turn the baseline into a repeatable weekly routine with drills and review.', 0, 14,
+   'Create a weekly schedule (study blocks + review)\nDrill weak topics daily\nReview mistakes and update notes',
+   'Use past papers and keep a mistake notebook.', 2, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (1003, 'EXAM', 'EXAM_P2', 'Mock', 'Increase mock frequency', 'Increase mock-test frequency and stabilize score ranges.', 1, 0,
+   'Run a full mock every week\nTrack scores by topic\nAdjust drills based on the last mock',
+   'Keep metrics: topic accuracy, time per section.', 3, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (1004, 'EXAM', 'EXAM_P3', 'Sprint', 'Final sprint and review', 'Focus on high-yield review and execution under time pressure.', 2, 0,
+   'Prioritize high-yield topics\nPractice under timed conditions\nSleep and recovery checklist',
+   'Reduce new topics; focus on execution.', 4, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+
+  (1101, 'CAREER', 'CAREER_P0', 'Baseline', 'Clarify direction and role', 'Decide the role scope and prepare a realistic plan based on your background.', 0, 0,
+   'Pick 1-2 role types to focus on\nList 3 example job postings\nWrite your current skill gaps',
+   'Use job descriptions to define skills.', 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (1102, 'CAREER', 'CAREER_P1', 'Portfolio', 'Build a proof-of-skill project', 'Ship a small project that demonstrates core skills for your target role.', 0, 21,
+   'Define a small project scope\nShip a first usable version\nWrite a short README and demo notes',
+   'Prefer projects that map to job requirements.', 2, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (1103, 'CAREER', 'CAREER_P2', 'Interview', 'Start interview practice', 'Practice core interview questions and simulate real interviews.', 1, 0,
+   'Prepare a self-introduction\nPractice 20 common questions\nRun 2 mock interviews with peers',
+   'Track mistakes and iterate weekly.', 3, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (1104, 'CAREER', 'CAREER_P3', 'Apply', 'Apply and iterate', 'Apply consistently and iterate based on feedback and outcomes.', 2, 0,
+   'Submit 10 applications\nFollow up and track status\nRefine resume based on outcomes',
+   'Use a simple pipeline tracker.', 4, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+
+  (1201, 'ABROAD', 'ABROAD_P0', 'Baseline', 'Choose track and baseline language', 'Clarify target regions and measure your language baseline.', 0, 0,
+   'Pick 1-2 target countries/regions\nChoose target programs\nTake a baseline language test',
+   'Start a document checklist early.', 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (1202, 'ABROAD', 'ABROAD_P1', 'Language', 'Build a language routine', 'Build a routine for language improvement and test familiarity.', 0, 28,
+   'Daily listening and reading routine\nWeekly writing practice\n1 full mock test every 2 weeks',
+   'Use a consistent routine over intensity.', 2, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (1203, 'ABROAD', 'ABROAD_P2', 'Documents', 'Prepare application documents', 'Draft key documents and collect materials for applications.', 1, 0,
+   'Draft personal statement outline\nCollect transcripts and certificates\nAsk for recommendation letters',
+   'Keep versions organized and reviewed.', 3, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (1204, 'ABROAD', 'ABROAD_P3', 'Submit', 'Submit applications', 'Submit applications and track decisions and follow-ups.', 2, 0,
+   'Finalize program list\nSubmit applications\nTrack status and deadlines',
+   'Create a deadline calendar.', 4, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);

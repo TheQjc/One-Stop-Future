@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS t_notice;
+DROP TABLE IF EXISTS t_decision_timeline_milestone;
 DROP TABLE IF EXISTS t_decision_assessment_session;
 DROP TABLE IF EXISTS t_decision_assessment_option;
 DROP TABLE IF EXISTS t_decision_assessment_question;
@@ -185,4 +186,22 @@ CREATE TABLE t_decision_assessment_session (
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   KEY idx_decision_assessment_session_user (user_id)
+);
+
+CREATE TABLE t_decision_timeline_milestone (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  track VARCHAR(20) NOT NULL,
+  phase_code VARCHAR(40) NOT NULL,
+  phase_label VARCHAR(80) NOT NULL,
+  title VARCHAR(160) NOT NULL,
+  summary VARCHAR(500) NOT NULL,
+  offset_months INT NOT NULL DEFAULT 0,
+  offset_days INT NOT NULL DEFAULT 0,
+  action_checklist TEXT NULL,
+  resource_hint VARCHAR(255) NULL,
+  display_order INT NOT NULL,
+  is_active TINYINT NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_decision_timeline_track_order (track, display_order)
 );
