@@ -1,6 +1,6 @@
 # One-Stop Future
 
-Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice + Phase H resource preview expansion first slice + Phase J historical local resource MinIO migration first slice`.
+Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice + Phase H resource preview expansion first slice + Phase J historical local resource MinIO migration first slice + Phase K decision support first slice`.
 
 ## Current Scope
 
@@ -25,6 +25,10 @@ Implemented now:
 - unified search across published posts / jobs / resources
 - discover board across published posts / jobs / resources
 - homepage discover preview with weekly public picks
+- authenticated decision assessment questions / submit / latest result
+- authenticated direction timeline with stable anchor-date fallback
+- public school candidate listing and 2-4 school comparison for `EXAM` / `ABROAD`
+- authenticated homepage assessment entry activation
 - PDF inline preview for visible resources
 - PPTX inline preview via cached PDF conversion
 - ZIP directory-tree preview for visible resources
@@ -36,6 +40,7 @@ Explicitly not implemented yet:
 - in-site application / resume workflow
 - MinIO-backed preview artifact storage
 - DOCX online preview
+- decision analytics page
 - version history, chunk upload, or resume upload
 
 ## Project Structure
@@ -151,6 +156,9 @@ Public / user:
 - `/resources/:id`
 - `/resources/:id/edit`
 - `/resources/upload`
+- `/assessment`
+- `/timeline`
+- `/schools/compare`
 - `/profile`
 - `/profile/posts`
 - `/profile/favorites`
@@ -226,6 +234,28 @@ Current discover scope:
 - `ALL` covers all published history
 - homepage includes a `discoverPreview` payload for the weekly board
 
+## Decision Support
+
+Backend endpoints:
+
+- `GET /api/decision/assessment/questions`
+- `POST /api/decision/assessment/submissions`
+- `GET /api/decision/assessment/latest`
+- `GET /api/decision/timeline?track=CAREER|EXAM|ABROAD&anchorDate=YYYY-MM-DD`
+- `GET /api/decision/schools?track=EXAM|ABROAD&keyword=...`
+- `POST /api/decision/schools/compare`
+
+Current decision-support scope:
+
+- assessment is authenticated and backed by seeded backend-owned questions
+- submit persists the latest assessment result and returns deterministic scores / ranking / next actions
+- timeline is authenticated and uses explicit `anchorDate` first, otherwise the latest assessment session date
+- timeline returns `assessmentRequired=true` when neither explicit anchor nor latest result exists
+- school candidate list and compare are public read-only endpoints for `EXAM` and `ABROAD`
+- school compare enforces `2-4` schools, preserves accepted request order, and returns explicit missing-value markers
+- homepage `assessment` entry is live for authenticated users and `LOGIN_REQUIRED` for guests
+- homepage `analytics` remains `COMING_SOON` in this phase
+
 ## Historical Local Resource MinIO Migration
 
 Admin backend endpoint:
@@ -249,6 +279,7 @@ Guest:
 - can browse home, community, jobs, and published resources
 - can use unified search for published posts, jobs, and resources
 - can browse the public discover board
+- can browse public school candidates and school comparison for `EXAM` / `ABROAD`
 - can preview published PDF resources inline
 - can preview published PPTX resources inline as converted PDF
 - can preview published ZIP resources as directory trees
@@ -259,6 +290,8 @@ Authenticated user:
 - can create community posts
 - can comment / like / favorite community posts
 - can favorite jobs
+- can complete the decision assessment and view the latest result
+- can open the direction timeline after assessment
 - can upload resources
 - can preview published PDFs, visible PPTX resources, and visible ZIP directory trees
 - can favorite, unfavorite, and download published resources
@@ -346,6 +379,12 @@ Resource statuses:
 25. Switch discover `ALL / POST / JOB / RESOURCE` and `WEEK / ALL`.
 26. Refresh `/discover?tab=JOB&period=ALL` and confirm the state stays in the URL.
 27. Return to `/` and confirm the homepage discover preview shows items or a graceful empty state.
+28. Log in as `13800000001`, open `/assessment`, answer all questions, and submit one result.
+29. Confirm the result renders a recommended track plus links into `/timeline` and `/schools/compare`.
+30. Open `/timeline` and confirm it defaults to the recommended track and renders milestone cards.
+31. Switch `/timeline` among `CAREER`, `EXAM`, and `ABROAD` and confirm the milestone list reloads.
+32. Open `/schools/compare` as either guest or authenticated user, select `2-4` schools, and confirm compare table + chart region render.
+33. Return to `/` and confirm `assessment` is live for the logged-in user while `analytics` still reads as coming soon.
 
 ## Targeted Resource Preview Verification
 
@@ -377,4 +416,20 @@ mvn -q -Dtest=SearchControllerTests,DiscoverControllerTests,HomeControllerTests,
 ```bash
 cd frontend
 npx vitest run src/views/SearchView.spec.js src/views/DiscoverView.spec.js src/views/HomeView.spec.js src/components/NavBar.spec.js
+```
+
+## Targeted Decision Support Verification
+
+### Backend
+
+```bash
+cd backend
+mvn -q "-Dtest=DecisionAssessmentServiceTests,DecisionAssessmentControllerTests,DecisionTimelineServiceTests,DecisionTimelineControllerTests,DecisionSchoolServiceTests,DecisionSchoolControllerTests,HomeServiceTests,HomeControllerTests" test
+```
+
+### Frontend
+
+```bash
+cd frontend
+npx vitest run src/views/AssessmentView.spec.js src/views/TimelineView.spec.js src/views/SchoolCompareView.spec.js src/views/HomeView.spec.js
 ```
