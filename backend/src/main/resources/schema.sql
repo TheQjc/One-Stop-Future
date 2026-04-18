@@ -1,4 +1,6 @@
 DROP TABLE IF EXISTS t_notice;
+DROP TABLE IF EXISTS t_decision_assessment_option;
+DROP TABLE IF EXISTS t_decision_assessment_question;
 DROP TABLE IF EXISTS t_resource_item;
 DROP TABLE IF EXISTS t_job_posting;
 DROP TABLE IF EXISTS t_user_favorite;
@@ -141,4 +143,31 @@ CREATE TABLE t_job_posting (
   updated_by BIGINT NOT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE t_decision_assessment_question (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  code VARCHAR(40) NOT NULL UNIQUE,
+  prompt VARCHAR(255) NOT NULL,
+  description VARCHAR(500) NULL,
+  display_order INT NOT NULL,
+  is_active TINYINT NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE t_decision_assessment_option (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  question_id BIGINT NOT NULL,
+  code VARCHAR(40) NOT NULL UNIQUE,
+  label VARCHAR(120) NOT NULL,
+  description VARCHAR(500) NULL,
+  display_order INT NOT NULL,
+  career_score INT NOT NULL,
+  exam_score INT NOT NULL,
+  abroad_score INT NOT NULL,
+  is_active TINYINT NOT NULL DEFAULT 1,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_decision_assessment_option_question (question_id)
 );

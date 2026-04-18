@@ -76,3 +76,47 @@ VALUES
     TIMESTAMPADD(DAY, 45, CURRENT_TIMESTAMP), NULL, 'DRAFT', 1, 1,
     CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
   );
+
+INSERT INTO t_decision_assessment_question (id, code, prompt, description, display_order, is_active, created_at, updated_at)
+VALUES
+  (1, 'DECISION_Q1', 'Which outcome matters most to you right now?', 'Pick the option that best matches your current priority.', 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (2, 'DECISION_Q2', 'How do you prefer to measure progress?', 'Choose what feels most motivating and realistic.', 2, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (3, 'DECISION_Q3', 'What is your available weekly focus time?', 'Be honest so the recommendation stays practical.', 3, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (4, 'DECISION_Q4', 'What kind of uncertainty can you tolerate?', 'Different tracks have different kinds of risk and ambiguity.', 4, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (5, 'DECISION_Q5', 'Which learning style fits you best?', 'Your preferred learning mode impacts what you can sustain.', 5, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (6, 'DECISION_Q6', 'When do you need a clear next step by?', 'A deadline helps choose a track with the right pace.', 6, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO t_decision_assessment_option (
+  id, question_id, code, label, description, display_order,
+  career_score, exam_score, abroad_score, is_active, created_at, updated_at
+)
+VALUES
+  (11, 1, 'Q1_A', 'Improve exam performance', 'Prioritize structured learning and score improvements.', 1, 0, 3, 0, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (12, 1, 'Q1_B', 'Get a job offer sooner', 'Prioritize employability and interviews.', 2, 3, 0, 0, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (13, 1, 'Q1_C', 'Prepare for studying abroad', 'Prioritize language tests and applications.', 3, 0, 0, 3, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (14, 1, 'Q1_D', 'Keep options open', 'Prefer a balanced plan while you explore.', 4, 1, 1, 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+
+  (21, 2, 'Q2_A', 'Build a portfolio and ship projects', 'Progress is visible through outputs and iterations.', 1, 3, 0, 0, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (22, 2, 'Q2_B', 'Hit clear score targets', 'Progress is visible through measurable scores.', 2, 0, 3, 0, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (23, 2, 'Q2_C', 'Complete applications and documents', 'Progress is visible through submitted milestones.', 3, 0, 0, 3, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (24, 2, 'Q2_D', 'Mix of small wins', 'Progress comes from both output and study habits.', 4, 1, 1, 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+
+  (31, 3, 'Q3_A', '10-15 hours', 'Enough time for a structured study plan.', 1, 0, 3, 0, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (32, 3, 'Q3_B', '5-8 hours', 'Better for targeted interview practice and small projects.', 2, 3, 0, 0, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (33, 3, 'Q3_C', '15-20 hours', 'Enough time for language prep and application work.', 3, 0, 0, 3, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (34, 3, 'Q3_D', 'It varies week to week', 'A flexible approach is required.', 4, 1, 1, 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+
+  (41, 4, 'Q4_A', 'Prefer predictable milestones', 'I work best with clear checkpoints and feedback.', 1, 0, 3, 0, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (42, 4, 'Q4_B', 'Prefer fast iteration under ambiguity', 'I can handle shifting requirements and quick cycles.', 2, 3, 0, 0, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (43, 4, 'Q4_C', 'Prefer longer-term planning', 'I can manage longer timelines and paperwork.', 3, 0, 0, 3, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (44, 4, 'Q4_D', 'Some uncertainty is fine', 'I can adapt with a balanced plan.', 4, 1, 1, 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+
+  (51, 5, 'Q5_A', 'Practice with past papers and drills', 'Repetition and feedback help me improve.', 1, 0, 3, 0, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (52, 5, 'Q5_B', 'Learn by building real things', 'Projects and real tasks help me learn.', 2, 3, 0, 0, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (53, 5, 'Q5_C', 'Learn by reading and writing', 'Documents, essays, and plans are my strength.', 3, 0, 0, 3, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (54, 5, 'Q5_D', 'Mix and match', 'I prefer variety across learning modes.', 4, 1, 1, 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+
+  (61, 6, 'Q6_A', 'Within 1-2 months', 'Short timeline; choose a structured near-term plan.', 1, 0, 3, 0, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (62, 6, 'Q6_B', 'Within 3-6 months', 'Medium timeline; interviews and projects can fit.', 2, 3, 0, 0, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (63, 6, 'Q6_C', '6-12 months', 'Longer timeline; applications and tests can fit.', 3, 0, 0, 3, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+  (64, 6, 'Q6_D', 'No fixed deadline', 'Choose a balanced exploration plan.', 4, 1, 1, 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
