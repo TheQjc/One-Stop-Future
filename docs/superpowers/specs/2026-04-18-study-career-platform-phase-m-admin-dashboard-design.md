@@ -130,7 +130,7 @@ Recent-list semantics:
 
 - use up to `5` rows
 - include only `PENDING` applications
-- order by `createdAt desc`
+- order by `createdAt desc, id desc`
 
 ### 5.3 Community Section
 
@@ -147,8 +147,8 @@ Community semantics in this phase:
 
 - this is a status-board summary over current posts
 - there is no synthetic `pending` or moderation-review concept
-- `latestPosts` should show up to `5` most recently created posts across current statuses relevant to admins
-- order by `createdAt desc`
+- `latestPosts` should show up to `5` most recently created posts across `PUBLISHED`, `HIDDEN`, and `DELETED`
+- order by `createdAt desc, id desc`
 
 ### 5.4 Jobs Section
 
@@ -165,7 +165,7 @@ Actionable-job semantics:
 
 - actionable means status is `DRAFT` or `OFFLINE`
 - use up to `5` rows
-- order by `updatedAt desc`
+- order by `updatedAt desc, id desc`
 
 Deleted jobs are out of the dashboard summary and should not inflate the operational counts.
 
@@ -184,7 +184,7 @@ Resource semantics:
 
 - `closedCount` means `REJECTED + OFFLINE`
 - use up to `5` pending rows for `latestPendingResources`
-- order by `createdAt desc`
+- order by `createdAt desc, id desc`
 
 ### 5.6 Home And Navigation Changes
 
@@ -268,7 +268,7 @@ Recommended application item fields:
 - `status`
 - `createdAt`
 
-`reviewedToday` should count verification applications whose `reviewedAt` falls on the current server-local date.
+`reviewedToday` should count verification applications whose `reviewedAt` falls on the current application runtime date boundary, using the same timezone basis as the Spring Boot runtime environment.
 
 ### 7.3 Community Contract
 
@@ -294,6 +294,8 @@ Recommended post item fields:
 - `createdAt`
 
 `totalCount` should represent the same admin-visible universe as the existing admin community manage page, excluding no status except rows already physically absent from the table.
+
+`latestPosts` should use the same admin-visible universe and include `PUBLISHED`, `HIDDEN`, and `DELETED` rows.
 
 ### 7.4 Jobs Contract
 
@@ -370,93 +372,98 @@ Behavior:
 - admin-only endpoint
 - returns the full dashboard payload in one response
 - does not accept page, search, or status filter parameters in this phase
+- uses the existing project-standard success wrapper, with the dashboard payload nested under `data`
 
 ### 8.2 Response Shape
 
-Recommended structure:
+Recommended wrapped structure:
 
 ```json
 {
-  "verification": {
-    "pendingCount": 3,
-    "reviewedToday": 2,
-    "latestPendingApplications": [
-      {
-        "id": 1001,
-        "userId": 7,
-        "applicantNickname": "alice",
-        "realName": "Alice Chen",
-        "studentId": "20260001",
-        "status": "PENDING",
-        "createdAt": "2026-04-18T09:30:00"
-      }
-    ]
-  },
-  "community": {
-    "totalCount": 18,
-    "publishedCount": 12,
-    "hiddenCount": 4,
-    "deletedCount": 2,
-    "latestPosts": [
-      {
-        "id": 2001,
-        "tag": "EXAM",
-        "title": "Study Plan Notes",
-        "status": "PUBLISHED",
-        "authorId": 8,
-        "authorNickname": "study-user",
-        "likeCount": 15,
-        "commentCount": 3,
-        "favoriteCount": 6,
-        "createdAt": "2026-04-18T10:00:00"
-      }
-    ]
-  },
-  "jobs": {
-    "totalCount": 11,
-    "draftCount": 3,
-    "publishedCount": 6,
-    "offlineCount": 2,
-    "latestActionableJobs": [
-      {
-        "id": 3001,
-        "title": "Backend Intern",
-        "companyName": "Campus Tech",
-        "city": "Shanghai",
-        "jobType": "INTERNSHIP",
-        "educationRequirement": "BACHELOR",
-        "sourcePlatform": "Official Site",
-        "status": "DRAFT",
-        "summary": "Java backend internship",
-        "deadlineAt": "2026-04-30T18:00:00",
-        "publishedAt": null,
-        "updatedAt": "2026-04-18T08:00:00"
-      }
-    ]
-  },
-  "resources": {
-    "totalCount": 14,
-    "pendingCount": 4,
-    "publishedCount": 7,
-    "closedCount": 3,
-    "latestPendingResources": [
-      {
-        "id": 4001,
-        "title": "Algorithm Notes",
-        "category": "NOTES",
-        "uploaderNickname": "verified-user",
-        "fileName": "algo.pdf",
-        "fileSize": 123456,
-        "downloadCount": 9,
-        "status": "PENDING",
-        "rejectReason": null,
-        "createdAt": "2026-04-18T11:00:00",
-        "reviewedAt": null,
-        "publishedAt": null,
-        "previewAvailable": true,
-        "previewKind": "PDF"
-      }
-    ]
+  "code": 0,
+  "message": "success",
+  "data": {
+    "verification": {
+      "pendingCount": 3,
+      "reviewedToday": 2,
+      "latestPendingApplications": [
+        {
+          "id": 1001,
+          "userId": 7,
+          "applicantNickname": "alice",
+          "realName": "Alice Chen",
+          "studentId": "20260001",
+          "status": "PENDING",
+          "createdAt": "2026-04-18T09:30:00"
+        }
+      ]
+    },
+    "community": {
+      "totalCount": 18,
+      "publishedCount": 12,
+      "hiddenCount": 4,
+      "deletedCount": 2,
+      "latestPosts": [
+        {
+          "id": 2001,
+          "tag": "EXAM",
+          "title": "Study Plan Notes",
+          "status": "PUBLISHED",
+          "authorId": 8,
+          "authorNickname": "study-user",
+          "likeCount": 15,
+          "commentCount": 3,
+          "favoriteCount": 6,
+          "createdAt": "2026-04-18T10:00:00"
+        }
+      ]
+    },
+    "jobs": {
+      "totalCount": 11,
+      "draftCount": 3,
+      "publishedCount": 6,
+      "offlineCount": 2,
+      "latestActionableJobs": [
+        {
+          "id": 3001,
+          "title": "Backend Intern",
+          "companyName": "Campus Tech",
+          "city": "Shanghai",
+          "jobType": "INTERNSHIP",
+          "educationRequirement": "BACHELOR",
+          "sourcePlatform": "Official Site",
+          "status": "DRAFT",
+          "summary": "Java backend internship",
+          "deadlineAt": "2026-04-30T18:00:00",
+          "publishedAt": null,
+          "updatedAt": "2026-04-18T08:00:00"
+        }
+      ]
+    },
+    "resources": {
+      "totalCount": 14,
+      "pendingCount": 4,
+      "publishedCount": 7,
+      "closedCount": 3,
+      "latestPendingResources": [
+        {
+          "id": 4001,
+          "title": "Algorithm Notes",
+          "category": "NOTES",
+          "uploaderNickname": "verified-user",
+          "fileName": "algo.pdf",
+          "fileSize": 123456,
+          "downloadCount": 9,
+          "status": "PENDING",
+          "rejectReason": null,
+          "createdAt": "2026-04-18T11:00:00",
+          "reviewedAt": null,
+          "publishedAt": null,
+          "previewAvailable": true,
+          "previewKind": "PDF"
+        }
+      ]
+    }
   }
 }
 ```
@@ -493,6 +500,13 @@ The page should render:
   - jump CTA to the full workbench
 
 The visual direction should feel like a calm overview board, not a dense table console.
+
+Recent-list presentation should stay concise and consistent:
+
+- verification rows should emphasize applicant identity and submission time
+- community rows should emphasize title, status, and lightweight engagement context
+- job rows should emphasize title, company, status, and latest update time
+- resource rows should emphasize title, uploader, status, and submission time
 
 ### 9.2 Loading And Retry
 
