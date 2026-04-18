@@ -124,6 +124,9 @@ const distributionCards = computed(() => {
 });
 
 const personalStatus = computed(() => summary.value.personalStatus || "ANONYMOUS");
+const personalSnapshot = computed(() => summary.value.personalSnapshot || null);
+const personalHistory = computed(() => summary.value.personalHistory || []);
+const nextActions = computed(() => summary.value.nextActions || []);
 const selectedPeriodLabel = computed(() => (
   supportedPeriods.find((item) => item.code === period.value)?.label || "Last 30 days"
 ));
@@ -338,6 +341,95 @@ onMounted(() => {
             <RouterLink to="/login" class="app-btn">Log In</RouterLink>
             <RouterLink to="/register" class="ghost-btn">Create Account</RouterLink>
           </div>
+        </div>
+        <div v-else-if="personalStatus === 'ERROR'" class="panel-card personal-card" data-test="personal-error">
+          <p class="personal-card__eyebrow">Personal desk</p>
+          <h3 class="personal-card__title">Personal analytics is temporarily unavailable.</h3>
+          <p class="meta-copy">
+            {{ summary.personalMessage || "Personal analytics temporarily unavailable." }}
+          </p>
+          <p class="meta-copy">
+            Public analytics is still live above. You can retry later.
+          </p>
+        </div>
+        <div v-else-if="personalStatus === 'EMPTY'" class="panel-card personal-card" data-test="personal-empty">
+          <p class="personal-card__eyebrow">Personal desk</p>
+          <h3 class="personal-card__title">No assessment history yet.</h3>
+          <p class="meta-copy">
+            Run the assessment once to generate a recommendation snapshot and unlock your personal history here.
+          </p>
+          <div class="action-row">
+            <RouterLink to="/assessment" class="app-btn">Start Assessment</RouterLink>
+          </div>
+        </div>
+        <div v-else-if="personalStatus === 'READY'" class="personal-ready" data-test="personal-ready">
+          <article class="panel-card personal-ready__snapshot">
+            <p class="personal-card__eyebrow">Latest snapshot</p>
+            <h3 class="personal-card__title">
+              Recommended: {{ personalSnapshot?.recommendedTrack || "—" }}
+            </h3>
+            <p v-if="personalSnapshot?.summaryText" class="meta-copy">
+              {{ personalSnapshot.summaryText }}
+            </p>
+            <p v-if="personalSnapshot?.sessionDate" class="meta-copy">
+              Session date: {{ personalSnapshot.sessionDate }}
+            </p>
+            <div v-if="personalSnapshot?.scores" class="personal-ready__scores">
+              <div class="personal-ready__score">
+                <span>Career</span>
+                <strong>{{ personalSnapshot.scores.career }}</strong>
+              </div>
+              <div class="personal-ready__score">
+                <span>Exam</span>
+                <strong>{{ personalSnapshot.scores.exam }}</strong>
+              </div>
+              <div class="personal-ready__score">
+                <span>Abroad</span>
+                <strong>{{ personalSnapshot.scores.abroad }}</strong>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel-card personal-ready__actions" v-if="nextActions.length">
+            <p class="personal-card__eyebrow">Next actions</p>
+            <div class="chip-row" style="margin-top: 12px;">
+              <RouterLink
+                v-for="action in nextActions"
+                :key="action.code"
+                :to="action.path"
+                class="app-link"
+              >
+                {{ action.label }}
+              </RouterLink>
+            </div>
+            <p v-if="nextActions[0]?.description" class="meta-copy" style="margin-top: 14px;">
+              {{ nextActions[0].description }}
+            </p>
+          </article>
+
+          <article class="panel-card personal-ready__history" v-if="personalHistory.length">
+            <p class="personal-card__eyebrow">Recent sessions</p>
+            <div class="history-table" style="margin-top: 12px;">
+              <div class="history-table__head">
+                <span>Date</span>
+                <span>Track</span>
+                <span>Career</span>
+                <span>Exam</span>
+                <span>Abroad</span>
+              </div>
+              <div
+                v-for="item in personalHistory"
+                :key="`${item.sessionDate}-${item.recommendedTrack}`"
+                class="history-table__row"
+              >
+                <span>{{ item.sessionDate }}</span>
+                <span>{{ item.recommendedTrack }}</span>
+                <span>{{ item.careerScore }}</span>
+                <span>{{ item.examScore }}</span>
+                <span>{{ item.abroadScore }}</span>
+              </div>
+            </div>
+          </article>
         </div>
         <div v-else class="empty-state">
           Personal analytics will populate here for authenticated viewers.
@@ -588,6 +680,63 @@ onMounted(() => {
 
 .personal-card__title {
   font-size: clamp(24px, 3vw, 34px);
+}
+
+.personal-ready {
+  display: grid;
+  gap: var(--cp-gap-4);
+}
+
+.personal-ready__scores {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--cp-gap-3);
+  margin-top: var(--cp-gap-4);
+}
+
+.personal-ready__score {
+  padding: 12px 14px;
+  border-radius: var(--cp-radius-md);
+  border: 1px solid rgba(24, 38, 63, 0.12);
+  background: rgba(255, 255, 255, 0.56);
+  display: grid;
+  gap: 6px;
+}
+
+.personal-ready__score span {
+  color: var(--cp-ink-soft);
+  font-size: var(--cp-text-sm);
+}
+
+.personal-ready__score strong {
+  font-family: var(--cp-font-display);
+  font-size: 20px;
+  letter-spacing: -0.02em;
+}
+
+.history-table {
+  display: grid;
+  gap: 8px;
+}
+
+.history-table__head,
+.history-table__row {
+  display: grid;
+  grid-template-columns: 1.2fr 0.9fr repeat(3, 0.6fr);
+  gap: var(--cp-gap-3);
+  align-items: center;
+}
+
+.history-table__head {
+  color: var(--cp-ink-soft);
+  font-size: var(--cp-text-sm);
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--cp-line);
+}
+
+.history-table__row {
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(24, 38, 63, 0.08);
 }
 
 @media (max-width: 1023px) {

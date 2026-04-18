@@ -297,10 +297,10 @@ const serviceCards = computed(() => {
     {
       code: "Track 06",
       title: "Analytics",
-      description: "Path analytics remains scheduled for a later phase. Keep using the desk entries above for now.",
+      description: "A live board that combines public trends with the current direction mix, plus your personal snapshot when available.",
       path: "/analytics",
-      enabled: false,
-      metaLabel: badgeToText(findEntry("analytics")?.badge || "COMING_SOON"),
+      enabled: Boolean(findEntry("analytics")?.enabled),
+      metaLabel: entryStatusText(findEntry("analytics")),
     },
   ];
 

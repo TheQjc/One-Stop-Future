@@ -32,6 +32,7 @@ const guestSummary = {
     { code: "jobs", title: "Jobs", path: "/jobs", enabled: true, badge: null },
     { code: "resources", title: "Resources", path: "/resources", enabled: true, badge: null },
     { code: "assessment", title: "Assessment", path: "/assessment", enabled: false, badge: "LOGIN_REQUIRED" },
+    { code: "analytics", title: "Analytics", path: "/analytics", enabled: true, badge: null },
   ],
   latestNotifications: [],
   discoverPreview: {
@@ -74,7 +75,7 @@ const authenticatedSummary = {
     { code: "jobs", title: "Jobs", path: "/jobs", enabled: true, badge: null },
     { code: "resources", title: "Resources", path: "/resources", enabled: true, badge: null },
     { code: "assessment", title: "Assessment", path: "/assessment", enabled: true, badge: null },
-    { code: "analytics", title: "Analytics", path: "/analytics", enabled: true, badge: "COMING_SOON" },
+    { code: "analytics", title: "Analytics", path: "/analytics", enabled: true, badge: null },
   ],
   latestNotifications: [
     {
@@ -135,6 +136,7 @@ test("renders guest aggregation home with a live resources link", async () => {
   expect(getHomeSummary).toHaveBeenCalledTimes(1);
   expect(wrapper.html()).toContain('data-to="/resources"');
   expect(wrapper.html()).toContain('data-to="/jobs"');
+  expect(wrapper.html()).toContain('data-to="/analytics"');
   expect(wrapper.text()).toContain("Resume Pack");
   expect(wrapper.html()).toContain('data-to="/resources/11"');
   expect(wrapper.html()).toContain('data-to="{&quot;name&quot;:&quot;discover&quot;,&quot;query&quot;:{&quot;tab&quot;:&quot;ALL&quot;,&quot;period&quot;:&quot;WEEK&quot;}}"');
@@ -175,6 +177,7 @@ test("hydrates authenticated summary into store", async () => {
   expect(userStore.unreadCount).toBe(3);
   expect(wrapper.html()).toContain('data-to="/resources"');
   expect(wrapper.html()).toContain('data-to="/assessment"');
+  expect(wrapper.html()).toContain('data-to="/analytics"');
   expect(wrapper.text()).toContain("Verification Update");
   expect(wrapper.text()).toContain("Hiring Diary");
 });
