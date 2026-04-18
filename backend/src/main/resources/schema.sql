@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS t_notice;
+DROP TABLE IF EXISTS t_decision_assessment_session;
 DROP TABLE IF EXISTS t_decision_assessment_option;
 DROP TABLE IF EXISTS t_decision_assessment_question;
 DROP TABLE IF EXISTS t_resource_item;
@@ -170,4 +171,18 @@ CREATE TABLE t_decision_assessment_option (
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   KEY idx_decision_assessment_option_question (question_id)
+);
+
+CREATE TABLE t_decision_assessment_session (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  user_id BIGINT NOT NULL,
+  recommended_track VARCHAR(20) NOT NULL,
+  career_score INT NOT NULL,
+  exam_score INT NOT NULL,
+  abroad_score INT NOT NULL,
+  summary_text VARCHAR(500) NOT NULL,
+  session_date DATE NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_decision_assessment_session_user (user_id)
 );
