@@ -129,6 +129,12 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: "/admin/dashboard",
+      name: "admin-dashboard",
+      component: () => import("../views/admin/AdminDashboardView.vue"),
+      meta: { requiresAuth: true, roles: ["ADMIN"] },
+    },
+    {
       path: "/admin/verifications",
       name: "admin-verifications",
       component: () => import("../views/admin/AdminVerificationReviewView.vue"),

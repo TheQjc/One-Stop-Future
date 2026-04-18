@@ -161,6 +161,11 @@ export async function getVerificationDashboard() {
   return data.data;
 }
 
+export async function getAdminDashboardSummary() {
+  const { data } = await http.get("/admin/dashboard/summary");
+  return data.data;
+}
+
 export async function getVerificationApplications() {
   if (preferMock) {
     const applications = readApplications();
