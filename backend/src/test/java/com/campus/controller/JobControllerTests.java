@@ -89,6 +89,29 @@ class JobControllerTests {
     }
 
     @Test
+    @WithMockUser(username = "2", roles = "USER")
+    void authenticatedUserSeesAppliedStateInJobDetail() throws Exception {
+        jdbcTemplate.update(
+                """
+                        INSERT INTO t_job_application (
+                          id, job_id, applicant_user_id, resume_id, status,
+                          resume_title_snapshot, resume_file_name_snapshot, resume_file_ext_snapshot,
+                          resume_content_type_snapshot, resume_file_size_snapshot, resume_storage_key_snapshot,
+                          submitted_at, created_at, updated_at
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                        """,
+                7001L, 1L, 2L, 9001L, "SUBMITTED",
+                "Intern Resume", "intern-resume.pdf", "pdf", "application/pdf", 100L,
+                "seed/applications/intern-resume-snapshot.pdf");
+
+        mockMvc.perform(get("/api/jobs/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.appliedByMe").value(true))
+                .andExpect(jsonPath("$.data.applicationId").value(7001));
+    }
+
+    @Test
     void invalidEnumFilterReturnsBusinessError() throws Exception {
         mockMvc.perform(get("/api/jobs").param("jobType", "PART_TIME"))
                 .andExpect(status().isOk())

@@ -18,9 +18,11 @@ import com.campus.common.JobType;
 import com.campus.dto.JobDetailResponse;
 import com.campus.dto.JobListResponse;
 import com.campus.dto.SearchResponse;
+import com.campus.entity.JobApplication;
 import com.campus.entity.JobPosting;
 import com.campus.entity.User;
 import com.campus.entity.UserFavorite;
+import com.campus.mapper.JobApplicationMapper;
 import com.campus.mapper.JobPostingMapper;
 import com.campus.mapper.UserFavoriteMapper;
 
@@ -29,12 +31,15 @@ public class JobService {
 
     private static final int DEFAULT_LIST_LIMIT = 50;
 
+    private final JobApplicationMapper jobApplicationMapper;
     private final JobPostingMapper jobPostingMapper;
     private final UserFavoriteMapper userFavoriteMapper;
     private final UserService userService;
 
-    public JobService(JobPostingMapper jobPostingMapper, UserFavoriteMapper userFavoriteMapper,
+    public JobService(JobApplicationMapper jobApplicationMapper, JobPostingMapper jobPostingMapper,
+            UserFavoriteMapper userFavoriteMapper,
             UserService userService) {
+        this.jobApplicationMapper = jobApplicationMapper;
         this.jobPostingMapper = jobPostingMapper;
         this.userFavoriteMapper = userFavoriteMapper;
         this.userService = userService;
@@ -225,6 +230,8 @@ public class JobService {
     }
 
     private JobDetailResponse toJobDetail(JobPosting job, User viewer) {
+        JobApplication application = viewer == null ? null
+                : jobApplicationMapper.selectByJobIdAndApplicantUserId(job.getId(), viewer.getId());
         return new JobDetailResponse(
                 job.getId(),
                 job.getTitle(),
@@ -241,7 +248,9 @@ public class JobService {
                 job.getPublishedAt(),
                 job.getCreatedAt(),
                 job.getUpdatedAt(),
-                viewer != null && hasFavorite(job.getId(), viewer.getId()));
+                viewer != null && hasFavorite(job.getId(), viewer.getId()),
+                application != null,
+                application == null ? null : application.getId());
     }
 
     private boolean hasFavorite(Long jobId, Long userId) {

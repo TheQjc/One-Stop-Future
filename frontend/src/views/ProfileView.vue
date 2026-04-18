@@ -199,6 +199,18 @@ onMounted(initialize);
           <p class="meta-copy">Track uploaded files, status changes, and rejection notes.</p>
         </RouterLink>
 
+        <RouterLink to="/profile/resumes" class="panel-card profile-link-card">
+          <span class="profile-link-card__eyebrow">My Resumes</span>
+          <strong>Resume Library</strong>
+          <p class="meta-copy">Keep multiple resume files ready for application.</p>
+        </RouterLink>
+
+        <RouterLink to="/profile/applications" class="panel-card profile-link-card">
+          <span class="profile-link-card__eyebrow">My Applications</span>
+          <strong>Application Records</strong>
+          <p class="meta-copy">Review where you have already applied and which resume was used.</p>
+        </RouterLink>
+
         <RouterLink to="/community/create" class="panel-card profile-link-card">
           <span class="profile-link-card__eyebrow">Write</span>
           <strong>New Community Post</strong>

@@ -3,7 +3,8 @@ import { createPinia, setActivePinia } from "pinia";
 import { beforeEach, expect, test, vi } from "vitest";
 import JobDetailView from "./JobDetailView.vue";
 import { useUserStore } from "../stores/user.js";
-import { favoriteJob, getJobDetail, unfavoriteJob } from "../api/jobs.js";
+import { applyToJob, favoriteJob, getJobDetail, unfavoriteJob } from "../api/jobs.js";
+import { getMyResumes } from "../api/resumes.js";
 
 const routeMock = {
   params: { id: "11" },
@@ -25,9 +26,14 @@ vi.mock("vue-router", async () => {
 });
 
 vi.mock("../api/jobs.js", () => ({
+  applyToJob: vi.fn(),
   favoriteJob: vi.fn(),
   getJobDetail: vi.fn(),
   unfavoriteJob: vi.fn(),
+}));
+
+vi.mock("../api/resumes.js", () => ({
+  getMyResumes: vi.fn(),
 }));
 
 const baseDetail = {
@@ -48,7 +54,16 @@ const baseDetail = {
 beforeEach(() => {
   vi.clearAllMocks();
   window.localStorage.clear();
-  getJobDetail.mockResolvedValue({ ...baseDetail });
+  getJobDetail.mockResolvedValue({ ...baseDetail, appliedByMe: false, applicationId: null });
+  getMyResumes.mockResolvedValue({ total: 0, resumes: [] });
+  applyToJob.mockResolvedValue({
+    id: 1001,
+    jobId: 11,
+    status: "SUBMITTED",
+    resumeTitleSnapshot: "Intern Resume",
+    resumeFileNameSnapshot: "intern-resume.pdf",
+    submittedAt: "2026-04-18T10:00:00",
+  });
 });
 
 function mountView(authenticated = false) {
@@ -96,9 +111,55 @@ test("redirects guests to login when they try to favorite a job", async () => {
   expect(favoriteJob).not.toHaveBeenCalled();
 });
 
+test("guest apply click redirects to login", async () => {
+  const wrapper = mountView();
+  await flushPromises();
+
+  await wrapper.find('[data-testid="apply-toggle"]').trigger("click");
+
+  expect(routerPush).toHaveBeenCalledWith({
+    name: "login",
+    query: { redirect: "/jobs/11" },
+  });
+});
+
+test("authenticated user with no resumes sees upload guidance before applying", async () => {
+  getMyResumes.mockResolvedValue({ total: 0, resumes: [] });
+
+  const wrapper = mountView(true);
+  await flushPromises();
+
+  await wrapper.find('[data-testid="apply-toggle"]').trigger("click");
+  await flushPromises();
+
+  expect(wrapper.text()).toContain("Upload a resume first");
+  expect(wrapper.html()).toContain('data-to="/profile/resumes"');
+});
+
+test("authenticated user can apply with a selected resume and then sees applied state", async () => {
+  getMyResumes.mockResolvedValue({
+    total: 1,
+    resumes: [{ id: 21, title: "Intern Resume", fileName: "intern-resume.pdf" }],
+  });
+
+  const wrapper = mountView(true);
+  await flushPromises();
+
+  await wrapper.find('[data-testid="apply-toggle"]').trigger("click");
+  await flushPromises();
+  await wrapper.find('input[type="radio"][value="21"]').setValue();
+  await wrapper.find('[data-testid="submit-application"]').trigger("click");
+  await flushPromises();
+
+  expect(applyToJob).toHaveBeenCalledWith(11, { resumeId: 21 });
+  expect(wrapper.text()).toContain("Applied");
+  expect(wrapper.html()).toContain('data-to="/profile/applications"');
+});
+
 test("favorites a job for authenticated users", async () => {
   favoriteJob.mockResolvedValue({
     ...baseDetail,
+    appliedByMe: false,
     favoritedByMe: true,
   });
 

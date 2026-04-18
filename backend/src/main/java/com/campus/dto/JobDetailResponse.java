@@ -18,5 +18,7 @@ public record JobDetailResponse(
         LocalDateTime publishedAt,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
-        boolean favoritedByMe) {
+        boolean favoritedByMe,
+        boolean appliedByMe,
+        Long applicationId) {
 }

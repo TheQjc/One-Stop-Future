@@ -10,6 +10,11 @@ export async function getJobDetail(id) {
   return data.data;
 }
 
+export async function applyToJob(id, payload) {
+  const { data } = await http.post(`/jobs/${id}/apply`, payload);
+  return data.data;
+}
+
 export async function favoriteJob(id) {
   const { data } = await http.post(`/jobs/${id}/favorite`);
   return data.data;

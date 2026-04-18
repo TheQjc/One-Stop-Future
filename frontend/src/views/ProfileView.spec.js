@@ -60,3 +60,34 @@ test("shows the my resources link and submits verification request", async () =>
   expect(userStore.profile.verificationStatus).toBe("PENDING");
   expect(userStore.profile.studentId).toBe("20241234");
 });
+
+test("profile desk exposes resumes and applications workspace links", async () => {
+  setActivePinia(createPinia());
+  const userStore = useUserStore();
+
+  userStore.token = "demo-token";
+  userStore.persistProfile({
+    id: 2,
+    userId: 2,
+    phone: "13800000001",
+    nickname: "NormalUser",
+    role: "USER",
+    verificationStatus: "UNVERIFIED",
+    unreadNotificationCount: 1,
+  });
+
+  const wrapper = mount(ProfileView, {
+    global: {
+      stubs: {
+        RouterLink: {
+          props: ["to"],
+          template: "<a :data-to='to'><slot /></a>",
+        },
+      },
+    },
+  });
+  await flushPromises();
+
+  expect(wrapper.html()).toContain('data-to="/profile/resumes"');
+  expect(wrapper.html()).toContain('data-to="/profile/applications"');
+});

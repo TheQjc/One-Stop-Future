@@ -123,6 +123,18 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: "/profile/resumes",
+      name: "profile-resumes",
+      component: () => import("../views/ProfileResumesView.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/profile/applications",
+      name: "profile-applications",
+      component: () => import("../views/ProfileApplicationsView.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
       path: "/notifications",
       name: "notifications",
       component: () => import("../views/NotificationCenterView.vue"),
@@ -138,6 +150,12 @@ const router = createRouter({
       path: "/admin/verifications",
       name: "admin-verifications",
       component: () => import("../views/admin/AdminVerificationReviewView.vue"),
+      meta: { requiresAuth: true, roles: ["ADMIN"] },
+    },
+    {
+      path: "/admin/applications",
+      name: "admin-applications",
+      component: () => import("../views/admin/AdminApplicationsView.vue"),
       meta: { requiresAuth: true, roles: ["ADMIN"] },
     },
     {

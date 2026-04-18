@@ -1,6 +1,6 @@
 # One-Stop Future
 
-Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice + Phase H resource preview expansion first slice + Phase I MinIO raw resource storage first slice + Phase J historical local resource MinIO migration first slice + Phase K decision support first slice + Phase L decision analytics first slice + Phase M admin dashboard first slice`.
+Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice + Phase H resource preview expansion first slice + Phase I MinIO raw resource storage first slice + Phase J historical local resource MinIO migration first slice + Phase K decision support first slice + Phase L decision analytics first slice + Phase M admin dashboard first slice + Phase N job application and resume workflow first slice`.
 
 ## Current Scope
 
@@ -14,6 +14,10 @@ Implemented now:
 - my posts / my favorites
 - jobs list / detail / filters / source jump
 - job favorite / unfavorite
+- resume library upload / list / download / delete
+- in-platform one-time job apply with resume snapshot
+- my applications history
+- admin applications read-only workbench with snapshot download
 - public resource list / detail / upload
 - resource preview / download / favorite / unfavorite
 - my resources / resource favorites / rejected edit-resubmit
@@ -42,11 +46,10 @@ Explicitly not implemented yet:
 
 - batch job import
 - third-party job sync
-- in-site application / resume workflow
 - MinIO-backed preview artifact storage
 - DOCX online preview
 - full admin operations dashboards, DAU / funnel metrics, or exportable analytics reports
-- version history, chunk upload, or resume upload
+- version history, chunk upload, resume rename / replace, or online resume preview
 
 ## Project Structure
 
@@ -168,16 +171,42 @@ Public / user:
 - `/profile`
 - `/profile/posts`
 - `/profile/favorites`
+- `/profile/resumes`
+- `/profile/applications`
 - `/profile/resources`
 - `/notifications`
 
 Admin:
 
 - `/admin/dashboard`
+- `/admin/applications`
 - `/admin/verifications`
 - `/admin/community`
 - `/admin/jobs`
 - `/admin/resources`
+
+## Job Application And Resume Workflow
+
+Backend endpoints:
+
+- `GET /api/resumes/mine`
+- `POST /api/resumes`
+- `GET /api/resumes/{id}/download`
+- `DELETE /api/resumes/{id}`
+- `POST /api/jobs/{id}/apply`
+- `GET /api/applications/mine`
+- `GET /api/admin/applications`
+- `GET /api/admin/applications/{id}/resume/download`
+
+Current Phase N scope:
+
+- authenticated users can keep multiple resume files in `/profile/resumes`
+- supported resume formats are `PDF`, `DOC`, and `DOCX`
+- published job detail pages keep the external `Source Link` and also expose in-platform apply
+- one user can apply to the same job at most once
+- each application stores an immutable resume snapshot so deleting the live resume does not break historical download
+- `/profile/applications` is applicant-facing and read-only
+- `/admin/applications` is admin-only and read-only
 
 ## Admin Dashboard
 
@@ -323,6 +352,9 @@ Authenticated user:
 - can create community posts
 - can comment / like / favorite community posts
 - can favorite jobs
+- can manage their own resume library at `/profile/resumes`
+- can apply to a published job once with one selected resume
+- can review their application history at `/profile/applications`
 - can complete the decision assessment and view the latest result
 - can open `/analytics` and view personal snapshot / history / next actions when available
 - can open the direction timeline after assessment
@@ -336,6 +368,7 @@ Authenticated user:
 Admin:
 
 - can open `/admin/dashboard` for a read-only overview and use it to enter existing admin workbenches
+- can open `/admin/applications` and download application snapshot resumes
 - can review verification applications
 - can moderate community posts
 - can maintain job cards
@@ -425,6 +458,13 @@ Resource statuses:
 36. Log in as the admin `13800000000`, open `/admin/dashboard`, and confirm the page renders a read-only overview.
 37. From both the homepage admin entry and the main nav admin entry, confirm navigation lands on `/admin/dashboard`.
 38. From `/admin/dashboard`, confirm the handoff links route into the existing admin workbenches.
+39. Log in as `13800000001`, open `/profile/resumes`, and upload two resume files.
+40. Open `/jobs/1`, confirm `Source Link` is still present, and submit one in-platform application with a selected resume.
+41. Open `/profile/applications` and confirm the new record shows job title, company, city, status, submitted time, and the resume snapshot title.
+42. Delete the original live resume from `/profile/resumes`, return to `/profile/applications`, and confirm the application record still renders.
+43. Log in as admin `13800000000`, open `/admin/applications`, and confirm the record renders with applicant info and resume snapshot file name.
+44. Download the snapshot resume from `/admin/applications` and confirm the file is still available after the live resume deletion.
+45. Return to `/jobs/1` as the applicant and confirm the page still shows the applied state.
 
 ## Targeted Admin Dashboard Verification
 
@@ -504,4 +544,20 @@ mvn -q "-Dtest=AnalyticsServiceTests,AnalyticsControllerTests,HomeServiceTests,H
 ```bash
 cd frontend
 npm run test -- src/views/AnalyticsView.spec.js src/views/HomeView.spec.js
+```
+
+## Targeted Job Application And Resume Workflow Verification
+
+### Backend
+
+```bash
+cd backend
+mvn -q "-Dtest=ResumeControllerTests,JobApplicationControllerTests,AdminJobApplicationControllerTests,JobControllerTests" test
+```
+
+### Frontend
+
+```bash
+cd frontend
+npx vitest run src/views/ProfileResumesView.spec.js src/views/ProfileApplicationsView.spec.js src/views/JobDetailView.spec.js src/views/admin/AdminApplicationsView.spec.js src/views/ProfileView.spec.js src/components/NavBar.spec.js
 ```

@@ -69,3 +69,21 @@ test("navbar keeps authenticated navigation while exposing discover, search, and
   expect(wrapper.html()).toContain('data-to="/admin/verifications"');
   expect(wrapper.html()).toContain('data-to="/admin/community"');
 });
+
+test("navbar shows the admin applications link for admins", () => {
+  const userStore = useUserStore();
+  userStore.token = "demo-token";
+  userStore.profile = {
+    id: 1,
+    userId: 1,
+    nickname: "Admin",
+    phone: "13800000000",
+    role: "ADMIN",
+    verificationStatus: "VERIFIED",
+    unreadNotificationCount: 2,
+  };
+
+  const wrapper = mountNavBar();
+
+  expect(wrapper.html()).toContain('data-to="/admin/applications"');
+});

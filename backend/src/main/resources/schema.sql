@@ -6,6 +6,8 @@ DROP TABLE IF EXISTS t_decision_timeline_milestone;
 DROP TABLE IF EXISTS t_decision_assessment_session;
 DROP TABLE IF EXISTS t_decision_assessment_option;
 DROP TABLE IF EXISTS t_decision_assessment_question;
+DROP TABLE IF EXISTS t_job_application;
+DROP TABLE IF EXISTS t_resume;
 DROP TABLE IF EXISTS t_resource_item;
 DROP TABLE IF EXISTS t_job_posting;
 DROP TABLE IF EXISTS t_user_favorite;
@@ -130,6 +132,19 @@ CREATE TABLE t_resource_item (
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE t_resume (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  user_id BIGINT NOT NULL,
+  title VARCHAR(120) NOT NULL,
+  file_name VARCHAR(255) NOT NULL,
+  file_ext VARCHAR(20) NOT NULL,
+  content_type VARCHAR(120) NOT NULL,
+  file_size BIGINT NOT NULL,
+  storage_key VARCHAR(500) NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE t_job_posting (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   title VARCHAR(120) NOT NULL,
@@ -148,6 +163,27 @@ CREATE TABLE t_job_posting (
   updated_by BIGINT NOT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE t_job_application (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  job_id BIGINT NOT NULL,
+  applicant_user_id BIGINT NOT NULL,
+  resume_id BIGINT NOT NULL,
+  status VARCHAR(20) NOT NULL,
+  resume_title_snapshot VARCHAR(120) NOT NULL,
+  resume_file_name_snapshot VARCHAR(255) NOT NULL,
+  resume_file_ext_snapshot VARCHAR(20) NOT NULL,
+  resume_content_type_snapshot VARCHAR(120) NOT NULL,
+  resume_file_size_snapshot BIGINT NOT NULL,
+  resume_storage_key_snapshot VARCHAR(500) NOT NULL,
+  submitted_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_job_application_job_user (job_id, applicant_user_id),
+  KEY idx_job_application_applicant (applicant_user_id),
+  KEY idx_job_application_job (job_id),
+  KEY idx_job_application_submitted (submitted_at)
 );
 
 CREATE TABLE t_decision_assessment_question (
