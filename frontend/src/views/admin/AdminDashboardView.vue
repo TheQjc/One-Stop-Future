@@ -151,7 +151,7 @@ const sections = computed(() => [
       status: "Pending",
       tone: "warm",
     })),
-    emptyText: "No pending verification applications are waiting in the queue.",
+    emptyText: "No applications are waiting on the line.",
     ctaTo: "/admin/verifications",
     ctaLabel: "Open verification desk",
   },
@@ -180,7 +180,7 @@ const sections = computed(() => [
       status: communityStatusLabel(item.status),
       tone: communityStatusTone(item.status),
     })),
-    emptyText: "No recent community records are available to review.",
+    emptyText: "No recent posts have reached the desk.",
     ctaTo: "/admin/community",
     ctaLabel: "Open community desk",
   },
@@ -209,7 +209,7 @@ const sections = computed(() => [
       status: jobStatusLabel(item.status),
       tone: jobStatusTone(item.status),
     })),
-    emptyText: "No draft or offline jobs are waiting for editorial attention.",
+    emptyText: "No draft or offline jobs are on the board.",
     ctaTo: "/admin/jobs",
     ctaLabel: "Open jobs desk",
   },
@@ -237,7 +237,7 @@ const sections = computed(() => [
       status: resourceStatusLabel(item.status),
       tone: resourceStatusTone(item.status),
     })),
-    emptyText: "No pending resources are waiting on the review shelf.",
+    emptyText: "No resources are waiting on the shelf.",
     ctaTo: "/admin/resources",
     ctaLabel: "Open resources desk",
   },
@@ -348,10 +348,14 @@ onMounted(loadSummary);
           </div>
 
           <div class="field-grid admin-desk-card__body">
-            <div class="field-grid">
+            <div class="field-grid admin-desk-card__recent">
               <h3 class="admin-desk-card__subhead">Recent line</h3>
 
-              <div v-if="section.items.length === 0" class="empty-state admin-desk-card__empty">
+              <div
+                v-if="section.items.length === 0"
+                class="empty-state admin-desk-card__empty"
+                role="status"
+              >
                 {{ section.emptyText }}
               </div>
 
@@ -455,11 +459,21 @@ onMounted(loadSummary);
   align-content: start;
 }
 
+.admin-desk-card__recent {
+  align-content: start;
+}
+
 .admin-desk-card__subhead {
   margin: 0;
   font-family: var(--cp-font-display);
   font-size: 22px;
   line-height: 1.2;
+}
+
+.admin-desk-card__empty {
+  min-height: 92px;
+  display: grid;
+  align-content: center;
 }
 
 .admin-desk-card__list {

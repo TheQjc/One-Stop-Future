@@ -79,6 +79,37 @@ function buildSummary() {
   };
 }
 
+function buildEmptyRecentSummary() {
+  return {
+    verification: {
+      pendingCount: 3,
+      reviewedToday: 1,
+      latestPendingApplications: [],
+    },
+    community: {
+      totalCount: 7,
+      publishedCount: 5,
+      hiddenCount: 1,
+      deletedCount: 1,
+      latestPosts: [],
+    },
+    jobs: {
+      totalCount: 4,
+      draftCount: 1,
+      publishedCount: 2,
+      offlineCount: 1,
+      latestActionableJobs: [],
+    },
+    resources: {
+      totalCount: 6,
+      pendingCount: 2,
+      publishedCount: 3,
+      closedCount: 1,
+      latestPendingResources: [],
+    },
+  };
+}
+
 function mountView() {
   return mount(AdminDashboardView, {
     global: {
@@ -147,6 +178,32 @@ test("CTA links point to each admin desk", async () => {
 
   const wrapper = mountView();
   await flushPromises();
+
+  const linkTargets = wrapper.findAll("a[data-to]").map((node) => node.attributes("data-to"));
+
+  expect(linkTargets).toEqual(expect.arrayContaining([
+    "/admin/verifications",
+    "/admin/community",
+    "/admin/jobs",
+    "/admin/resources",
+  ]));
+});
+
+test("empty recent lines keep metrics and desk links visible", async () => {
+  getAdminDashboardSummary.mockResolvedValue(buildEmptyRecentSummary());
+
+  const wrapper = mountView();
+  await flushPromises();
+
+  expect(wrapper.text()).toContain("Pending");
+  expect(wrapper.text()).toContain("Reviewed Today");
+  expect(wrapper.text()).toContain("All Posts");
+  expect(wrapper.text()).toContain("All Jobs");
+  expect(wrapper.text()).toContain("All Records");
+  expect(wrapper.text()).toContain("No applications are waiting on the line.");
+  expect(wrapper.text()).toContain("No recent posts have reached the desk.");
+  expect(wrapper.text()).toContain("No draft or offline jobs are on the board.");
+  expect(wrapper.text()).toContain("No resources are waiting on the shelf.");
 
   const linkTargets = wrapper.findAll("a[data-to]").map((node) => node.attributes("data-to"));
 

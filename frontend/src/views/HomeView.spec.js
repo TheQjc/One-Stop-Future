@@ -106,6 +106,60 @@ const authenticatedSummary = {
   },
 };
 
+const adminSummary = {
+  viewerType: "ADMIN",
+  identity: {
+    userId: 1,
+    phone: "13800000000",
+    nickname: "AdminDesk",
+    role: "ADMIN",
+    verificationStatus: "VERIFIED",
+  },
+  roleLabel: "Administrator",
+  verificationStatus: "VERIFIED",
+  unreadNotificationCount: 2,
+  todos: [
+    "Review 2 pending verification applications.",
+    "You have 2 unread notifications.",
+  ],
+  entries: [
+    { code: "community", title: "Community", path: "/community", enabled: true, badge: null },
+    { code: "jobs", title: "Jobs", path: "/jobs", enabled: true, badge: null },
+    { code: "resources", title: "Resources", path: "/resources", enabled: true, badge: null },
+    { code: "assessment", title: "Assessment", path: "/assessment", enabled: true, badge: null },
+    { code: "analytics", title: "Analytics", path: "/analytics", enabled: true, badge: null },
+    { code: "admin-dashboard", title: "Admin Dashboard", path: "/admin/dashboard", enabled: true, badge: null },
+    { code: "admin-verifications", title: "Admin Verification Review", path: "/admin/verifications", enabled: true, badge: null },
+  ],
+  latestNotifications: [
+    {
+      id: 7,
+      type: "SYSTEM",
+      title: "Admin Daily Read",
+      content: "Dashboard queues are ready to review.",
+      read: false,
+      createdAt: "2026-04-17T08:30:00",
+    },
+  ],
+  discoverPreview: {
+    period: "WEEK",
+    items: [
+      {
+        id: 31,
+        type: "POST",
+        title: "Desk Notes",
+        summary: "A moderation note with current traction.",
+        primaryMeta: "AdminDesk",
+        secondaryMeta: "CAREER",
+        path: "/community/31",
+        publishedAt: "2026-04-17T09:30:00",
+        hotScore: 9,
+        hotLabel: "Weekly signal",
+      },
+    ],
+  },
+};
+
 beforeEach(() => {
   vi.clearAllMocks();
   window.localStorage.clear();
@@ -222,4 +276,23 @@ test("home preview shows a graceful empty state when preview items are empty", a
   await flushPromises();
 
   expect(wrapper.text()).toContain("No discover picks have entered this weekly desk yet.");
+});
+
+test("admin home shows the dashboard link before the existing admin destinations", async () => {
+  getHomeSummary.mockResolvedValue(adminSummary);
+
+  const wrapper = mountView();
+  await flushPromises();
+
+  const linkTargets = wrapper.findAll(".service-grid a[data-to]").map((node) => node.attributes("data-to"));
+
+  expect(linkTargets).toEqual(expect.arrayContaining([
+    "/admin/dashboard",
+    "/admin/verifications",
+    "/admin/community",
+    "/admin/jobs",
+  ]));
+  expect(linkTargets.indexOf("/admin/dashboard")).toBeLessThan(linkTargets.indexOf("/admin/verifications"));
+  expect(linkTargets.indexOf("/admin/dashboard")).toBeLessThan(linkTargets.indexOf("/admin/community"));
+  expect(linkTargets.indexOf("/admin/dashboard")).toBeLessThan(linkTargets.indexOf("/admin/jobs"));
 });

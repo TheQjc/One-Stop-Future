@@ -22,6 +22,7 @@ const navItems = computed(() => {
   }
 
   if (userStore.canReviewVerifications) {
+    items.push({ to: "/admin/dashboard", label: "运营总览" });
     items.push({ to: "/admin/verifications", label: "认证审核" });
     items.push({ to: "/admin/community", label: "社区治理" });
   }

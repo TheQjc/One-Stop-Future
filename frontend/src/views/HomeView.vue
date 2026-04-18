@@ -34,6 +34,7 @@ const entryMetaMap = {
   resources: { label: "考研方向" },
   assessment: { label: "留学方向" },
   analytics: { label: "路径分析" },
+  "admin-dashboard": { label: "运营总览" },
   "admin-verifications": { label: "认证审核" },
 };
 
@@ -307,6 +308,14 @@ const serviceCards = computed(() => {
   if (canReviewVerifications.value) {
     cards.push({
       code: "Desk 06",
+      title: "运营总览台",
+      description: "先读四个管理台的当日队列与计数，再进入具体审核与维护页面。",
+      path: "/admin/dashboard",
+      enabled: true,
+      metaLabel: "进入总览台",
+    });
+    cards.push({
+      code: "Desk 07",
       title: "认证审核台",
       description: "教师与管理员可统一审核学生认证申请。",
       path: "/admin/verifications",
@@ -314,7 +323,7 @@ const serviceCards = computed(() => {
       metaLabel: "进入审核队列",
     });
     cards.push({
-      code: "Desk 07",
+      code: "Desk 08",
       title: "社区治理台",
       description: "查看帖子状态和基础计数，并执行下架或删除操作。",
       path: "/admin/community",
@@ -322,7 +331,7 @@ const serviceCards = computed(() => {
       metaLabel: "管理员专属工作台",
     });
     cards.push({
-      code: "Desk 08",
+      code: "Desk 09",
       title: "岗位管理台",
       description: "创建、编辑、发布和下线岗位卡片，保持前台岗位聚合数据可用。",
       path: "/admin/jobs",

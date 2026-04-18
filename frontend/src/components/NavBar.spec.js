@@ -46,7 +46,7 @@ test("navbar exposes discover and search entries for guests", () => {
   expect(wrapper.html()).toContain('data-to="/register"');
 });
 
-test("navbar keeps authenticated navigation while exposing discover and search", () => {
+test("navbar keeps authenticated navigation while exposing discover, search, and the admin dashboard", () => {
   const userStore = useUserStore();
   userStore.token = "demo-token";
   userStore.profile = {
@@ -65,6 +65,7 @@ test("navbar keeps authenticated navigation while exposing discover and search",
   expect(wrapper.html()).toContain('data-to="/search"');
   expect(wrapper.html()).toContain('data-to="/profile"');
   expect(wrapper.html()).toContain('data-to="/notifications"');
+  expect(wrapper.html()).toContain('data-to="/admin/dashboard"');
   expect(wrapper.html()).toContain('data-to="/admin/verifications"');
   expect(wrapper.html()).toContain('data-to="/admin/community"');
 });
