@@ -29,6 +29,11 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: "/analytics",
+      name: "analytics",
+      component: () => import("../views/AnalyticsView.vue"),
+    },
+    {
       path: "/schools/compare",
       name: "schools-compare",
       component: () => import("../views/SchoolCompareView.vue"),
