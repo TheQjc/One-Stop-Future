@@ -20,3 +20,12 @@ export async function getDecisionTimeline(params) {
   return data.data;
 }
 
+export async function listDecisionSchools(params) {
+  const { data } = await http.get("/decision/schools", { params });
+  return data.data;
+}
+
+export async function compareDecisionSchools(payload) {
+  const { data } = await http.post("/decision/schools/compare", payload);
+  return data.data;
+}

@@ -53,6 +53,22 @@ function badgeToText(badge) {
   return "已纳入首页";
 }
 
+function entryStatusText(entry) {
+  if (!entry) {
+    return badgeToText("COMING_SOON");
+  }
+
+  if (entry.badge) {
+    return badgeToText(entry.badge);
+  }
+
+  if (entry.enabled) {
+    return "Live";
+  }
+
+  return badgeToText("COMING_SOON");
+}
+
 function translateRole(role) {
   const roleMap = {
     ADMIN: "管理员",
@@ -207,7 +223,7 @@ const strategyTracks = computed(() => [
     description: "把语言、材料、时间线和申请提醒聚合展示，避免准备过程过早碎片化。",
     bullets: ["语言与材料前置提醒", "项目筛选与比较记录", "申请节奏与结果追踪"],
     tone: "abroad",
-    badge: badgeToText(findEntry("assessment")?.badge || "COMING_SOON"),
+    badge: entryStatusText(findEntry("assessment")),
   },
 ]);
 
@@ -274,9 +290,17 @@ const serviceCards = computed(() => {
       code: "Track 05",
       title: "留学方向",
       description: "语言、材料和申请时间线会在后续阶段补齐。",
-      path: "/profile",
+      path: findEntry("assessment")?.enabled ? "/assessment" : "/login",
+      enabled: Boolean(findEntry("assessment")?.enabled),
+      metaLabel: entryStatusText(findEntry("assessment")),
+    },
+    {
+      code: "Track 06",
+      title: "Analytics",
+      description: "Path analytics remains scheduled for a later phase. Keep using the desk entries above for now.",
+      path: "/analytics",
       enabled: false,
-      metaLabel: badgeToText(findEntry("assessment")?.badge || "COMING_SOON"),
+      metaLabel: badgeToText(findEntry("analytics")?.badge || "COMING_SOON"),
     },
   ];
 

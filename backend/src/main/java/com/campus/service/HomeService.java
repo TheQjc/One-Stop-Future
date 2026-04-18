@@ -137,7 +137,7 @@ public class HomeService {
         entries.add(new HomeSummaryResponse.HomeEntryCard("community", "Community", "/community", true, null));
         entries.add(new HomeSummaryResponse.HomeEntryCard("jobs", "Jobs", "/jobs", true, null));
         entries.add(new HomeSummaryResponse.HomeEntryCard("resources", "Resources", "/resources", true, null));
-        entries.add(new HomeSummaryResponse.HomeEntryCard("assessment", "Assessment", "/assessment", true, "COMING_SOON"));
+        entries.add(new HomeSummaryResponse.HomeEntryCard("assessment", "Assessment", "/assessment", true, null));
         entries.add(new HomeSummaryResponse.HomeEntryCard("analytics", "Analytics", "/analytics", true, "COMING_SOON"));
         if ("ADMIN".equals(user.getRole())) {
             entries.add(new HomeSummaryResponse.HomeEntryCard("admin-verifications", "Admin Verification Review",

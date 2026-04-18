@@ -73,7 +73,8 @@ const authenticatedSummary = {
     { code: "community", title: "Community", path: "/community", enabled: true, badge: null },
     { code: "jobs", title: "Jobs", path: "/jobs", enabled: true, badge: null },
     { code: "resources", title: "Resources", path: "/resources", enabled: true, badge: null },
-    { code: "assessment", title: "Assessment", path: "/assessment", enabled: true, badge: "COMING_SOON" },
+    { code: "assessment", title: "Assessment", path: "/assessment", enabled: true, badge: null },
+    { code: "analytics", title: "Analytics", path: "/analytics", enabled: true, badge: "COMING_SOON" },
   ],
   latestNotifications: [
     {
@@ -173,6 +174,7 @@ test("hydrates authenticated summary into store", async () => {
   expect(userStore.profile.nickname).toBe("SignedInUser");
   expect(userStore.unreadCount).toBe(3);
   expect(wrapper.html()).toContain('data-to="/resources"');
+  expect(wrapper.html()).toContain('data-to="/assessment"');
   expect(wrapper.text()).toContain("Verification Update");
   expect(wrapper.text()).toContain("Hiring Diary");
 });

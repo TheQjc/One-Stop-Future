@@ -29,6 +29,11 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: "/schools/compare",
+      name: "schools-compare",
+      component: () => import("../views/SchoolCompareView.vue"),
+    },
+    {
       path: "/resources",
       name: "resources",
       component: () => import("../views/ResourcesListView.vue"),
