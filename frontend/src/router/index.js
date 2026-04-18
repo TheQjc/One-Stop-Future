@@ -17,6 +17,18 @@ const router = createRouter({
       component: () => import("../views/DiscoverView.vue"),
     },
     {
+      path: "/assessment",
+      name: "assessment",
+      component: () => import("../views/AssessmentView.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/timeline",
+      name: "timeline",
+      component: () => import("../views/TimelineView.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
       path: "/resources",
       name: "resources",
       component: () => import("../views/ResourcesListView.vue"),
