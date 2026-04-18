@@ -86,7 +86,13 @@ class HomeControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.viewerType").value("ADMIN"))
-                .andExpect(jsonPath("$.data.entries[5].code").value("admin-verifications"));
+                .andExpect(jsonPath("$.data.entries[5].code").value("admin-dashboard"))
+                .andExpect(jsonPath("$.data.entries[5].title").value("Admin Dashboard"))
+                .andExpect(jsonPath("$.data.entries[5].path").value("/admin/dashboard"))
+                .andExpect(jsonPath("$.data.entries[5].enabled").value(true))
+                .andExpect(jsonPath("$.data.entries[5].badge").value(org.hamcrest.Matchers.nullValue()))
+                .andExpect(jsonPath("$.data.entries[6].code").value("admin-verifications"))
+                .andExpect(jsonPath("$.data.entries[6].path").value("/admin/verifications"));
     }
 
     private void insertNotification(Long id, Long userId, String type, String title, String content, int isRead,
