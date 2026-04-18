@@ -1,6 +1,6 @@
 # One-Stop Future
 
-Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice + Phase H resource preview expansion first slice + Phase J historical local resource MinIO migration first slice + Phase K decision support first slice + Phase L decision analytics first slice + Phase M admin dashboard first slice`.
+Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice + Phase H resource preview expansion first slice + Phase I MinIO raw resource storage first slice + Phase J historical local resource MinIO migration first slice + Phase K decision support first slice + Phase L decision analytics first slice + Phase M admin dashboard first slice`.
 
 ## Current Scope
 
@@ -21,6 +21,7 @@ Implemented now:
 - admin community moderation
 - admin jobs create / edit / publish / offline / delete
 - admin resource publish / reject / offline review workspace
+- MinIO-backed raw resource storage for non-`local` runtimes while preview artifacts remain local in this phase
 - admin historical local-resource MinIO migration with dry-run and bounded batch execution
 - admin dashboard read-only summary overview with handoff to existing workbenches
 - unified search across published posts / jobs / resources
