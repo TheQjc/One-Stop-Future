@@ -1,6 +1,6 @@
 # One-Stop Future
 
-Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice + Phase H resource preview expansion first slice + Phase J historical local resource MinIO migration first slice + Phase K decision support first slice`.
+Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice + Phase H resource preview expansion first slice + Phase J historical local resource MinIO migration first slice + Phase K decision support first slice + Phase L decision analytics first slice`.
 
 ## Current Scope
 
@@ -29,6 +29,9 @@ Implemented now:
 - authenticated direction timeline with stable anchor-date fallback
 - public school candidate listing and 2-4 school comparison for `EXAM` / `ABROAD`
 - authenticated homepage assessment entry activation
+- public decision analytics desk at `/analytics` with `7D / 30D` overview, trend, and direction-mix views
+- authenticated personal decision analytics snapshot / history / next actions on the same `/analytics` page
+- homepage analytics entry activation for both guests and authenticated users
 - PDF inline preview for visible resources
 - PPTX inline preview via cached PDF conversion
 - ZIP directory-tree preview for visible resources
@@ -40,7 +43,7 @@ Explicitly not implemented yet:
 - in-site application / resume workflow
 - MinIO-backed preview artifact storage
 - DOCX online preview
-- decision analytics page
+- admin operations dashboards, DAU / funnel metrics, or exportable analytics reports
 - version history, chunk upload, or resume upload
 
 ## Project Structure
@@ -157,6 +160,7 @@ Public / user:
 - `/resources/:id/edit`
 - `/resources/upload`
 - `/assessment`
+- `/analytics`
 - `/timeline`
 - `/schools/compare`
 - `/profile`
@@ -234,7 +238,7 @@ Current discover scope:
 - `ALL` covers all published history
 - homepage includes a `discoverPreview` payload for the weekly board
 
-## Decision Support
+## Decision Support And Analytics
 
 Backend endpoints:
 
@@ -244,8 +248,9 @@ Backend endpoints:
 - `GET /api/decision/timeline?track=CAREER|EXAM|ABROAD&anchorDate=YYYY-MM-DD`
 - `GET /api/decision/schools?track=EXAM|ABROAD&keyword=...`
 - `POST /api/decision/schools/compare`
+- `GET /api/analytics/summary?period=7D|30D`
 
-Current decision-support scope:
+Current decision-support and analytics scope:
 
 - assessment is authenticated and backed by seeded backend-owned questions
 - submit persists the latest assessment result and returns deterministic scores / ranking / next actions
@@ -253,8 +258,13 @@ Current decision-support scope:
 - timeline returns `assessmentRequired=true` when neither explicit anchor nor latest result exists
 - school candidate list and compare are public read-only endpoints for `EXAM` and `ABROAD`
 - school compare enforces `2-4` schools, preserves accepted request order, and returns explicit missing-value markers
+- analytics is a public mixed desk at `/analytics`
+- guests can open `/analytics` and read public overview cards, trend cards, and direction mix
+- authenticated users get the same public board plus personal snapshot, recent history, and backend-provided next actions
+- analytics period switching is backend-owned and supports only `7D` and `30D`
 - homepage `assessment` entry is live for authenticated users and `LOGIN_REQUIRED` for guests
-- homepage `analytics` remains `COMING_SOON` in this phase
+- homepage `analytics` is live for guests and authenticated users
+- admin operations dashboards remain out of scope in this phase
 
 ## Historical Local Resource MinIO Migration
 
@@ -279,6 +289,7 @@ Guest:
 - can browse home, community, jobs, and published resources
 - can use unified search for published posts, jobs, and resources
 - can browse the public discover board
+- can open `/analytics` and read the public decision analytics board
 - can browse public school candidates and school comparison for `EXAM` / `ABROAD`
 - can preview published PDF resources inline
 - can preview published PPTX resources inline as converted PDF
@@ -291,6 +302,7 @@ Authenticated user:
 - can comment / like / favorite community posts
 - can favorite jobs
 - can complete the decision assessment and view the latest result
+- can open `/analytics` and view personal snapshot / history / next actions when available
 - can open the direction timeline after assessment
 - can upload resources
 - can preview published PDFs, visible PPTX resources, and visible ZIP directory trees
@@ -384,7 +396,9 @@ Resource statuses:
 30. Open `/timeline` and confirm it defaults to the recommended track and renders milestone cards.
 31. Switch `/timeline` among `CAREER`, `EXAM`, and `ABROAD` and confirm the milestone list reloads.
 32. Open `/schools/compare` as either guest or authenticated user, select `2-4` schools, and confirm compare table + chart region render.
-33. Return to `/` and confirm `assessment` is live for the logged-in user while `analytics` still reads as coming soon.
+33. As guest, open `/analytics` and confirm public overview, trend cards, and decision mix render.
+34. Log in as `13800000001`, open `/analytics`, and confirm either the personal snapshot/history or the assessment CTA renders.
+35. Return to `/` and confirm both `assessment` and `analytics` entries are live.
 
 ## Targeted Resource Preview Verification
 
@@ -432,4 +446,20 @@ mvn -q "-Dtest=DecisionAssessmentServiceTests,DecisionAssessmentControllerTests,
 ```bash
 cd frontend
 npx vitest run src/views/AssessmentView.spec.js src/views/TimelineView.spec.js src/views/SchoolCompareView.spec.js src/views/HomeView.spec.js
+```
+
+## Targeted Decision Analytics Verification
+
+### Backend
+
+```bash
+cd backend
+mvn -q "-Dtest=AnalyticsServiceTests,AnalyticsControllerTests,HomeServiceTests,HomeControllerTests" test
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm run test -- src/views/AnalyticsView.spec.js src/views/HomeView.spec.js
 ```
