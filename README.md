@@ -1,6 +1,6 @@
 # One-Stop Future
 
-Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice + Phase H resource preview expansion first slice + Phase J historical local resource MinIO migration first slice + Phase K decision support first slice + Phase L decision analytics first slice`.
+Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice + Phase H resource preview expansion first slice + Phase J historical local resource MinIO migration first slice + Phase K decision support first slice + Phase L decision analytics first slice + Phase M admin dashboard first slice`.
 
 ## Current Scope
 
@@ -22,6 +22,7 @@ Implemented now:
 - admin jobs create / edit / publish / offline / delete
 - admin resource publish / reject / offline review workspace
 - admin historical local-resource MinIO migration with dry-run and bounded batch execution
+- admin dashboard read-only summary overview with handoff to existing workbenches
 - unified search across published posts / jobs / resources
 - discover board across published posts / jobs / resources
 - homepage discover preview with weekly public picks
@@ -43,7 +44,7 @@ Explicitly not implemented yet:
 - in-site application / resume workflow
 - MinIO-backed preview artifact storage
 - DOCX online preview
-- admin operations dashboards, DAU / funnel metrics, or exportable analytics reports
+- full admin operations dashboards, DAU / funnel metrics, or exportable analytics reports
 - version history, chunk upload, or resume upload
 
 ## Project Structure
@@ -171,10 +172,29 @@ Public / user:
 
 Admin:
 
+- `/admin/dashboard`
 - `/admin/verifications`
 - `/admin/community`
 - `/admin/jobs`
 - `/admin/resources`
+
+## Admin Dashboard
+
+Admin backend endpoint:
+
+- `GET /api/admin/dashboard/summary`
+
+Admin frontend route:
+
+- `/admin/dashboard`
+
+Current admin-dashboard scope:
+
+- admin-only access boundary on both the backend summary endpoint and frontend route
+- read-only overview for key admin work areas; no inline moderation or editing actions on the dashboard itself
+- summary covers verification, community, jobs, and resources with counts, recent items, and handoff entry points
+- dashboard cards hand off to the existing admin workbenches for verification review, community moderation, job management, and resource review
+- local verification path: log in as admin, open `/admin/dashboard`, and verify both the homepage entry and main nav entry open the same dashboard route
 
 ## Unified Search
 
@@ -264,7 +284,8 @@ Current decision-support and analytics scope:
 - analytics period switching is backend-owned and supports only `7D` and `30D`
 - homepage `assessment` entry is live for authenticated users and `LOGIN_REQUIRED` for guests
 - homepage `analytics` is live for guests and authenticated users
-- admin operations dashboards remain out of scope in this phase
+- admin dashboard overview is admin-only and read-only
+- full admin operations dashboards remain out of scope in this phase
 
 ## Historical Local Resource MinIO Migration
 
@@ -313,6 +334,7 @@ Authenticated user:
 
 Admin:
 
+- can open `/admin/dashboard` for a read-only overview and use it to enter existing admin workbenches
 - can review verification applications
 - can moderate community posts
 - can maintain job cards
@@ -399,6 +421,25 @@ Resource statuses:
 33. As guest, open `/analytics` and confirm public overview, trend cards, and decision mix render.
 34. Log in as `13800000001`, open `/analytics`, and confirm either the personal snapshot/history or the assessment CTA renders.
 35. Return to `/` and confirm both `assessment` and `analytics` entries are live.
+36. Log in as the admin `13800000000`, open `/admin/dashboard`, and confirm the page renders a read-only overview.
+37. From both the homepage admin entry and the main nav admin entry, confirm navigation lands on `/admin/dashboard`.
+38. From `/admin/dashboard`, confirm the handoff links route into the existing admin workbenches.
+
+## Targeted Admin Dashboard Verification
+
+### Backend
+
+```bash
+cd backend
+mvn -q "-Dtest=AdminDashboardControllerTests,HomeServiceTests,HomeControllerTests" test
+```
+
+### Frontend
+
+```bash
+cd frontend
+npx vitest run src/views/admin/AdminDashboardView.spec.js src/views/HomeView.spec.js src/components/NavBar.spec.js
+```
 
 ## Targeted Resource Preview Verification
 
