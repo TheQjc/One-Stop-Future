@@ -59,10 +59,18 @@ class HomeServiceTests {
 
         assertThat(assessment.enabled()).isFalse();
         assertThat(assessment.badge()).isEqualTo("LOGIN_REQUIRED");
+
+        HomeSummaryResponse.HomeEntryCard analytics = response.entries().stream()
+                .filter(entry -> "analytics".equals(entry.code()))
+                .findFirst()
+                .orElseThrow();
+        assertThat(analytics.enabled()).isTrue();
+        assertThat(analytics.path()).isEqualTo("/analytics");
+        assertThat(analytics.badge()).isNull();
     }
 
     @Test
-    void authenticatedSummaryActivatesAssessmentButKeepsAnalyticsComingSoon() {
+    void authenticatedSummaryActivatesAssessmentAndAnalytics() {
         when(discoverService.previewForHome(4)).thenReturn(List.of());
         User user = new User();
         user.setId(2L);
@@ -92,6 +100,6 @@ class HomeServiceTests {
                 .findFirst()
                 .orElseThrow();
         assertThat(analytics.enabled()).isTrue();
-        assertThat(analytics.badge()).isEqualTo("COMING_SOON");
+        assertThat(analytics.badge()).isNull();
     }
 }

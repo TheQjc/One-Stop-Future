@@ -65,7 +65,8 @@ public class HomeService {
                 new HomeSummaryResponse.HomeEntryCard("community", "Community", "/community", true, null),
                 new HomeSummaryResponse.HomeEntryCard("jobs", "Jobs", "/jobs", true, null),
                 new HomeSummaryResponse.HomeEntryCard("resources", "Resources", "/resources", true, null),
-                new HomeSummaryResponse.HomeEntryCard("assessment", "Assessment", "/assessment", false, "LOGIN_REQUIRED"));
+                new HomeSummaryResponse.HomeEntryCard("assessment", "Assessment", "/assessment", false, "LOGIN_REQUIRED"),
+                new HomeSummaryResponse.HomeEntryCard("analytics", "Analytics", "/analytics", true, null));
         return new HomeSummaryResponse(
                 "GUEST",
                 null,
@@ -138,7 +139,7 @@ public class HomeService {
         entries.add(new HomeSummaryResponse.HomeEntryCard("jobs", "Jobs", "/jobs", true, null));
         entries.add(new HomeSummaryResponse.HomeEntryCard("resources", "Resources", "/resources", true, null));
         entries.add(new HomeSummaryResponse.HomeEntryCard("assessment", "Assessment", "/assessment", true, null));
-        entries.add(new HomeSummaryResponse.HomeEntryCard("analytics", "Analytics", "/analytics", true, "COMING_SOON"));
+        entries.add(new HomeSummaryResponse.HomeEntryCard("analytics", "Analytics", "/analytics", true, null));
         if ("ADMIN".equals(user.getRole())) {
             entries.add(new HomeSummaryResponse.HomeEntryCard("admin-verifications", "Admin Verification Review",
                     "/admin/verifications", true, null));

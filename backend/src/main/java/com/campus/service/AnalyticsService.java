@@ -8,19 +8,29 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.campus.common.BusinessException;
+import com.campus.dto.AnalyticsSummaryResponse.NextActionItem;
+import com.campus.dto.AnalyticsSummaryResponse.PersonalHistoryItem;
+import com.campus.dto.AnalyticsSummaryResponse.PersonalSnapshot;
+import com.campus.dto.AnalyticsSummaryResponse.ScoreBundle;
 import com.campus.dto.AnalyticsDistributionRow;
 import com.campus.dto.AnalyticsSummaryResponse;
 import com.campus.dto.AnalyticsTrendRow;
+import com.campus.entity.DecisionAssessmentSession;
 import com.campus.mapper.AnalyticsReadMapper;
+import com.campus.mapper.DecisionAssessmentSessionMapper;
 
 @Service
 public class AnalyticsService {
 
     private final AnalyticsReadMapper analyticsReadMapper;
+    private final DecisionAssessmentSessionMapper decisionAssessmentSessionMapper;
 
-    public AnalyticsService(AnalyticsReadMapper analyticsReadMapper) {
+    public AnalyticsService(AnalyticsReadMapper analyticsReadMapper,
+            DecisionAssessmentSessionMapper decisionAssessmentSessionMapper) {
         this.analyticsReadMapper = analyticsReadMapper;
+        this.decisionAssessmentSessionMapper = decisionAssessmentSessionMapper;
     }
 
     public AnalyticsSummaryResponse summary(String viewerIdentity, String period) {
@@ -59,15 +69,91 @@ public class AnalyticsService {
         AnalyticsSummaryResponse.DecisionDistribution distribution = computeDistribution(
                 analyticsReadMapper.summarizeLatestAssessmentDistribution());
 
+        if (viewerIdentity == null || viewerIdentity.isBlank() || "anonymousUser".equals(viewerIdentity)) {
+            return new AnalyticsSummaryResponse(
+                    overview,
+                    publicTrends,
+                    distribution,
+                    "ANONYMOUS",
+                    null,
+                    null,
+                    List.of(),
+                    List.of());
+        }
+
+        try {
+            return withPersonalSlice(overview, publicTrends, distribution, viewerIdentity);
+        } catch (RuntimeException ex) {
+            return new AnalyticsSummaryResponse(
+                    overview,
+                    publicTrends,
+                    distribution,
+                    "ERROR",
+                    "Personal analytics temporarily unavailable.",
+                    null,
+                    List.of(),
+                    List.of());
+        }
+    }
+
+    private AnalyticsSummaryResponse withPersonalSlice(
+            AnalyticsSummaryResponse.PublicOverview overview,
+            List<AnalyticsSummaryResponse.TrendPoint> publicTrends,
+            AnalyticsSummaryResponse.DecisionDistribution distribution,
+            String viewerIdentity) {
+        Long userId = requireUserId(viewerIdentity);
+        List<DecisionAssessmentSession> sessions = decisionAssessmentSessionMapper.selectList(
+                new LambdaQueryWrapper<DecisionAssessmentSession>()
+                        .eq(DecisionAssessmentSession::getUserId, userId)
+                        .orderByDesc(DecisionAssessmentSession::getSessionDate)
+                        .orderByDesc(DecisionAssessmentSession::getId)
+                        .last("LIMIT 5"));
+
+        if (sessions == null || sessions.isEmpty()) {
+            PersonalSnapshot snapshot = new PersonalSnapshot(false, null, null, null, null);
+            return new AnalyticsSummaryResponse(
+                    overview,
+                    publicTrends,
+                    distribution,
+                    "EMPTY",
+                    null,
+                    snapshot,
+                    List.of(),
+                    List.of(startAssessmentAction()));
+        }
+
+        DecisionAssessmentSession latest = sessions.get(0);
+        ScoreBundle scores = new ScoreBundle(
+                safeInt(latest.getCareerScore()),
+                safeInt(latest.getExamScore()),
+                safeInt(latest.getAbroadScore()));
+        PersonalSnapshot snapshot = new PersonalSnapshot(
+                true,
+                latest.getRecommendedTrack(),
+                latest.getSummaryText(),
+                latest.getSessionDate(),
+                scores);
+
+        List<PersonalHistoryItem> history = sessions.stream()
+                .map(session -> new PersonalHistoryItem(
+                        session.getSessionDate(),
+                        session.getRecommendedTrack(),
+                        safeInt(session.getCareerScore()),
+                        safeInt(session.getExamScore()),
+                        safeInt(session.getAbroadScore())))
+                .toList();
+
+        List<NextActionItem> nextActions = nextActionsFor(latest.getRecommendedTrack());
+
         return new AnalyticsSummaryResponse(
                 overview,
                 publicTrends,
                 distribution,
-                "ANONYMOUS",
+                "READY",
                 null,
-                null,
-                List.of(),
-                List.of());
+                snapshot,
+                history,
+                nextActions);
     }
 
     private String normalizePeriod(String period) {
@@ -79,6 +165,20 @@ public class AnalyticsService {
             throw new BusinessException(400, "invalid period");
         }
         return normalized;
+    }
+
+    private Long requireUserId(String identity) {
+        if (identity == null || identity.isBlank()) {
+            throw new BusinessException(401, "unauthorized");
+        }
+        if (!identity.matches("^\\d+$")) {
+            throw new BusinessException(401, "unauthorized");
+        }
+        try {
+            return Long.parseLong(identity);
+        } catch (NumberFormatException ex) {
+            throw new BusinessException(401, "unauthorized");
+        }
     }
 
     private Map<LocalDate, Integer> toDailyCountMap(List<AnalyticsTrendRow> rows) {
@@ -112,6 +212,37 @@ public class AnalyticsService {
                 .toList();
 
         return new AnalyticsSummaryResponse.DecisionDistribution(participantCount, items);
+    }
+
+    private List<NextActionItem> nextActionsFor(String recommendedTrack) {
+        List<NextActionItem> items = new java.util.ArrayList<>();
+        items.add(startAssessmentAction());
+        items.add(new NextActionItem(
+                "OPEN_TIMELINE",
+                "Open Timeline",
+                "/timeline",
+                "Turn your latest recommendation into an actionable plan."));
+
+        if ("EXAM".equalsIgnoreCase(recommendedTrack) || "ABROAD".equalsIgnoreCase(recommendedTrack)) {
+            items.add(new NextActionItem(
+                    "COMPARE_SCHOOLS",
+                    "Compare Schools",
+                    "/schools/compare",
+                    "Compare key options side-by-side for your track."));
+        }
+        return items;
+    }
+
+    private NextActionItem startAssessmentAction() {
+        return new NextActionItem(
+                "START_ASSESSMENT",
+                "Start Assessment",
+                "/assessment",
+                "Answer a short assessment to generate or refresh your direction snapshot.");
+    }
+
+    private int safeInt(Integer value) {
+        return value == null ? 0 : value;
     }
 
     private double round1(double value) {

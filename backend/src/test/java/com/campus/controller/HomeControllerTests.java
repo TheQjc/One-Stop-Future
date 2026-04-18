@@ -44,7 +44,10 @@ class HomeControllerTests {
                 .andExpect(jsonPath("$.data.entries[2].badge").value(org.hamcrest.Matchers.nullValue()))
                 .andExpect(jsonPath("$.data.entries[3].code").value("assessment"))
                 .andExpect(jsonPath("$.data.entries[3].enabled").value(false))
-                .andExpect(jsonPath("$.data.entries[3].badge").value("LOGIN_REQUIRED"));
+                .andExpect(jsonPath("$.data.entries[3].badge").value("LOGIN_REQUIRED"))
+                .andExpect(jsonPath("$.data.entries[4].code").value("analytics"))
+                .andExpect(jsonPath("$.data.entries[4].path").value("/analytics"))
+                .andExpect(jsonPath("$.data.entries[4].badge").value(org.hamcrest.Matchers.nullValue()));
     }
 
     @Test
@@ -67,7 +70,7 @@ class HomeControllerTests {
                 .andExpect(jsonPath("$.data.entries[3].enabled").value(true))
                 .andExpect(jsonPath("$.data.entries[3].badge").value(org.hamcrest.Matchers.nullValue()))
                 .andExpect(jsonPath("$.data.entries[4].code").value("analytics"))
-                .andExpect(jsonPath("$.data.entries[4].badge").value("COMING_SOON"))
+                .andExpect(jsonPath("$.data.entries[4].badge").value(org.hamcrest.Matchers.nullValue()))
                 .andExpect(jsonPath("$.data.latestNotifications[0].title").value("Newest"));
     }
 
