@@ -1,6 +1,6 @@
 # One-Stop Future
 
-Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice + Phase H resource preview expansion first slice + Phase I MinIO raw resource storage first slice + Phase J historical local resource MinIO migration first slice + Phase K decision support first slice + Phase L decision analytics first slice + Phase M admin dashboard first slice + Phase N job application and resume workflow first slice + Phase O admin user status management first slice`.
+Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice + Phase H resource preview expansion first slice + Phase I MinIO raw resource storage first slice + Phase J historical local resource MinIO migration first slice + Phase K decision support first slice + Phase L decision analytics first slice + Phase M admin dashboard first slice + Phase N job application and resume workflow first slice + Phase O admin user status management first slice + Phase P community hot ranking first slice`.
 
 ## Current Scope
 
@@ -12,6 +12,7 @@ Implemented now:
 - profile center and student verification apply flow
 - notification center
 - community list / detail / create / comment / like / favorite
+- community hot ranking with `DAY / WEEK / ALL` boards inside `/community`
 - my posts / my favorites
 - jobs list / detail / filters / source jump
 - job favorite / unfavorite
@@ -248,6 +249,34 @@ Current Phase O scope:
 - non-admin accounts can be banned and restored from the same admin surface
 - banned users are blocked at login and also rejected on authenticated business APIs until restored
 
+## Community Hot Ranking
+
+Public backend endpoint:
+
+- `GET /api/community/hot`
+
+Supported query params:
+
+- `period`
+- `limit`
+
+Supported period values:
+
+- `DAY`
+- `WEEK`
+- `ALL`
+
+Current Phase P scope:
+
+- `/community` now includes a dedicated public hot-ranking block above the latest-post feed
+- hot ranking is community-only and does not reuse the discover page contract
+- only published posts participate in the board
+- `DAY` means posts published in the last rolling 24 hours, ranked by current cumulative heat
+- `WEEK` means posts published in the last rolling 7 days, ranked by current cumulative heat
+- `ALL` means all published history
+- current heat formula uses `likeCount * 3 + commentCount * 4 + favoriteCount * 5 + verifiedAuthorBonus + freshnessBonus`
+- there is no Redis cache, interaction-event delta ranking, or separate `/community/hot` page in this phase
+
 ## Unified Search
 
 Public backend endpoint:
@@ -444,53 +473,71 @@ Resource statuses:
 
 1. Start backend with `mvn spring-boot:run "-Dspring-boot.run.profiles=local"`.
 2. Start frontend with `npm run dev -- --host 127.0.0.1`.
-3. As guest, open `/community`, `/jobs`, and `/resources`.
-4. As guest, open a published PDF `/resources/:id` and confirm `Preview` works without login.
-5. As guest, open a published PPTX `/resources/:id` and confirm `Preview` opens converted PDF output without login.
-6. As guest, open a published ZIP `/resources/:id` and confirm `Preview Contents` loads a directory tree inline.
-7. As guest, open a published DOCX `/resources/:id` and confirm no preview action is shown.
-8. As guest, confirm the download action is still blocked by login.
-9. Log in as the normal user `13800000001` and upload a resource from `/resources/upload`.
-10. Open `/profile/resources` and confirm the new file appears as `PENDING`.
-11. Log in as the admin `13800000000` and open `/admin/resources`.
-12. Reject a pending resource with a clear review note.
-13. Log back in as the owner, open `/profile/resources`, click `Edit And Resubmit`, revise metadata, and submit without replacing the file.
-14. Repeat the resubmission flow with a PDF replacement file and confirm the record returns to `PENDING`.
-15. Repeat the resubmission flow with a PPTX replacement file and confirm the next preview opens regenerated PDF output instead of stale cached content.
-16. As the owner, preview an unpublished visible PDF or PPTX from `/profile/resources` or `/resources/:id`.
-17. As admin, confirm preview is shown for visible PDF / PPTX rows and `Preview Contents` is shown for ZIP rows in `/admin/resources`.
-18. Publish the pending resource and confirm it appears in the public `/resources` list.
-19. Favorite and download a published resource as a normal user.
-20. Open `/profile/favorites` and switch between `POST`, `JOB`, and `RESOURCE`.
-21. Use the homepage search box or `/search` to search `resume`.
-22. Switch `ALL / POST / JOB / RESOURCE` and `RELEVANCE / LATEST`.
-23. Refresh `/search` and confirm the search state stays in the URL.
-24. Open `/discover` as a guest and confirm the page loads a ranked public board.
-25. Switch discover `ALL / POST / JOB / RESOURCE` and `WEEK / ALL`.
-26. Refresh `/discover?tab=JOB&period=ALL` and confirm the state stays in the URL.
-27. Return to `/` and confirm the homepage discover preview shows items or a graceful empty state.
-28. Log in as `13800000001`, open `/assessment`, answer all questions, and submit one result.
-29. Confirm the result renders a recommended track plus links into `/timeline` and `/schools/compare`.
-30. Open `/timeline` and confirm it defaults to the recommended track and renders milestone cards.
-31. Switch `/timeline` among `CAREER`, `EXAM`, and `ABROAD` and confirm the milestone list reloads.
-32. Open `/schools/compare` as either guest or authenticated user, select `2-4` schools, and confirm compare table + chart region render.
-33. As guest, open `/analytics` and confirm public overview, trend cards, and decision mix render.
-34. Log in as `13800000001`, open `/analytics`, and confirm either the personal snapshot/history or the assessment CTA renders.
-35. Return to `/` and confirm both `assessment` and `analytics` entries are live.
-36. Log in as the admin `13800000000`, open `/admin/dashboard`, and confirm the page renders a read-only overview.
-37. From both the homepage admin entry and the main nav admin entry, confirm navigation lands on `/admin/dashboard`.
-38. From `/admin/dashboard`, confirm the handoff links route into the existing admin workbenches.
-39. Log in as `13800000001`, open `/profile/resumes`, and upload two resume files.
-40. Open `/jobs/1`, confirm `Source Link` is still present, and submit one in-platform application with a selected resume.
-41. Open `/profile/applications` and confirm the new record shows job title, company, city, status, submitted time, and the resume snapshot title.
-42. Delete the original live resume from `/profile/resumes`, return to `/profile/applications`, and confirm the application record still renders.
-43. Log in as admin `13800000000`, open `/admin/applications`, and confirm the record renders with applicant info and resume snapshot file name.
-44. Download the snapshot resume from `/admin/applications` and confirm the file is still available after the live resume deletion.
-45. Return to `/jobs/1` as the applicant and confirm the page still shows the applied state.
-46. Log in as admin `13800000000`, open `/admin/users`, and confirm the list shows total, active, banned, and verified counts.
-47. Ban the normal user `13800000001` from `/admin/users` and confirm the row status becomes `BANNED`.
-48. Try to open `/profile` or log in again as `13800000001` and confirm the app blocks the banned account with an explicit error.
-49. Restore `13800000001` from `/admin/users` and confirm the user can log in again.
+3. As guest, open `/community` and confirm the hot board renders above the latest-post feed.
+4. As guest, switch the community hot board across `DAY`, `WEEK`, and `ALL`.
+5. As guest, open `/jobs` and `/resources`.
+6. As guest, open a published PDF `/resources/:id` and confirm `Preview` works without login.
+7. As guest, open a published PPTX `/resources/:id` and confirm `Preview` opens converted PDF output without login.
+8. As guest, open a published ZIP `/resources/:id` and confirm `Preview Contents` loads a directory tree inline.
+9. As guest, open a published DOCX `/resources/:id` and confirm no preview action is shown.
+10. As guest, confirm the download action is still blocked by login.
+11. Log in as the normal user `13800000001` and upload a resource from `/resources/upload`.
+12. Open `/profile/resources` and confirm the new file appears as `PENDING`.
+13. Log in as the admin `13800000000` and open `/admin/resources`.
+14. Reject a pending resource with a clear review note.
+15. Log back in as the owner, open `/profile/resources`, click `Edit And Resubmit`, revise metadata, and submit without replacing the file.
+16. Repeat the resubmission flow with a PDF replacement file and confirm the record returns to `PENDING`.
+17. Repeat the resubmission flow with a PPTX replacement file and confirm the next preview opens regenerated PDF output instead of stale cached content.
+18. As the owner, preview an unpublished visible PDF or PPTX from `/profile/resources` or `/resources/:id`.
+19. As admin, confirm preview is shown for visible PDF / PPTX rows and `Preview Contents` is shown for ZIP rows in `/admin/resources`.
+20. Publish the pending resource and confirm it appears in the public `/resources` list.
+21. Favorite and download a published resource as a normal user.
+22. Open `/profile/favorites` and switch between `POST`, `JOB`, and `RESOURCE`.
+23. Use the homepage search box or `/search` to search `resume`.
+24. Switch `ALL / POST / JOB / RESOURCE` and `RELEVANCE / LATEST`.
+25. Refresh `/search` and confirm the search state stays in the URL.
+26. Open `/discover` as a guest and confirm the page loads a ranked public board.
+27. Switch discover `ALL / POST / JOB / RESOURCE` and `WEEK / ALL`.
+28. Refresh `/discover?tab=JOB&period=ALL` and confirm the state stays in the URL.
+29. Return to `/` and confirm the homepage discover preview shows items or a graceful empty state.
+30. Log in as `13800000001`, open `/assessment`, answer all questions, and submit one result.
+31. Confirm the result renders a recommended track plus links into `/timeline` and `/schools/compare`.
+32. Open `/timeline` and confirm it defaults to the recommended track and renders milestone cards.
+33. Switch `/timeline` among `CAREER`, `EXAM`, and `ABROAD` and confirm the milestone list reloads.
+34. Open `/schools/compare` as either guest or authenticated user, select `2-4` schools, and confirm compare table + chart region render.
+35. As guest, open `/analytics` and confirm public overview, trend cards, and decision mix render.
+36. Log in as `13800000001`, open `/analytics`, and confirm either the personal snapshot/history or the assessment CTA renders.
+37. Return to `/` and confirm both `assessment` and `analytics` entries are live.
+38. Log in as the admin `13800000000`, open `/admin/dashboard`, and confirm the page renders a read-only overview.
+39. From both the homepage admin entry and the main nav admin entry, confirm navigation lands on `/admin/dashboard`.
+40. From `/admin/dashboard`, confirm the handoff links route into the existing admin workbenches.
+41. Log in as `13800000001`, open `/profile/resumes`, and upload two resume files.
+42. Open `/jobs/1`, confirm `Source Link` is still present, and submit one in-platform application with a selected resume.
+43. Open `/profile/applications` and confirm the new record shows job title, company, city, status, submitted time, and the resume snapshot title.
+44. Delete the original live resume from `/profile/resumes`, return to `/profile/applications`, and confirm the application record still renders.
+45. Log in as admin `13800000000`, open `/admin/applications`, and confirm the record renders with applicant info and resume snapshot file name.
+46. Download the snapshot resume from `/admin/applications` and confirm the file is still available after the live resume deletion.
+47. Return to `/jobs/1` as the applicant and confirm the page still shows the applied state.
+48. Log in as admin `13800000000`, open `/admin/users`, and confirm the list shows total, active, banned, and verified counts.
+49. Ban the normal user `13800000001` from `/admin/users` and confirm the row status becomes `BANNED`.
+50. Try to open `/profile` or log in again as `13800000001` and confirm the app blocks the banned account with an explicit error.
+51. Restore `13800000001` from `/admin/users` and confirm the user can log in again.
+
+## Targeted Community Hot Ranking Verification
+
+### Backend
+
+```bash
+cd backend
+mvn -q -Dtest=CommunityControllerTests test
+```
+
+### Frontend
+
+```bash
+cd frontend
+npx vitest run src/views/CommunityListView.spec.js
+```
 
 ## Targeted Admin User Status Verification
 
