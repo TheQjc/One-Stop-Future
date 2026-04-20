@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.campus.common.Result;
+import com.campus.dto.CommunityHotPostListResponse;
 import com.campus.dto.CommunityPostDetailResponse;
 import com.campus.dto.CommunityPostListResponse;
 import com.campus.dto.CreateCommunityCommentRequest;
@@ -27,6 +28,12 @@ public class CommunityController {
 
     public CommunityController(CommunityService communityService) {
         this.communityService = communityService;
+    }
+
+    @GetMapping("/hot")
+    public Result<CommunityHotPostListResponse> hot(@RequestParam(required = false) String period,
+            @RequestParam(required = false) Integer limit) {
+        return Result.success(communityService.listHotPosts(period, limit));
     }
 
     @GetMapping("/posts")

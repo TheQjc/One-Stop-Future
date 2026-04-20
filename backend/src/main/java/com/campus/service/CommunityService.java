@@ -1,6 +1,8 @@
 package com.campus.service;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -10,9 +12,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.campus.common.BusinessException;
 import com.campus.common.CommunityCommentStatus;
+import com.campus.common.CommunityHotPeriodType;
 import com.campus.common.CommunityPostStatus;
 import com.campus.common.CommunityTag;
 import com.campus.common.FavoriteTargetType;
+import com.campus.dto.CommunityHotPostListResponse;
 import com.campus.dto.CommunityPostDetailResponse;
 import com.campus.dto.CommunityPostListResponse;
 import com.campus.dto.CreateCommunityCommentRequest;
@@ -32,6 +36,8 @@ import com.campus.mapper.UserFavoriteMapper;
 public class CommunityService {
 
     private static final int DEFAULT_LIST_LIMIT = 50;
+    private static final int DEFAULT_HOT_LIMIT = 3;
+    private static final int MAX_HOT_LIMIT = 10;
     private static final int CONTENT_PREVIEW_LIMIT = 140;
 
     private final CommunityPostMapper communityPostMapper;
@@ -48,6 +54,23 @@ public class CommunityService {
         this.communityPostLikeMapper = communityPostLikeMapper;
         this.userFavoriteMapper = userFavoriteMapper;
         this.userService = userService;
+    }
+
+    public CommunityHotPostListResponse listHotPosts(String period, Integer limit) {
+        CommunityHotPeriodType normalizedPeriod = normalizeHotPeriod(period);
+        int normalizedLimit = normalizeHotLimit(limit);
+        List<CommunityHotPostListResponse.HotPostItem> filteredItems = communityPostMapper.selectList(
+                new LambdaQueryWrapper<CommunityPost>()
+                        .eq(CommunityPost::getStatus, CommunityPostStatus.PUBLISHED.name()))
+                .stream()
+                .filter(post -> matchesHotPeriod(post.getCreatedAt(), normalizedPeriod))
+                .map(post -> toHotPostItem(post, normalizedPeriod))
+                .sorted(hotRankingComparator())
+                .toList();
+        return new CommunityHotPostListResponse(
+                normalizedPeriod.name(),
+                filteredItems.size(),
+                filteredItems.stream().limit(normalizedLimit).toList());
     }
 
     public CommunityPostListResponse listPosts(String tag, String identity) {
@@ -257,6 +280,27 @@ public class CommunityService {
         }
     }
 
+    private CommunityHotPeriodType normalizeHotPeriod(String period) {
+        if (period == null || period.isBlank()) {
+            return CommunityHotPeriodType.WEEK;
+        }
+        try {
+            return CommunityHotPeriodType.valueOf(period.trim().toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException exception) {
+            throw new BusinessException(400, "invalid community hot period");
+        }
+    }
+
+    private int normalizeHotLimit(Integer limit) {
+        if (limit == null) {
+            return DEFAULT_HOT_LIMIT;
+        }
+        if (limit < 1 || limit > MAX_HOT_LIMIT) {
+            throw new BusinessException(400, "invalid community hot limit");
+        }
+        return limit;
+    }
+
     private String normalizeFavoriteType(String type) {
         if (type == null || type.isBlank()) {
             return FavoriteTargetType.POST.name();
@@ -300,6 +344,70 @@ public class CommunityService {
         post.setFavoriteCount(favoriteCount);
         post.setUpdatedAt(LocalDateTime.now());
         communityPostMapper.updateById(post);
+    }
+
+    private boolean matchesHotPeriod(LocalDateTime createdAt, CommunityHotPeriodType periodType) {
+        if (createdAt == null) {
+            return false;
+        }
+        LocalDateTime now = LocalDateTime.now();
+        return switch (periodType) {
+            case DAY -> !createdAt.isBefore(now.minusHours(24));
+            case WEEK -> !createdAt.isBefore(now.minusDays(7));
+            case ALL -> true;
+        };
+    }
+
+    private CommunityHotPostListResponse.HotPostItem toHotPostItem(CommunityPost post, CommunityHotPeriodType periodType) {
+        User author = userService.findByUserId(post.getAuthorId());
+        return new CommunityHotPostListResponse.HotPostItem(
+                post.getId(),
+                post.getTag(),
+                post.getTitle(),
+                abbreviate(post.getContent(), CONTENT_PREVIEW_LIMIT),
+                post.getAuthorId(),
+                author == null ? "Unknown" : author.getNickname(),
+                safeCount(post.getLikeCount()),
+                safeCount(post.getCommentCount()),
+                safeCount(post.getFavoriteCount()),
+                post.getCreatedAt(),
+                communityHotScore(post, author),
+                hotLabelFor(periodType));
+    }
+
+    private double communityHotScore(CommunityPost post, User author) {
+        double rawHeat = safeCount(post.getLikeCount()) * 3.0
+                + safeCount(post.getCommentCount()) * 4.0
+                + safeCount(post.getFavoriteCount()) * 5.0
+                + verifiedAuthorBonus(author);
+        return rawHeat + freshnessBonus(post.getCreatedAt());
+    }
+
+    private double verifiedAuthorBonus(User author) {
+        return author != null && "VERIFIED".equals(author.getVerificationStatus()) ? 2.0 : 0.0;
+    }
+
+    private double freshnessBonus(LocalDateTime createdAt) {
+        if (createdAt == null) {
+            return 0;
+        }
+        long ageDays = Math.max(0, ChronoUnit.DAYS.between(createdAt, LocalDateTime.now()));
+        return Math.max(0, 14 - ageDays);
+    }
+
+    private String hotLabelFor(CommunityHotPeriodType periodType) {
+        return switch (periodType) {
+            case DAY -> "Today spotlight";
+            case WEEK -> "Weekly discussion";
+            case ALL -> "Sustained discussion";
+        };
+    }
+
+    private Comparator<CommunityHotPostListResponse.HotPostItem> hotRankingComparator() {
+        return Comparator.comparingDouble(CommunityHotPostListResponse.HotPostItem::hotScore)
+                .reversed()
+                .thenComparing(CommunityHotPostListResponse.HotPostItem::createdAt, Comparator.reverseOrder())
+                .thenComparing(CommunityHotPostListResponse.HotPostItem::id, Comparator.reverseOrder());
     }
 
     private CommunityPostListResponse.PostSummary toPostSummary(CommunityPost post, User viewer) {

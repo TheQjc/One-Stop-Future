@@ -55,6 +55,67 @@ class CommunityControllerTests {
     }
 
     @Test
+    void guestCanReadCommunityHotBoardWithWeekDefault() throws Exception {
+        mockMvc.perform(get("/api/community/hot"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.period").value("WEEK"))
+                .andExpect(jsonPath("$.data.total").value(3))
+                .andExpect(jsonPath("$.data.items[0].id").value(1))
+                .andExpect(jsonPath("$.data.items[0].hotLabel").value("Weekly discussion"))
+                .andExpect(jsonPath("$.data.items[1].id").value(2));
+    }
+
+    @Test
+    void dayWeekAndAllBoardsUseRollingPublishWindows() throws Exception {
+        jdbcTemplate.update("UPDATE t_community_post SET created_at = TIMESTAMPADD(DAY, -9, CURRENT_TIMESTAMP) WHERE id = 1");
+        jdbcTemplate.update("UPDATE t_community_post SET created_at = TIMESTAMPADD(HOUR, -6, CURRENT_TIMESTAMP) WHERE id = 2");
+        jdbcTemplate.update("UPDATE t_community_post SET created_at = TIMESTAMPADD(HOUR, -20, CURRENT_TIMESTAMP) WHERE id = 3");
+
+        mockMvc.perform(get("/api/community/hot").param("period", "DAY"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.period").value("DAY"))
+                .andExpect(jsonPath("$.data.total").value(2))
+                .andExpect(jsonPath("$.data.items[0].id").value(2))
+                .andExpect(jsonPath("$.data.items[1].id").value(3));
+
+        mockMvc.perform(get("/api/community/hot").param("period", "WEEK"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.total").value(2));
+
+        mockMvc.perform(get("/api/community/hot").param("period", "ALL"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.total").value(3))
+                .andExpect(jsonPath("$.data.items[0].id").value(2))
+                .andExpect(jsonPath("$.data.items[1].id").value(1));
+    }
+
+    @Test
+    void hotBoardSortsByHeatThenRecencyAndRejectsInvalidParams() throws Exception {
+        jdbcTemplate.update("UPDATE t_community_post SET like_count = 3, favorite_count = 0, created_at = TIMESTAMPADD(HOUR, -5, CURRENT_TIMESTAMP) WHERE id = 1");
+        jdbcTemplate.update("UPDATE t_community_post SET like_count = 3, favorite_count = 0, created_at = TIMESTAMPADD(HOUR, -1, CURRENT_TIMESTAMP) WHERE id = 2");
+
+        mockMvc.perform(get("/api/community/hot").param("period", "ALL"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.items[0].id").value(2))
+                .andExpect(jsonPath("$.data.items[1].id").value(1));
+
+        mockMvc.perform(get("/api/community/hot").param("period", "MONTH"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.message").value("invalid community hot period"));
+
+        mockMvc.perform(get("/api/community/hot").param("limit", "0"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.message").value("invalid community hot limit"));
+    }
+
+    @Test
     void guestCannotCreatePost() throws Exception {
         mockMvc.perform(post("/api/community/posts")
                         .contentType(MediaType.APPLICATION_JSON)
