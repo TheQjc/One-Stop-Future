@@ -1,5 +1,10 @@
 import http from "./http.js";
 
+export async function getCommunityHotPosts(params = {}) {
+  const { data } = await http.get("/community/hot", { params });
+  return data.data;
+}
+
 export async function getCommunityPosts(params = {}) {
   const { data } = await http.get("/community/posts", { params });
   return data.data;
