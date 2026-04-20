@@ -1,12 +1,13 @@
 # One-Stop Future
 
-Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice + Phase H resource preview expansion first slice + Phase I MinIO raw resource storage first slice + Phase J historical local resource MinIO migration first slice + Phase K decision support first slice + Phase L decision analytics first slice + Phase M admin dashboard first slice + Phase N job application and resume workflow first slice`.
+Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice + Phase H resource preview expansion first slice + Phase I MinIO raw resource storage first slice + Phase J historical local resource MinIO migration first slice + Phase K decision support first slice + Phase L decision analytics first slice + Phase M admin dashboard first slice + Phase N job application and resume workflow first slice + Phase O admin user status management first slice`.
 
 ## Current Scope
 
 Implemented now:
 
 - phone-code register / login
+- account status control with banned-login enforcement
 - independent aggregation home
 - profile center and student verification apply flow
 - notification center
@@ -28,6 +29,7 @@ Implemented now:
 - MinIO-backed raw resource storage for non-`local` runtimes while preview artifacts remain local in this phase
 - admin historical local-resource MinIO migration with dry-run and bounded batch execution
 - admin dashboard read-only summary overview with handoff to existing workbenches
+- admin user status workbench with ban / restore controls for non-admin accounts
 - unified search across published posts / jobs / resources
 - discover board across published posts / jobs / resources
 - homepage discover preview with weekly public picks
@@ -179,6 +181,7 @@ Public / user:
 Admin:
 
 - `/admin/dashboard`
+- `/admin/users`
 - `/admin/applications`
 - `/admin/verifications`
 - `/admin/community`
@@ -225,6 +228,25 @@ Current admin-dashboard scope:
 - summary covers verification, community, jobs, and resources with counts, recent items, and handoff entry points
 - dashboard cards hand off to the existing admin workbenches for verification review, community moderation, job management, and resource review
 - local verification path: log in as admin, open `/admin/dashboard`, and verify both the homepage entry and main nav entry open the same dashboard route
+
+## Admin User Status Management
+
+Admin backend endpoints:
+
+- `GET /api/admin/users`
+- `POST /api/admin/users/{id}/ban`
+- `POST /api/admin/users/{id}/unban`
+
+Admin frontend route:
+
+- `/admin/users`
+
+Current Phase O scope:
+
+- admin-only user-status workbench with account totals and current status rows
+- admin accounts stay visible but protected from status changes in this phase
+- non-admin accounts can be banned and restored from the same admin surface
+- banned users are blocked at login and also rejected on authenticated business APIs until restored
 
 ## Unified Search
 
@@ -465,6 +487,26 @@ Resource statuses:
 43. Log in as admin `13800000000`, open `/admin/applications`, and confirm the record renders with applicant info and resume snapshot file name.
 44. Download the snapshot resume from `/admin/applications` and confirm the file is still available after the live resume deletion.
 45. Return to `/jobs/1` as the applicant and confirm the page still shows the applied state.
+46. Log in as admin `13800000000`, open `/admin/users`, and confirm the list shows total, active, banned, and verified counts.
+47. Ban the normal user `13800000001` from `/admin/users` and confirm the row status becomes `BANNED`.
+48. Try to open `/profile` or log in again as `13800000001` and confirm the app blocks the banned account with an explicit error.
+49. Restore `13800000001` from `/admin/users` and confirm the user can log in again.
+
+## Targeted Admin User Status Verification
+
+### Backend
+
+```bash
+cd backend
+mvn -q "-Dtest=AdminUserControllerTests,AuthControllerTests,UserControllerTests,HomeControllerTests,HomeServiceTests" test
+```
+
+### Frontend
+
+```bash
+cd frontend
+npx vitest run src/views/admin/AdminUsersView.spec.js src/components/NavBar.spec.js
+```
 
 ## Targeted Admin Dashboard Verification
 

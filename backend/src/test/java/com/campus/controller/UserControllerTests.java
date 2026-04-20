@@ -59,6 +59,17 @@ class UserControllerTests {
 
     @Test
     @WithMockUser(username = "2", roles = "USER")
+    void bannedUserCannotReadProfileWithExistingLoginState() throws Exception {
+        jdbcTemplate.update("UPDATE t_user SET status = 'BANNED' WHERE id = 2");
+
+        mockMvc.perform(get("/api/users/me"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(403))
+                .andExpect(jsonPath("$.message").value("account is banned"));
+    }
+
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
     void postFavoritesReturnPublishedCommunityPosts() throws Exception {
         jdbcTemplate.update(
                 "INSERT INTO t_user_favorite (id, user_id, target_type, target_id, created_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)",

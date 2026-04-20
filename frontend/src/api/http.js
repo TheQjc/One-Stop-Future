@@ -23,6 +23,10 @@ function redirectToLogin() {
   }
 }
 
+function shouldForceLogout(code, message) {
+  return code === 401 || (code === 403 && message === "account is banned");
+}
+
 http.interceptors.request.use((config) => {
   const token = window.localStorage.getItem(TOKEN_KEY);
 
@@ -42,7 +46,7 @@ http.interceptors.response.use(
       const requestError = new Error(payload.message || "request failed");
       requestError.code = payload.code;
 
-      if (payload.code === 401) {
+      if (shouldForceLogout(payload.code, payload.message)) {
         clearPersistedAuth();
         redirectToLogin();
       }
@@ -58,7 +62,7 @@ http.interceptors.response.use(
     const requestError = new Error(payload.message || error.message || "request failed");
     requestError.code = payload.code ?? status ?? 500;
 
-    if (requestError.code === 401) {
+    if (shouldForceLogout(requestError.code, requestError.message)) {
       clearPersistedAuth();
       redirectToLogin();
     }

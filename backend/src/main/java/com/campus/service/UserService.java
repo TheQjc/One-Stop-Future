@@ -6,6 +6,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import com.campus.common.BusinessException;
+import com.campus.common.UserStatus;
 import com.campus.dto.UpdateProfileRequest;
 import com.campus.dto.UserProfile;
 import com.campus.entity.User;
@@ -48,14 +49,19 @@ public class UserService {
         if (identity == null || identity.isBlank()) {
             throw new BusinessException(401, "unauthorized");
         }
+        User user;
         if (identity.matches("^\\d+$")) {
             try {
-                return requireByUserId(Long.parseLong(identity));
+                user = requireByUserId(Long.parseLong(identity));
+                ensureAccountIsActive(user);
+                return user;
             } catch (NumberFormatException | DataAccessException ex) {
                 throw new BusinessException(404, "user not found");
             }
         }
-        return requireByPhone(identity);
+        user = requireByPhone(identity);
+        ensureAccountIsActive(user);
+        return user;
     }
 
     public User findByUsername(String username) {
@@ -89,5 +95,11 @@ public class UserService {
     public UserProfile toProfile(User user) {
         return new UserProfile(user.getId(), user.getPhone(), user.getNickname(), user.getRole(), user.getStatus(),
                 user.getVerificationStatus(), user.getRealName(), user.getStudentId());
+    }
+
+    private void ensureAccountIsActive(User user) {
+        if (UserStatus.BANNED.name().equals(user.getStatus())) {
+            throw new BusinessException(403, "account is banned");
+        }
     }
 }

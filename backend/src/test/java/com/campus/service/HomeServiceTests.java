@@ -131,7 +131,7 @@ class HomeServiceTests {
         assertThat(response.viewerType()).isEqualTo("ADMIN");
         assertThat(response.entries())
                 .extracting(HomeSummaryResponse.HomeEntryCard::code)
-                .containsSubsequence("admin-dashboard", "admin-verifications");
+                .containsSubsequence("admin-dashboard", "admin-users", "admin-verifications");
 
         HomeSummaryResponse.HomeEntryCard dashboard = response.entries().stream()
                 .filter(entry -> "admin-dashboard".equals(entry.code()))
@@ -141,6 +141,12 @@ class HomeServiceTests {
         assertThat(dashboard.path()).isEqualTo("/admin/dashboard");
         assertThat(dashboard.enabled()).isTrue();
         assertThat(dashboard.badge()).isNull();
+
+        HomeSummaryResponse.HomeEntryCard users = response.entries().stream()
+                .filter(entry -> "admin-users".equals(entry.code()))
+                .findFirst()
+                .orElseThrow();
+        assertThat(users.path()).isEqualTo("/admin/users");
 
         HomeSummaryResponse.HomeEntryCard verifications = response.entries().stream()
                 .filter(entry -> "admin-verifications".equals(entry.code()))

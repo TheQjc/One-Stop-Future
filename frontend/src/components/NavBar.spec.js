@@ -66,6 +66,7 @@ test("navbar keeps authenticated navigation while exposing discover, search, and
   expect(wrapper.html()).toContain('data-to="/profile"');
   expect(wrapper.html()).toContain('data-to="/notifications"');
   expect(wrapper.html()).toContain('data-to="/admin/dashboard"');
+  expect(wrapper.html()).toContain('data-to="/admin/users"');
   expect(wrapper.html()).toContain('data-to="/admin/verifications"');
   expect(wrapper.html()).toContain('data-to="/admin/community"');
 });
@@ -86,4 +87,5 @@ test("navbar shows the admin applications link for admins", () => {
   const wrapper = mountNavBar();
 
   expect(wrapper.html()).toContain('data-to="/admin/applications"');
+  expect(wrapper.html()).toContain('data-to="/admin/users"');
 });

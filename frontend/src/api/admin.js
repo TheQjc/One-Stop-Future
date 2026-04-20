@@ -348,6 +348,21 @@ export async function offlineAdminResource(id) {
   return data.data;
 }
 
+export async function getAdminUsers() {
+  const { data } = await http.get("/admin/users");
+  return data.data;
+}
+
+export async function banAdminUser(id) {
+  const { data } = await http.post(`/admin/users/${id}/ban`);
+  return data.data;
+}
+
+export async function unbanAdminUser(id) {
+  const { data } = await http.post(`/admin/users/${id}/unban`);
+  return data.data;
+}
+
 function extractFilename(contentDisposition = "") {
   const utf8Match = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i);
   if (utf8Match?.[1]) {

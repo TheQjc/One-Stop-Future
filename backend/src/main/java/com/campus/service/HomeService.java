@@ -143,6 +143,8 @@ public class HomeService {
         if ("ADMIN".equals(user.getRole())) {
             entries.add(new HomeSummaryResponse.HomeEntryCard("admin-dashboard", "Admin Dashboard",
                     "/admin/dashboard", true, null));
+            entries.add(new HomeSummaryResponse.HomeEntryCard("admin-users", "Admin User Desk",
+                    "/admin/users", true, null));
             entries.add(new HomeSummaryResponse.HomeEntryCard("admin-verifications", "Admin Verification Review",
                     "/admin/verifications", true, null));
         }

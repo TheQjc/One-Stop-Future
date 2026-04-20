@@ -10,22 +10,23 @@ const router = useRouter();
 
 const navItems = computed(() => {
   const items = [
-    { to: "/", label: "首页" },
-    { to: "/community", label: "社区" },
-    { to: "/discover", label: "发现" },
-    { to: "/search", label: "搜索" },
+    { to: "/", label: "Home" },
+    { to: "/community", label: "Community" },
+    { to: "/discover", label: "Discover" },
+    { to: "/search", label: "Search" },
   ];
 
   if (userStore.isAuthenticated) {
-    items.push({ to: "/profile", label: "个人中心" });
-    items.push({ to: "/notifications", label: "通知中心" });
+    items.push({ to: "/profile", label: "Profile" });
+    items.push({ to: "/notifications", label: "Notifications" });
   }
 
   if (userStore.canReviewVerifications) {
-    items.push({ to: "/admin/dashboard", label: "运营总览" });
-    items.push({ to: "/admin/applications", label: "申请记录" });
-    items.push({ to: "/admin/verifications", label: "认证审核" });
-    items.push({ to: "/admin/community", label: "社区治理" });
+    items.push({ to: "/admin/dashboard", label: "Operations" });
+    items.push({ to: "/admin/users", label: "User Desk" });
+    items.push({ to: "/admin/applications", label: "Applications" });
+    items.push({ to: "/admin/verifications", label: "Verifications" });
+    items.push({ to: "/admin/community", label: "Community Desk" });
   }
 
   return items;
@@ -43,10 +44,10 @@ async function handleLogout() {
       <RouterLink class="site-brand" to="/">
         <span class="site-brand__mark">Editorial Student Decision Desk</span>
         <strong>One-Stop Future</strong>
-        <small>就业 / 考研 / 留学的一体化入口</small>
+        <small>Career / Exam / Abroad in one working entrance</small>
       </RouterLink>
 
-      <nav class="site-nav" aria-label="主导航">
+      <nav class="site-nav" aria-label="Primary">
         <RouterLink
           v-for="item in navItems"
           :key="item.to"
@@ -70,13 +71,13 @@ async function handleLogout() {
         </div>
 
         <RouterLink v-if="!userStore.isAuthenticated" to="/login" class="app-link">
-          登录
+          Log In
         </RouterLink>
         <RouterLink v-if="!userStore.isAuthenticated" to="/register" class="ghost-btn">
-          注册
+          Register
         </RouterLink>
         <button v-else type="button" class="ghost-btn" @click="handleLogout">
-          退出登录
+          Log Out
         </button>
       </div>
     </div>
