@@ -13,10 +13,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.campus.common.Result;
 import com.campus.dto.AdminJobListResponse;
+import com.campus.dto.AdminJobSyncResponse;
 import com.campus.dto.CreateJobRequest;
 import com.campus.dto.JobDetailResponse;
 import com.campus.dto.UpdateJobRequest;
 import com.campus.service.AdminJobService;
+import com.campus.service.ThirdPartyJobSyncService;
 
 @Validated
 @RestController
@@ -25,9 +27,11 @@ import com.campus.service.AdminJobService;
 public class AdminJobController {
 
     private final AdminJobService adminJobService;
+    private final ThirdPartyJobSyncService thirdPartyJobSyncService;
 
-    public AdminJobController(AdminJobService adminJobService) {
+    public AdminJobController(AdminJobService adminJobService, ThirdPartyJobSyncService thirdPartyJobSyncService) {
         this.adminJobService = adminJobService;
+        this.thirdPartyJobSyncService = thirdPartyJobSyncService;
     }
 
     @GetMapping
@@ -39,6 +43,11 @@ public class AdminJobController {
     public Result<JobDetailResponse> create(Authentication authentication,
             @Validated @RequestBody CreateJobRequest request) {
         return Result.success(adminJobService.createJob(authentication.getName(), request));
+    }
+
+    @PostMapping("/sync")
+    public Result<AdminJobSyncResponse> sync(Authentication authentication) {
+        return Result.success(thirdPartyJobSyncService.syncJobs(authentication.getName()));
     }
 
     @PutMapping("/{id}")
