@@ -312,6 +312,11 @@ export async function importAdminJobs(formData) {
   return data.data;
 }
 
+export async function syncAdminJobs() {
+  const { data } = await http.post("/admin/jobs/sync");
+  return data.data;
+}
+
 export async function createAdminJob(payload) {
   const { data } = await http.post("/admin/jobs", payload);
   return data.data;

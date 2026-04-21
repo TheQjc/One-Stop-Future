@@ -7,6 +7,7 @@ import {
   importAdminJobs,
   offlineAdminJob,
   publishAdminJob,
+  syncAdminJobs,
   updateAdminJob,
 } from "../../api/admin.js";
 
@@ -21,6 +22,10 @@ const importSummary = ref(null);
 const importErrors = ref([]);
 const importErrorMessage = ref("");
 const importInputRef = ref(null);
+const syncLoading = ref(false);
+const syncSummary = ref(null);
+const syncIssues = ref([]);
+const syncErrorMessage = ref("");
 const summary = ref({
   total: 0,
   jobs: [],
@@ -116,6 +121,24 @@ async function handleImportJobs() {
     importErrors.value = Array.isArray(error.data?.errors) ? error.data.errors : [];
   } finally {
     importLoading.value = false;
+  }
+}
+
+async function handleSyncJobs() {
+  syncLoading.value = true;
+  syncSummary.value = null;
+  syncIssues.value = [];
+  syncErrorMessage.value = "";
+
+  try {
+    const result = await syncAdminJobs();
+    syncSummary.value = result;
+    syncIssues.value = Array.isArray(result.issues) ? result.issues : [];
+    await loadJobs();
+  } catch (error) {
+    syncErrorMessage.value = error.message || "Job sync failed. Please try again.";
+  } finally {
+    syncLoading.value = false;
   }
 }
 
@@ -249,6 +272,47 @@ loadJobs();
     </article>
 
     <div class="dashboard-grid">
+      <article class="section-card">
+        <div class="section-header">
+          <div>
+            <span class="section-eyebrow">Sync</span>
+            <h2 class="page-title" style="margin-top: 16px;">Pull jobs from the configured partner feed</h2>
+            <p class="page-subtitle" style="margin-top: 16px;">
+              The backend fetches one fixed HTTP JSON feed and creates new partner rows as drafts.
+            </p>
+          </div>
+        </div>
+
+        <div class="field-grid">
+          <p class="field-hint">
+            Sync updates existing non-deleted jobs by source URL, skips deleted matches, and reports invalid partner rows.
+          </p>
+          <p v-if="syncSummary" class="field-hint">
+            {{ syncSummary.sourceName }}: Created {{ syncSummary.createdCount }}, updated {{ syncSummary.updatedCount }},
+            skipped {{ syncSummary.skippedCount }}, invalid {{ syncSummary.invalidCount }}.
+          </p>
+          <p v-if="syncErrorMessage" class="field-error" role="alert">{{ syncErrorMessage }}</p>
+
+          <ul v-if="syncIssues.length" class="import-error-list">
+            <li v-for="item in syncIssues" :key="`${item.itemIndex}-${item.type}-${item.sourceUrl}`">
+              Item {{ item.itemIndex }} / {{ item.type }} / {{ item.sourceUrl || "no sourceUrl" }}: {{ item.message }}
+            </li>
+          </ul>
+
+          <div class="inline-form-actions">
+            <button
+              type="button"
+              class="app-btn"
+              data-testid="job-sync-button"
+              :disabled="syncLoading"
+              @click="handleSyncJobs"
+            >
+              {{ syncLoading ? "Syncing..." : "Sync Feed" }}
+            </button>
+          </div>
+        </div>
+      </article>
+
       <article class="section-card">
         <div class="section-header">
           <div>

@@ -1,7 +1,7 @@
 import { flushPromises, mount } from "@vue/test-utils";
 import { beforeEach, expect, test, vi } from "vitest";
 import AdminJobManageView from "./AdminJobManageView.vue";
-import { getAdminJobs, importAdminJobs, offlineAdminJob, publishAdminJob } from "../../api/admin.js";
+import { getAdminJobs, importAdminJobs, offlineAdminJob, publishAdminJob, syncAdminJobs } from "../../api/admin.js";
 
 vi.mock("../../api/admin.js", () => ({
   createAdminJob: vi.fn(),
@@ -10,6 +10,7 @@ vi.mock("../../api/admin.js", () => ({
   importAdminJobs: vi.fn(),
   offlineAdminJob: vi.fn(),
   publishAdminJob: vi.fn(),
+  syncAdminJobs: vi.fn(),
   updateAdminJob: vi.fn(),
 }));
 
@@ -159,4 +160,83 @@ test("renders row-level import errors returned by the backend", async () => {
   expect(wrapper.text()).toContain("job import validation failed");
   expect(wrapper.text()).toContain("Row 2");
   expect(wrapper.text()).toContain("invalid job type");
+});
+
+test("syncs the configured feed and reloads the board", async () => {
+  getAdminJobs
+    .mockResolvedValueOnce({
+      total: 1,
+      jobs: [{
+        id: 1,
+        title: "Java Backend Intern",
+        companyName: "Future Campus Tech",
+        status: "PUBLISHED",
+      }],
+    })
+    .mockResolvedValueOnce({
+      total: 2,
+      jobs: [
+        {
+          id: 1,
+          title: "Java Backend Intern Updated",
+          companyName: "Future Campus Tech",
+          status: "PUBLISHED",
+        },
+        {
+          id: 99,
+          title: "Partner Data Analyst",
+          companyName: "North Lake Studio",
+          status: "DRAFT",
+        },
+      ],
+    });
+  syncAdminJobs.mockResolvedValue({
+    sourceName: "Partner Feed",
+    fetchedCount: 4,
+    createdCount: 1,
+    updatedCount: 1,
+    skippedCount: 1,
+    invalidCount: 1,
+    defaultCreatedStatus: "DRAFT",
+    issues: [{
+      itemIndex: 3,
+      sourceUrl: "https://partner.example/jobs/deleted-role",
+      type: "SKIPPED",
+      message: "job is deleted locally",
+    }],
+  });
+
+  const wrapper = mount(AdminJobManageView);
+  await flushPromises();
+
+  await wrapper.find('[data-testid="job-sync-button"]').trigger("click");
+  await flushPromises();
+
+  expect(syncAdminJobs).toHaveBeenCalledTimes(1);
+  expect(getAdminJobs).toHaveBeenCalledTimes(2);
+  expect(wrapper.text()).toContain("Partner Feed");
+  expect(wrapper.text()).toContain("Created 1");
+  expect(wrapper.text()).toContain("job is deleted locally");
+});
+
+test("renders sync failure without reloading the jobs board", async () => {
+  getAdminJobs.mockResolvedValue({
+    total: 1,
+    jobs: [{
+      id: 1,
+      title: "Java Backend Intern",
+      companyName: "Future Campus Tech",
+      status: "PUBLISHED",
+    }],
+  });
+  syncAdminJobs.mockRejectedValue(new Error("invalid job sync feed"));
+
+  const wrapper = mount(AdminJobManageView);
+  await flushPromises();
+
+  await wrapper.find('[data-testid="job-sync-button"]').trigger("click");
+  await flushPromises();
+
+  expect(getAdminJobs).toHaveBeenCalledTimes(1);
+  expect(wrapper.text()).toContain("invalid job sync feed");
 });
