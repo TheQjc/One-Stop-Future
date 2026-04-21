@@ -270,7 +270,12 @@ public class ResourceService {
                     () -> openResourceFile(resource).inputStream());
             return new ResourceFileStream(previewFile.fileName(), previewFile.contentType(), previewFile.inputStream());
         }
-        throw new BusinessException(400, "resource preview only supports pdf or pptx");
+        if (isDocx(resource)) {
+            ResourcePreviewService.PreviewFile previewFile = resourcePreviewService.previewDocx(resource,
+                    () -> openResourceFile(resource).inputStream());
+            return new ResourceFileStream(previewFile.fileName(), previewFile.contentType(), previewFile.inputStream());
+        }
+        throw new BusinessException(400, "resource preview only supports pdf, pptx or docx");
     }
 
     public ResourceZipPreviewResponse previewZipResource(Long resourceId, String identity) {
@@ -467,11 +472,17 @@ public class ResourceService {
                 || "application/zip".equalsIgnoreCase(resource.getContentType());
     }
 
+    private boolean isDocx(ResourceItem resource) {
+        return "docx".equalsIgnoreCase(resource.getFileExt())
+                || "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                        .equalsIgnoreCase(resource.getContentType());
+    }
+
     ResourcePreviewKind previewKindOf(ResourceItem resource) {
         if (isZip(resource)) {
             return ResourcePreviewKind.ZIP_TREE;
         }
-        if (isPdf(resource) || isPptx(resource)) {
+        if (isPdf(resource) || isPptx(resource) || isDocx(resource)) {
             return ResourcePreviewKind.FILE;
         }
         return ResourcePreviewKind.NONE;

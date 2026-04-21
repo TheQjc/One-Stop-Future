@@ -26,18 +26,25 @@ public class ResourcePreviewService {
     private final ResourcePreviewArtifactStorage artifactStorage;
     private final ObjectMapper objectMapper;
     private final PptxPreviewGenerator pptxPreviewGenerator;
+    private final DocxPreviewGenerator docxPreviewGenerator;
     private final ZipPreviewGenerator zipPreviewGenerator;
 
     public ResourcePreviewService(ResourcePreviewArtifactStorage artifactStorage, ObjectMapper objectMapper,
-            PptxPreviewGenerator pptxPreviewGenerator, ZipPreviewGenerator zipPreviewGenerator) {
+            PptxPreviewGenerator pptxPreviewGenerator, DocxPreviewGenerator docxPreviewGenerator,
+            ZipPreviewGenerator zipPreviewGenerator) {
         this.artifactStorage = Objects.requireNonNull(artifactStorage, "artifactStorage");
         this.objectMapper = Objects.requireNonNull(objectMapper, "objectMapper");
         this.pptxPreviewGenerator = Objects.requireNonNull(pptxPreviewGenerator, "pptxPreviewGenerator");
+        this.docxPreviewGenerator = Objects.requireNonNull(docxPreviewGenerator, "docxPreviewGenerator");
         this.zipPreviewGenerator = Objects.requireNonNull(zipPreviewGenerator, "zipPreviewGenerator");
     }
 
     public String pptxArtifactKeyOf(ResourceItem resource) {
-        return "pptx/" + resource.getId() + "/" + fingerprintOf(resource) + ".pdf";
+        return generatedPdfArtifactKeyOf("pptx", resource);
+    }
+
+    public String docxArtifactKeyOf(ResourceItem resource) {
+        return generatedPdfArtifactKeyOf("docx", resource);
     }
 
     public String zipArtifactKeyOf(ResourceItem resource) {
@@ -45,19 +52,13 @@ public class ResourcePreviewService {
     }
 
     public PreviewFile previewFile(ResourceItem resource, PptxSourceSupplier pptxSourceSupplier) {
-        String artifactKey = pptxArtifactKeyOf(resource);
-        if (artifactStorage.exists(artifactKey)) {
-            return openPptxArtifact(resource, artifactKey);
-        }
+        return previewGeneratedPdf(pptxArtifactKeyOf(resource), resource, pptxSourceSupplier::open,
+                pptxPreviewGenerator::generate, "pptx preview unavailable");
+    }
 
-        try (InputStream pptxInputStream = pptxSourceSupplier.open()) {
-            byte[] pdfBytes = pptxPreviewGenerator.generate(pptxInputStream);
-            artifactStorage.write(artifactKey, new ByteArrayInputStream(pdfBytes));
-            return new PreviewFile(previewFileName(resource.getFileName()), "application/pdf",
-                    new ByteArrayInputStream(pdfBytes));
-        } catch (IOException | RuntimeException exception) {
-            throw new BusinessException(500, "pptx preview unavailable");
-        }
+    public PreviewFile previewDocx(ResourceItem resource, DocxSourceSupplier docxSourceSupplier) {
+        return previewGeneratedPdf(docxArtifactKeyOf(resource), resource, docxSourceSupplier::open,
+                docxPreviewGenerator::generate, "docx preview unavailable");
     }
 
     public ResourceZipPreviewResponse previewZip(ResourceItem resource, ZipSourceSupplier zipSourceSupplier) {
@@ -125,12 +126,32 @@ public class ResourcePreviewService {
         }
     }
 
-    private PreviewFile openPptxArtifact(ResourceItem resource, String artifactKey) {
+    private PreviewFile previewGeneratedPdf(String artifactKey, ResourceItem resource,
+            GeneratedPdfSourceSupplier sourceSupplier, GeneratedPdfGenerator generator, String unavailableMessage) {
+        if (artifactStorage.exists(artifactKey)) {
+            return openGeneratedPdfArtifact(resource, artifactKey, unavailableMessage);
+        }
+
+        try (InputStream sourceInputStream = sourceSupplier.open()) {
+            byte[] pdfBytes = generator.generate(sourceInputStream);
+            artifactStorage.write(artifactKey, new ByteArrayInputStream(pdfBytes));
+            return new PreviewFile(previewFileName(resource.getFileName()), "application/pdf",
+                    new ByteArrayInputStream(pdfBytes));
+        } catch (IOException | RuntimeException exception) {
+            throw new BusinessException(500, unavailableMessage);
+        }
+    }
+
+    private String generatedPdfArtifactKeyOf(String previewType, ResourceItem resource) {
+        return previewType + "/" + resource.getId() + "/" + fingerprintOf(resource) + ".pdf";
+    }
+
+    private PreviewFile openGeneratedPdfArtifact(ResourceItem resource, String artifactKey, String unavailableMessage) {
         try {
             return new PreviewFile(previewFileName(resource.getFileName()), "application/pdf",
                     artifactStorage.open(artifactKey));
         } catch (IOException exception) {
-            throw new BusinessException(500, "pptx preview unavailable");
+            throw new BusinessException(500, unavailableMessage);
         }
     }
 
@@ -154,7 +175,22 @@ public class ResourcePreviewService {
     }
 
     @FunctionalInterface
+    public interface DocxSourceSupplier {
+        InputStream open() throws IOException;
+    }
+
+    @FunctionalInterface
     public interface ZipSourceSupplier {
         InputStream open() throws IOException;
+    }
+
+    @FunctionalInterface
+    private interface GeneratedPdfSourceSupplier {
+        InputStream open() throws IOException;
+    }
+
+    @FunctionalInterface
+    private interface GeneratedPdfGenerator {
+        byte[] generate(InputStream inputStream) throws IOException;
     }
 }

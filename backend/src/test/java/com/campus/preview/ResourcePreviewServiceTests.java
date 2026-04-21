@@ -1,6 +1,7 @@
 package com.campus.preview;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -16,6 +17,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.junit.jupiter.api.Test;
 
+import com.campus.common.BusinessException;
 import com.campus.dto.ResourceZipPreviewResponse;
 import com.campus.entity.ResourceItem;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,7 +30,7 @@ class ResourcePreviewServiceTests {
         ResourceItem first = resource(9L, "deck-a.pptx", "pptx", "seed/a.pptx", 1024L, now);
         ResourceItem second = resource(9L, "deck-a.pptx", "pptx", "seed/b.pptx", 1024L, now.plusMinutes(1));
         ResourcePreviewService service = new ResourcePreviewService(new NoopStorage(), new ObjectMapper(),
-                new NoopPptxPreviewGenerator(),
+                new NoopPptxPreviewGenerator(), new NoopDocxPreviewGenerator(),
                 new CountingZipPreviewGenerator(payload("seed/", "seed/a.txt")));
 
         assertThat(service.fingerprintOf(first)).isNotEqualTo(service.fingerprintOf(second));
@@ -39,7 +41,7 @@ class ResourcePreviewServiceTests {
         InMemoryStorage storage = new InMemoryStorage();
         CountingZipPreviewGenerator generator = new CountingZipPreviewGenerator(payload("resume/", "resume/a.md"));
         ResourcePreviewService service = new ResourcePreviewService(storage, new ObjectMapper(),
-                new NoopPptxPreviewGenerator(), generator);
+                new NoopPptxPreviewGenerator(), new NoopDocxPreviewGenerator(), generator);
         ResourceItem resource = resource(9L, "resume.zip", "zip", "seed/resume.zip", 1024L, LocalDateTime.now());
 
         service.previewZip(resource, this::sampleZipStream);
@@ -49,11 +51,11 @@ class ResourcePreviewServiceTests {
     }
 
     @Test
-    void filePreviewReusesCachedPdfUntilFingerprintChanges() throws IOException {
+    void pptxPreviewReusesCachedPdfUntilFingerprintChanges() throws IOException {
         InMemoryStorage storage = new InMemoryStorage();
         CountingPptxPreviewGenerator generator = new CountingPptxPreviewGenerator();
         ResourcePreviewService service = new ResourcePreviewService(storage, new ObjectMapper(), generator,
-                new CountingZipPreviewGenerator(payload("resume/", "resume/a.md")));
+                new NoopDocxPreviewGenerator(), new CountingZipPreviewGenerator(payload("resume/", "resume/a.md")));
         ResourceItem resource = resource(9L, "career-deck.pptx", "pptx", "seed/career-deck.pptx", 1024L,
                 LocalDateTime.now());
 
@@ -61,6 +63,36 @@ class ResourcePreviewServiceTests {
         service.previewFile(resource, this::samplePptxStream);
 
         assertThat(generator.invocationCount()).isEqualTo(1);
+    }
+
+    @Test
+    void docxPreviewReusesCachedPdfUntilFingerprintChanges() throws IOException {
+        InMemoryStorage storage = new InMemoryStorage();
+        CountingDocxPreviewGenerator generator = new CountingDocxPreviewGenerator();
+        ResourcePreviewService service = new ResourcePreviewService(storage, new ObjectMapper(),
+                new NoopPptxPreviewGenerator(), generator,
+                new CountingZipPreviewGenerator(payload("resume/", "resume/a.md")));
+        ResourceItem resource = resource(9L, "writing-workbook.docx", "docx", "seed/workbook.docx", 1024L,
+                LocalDateTime.now());
+
+        service.previewDocx(resource, this::sampleDocxStream);
+        service.previewDocx(resource, this::sampleDocxStream);
+
+        assertThat(generator.invocationCount()).isEqualTo(1);
+    }
+
+    @Test
+    void docxPreviewFailureBecomesBusinessException() {
+        ResourcePreviewService service = new ResourcePreviewService(new NoopStorage(), new ObjectMapper(),
+                new NoopPptxPreviewGenerator(), inputStream -> {
+                    throw new IOException("boom");
+                }, new CountingZipPreviewGenerator(payload("resume/", "resume/a.md")));
+        ResourceItem resource = resource(9L, "writing-workbook.docx", "docx", "seed/workbook.docx", 1024L,
+                LocalDateTime.now());
+
+        assertThatThrownBy(() -> service.previewDocx(resource, this::sampleDocxStream))
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("docx preview unavailable");
     }
 
     private static class NoopStorage implements ResourcePreviewArtifactStorage {
@@ -134,12 +166,35 @@ class ResourcePreviewServiceTests {
         }
     }
 
+    private static class NoopDocxPreviewGenerator implements DocxPreviewGenerator {
+
+        @Override
+        public byte[] generate(InputStream docxInputStream) throws IOException {
+            return new byte[0];
+        }
+    }
+
     private static class CountingPptxPreviewGenerator implements PptxPreviewGenerator {
 
         private int invocationCount;
 
         @Override
         public byte[] generate(InputStream pptxInputStream) throws IOException {
+            invocationCount++;
+            return "%PDF-1.7\n".getBytes(StandardCharsets.US_ASCII);
+        }
+
+        int invocationCount() {
+            return invocationCount;
+        }
+    }
+
+    private static class CountingDocxPreviewGenerator implements DocxPreviewGenerator {
+
+        private int invocationCount;
+
+        @Override
+        public byte[] generate(InputStream docxInputStream) throws IOException {
             invocationCount++;
             return "%PDF-1.7\n".getBytes(StandardCharsets.US_ASCII);
         }
@@ -183,5 +238,9 @@ class ResourcePreviewServiceTests {
 
     private InputStream samplePptxStream() {
         return new ByteArrayInputStream("pptx".getBytes(StandardCharsets.UTF_8));
+    }
+
+    private InputStream sampleDocxStream() {
+        return new ByteArrayInputStream("docx".getBytes(StandardCharsets.UTF_8));
     }
 }
