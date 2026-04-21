@@ -32,7 +32,9 @@ app:
     type: ${RESOURCE_STORAGE_TYPE:local}
     local-root: ${RESOURCE_STORAGE_LOCAL_ROOT:.local-storage/resources}
   resource-preview:
+    type: ${RESOURCE_PREVIEW_TYPE:local}
     local-root: ${RESOURCE_PREVIEW_LOCAL_ROOT:.local-storage/previews}
+    minio-prefix: ${RESOURCE_PREVIEW_MINIO_PREFIX:preview-artifacts}
     docx:
       soffice-command: ${RESOURCE_PREVIEW_DOCX_SOFFICE_COMMAND:soffice}
 

@@ -17,7 +17,9 @@ app:
     type: local
     local-root: .local-storage/resources
   resource-preview:
+    type: local
     local-root: .local-storage/previews
+    minio-prefix: preview-artifacts
     docx:
       soffice-command: soffice
 

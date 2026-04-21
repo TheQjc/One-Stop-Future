@@ -7,11 +7,8 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 
-import org.springframework.stereotype.Component;
-
 import com.campus.config.ResourcePreviewProperties;
 
-@Component
 public class LocalResourcePreviewArtifactStorage implements ResourcePreviewArtifactStorage {
 
     private final Path rootPath;

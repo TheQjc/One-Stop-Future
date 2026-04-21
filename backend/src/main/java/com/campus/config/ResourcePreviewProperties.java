@@ -10,7 +10,9 @@ import lombok.Data;
 @ConfigurationProperties(prefix = "app.resource-preview")
 public class ResourcePreviewProperties {
 
+    private String type = "local";
     private String localRoot = ".local-storage/previews";
+    private String minioPrefix = "preview-artifacts";
     private Docx docx = new Docx();
 
     @Data
