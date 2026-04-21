@@ -1,6 +1,6 @@
 # One-Stop Future
 
-Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice + Phase H resource preview expansion first slice + Phase I MinIO raw resource storage first slice + Phase J historical local resource MinIO migration first slice + Phase K decision support first slice + Phase L decision analytics first slice + Phase M admin dashboard first slice + Phase N job application and resume workflow first slice + Phase O admin user status management first slice + Phase P community hot ranking first slice + Phase Q community experience post structure first slice + Phase R community threaded replies first slice + Phase S DOCX resource preview first slice + Phase T MinIO preview artifact storage first slice + Phase U admin batch job import first slice + Phase V third-party job sync first slice`.
+Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice + Phase H resource preview expansion first slice + Phase I MinIO raw resource storage first slice + Phase J historical local resource MinIO migration first slice + Phase K decision support first slice + Phase L decision analytics first slice + Phase M admin dashboard first slice + Phase N job application and resume workflow first slice + Phase O admin user status management first slice + Phase P community hot ranking first slice + Phase Q community experience post structure first slice + Phase R community threaded replies first slice + Phase S DOCX resource preview first slice + Phase T MinIO preview artifact storage first slice + Phase U admin batch job import first slice + Phase V third-party job sync first slice + Phase W historical preview artifact MinIO migration first slice`.
 
 ## Current Scope
 
@@ -33,6 +33,7 @@ Implemented now:
 - admin resource publish / reject / offline review workspace
 - MinIO-backed raw resource storage for non-`local` runtimes and independently selectable MinIO-backed preview artifact storage for newly generated `PPTX` / `DOCX` / `ZIP` preview artifacts
 - admin historical local-resource MinIO migration with dry-run and bounded batch execution
+- admin historical preview-artifact MinIO migration with dry-run and bounded batch execution
 - admin dashboard read-only summary overview with handoff to existing workbenches
 - admin user status workbench with ban / restore controls for non-admin accounts
 - unified search across published posts / jobs / resources
@@ -53,7 +54,7 @@ Implemented now:
 
 Explicitly not implemented yet:
 
-- historical preview-artifact migration, local+MinIO dual-read fallback, or automatic preview-artifact cleanup
+- local+MinIO dual-read fallback for preview-artifact reads, or automatic preview-artifact cleanup
 - full admin operations dashboards, DAU / funnel metrics, or exportable analytics reports
 - version history, chunk upload, resume rename / replace, or online resume preview
 
@@ -65,7 +66,8 @@ Explicitly not implemented yet:
 - `backend/.local-storage/resources/`: default local raw resource storage in the `local` profile
 - `backend/.local-storage/previews/`: default cached PPTX-to-PDF, DOCX-to-PDF, and ZIP preview artifacts in the `local` profile; non-`local` runtimes can instead write newly generated preview artifacts to MinIO through `RESOURCE_PREVIEW_TYPE=minio`
   - current preview behavior invalidates preview cache by fingerprinting and writing a new artifact
-  - switching preview storage from local to MinIO does not migrate or dual-read historical local preview artifacts
+  - switching preview storage from local to MinIO does not automatically migrate or dual-read historical local preview artifacts during normal runtime requests
+  - admins can instead trigger historical preview-artifact MinIO migration through `POST /api/admin/resources/migrate-preview-artifacts-to-minio`
   - old preview artifacts are not garbage-collected automatically
   - to reset derived preview state during local development, stop the backend and delete `backend/.local-storage/previews/`
 
@@ -138,7 +140,10 @@ Current behavior:
 - `RESOURCE_PREVIEW_TYPE=minio` requires `MINIO_ENABLED=true` and reuses the shared `MINIO_BUCKET`
 - preview-artifact storage selection is independent from `RESOURCE_STORAGE_TYPE`
 - only newly generated preview artifacts are written to MinIO after switching preview storage to `minio`
-- historical local preview artifacts are not migrated and are not dual-read after the cutover
+- admins can call `POST /api/admin/resources/migrate-preview-artifacts-to-minio` to dry-run or execute historical preview-artifact migration into MinIO
+- migration targets only the current logical `PPTX`, `DOCX`, or `ZIP` preview artifact for each eligible resource
+- successful migration keeps local source preview artifacts in place
+- runtime preview reads still do not use local+MinIO dual-read fallback after the cutover
 - preview-artifact garbage collection remains out of scope in this phase
 
 ## Local Demo Accounts
@@ -450,7 +455,7 @@ Current migration scope:
 - reads source files from `app.resource-storage.local-root`
 - requires `platform.integrations.minio.enabled=true` even when active raw resource storage is still local
 - environment-variable-based deployments supply that enablement through the existing mapping `MINIO_ENABLED=true`
-- this migration flow covers raw resource files only; Phase T preview artifacts can now be MinIO-backed for newly generated cache entries, but historical local preview files are still not migrated, dual-read, or garbage-collected automatically
+- this migration flow covers raw resource files only; preview artifacts use the separate admin endpoint `POST /api/admin/resources/migrate-preview-artifacts-to-minio`
 
 ## Permissions
 

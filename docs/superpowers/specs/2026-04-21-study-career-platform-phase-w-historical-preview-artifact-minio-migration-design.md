@@ -1,5 +1,7 @@
 # Study Career Platform Phase W Historical Preview Artifact MinIO Migration Design
 
+> **Validation note:** This design was implemented and validated on 2026-04-22 using the approved execution record at `docs/superpowers/plans/2026-04-21-study-career-platform-phase-w-historical-preview-artifact-minio-migration-implementation.md`. Local verification suites now present for this slice are `LocalPreviewArtifactPathResolverTests`, `HistoricalLocalResourcePreviewArtifactReaderTests`, `ResourcePreviewServiceTests`, `AdminResourcePreviewMigrationServiceTests`, `AdminResourceControllerTests`, `ResourceControllerTests`, `MinioResourcePreviewArtifactStorageTests`, and `ResourcePreviewStorageConfigurationTests`.
+
 ## 1. Goal
 
 Phase W adds an admin-managed migration path that copies historical local preview artifacts into MinIO while preserving the current Spring Boot monolith, Vue SPA, preview HTTP contracts, database schema, and the Phase T preview-storage selection model.
