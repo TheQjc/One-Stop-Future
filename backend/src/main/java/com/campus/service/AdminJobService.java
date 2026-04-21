@@ -1,6 +1,5 @@
 package com.campus.service;
 
-import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Supplier;
