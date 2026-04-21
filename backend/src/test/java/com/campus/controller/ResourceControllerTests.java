@@ -2,6 +2,8 @@ package com.campus.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -27,16 +29,20 @@ import org.apache.poi.xslf.usermodel.XSLFTextBox;
 import org.apache.poi.xslf.usermodel.XSLFTextParagraph;
 import org.apache.poi.xslf.usermodel.XSLFTextRun;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
+
+import com.campus.preview.DocxPreviewGenerator;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -51,6 +57,14 @@ class ResourceControllerTests {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @MockBean
+    private DocxPreviewGenerator docxPreviewGenerator;
+
+    @BeforeEach
+    void stubDocxPreviewGenerator() throws IOException {
+        when(docxPreviewGenerator.generate(any())).thenReturn(samplePdfBytes());
+    }
 
     @AfterEach
     void cleanLocalStorage() throws IOException {
@@ -97,6 +111,19 @@ class ResourceControllerTests {
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.previewAvailable").value(true))
                 .andExpect(jsonPath("$.data.previewKind").value("ZIP_TREE"));
+    }
+
+    @Test
+    void publishedDocxDetailExposesFilePreviewKind() throws Exception {
+        insertResource(4L, 2L, "PUBLISHED", null, "career-guide.docx", "docx",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "seed/2026/04/career-guide.docx");
+
+        mockMvc.perform(get("/api/resources/4"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.previewAvailable").value(true))
+                .andExpect(jsonPath("$.data.previewKind").value("FILE"));
     }
 
     @Test
@@ -188,6 +215,19 @@ class ResourceControllerTests {
     }
 
     @Test
+    void guestCanPreviewPublishedDocxAsInlinePdf() throws Exception {
+        insertResource(4L, 2L, "PUBLISHED", null, "career-guide.docx", "docx",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "seed/2026/04/career-guide.docx");
+        writeStoredBinaryFile("seed/2026/04/career-guide.docx", "docx".getBytes(StandardCharsets.UTF_8));
+
+        mockMvc.perform(get("/api/resources/4/preview"))
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, containsString("inline")))
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, containsString("application/pdf")));
+    }
+
+    @Test
     void guestCanPreviewPublishedZipDirectory() throws Exception {
         writeStoredBinaryFile("seed/2026/04/interview-experience-notes.zip", sampleZipBytes());
 
@@ -219,11 +259,19 @@ class ResourceControllerTests {
     }
 
     @Test
-    void previewRejectsNonPdfOrPptxResources() throws Exception {
+    void guestCannotPreviewPendingDocx() throws Exception {
+        mockMvc.perform(get("/api/resources/3/preview"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(404))
+                .andExpect(jsonPath("$.message").value("resource not found"));
+    }
+
+    @Test
+    void previewRejectsZipResourcesWithUpdatedSupportMessage() throws Exception {
         mockMvc.perform(get("/api/resources/2/preview"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("resource preview only supports pdf or pptx"));
+                .andExpect(jsonPath("$.message").value("resource preview only supports pdf, pptx or docx"));
     }
 
     @Test
@@ -249,6 +297,17 @@ class ResourceControllerTests {
         writeStoredBinaryFile("seed/2026/04/owner-deck.pptx", simplePptxBytes("Owner Deck"));
 
         mockMvc.perform(get("/api/resources/5/preview"))
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, containsString("inline")))
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, containsString("application/pdf")));
+    }
+
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
+    void ownerCanPreviewOwnPendingDocxAsInlinePdf() throws Exception {
+        writeStoredBinaryFile("seed/2026/04/ielts-writing-drill.docx", "docx".getBytes(StandardCharsets.UTF_8));
+
+        mockMvc.perform(get("/api/resources/3/preview"))
                 .andExpect(status().isOk())
                 .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, containsString("inline")))
                 .andExpect(header().string(HttpHeaders.CONTENT_TYPE, containsString("application/pdf")));
@@ -404,8 +463,8 @@ class ResourceControllerTests {
                 .andExpect(jsonPath("$.data.resources[0].previewKind").value("FILE"))
                 .andExpect(jsonPath("$.data.resources[1].id").value(3))
                 .andExpect(jsonPath("$.data.resources[1].editable").value(false))
-                .andExpect(jsonPath("$.data.resources[1].previewAvailable").value(false))
-                .andExpect(jsonPath("$.data.resources[1].previewKind").value("NONE"));
+                .andExpect(jsonPath("$.data.resources[1].previewAvailable").value(true))
+                .andExpect(jsonPath("$.data.resources[1].previewKind").value("FILE"));
     }
 
     private void writeStoredFile(String storageKey, String content) throws IOException {
@@ -445,6 +504,18 @@ class ResourceControllerTests {
             slideShow.write(outputStream);
             return outputStream.toByteArray();
         }
+    }
+
+    private byte[] samplePdfBytes() {
+        return """
+                %PDF-1.4
+                1 0 obj
+                <<>>
+                endobj
+                trailer
+                <<>>
+                %%EOF
+                """.getBytes(StandardCharsets.UTF_8);
     }
 
     private void deleteTreeIfExists(Path root) throws IOException {

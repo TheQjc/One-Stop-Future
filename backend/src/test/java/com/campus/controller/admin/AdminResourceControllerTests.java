@@ -15,9 +15,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.awt.Rectangle;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.poi.xslf.usermodel.XMLSlideShow;
@@ -25,6 +27,8 @@ import org.apache.poi.xslf.usermodel.XSLFSlide;
 import org.apache.poi.xslf.usermodel.XSLFTextBox;
 import org.apache.poi.xslf.usermodel.XSLFTextParagraph;
 import org.apache.poi.xslf.usermodel.XSLFTextRun;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +42,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.campus.dto.AdminResourceMigrationResponse;
+import com.campus.preview.DocxPreviewGenerator;
 import com.campus.service.AdminResourceMigrationService;
 
 @SpringBootTest
@@ -46,6 +51,7 @@ import com.campus.service.AdminResourceMigrationService;
 class AdminResourceControllerTests {
 
     private static final Path STORAGE_ROOT = Path.of(".local-storage", "resources");
+    private static final Path PREVIEW_ROOT = Path.of(".local-storage", "previews");
 
     @Autowired
     private MockMvc mockMvc;
@@ -55,6 +61,20 @@ class AdminResourceControllerTests {
 
     @MockBean
     private AdminResourceMigrationService adminResourceMigrationService;
+
+    @MockBean
+    private DocxPreviewGenerator docxPreviewGenerator;
+
+    @BeforeEach
+    void stubDocxPreviewGenerator() throws IOException {
+        when(docxPreviewGenerator.generate(any())).thenReturn(samplePdfBytes());
+    }
+
+    @AfterEach
+    void cleanLocalStorage() throws IOException {
+        deleteTreeIfExists(STORAGE_ROOT);
+        deleteTreeIfExists(PREVIEW_ROOT);
+    }
 
     @Test
     @WithMockUser(username = "2", roles = "USER")
@@ -169,8 +189,8 @@ class AdminResourceControllerTests {
                 .andExpect(jsonPath("$.data.resources[0].previewAvailable").value(true))
                 .andExpect(jsonPath("$.data.resources[0].previewKind").value("FILE"))
                 .andExpect(jsonPath("$.data.resources[1].id").value(3))
-                .andExpect(jsonPath("$.data.resources[1].previewAvailable").value(false))
-                .andExpect(jsonPath("$.data.resources[1].previewKind").value("NONE"));
+                .andExpect(jsonPath("$.data.resources[1].previewAvailable").value(true))
+                .andExpect(jsonPath("$.data.resources[1].previewKind").value("FILE"));
     }
 
     @Test
@@ -233,6 +253,17 @@ class AdminResourceControllerTests {
                 .andExpect(header().string(HttpHeaders.CONTENT_TYPE, containsString("application/pdf")));
     }
 
+    @Test
+    @WithMockUser(username = "1", roles = "ADMIN")
+    void adminCanPreviewPendingDocxAsInlinePdf() throws Exception {
+        writeStoredBinaryFile("seed/2026/04/ielts-writing-drill.docx", "docx".getBytes(StandardCharsets.UTF_8));
+
+        mockMvc.perform(get("/api/resources/3/preview"))
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, containsString("inline")))
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, containsString("application/pdf")));
+    }
+
     private void writeStoredBinaryFile(String storageKey, byte[] content) throws IOException {
         Path filePath = STORAGE_ROOT.resolve(storageKey);
         Files.createDirectories(filePath.getParent());
@@ -250,6 +281,34 @@ class AdminResourceControllerTests {
             textRun.setText(title);
             slideShow.write(outputStream);
             return outputStream.toByteArray();
+        }
+    }
+
+    private byte[] samplePdfBytes() {
+        return """
+                %PDF-1.4
+                1 0 obj
+                <<>>
+                endobj
+                trailer
+                <<>>
+                %%EOF
+                """.getBytes(StandardCharsets.UTF_8);
+    }
+
+    private void deleteTreeIfExists(Path root) throws IOException {
+        if (!Files.exists(root)) {
+            return;
+        }
+        try (var paths = Files.walk(root)) {
+            paths.sorted(Comparator.reverseOrder())
+                    .forEach(path -> {
+                        try {
+                            Files.deleteIfExists(path);
+                        } catch (IOException exception) {
+                            throw new IllegalStateException(exception);
+                        }
+                    });
         }
     }
 
