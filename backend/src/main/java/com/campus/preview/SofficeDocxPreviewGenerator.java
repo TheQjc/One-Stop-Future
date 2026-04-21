@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.campus.config.ResourcePreviewProperties;
@@ -21,6 +22,7 @@ public class SofficeDocxPreviewGenerator implements DocxPreviewGenerator {
     private final String sofficeCommand;
     private final CommandRunner commandRunner;
 
+    @Autowired
     public SofficeDocxPreviewGenerator(ResourcePreviewProperties properties) {
         this(properties.getDocx().getSofficeCommand(), defaultCommandRunner());
     }
