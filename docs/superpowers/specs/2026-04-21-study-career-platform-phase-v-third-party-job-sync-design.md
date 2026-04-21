@@ -1,5 +1,7 @@
 # Study Career Platform Phase V Third-Party Job Sync Design
 
+> **Validation note:** This design was implemented and validated on 2026-04-21. Execution record: `docs/superpowers/plans/2026-04-21-study-career-platform-phase-v-third-party-job-sync-implementation.md`.
+
 ## 1. Goal
 
 Phase V adds the first third-party job synchronization flow while preserving the current Spring Boot monolith, Vue SPA, existing public jobs board, existing admin jobs desk, and the current draft / publish / offline / delete lifecycle.
