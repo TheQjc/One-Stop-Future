@@ -11,12 +11,13 @@ import com.campus.config.ResourcePreviewProperties;
 
 public class LocalResourcePreviewArtifactStorage implements ResourcePreviewArtifactStorage {
 
-    private final Path rootPath;
+    private final LocalPreviewArtifactPathResolver pathResolver;
 
     public LocalResourcePreviewArtifactStorage(ResourcePreviewProperties properties) {
-        this.rootPath = Path.of(properties.getLocalRoot()).toAbsolutePath().normalize();
+        Path rootPath = Path.of(properties.getLocalRoot());
+        this.pathResolver = new LocalPreviewArtifactPathResolver(rootPath);
         try {
-            Files.createDirectories(rootPath);
+            Files.createDirectories(rootPath.toAbsolutePath().normalize());
         } catch (IOException exception) {
             throw new IllegalStateException("failed to initialize local resource preview storage", exception);
         }
@@ -24,31 +25,19 @@ public class LocalResourcePreviewArtifactStorage implements ResourcePreviewArtif
 
     @Override
     public boolean exists(String artifactKey) throws IOException {
-        return Files.exists(resolve(artifactKey));
+        return Files.exists(pathResolver.resolve(artifactKey));
     }
 
     @Override
     public InputStream open(String artifactKey) throws IOException {
-        return Files.newInputStream(resolve(artifactKey));
+        return Files.newInputStream(pathResolver.resolve(artifactKey));
     }
 
     @Override
     public void write(String artifactKey, InputStream inputStream) throws IOException {
         Objects.requireNonNull(inputStream, "inputStream");
-        Path artifactPath = resolve(artifactKey);
+        Path artifactPath = pathResolver.resolve(artifactKey);
         Files.createDirectories(artifactPath.getParent());
         Files.copy(inputStream, artifactPath, StandardCopyOption.REPLACE_EXISTING);
-    }
-
-    private Path resolve(String artifactKey) {
-        Path resolvedPath = rootPath.resolve(normalizeKey(artifactKey)).normalize();
-        if (!resolvedPath.startsWith(rootPath)) {
-            throw new IllegalArgumentException("artifact key escapes local preview root");
-        }
-        return resolvedPath;
-    }
-
-    private String normalizeKey(String artifactKey) {
-        return artifactKey.replace("\\", "/");
     }
 }
