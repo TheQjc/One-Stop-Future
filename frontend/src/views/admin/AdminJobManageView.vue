@@ -4,6 +4,7 @@ import {
   createAdminJob,
   deleteAdminJob,
   getAdminJobs,
+  importAdminJobs,
   offlineAdminJob,
   publishAdminJob,
   updateAdminJob,
@@ -14,6 +15,12 @@ const errorMessage = ref("");
 const actionMessage = ref("");
 const actionLoadingId = ref("");
 const selectedJobId = ref(null);
+const importFile = ref(null);
+const importLoading = ref(false);
+const importSummary = ref(null);
+const importErrors = ref([]);
+const importErrorMessage = ref("");
+const importInputRef = ref(null);
 const summary = ref({
   total: 0,
   jobs: [],
@@ -73,6 +80,43 @@ function applyJobToForm(job) {
   form.summary = job.summary || "";
   form.content = job.content || "";
   form.deadlineAt = job.deadlineAt ? String(job.deadlineAt).slice(0, 16) : "";
+}
+
+function resetImportInput() {
+  importFile.value = null;
+  if (importInputRef.value) {
+    importInputRef.value.value = "";
+  }
+}
+
+function handleImportFileChange(event) {
+  importFile.value = event.target.files?.[0] || null;
+}
+
+async function handleImportJobs() {
+  importErrorMessage.value = "";
+  importErrors.value = [];
+  importSummary.value = null;
+
+  if (!importFile.value) {
+    importErrorMessage.value = "Choose one CSV file first.";
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", importFile.value);
+  importLoading.value = true;
+
+  try {
+    importSummary.value = await importAdminJobs(formData);
+    resetImportInput();
+    await loadJobs();
+  } catch (error) {
+    importErrorMessage.value = error.message || "Job import failed. Please try again.";
+    importErrors.value = Array.isArray(error.data?.errors) ? error.data.errors : [];
+  } finally {
+    importLoading.value = false;
+  }
 }
 
 function toPayload() {
@@ -205,6 +249,58 @@ loadJobs();
     </article>
 
     <div class="dashboard-grid">
+      <article class="section-card">
+        <div class="section-header">
+          <div>
+            <span class="section-eyebrow">Import</span>
+            <h2 class="page-title" style="margin-top: 16px;">Batch import job drafts</h2>
+            <p class="page-subtitle" style="margin-top: 16px;">
+              Upload one UTF-8 CSV file to create multiple job drafts in one pass.
+            </p>
+          </div>
+        </div>
+
+        <form data-testid="job-import-form" class="field-grid" @submit.prevent="handleImportJobs">
+          <label class="field-label">
+            CSV File
+            <input
+              ref="importInputRef"
+              class="field-control"
+              name="jobImportFile"
+              type="file"
+              accept=".csv,text/csv"
+              @change="handleImportFileChange"
+            />
+          </label>
+
+          <p class="field-hint">
+            Header order: title, companyName, city, jobType, educationRequirement, sourcePlatform,
+            sourceUrl, summary, content, deadlineAt.
+          </p>
+          <p class="field-hint">
+            Required: title, companyName, city, jobType, educationRequirement, sourcePlatform,
+            sourceUrl, summary. Optional: content, deadlineAt.
+          </p>
+          <p v-if="importSummary" class="field-hint">
+            Imported {{ importSummary.importedCount }} jobs as {{ importSummary.defaultStatus }} from
+            {{ importSummary.fileName }}.
+          </p>
+          <p v-if="importErrorMessage" class="field-error" role="alert">{{ importErrorMessage }}</p>
+
+          <ul v-if="importErrors.length" class="import-error-list">
+            <li v-for="item in importErrors" :key="`${item.rowNumber}-${item.column}-${item.message}`">
+              Row {{ item.rowNumber }} / {{ item.column }}: {{ item.message }}
+            </li>
+          </ul>
+
+          <div class="inline-form-actions">
+            <button type="submit" class="app-btn" :disabled="importLoading">
+              {{ importLoading ? "Importing..." : "Import CSV" }}
+            </button>
+          </div>
+        </form>
+      </article>
+
       <article class="section-card">
         <div class="section-header">
           <div>
@@ -428,6 +524,12 @@ loadJobs();
 .admin-jobs-stat strong {
   font-family: var(--cp-font-display);
   font-size: clamp(24px, 4vw, 32px);
+}
+
+.import-error-list {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--cp-danger, #b42318);
 }
 
 @media (max-width: 1023px) {

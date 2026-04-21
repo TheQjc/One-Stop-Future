@@ -45,6 +45,7 @@ http.interceptors.response.use(
     if (payload && typeof payload.code === "number" && payload.code !== 200) {
       const requestError = new Error(payload.message || "request failed");
       requestError.code = payload.code;
+      requestError.data = payload.data ?? null;
 
       if (shouldForceLogout(payload.code, payload.message)) {
         clearPersistedAuth();
@@ -61,6 +62,7 @@ http.interceptors.response.use(
     const payload = error.response?.data || {};
     const requestError = new Error(payload.message || error.message || "request failed");
     requestError.code = payload.code ?? status ?? 500;
+    requestError.data = payload.data ?? null;
 
     if (shouldForceLogout(requestError.code, requestError.message)) {
       clearPersistedAuth();

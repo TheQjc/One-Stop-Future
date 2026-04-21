@@ -303,6 +303,15 @@ export async function getAdminJobs() {
   return data.data;
 }
 
+export async function importAdminJobs(formData) {
+  const { data } = await http.post("/admin/jobs/import", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return data.data;
+}
+
 export async function createAdminJob(payload) {
   const { data } = await http.post("/admin/jobs", payload);
   return data.data;
