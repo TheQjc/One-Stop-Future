@@ -26,7 +26,7 @@ public class LocalResourcePreviewArtifactStorage implements ResourcePreviewArtif
     }
 
     @Override
-    public boolean exists(String artifactKey) {
+    public boolean exists(String artifactKey) throws IOException {
         return Files.exists(resolve(artifactKey));
     }
 

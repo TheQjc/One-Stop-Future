@@ -5,7 +5,7 @@ import java.io.InputStream;
 
 public interface ResourcePreviewArtifactStorage {
 
-    boolean exists(String artifactKey);
+    boolean exists(String artifactKey) throws IOException;
 
     InputStream open(String artifactKey) throws IOException;
 

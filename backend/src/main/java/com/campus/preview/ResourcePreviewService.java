@@ -63,7 +63,7 @@ public class ResourcePreviewService {
 
     public ResourceZipPreviewResponse previewZip(ResourceItem resource, ZipSourceSupplier zipSourceSupplier) {
         String artifactKey = zipArtifactKeyOf(resource);
-        if (artifactStorage.exists(artifactKey)) {
+        if (artifactExists(artifactKey, "zip preview unavailable")) {
             return readZipArtifact(artifactKey);
         }
 
@@ -128,7 +128,7 @@ public class ResourcePreviewService {
 
     private PreviewFile previewGeneratedPdf(String artifactKey, ResourceItem resource,
             GeneratedPdfSourceSupplier sourceSupplier, GeneratedPdfGenerator generator, String unavailableMessage) {
-        if (artifactStorage.exists(artifactKey)) {
+        if (artifactExists(artifactKey, unavailableMessage)) {
             return openGeneratedPdfArtifact(resource, artifactKey, unavailableMessage);
         }
 
@@ -144,6 +144,14 @@ public class ResourcePreviewService {
 
     private String generatedPdfArtifactKeyOf(String previewType, ResourceItem resource) {
         return previewType + "/" + resource.getId() + "/" + fingerprintOf(resource) + ".pdf";
+    }
+
+    private boolean artifactExists(String artifactKey, String unavailableMessage) {
+        try {
+            return artifactStorage.exists(artifactKey);
+        } catch (IOException exception) {
+            throw new BusinessException(500, unavailableMessage);
+        }
     }
 
     private PreviewFile openGeneratedPdfArtifact(ResourceItem resource, String artifactKey, String unavailableMessage) {

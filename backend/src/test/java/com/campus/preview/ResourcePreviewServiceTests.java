@@ -95,10 +95,35 @@ class ResourcePreviewServiceTests {
                 .hasMessage("docx preview unavailable");
     }
 
+    @Test
+    void docxPreviewExistsFailureBecomesBusinessException() {
+        ResourcePreviewService service = new ResourcePreviewService(new ThrowingExistsStorage(new IOException("boom")),
+                new ObjectMapper(), new NoopPptxPreviewGenerator(), new NoopDocxPreviewGenerator(),
+                new CountingZipPreviewGenerator(payload("resume/", "resume/a.md")));
+        ResourceItem resource = resource(9L, "writing-workbook.docx", "docx", "seed/workbook.docx", 1024L,
+                LocalDateTime.now());
+
+        assertThatThrownBy(() -> service.previewDocx(resource, this::sampleDocxStream))
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("docx preview unavailable");
+    }
+
+    @Test
+    void zipPreviewExistsFailureBecomesBusinessException() {
+        ResourcePreviewService service = new ResourcePreviewService(new ThrowingExistsStorage(new IOException("boom")),
+                new ObjectMapper(), new NoopPptxPreviewGenerator(), new NoopDocxPreviewGenerator(),
+                new CountingZipPreviewGenerator(payload("resume/", "resume/a.md")));
+        ResourceItem resource = resource(9L, "resume.zip", "zip", "seed/resume.zip", 1024L, LocalDateTime.now());
+
+        assertThatThrownBy(() -> service.previewZip(resource, this::sampleZipStream))
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("zip preview unavailable");
+    }
+
     private static class NoopStorage implements ResourcePreviewArtifactStorage {
 
         @Override
-        public boolean exists(String artifactKey) {
+        public boolean exists(String artifactKey) throws IOException {
             return false;
         }
 
@@ -118,7 +143,7 @@ class ResourcePreviewServiceTests {
         private final Map<String, byte[]> artifacts = new LinkedHashMap<>();
 
         @Override
-        public boolean exists(String artifactKey) {
+        public boolean exists(String artifactKey) throws IOException {
             return artifacts.containsKey(artifactKey);
         }
 
@@ -134,6 +159,30 @@ class ResourcePreviewServiceTests {
         @Override
         public void write(String artifactKey, InputStream inputStream) throws IOException {
             artifacts.put(artifactKey, inputStream.readAllBytes());
+        }
+    }
+
+    private static class ThrowingExistsStorage implements ResourcePreviewArtifactStorage {
+
+        private final IOException exception;
+
+        private ThrowingExistsStorage(IOException exception) {
+            this.exception = exception;
+        }
+
+        @Override
+        public boolean exists(String artifactKey) throws IOException {
+            throw exception;
+        }
+
+        @Override
+        public InputStream open(String artifactKey) throws IOException {
+            throw new IOException("not implemented");
+        }
+
+        @Override
+        public void write(String artifactKey, InputStream inputStream) throws IOException {
+            throw new IOException("not implemented");
         }
     }
 
