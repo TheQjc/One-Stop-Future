@@ -3,16 +3,14 @@ package com.campus.service;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Locale;
+import java.util.function.Supplier;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.campus.common.BusinessException;
-import com.campus.common.JobEducationRequirement;
 import com.campus.common.JobPostingStatus;
-import com.campus.common.JobType;
 import com.campus.dto.AdminJobListResponse;
 import com.campus.dto.CreateJobRequest;
 import com.campus.dto.JobDetailResponse;
@@ -29,11 +27,14 @@ public class AdminJobService {
     private final JobPostingMapper jobPostingMapper;
     private final UserService userService;
     private final JobService jobService;
+    private final JobPostingFieldNormalizer fieldNormalizer;
 
-    public AdminJobService(JobPostingMapper jobPostingMapper, UserService userService, JobService jobService) {
+    public AdminJobService(JobPostingMapper jobPostingMapper, UserService userService, JobService jobService,
+            JobPostingFieldNormalizer fieldNormalizer) {
         this.jobPostingMapper = jobPostingMapper;
         this.userService = userService;
         this.jobService = jobService;
+        this.fieldNormalizer = fieldNormalizer;
     }
 
     public AdminJobListResponse listJobs() {
@@ -134,15 +135,15 @@ public class AdminJobService {
     private void applyRequest(JobPosting job, String title, String companyName, String city, String jobType,
             String educationRequirement, String sourcePlatform, String sourceUrl, String summary, String content,
             LocalDateTime deadlineAt) {
-        job.setTitle(title.trim());
-        job.setCompanyName(companyName.trim());
-        job.setCity(city.trim());
-        job.setJobType(normalizeJobType(jobType));
-        job.setEducationRequirement(normalizeEducationRequirement(educationRequirement));
-        job.setSourcePlatform(sourcePlatform.trim());
-        job.setSourceUrl(sourceUrl.trim());
-        job.setSummary(summary.trim());
-        job.setContent(content == null ? null : content.trim());
+        job.setTitle(normalizeOrThrow(() -> fieldNormalizer.requiredText(title, 120, "title")));
+        job.setCompanyName(normalizeOrThrow(() -> fieldNormalizer.requiredText(companyName, 80, "companyName")));
+        job.setCity(normalizeOrThrow(() -> fieldNormalizer.requiredText(city, 80, "city")));
+        job.setJobType(normalizeOrThrow(() -> fieldNormalizer.normalizeJobType(jobType)));
+        job.setEducationRequirement(normalizeOrThrow(() -> fieldNormalizer.normalizeEducationRequirement(educationRequirement)));
+        job.setSourcePlatform(normalizeOrThrow(() -> fieldNormalizer.requiredText(sourcePlatform, 50, "sourcePlatform")));
+        job.setSourceUrl(normalizeOrThrow(() -> fieldNormalizer.normalizeSourceUrl(sourceUrl)));
+        job.setSummary(normalizeOrThrow(() -> fieldNormalizer.requiredText(summary, 300, "summary")));
+        job.setContent(normalizeOrThrow(() -> fieldNormalizer.optionalText(content, 10000, "content")));
         job.setDeadlineAt(deadlineAt);
     }
 
@@ -152,36 +153,7 @@ public class AdminJobService {
                 || isBlank(job.getSummary())) {
             throw new BusinessException(400, "job is not ready for publish");
         }
-        validateSourceUrl(job.getSourceUrl());
-    }
-
-    private String normalizeJobType(String jobType) {
-        try {
-            return JobType.valueOf(jobType.trim().toUpperCase(Locale.ROOT)).name();
-        } catch (IllegalArgumentException exception) {
-            throw new BusinessException(400, "invalid job type");
-        }
-    }
-
-    private String normalizeEducationRequirement(String educationRequirement) {
-        try {
-            return JobEducationRequirement.valueOf(
-                    educationRequirement.trim().toUpperCase(Locale.ROOT)).name();
-        } catch (IllegalArgumentException exception) {
-            throw new BusinessException(400, "invalid education requirement");
-        }
-    }
-
-    private void validateSourceUrl(String sourceUrl) {
-        try {
-            URI uri = URI.create(sourceUrl);
-            String scheme = uri.getScheme();
-            if (scheme == null || (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme))) {
-                throw new BusinessException(400, "invalid source url");
-            }
-        } catch (IllegalArgumentException exception) {
-            throw new BusinessException(400, "invalid source url");
-        }
+        normalizeOrThrow(() -> fieldNormalizer.normalizeSourceUrl(job.getSourceUrl()));
     }
 
     private JobPosting requireJob(Long jobId) {
@@ -210,5 +182,13 @@ public class AdminJobService {
 
     private boolean isBlank(String value) {
         return value == null || value.isBlank();
+    }
+
+    private <T> T normalizeOrThrow(Supplier<T> operation) {
+        try {
+            return operation.get();
+        } catch (IllegalArgumentException exception) {
+            throw new BusinessException(400, exception.getMessage());
+        }
     }
 }

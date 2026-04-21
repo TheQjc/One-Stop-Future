@@ -1,25 +1,24 @@
 package com.campus.service;
 
-import java.net.URI;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
+import java.util.function.Supplier;
 
 import org.springframework.stereotype.Component;
 
-import com.campus.common.JobEducationRequirement;
 import com.campus.common.JobPostingStatus;
-import com.campus.common.JobType;
 import com.campus.dto.AdminJobImportValidationError;
 import com.campus.entity.JobPosting;
 
 @Component
 public class JobPostingDraftFactory {
 
-    private static final DateTimeFormatter DEADLINE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private final JobPostingFieldNormalizer fieldNormalizer;
+
+    public JobPostingDraftFactory(JobPostingFieldNormalizer fieldNormalizer) {
+        this.fieldNormalizer = fieldNormalizer;
+    }
 
     public BuildResult build(JobImportRow row, Long adminId, LocalDateTime now) {
         List<AdminJobImportValidationError> errors = new ArrayList<>();
@@ -61,98 +60,44 @@ public class JobPostingDraftFactory {
 
     private String requiredText(int rowNumber, String column, String value, int maxLength,
             List<AdminJobImportValidationError> errors) {
-        String normalized = normalizeText(value);
-        if (normalized == null || normalized.isEmpty()) {
-            errors.add(error(rowNumber, column, "value is required"));
-            return null;
-        }
-        if (normalized.length() > maxLength) {
-            errors.add(error(rowNumber, column, "value exceeds max length"));
-            return null;
-        }
-        return normalized;
+        return collect(rowNumber, column, errors, () -> fieldNormalizer.requiredText(value, maxLength, column));
     }
 
     private String optionalText(int rowNumber, String column, String value, int maxLength,
             List<AdminJobImportValidationError> errors) {
-        String normalized = normalizeText(value);
-        if (normalized == null || normalized.isEmpty()) {
-            return null;
-        }
-        if (normalized.length() > maxLength) {
-            errors.add(error(rowNumber, column, "value exceeds max length"));
-            return null;
-        }
-        return normalized;
+        return collect(rowNumber, column, errors, () -> fieldNormalizer.optionalText(value, maxLength, column));
     }
 
     private String normalizeJobType(int rowNumber, String value, List<AdminJobImportValidationError> errors) {
-        String normalized = normalizeText(value);
-        if (normalized == null || normalized.isEmpty()) {
-            errors.add(error(rowNumber, "jobType", "value is required"));
-            return null;
-        }
-        try {
-            return JobType.valueOf(normalized.toUpperCase(Locale.ROOT)).name();
-        } catch (IllegalArgumentException exception) {
-            errors.add(error(rowNumber, "jobType", "invalid job type"));
-            return null;
-        }
+        return collect(rowNumber, "jobType", errors, () -> fieldNormalizer.normalizeJobType(value));
     }
 
     private String normalizeEducationRequirement(int rowNumber, String value,
             List<AdminJobImportValidationError> errors) {
-        String normalized = normalizeText(value);
-        if (normalized == null || normalized.isEmpty()) {
-            errors.add(error(rowNumber, "educationRequirement", "value is required"));
-            return null;
-        }
-        try {
-            return JobEducationRequirement.valueOf(normalized.toUpperCase(Locale.ROOT)).name();
-        } catch (IllegalArgumentException exception) {
-            errors.add(error(rowNumber, "educationRequirement", "invalid education requirement"));
-            return null;
-        }
+        return collect(rowNumber, "educationRequirement", errors,
+                () -> fieldNormalizer.normalizeEducationRequirement(value));
     }
 
     private String normalizeSourceUrl(int rowNumber, String value, List<AdminJobImportValidationError> errors) {
-        String normalized = requiredText(rowNumber, "sourceUrl", value, 500, errors);
-        if (normalized == null) {
-            return null;
-        }
-        try {
-            URI uri = URI.create(normalized);
-            String scheme = uri.getScheme();
-            if (scheme == null || (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme))) {
-                errors.add(error(rowNumber, "sourceUrl", "invalid source url"));
-                return null;
-            }
-            return normalized;
-        } catch (IllegalArgumentException exception) {
-            errors.add(error(rowNumber, "sourceUrl", "invalid source url"));
-            return null;
-        }
+        return collect(rowNumber, "sourceUrl", errors, () -> fieldNormalizer.normalizeSourceUrl(value));
     }
 
     private LocalDateTime parseDeadline(int rowNumber, String value, List<AdminJobImportValidationError> errors) {
-        String normalized = normalizeText(value);
-        if (normalized == null || normalized.isEmpty()) {
-            return null;
-        }
-        try {
-            return LocalDateTime.parse(normalized, DEADLINE_FORMATTER);
-        } catch (DateTimeParseException exception) {
-            errors.add(error(rowNumber, "deadlineAt", "invalid deadline format"));
-            return null;
-        }
-    }
-
-    private String normalizeText(String value) {
-        return value == null ? null : value.trim();
+        return collect(rowNumber, "deadlineAt", errors, () -> fieldNormalizer.parseDeadline(value));
     }
 
     private AdminJobImportValidationError error(int rowNumber, String column, String message) {
         return new AdminJobImportValidationError(rowNumber, column, message);
+    }
+
+    private <T> T collect(int rowNumber, String column, List<AdminJobImportValidationError> errors,
+            Supplier<T> supplier) {
+        try {
+            return supplier.get();
+        } catch (IllegalArgumentException exception) {
+            errors.add(error(rowNumber, column, exception.getMessage()));
+            return null;
+        }
     }
 
     public record BuildResult(JobPosting job, List<AdminJobImportValidationError> errors) {

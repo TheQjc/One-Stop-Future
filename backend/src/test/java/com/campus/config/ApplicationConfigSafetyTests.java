@@ -40,6 +40,26 @@ class ApplicationConfigSafetyTests {
     }
 
     @Test
+    void defaultApplicationConfigKeepsJobSyncDisabledUntilExplicitlyEnabled() {
+        Properties properties = loadYaml(Path.of("src", "main", "resources", "application.yml"));
+
+        assertThat(properties.getProperty("platform.integrations.job-sync.enabled"))
+                .isEqualTo("${JOB_SYNC_ENABLED:false}");
+        assertThat(properties.getProperty("platform.integrations.job-sync.source-name"))
+                .isEqualTo("${JOB_SYNC_SOURCE_NAME:Partner Feed}");
+    }
+
+    @Test
+    void localAndTestConfigsKeepJobSyncDisabledWithoutPinnedFeedUrl() {
+        Properties localProperties = loadYaml(Path.of("src", "main", "resources", "application-local.yml"));
+        Properties testProperties = loadYaml(Path.of("src", "test", "resources", "application.yml"));
+
+        assertThat(localProperties.getProperty("platform.integrations.job-sync.enabled")).isEqualTo("false");
+        assertThat(localProperties.getProperty("platform.integrations.job-sync.feed-url")).isNull();
+        assertThat(testProperties.getProperty("platform.integrations.job-sync.enabled")).isEqualTo("false");
+    }
+
+    @Test
     void testConfigKeepsMinioDisabledByDefault() {
         Properties properties = loadYaml(Path.of("src", "test", "resources", "application.yml"));
 

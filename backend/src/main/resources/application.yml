@@ -55,3 +55,10 @@ platform:
       access-key: ${MINIO_ACCESS_KEY:minioadmin}
       secret-key: ${MINIO_SECRET_KEY:minioadmin}
       bucket: ${MINIO_BUCKET:campus-platform}
+    job-sync:
+      enabled: ${JOB_SYNC_ENABLED:false}
+      feed-url: ${JOB_SYNC_FEED_URL:}
+      source-name: ${JOB_SYNC_SOURCE_NAME:Partner Feed}
+      bearer-token: ${JOB_SYNC_BEARER_TOKEN:}
+      connect-timeout-ms: ${JOB_SYNC_CONNECT_TIMEOUT_MS:5000}
+      read-timeout-ms: ${JOB_SYNC_READ_TIMEOUT_MS:10000}

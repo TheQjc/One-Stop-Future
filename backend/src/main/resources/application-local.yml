@@ -35,3 +35,5 @@ platform:
       access-key: minioadmin
       secret-key: minioadmin
       bucket: campus-platform
+    job-sync:
+      enabled: false
