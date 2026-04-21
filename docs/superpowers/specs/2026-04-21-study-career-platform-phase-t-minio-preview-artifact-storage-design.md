@@ -1,5 +1,7 @@
 # Study Career Platform Phase T MinIO Preview Artifact Storage Design
 
+> **Validation note:** This design was implemented and validated on 2026-04-21. Execution record: `docs/superpowers/plans/2026-04-21-study-career-platform-phase-t-minio-preview-artifact-storage-implementation.md`. Local verification covered `ResourcePreviewStorageConfigurationTests`, `MinioResourcePreviewArtifactStorageTests`, `ResourcePreviewServiceTests`, `SofficeDocxPreviewGeneratorTests`, `ResourceControllerTests`, `AdminResourceControllerTests`, the targeted frontend resource-preview Vitest suite, and `frontend` production build. Repository-safe MinIO verification used in-memory test doubles; no live MinIO smoke was executed in this environment.
+
 ## 1. Goal
 
 Phase T moves newly generated resource preview artifacts to MinIO-capable storage while preserving the current Spring Boot monolith, Vue SPA, preview HTTP contracts, database schema, and preview-generation behavior introduced through Phases H and S.

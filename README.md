@@ -1,6 +1,6 @@
 # One-Stop Future
 
-Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice + Phase H resource preview expansion first slice + Phase I MinIO raw resource storage first slice + Phase J historical local resource MinIO migration first slice + Phase K decision support first slice + Phase L decision analytics first slice + Phase M admin dashboard first slice + Phase N job application and resume workflow first slice + Phase O admin user status management first slice + Phase P community hot ranking first slice + Phase Q community experience post structure first slice + Phase R community threaded replies first slice + Phase S DOCX resource preview first slice`.
+Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice + Phase H resource preview expansion first slice + Phase I MinIO raw resource storage first slice + Phase J historical local resource MinIO migration first slice + Phase K decision support first slice + Phase L decision analytics first slice + Phase M admin dashboard first slice + Phase N job application and resume workflow first slice + Phase O admin user status management first slice + Phase P community hot ranking first slice + Phase Q community experience post structure first slice + Phase R community threaded replies first slice + Phase S DOCX resource preview first slice + Phase T MinIO preview artifact storage first slice`.
 
 ## Current Scope
 
@@ -29,7 +29,7 @@ Implemented now:
 - admin community moderation
 - admin jobs create / edit / publish / offline / delete
 - admin resource publish / reject / offline review workspace
-- MinIO-backed raw resource storage for non-`local` runtimes while preview artifacts remain local in this phase
+- MinIO-backed raw resource storage for non-`local` runtimes and independently selectable MinIO-backed preview artifact storage for newly generated `PPTX` / `DOCX` / `ZIP` preview artifacts
 - admin historical local-resource MinIO migration with dry-run and bounded batch execution
 - admin dashboard read-only summary overview with handoff to existing workbenches
 - admin user status workbench with ban / restore controls for non-admin accounts
@@ -53,7 +53,7 @@ Explicitly not implemented yet:
 
 - batch job import
 - third-party job sync
-- MinIO-backed preview artifact storage
+- historical preview-artifact migration, local+MinIO dual-read fallback, or automatic preview-artifact cleanup
 - full admin operations dashboards, DAU / funnel metrics, or exportable analytics reports
 - version history, chunk upload, resume rename / replace, or online resume preview
 
@@ -63,8 +63,10 @@ Explicitly not implemented yet:
 - `frontend/`: Vue 3, Pinia, Vue Router, Axios, Vite, Vitest
 - `docs/superpowers/`: requirements, specs, plans
 - `backend/.local-storage/resources/`: default local raw resource storage in the `local` profile
-- `backend/.local-storage/previews/`: default cached PPTX-to-PDF, DOCX-to-PDF, and ZIP preview artifacts in the `local` profile; still local even when raw resource storage uses MinIO
-  - current preview behavior invalidates preview cache by fingerprinting and writing a new artifact; old preview artifacts are not garbage-collected automatically
+- `backend/.local-storage/previews/`: default cached PPTX-to-PDF, DOCX-to-PDF, and ZIP preview artifacts in the `local` profile; non-`local` runtimes can instead write newly generated preview artifacts to MinIO through `RESOURCE_PREVIEW_TYPE=minio`
+  - current preview behavior invalidates preview cache by fingerprinting and writing a new artifact
+  - switching preview storage from local to MinIO does not migrate or dual-read historical local preview artifacts
+  - old preview artifacts are not garbage-collected automatically
   - to reset derived preview state during local development, stop the backend and delete `backend/.local-storage/previews/`
 
 ## Local Run
@@ -79,8 +81,9 @@ mvn spring-boot:run "-Dspring-boot.run.profiles=local"
 Notes:
 
 - local development must use the `local` profile
-- `local` uses embedded H2, seeded demo data, and local filesystem resource storage
+- `local` uses embedded H2, seeded demo data, local filesystem resource storage, and local filesystem preview artifact storage
 - current defaults are relative paths; with `cd backend` they resolve to `backend/.local-storage/resources/` and `backend/.local-storage/previews/`
+- `application-local.yml` pins `RESOURCE_PREVIEW_TYPE=local`, so local development keeps preview artifacts on disk
 - resource-library `DOCX` preview requires LibreOffice `soffice` on `PATH`, or `RESOURCE_PREVIEW_DOCX_SOFFICE_COMMAND` pointing to the installed binary
 - local backend address: `http://127.0.0.1:8080`
 
@@ -115,8 +118,28 @@ Notes:
 - MinIO console is exposed on `http://127.0.0.1:9001`
 - backend is only exposed inside the Compose network and is reached through the frontend Nginx proxy
 - backend stores raw resource files in MinIO and keeps preview artifacts in the `backend-data` named volume
+- current `docker-compose.yml` does not set `RESOURCE_PREVIEW_TYPE=minio`, so this Compose scaffold still keeps preview artifacts local
+- current backend image does not install LibreOffice `soffice`, so DOCX preview generation is not container-ready by default
 - current recommendation for day-to-day development is still the local backend + local frontend flow above
 - switching an existing local-file database to MinIO is a manual admin-triggered backend migration flow in this phase, not an automatic runtime cutover
+
+## Preview Artifact Storage
+
+Backend preview-artifact storage is configured independently from raw resource storage:
+
+- `RESOURCE_PREVIEW_TYPE=local|minio`
+- `RESOURCE_PREVIEW_LOCAL_ROOT=.local-storage/previews`
+- `RESOURCE_PREVIEW_MINIO_PREFIX=preview-artifacts`
+- `RESOURCE_PREVIEW_DOCX_SOFFICE_COMMAND=soffice`
+
+Current behavior:
+
+- `RESOURCE_PREVIEW_TYPE=local` keeps preview artifacts on the local filesystem
+- `RESOURCE_PREVIEW_TYPE=minio` requires `MINIO_ENABLED=true` and reuses the shared `MINIO_BUCKET`
+- preview-artifact storage selection is independent from `RESOURCE_STORAGE_TYPE`
+- only newly generated preview artifacts are written to MinIO after switching preview storage to `minio`
+- historical local preview artifacts are not migrated and are not dual-read after the cutover
+- preview-artifact garbage collection remains out of scope in this phase
 
 ## Local Demo Accounts
 
@@ -427,7 +450,7 @@ Current migration scope:
 - reads source files from `app.resource-storage.local-root`
 - requires `platform.integrations.minio.enabled=true` even when active raw resource storage is still local
 - environment-variable-based deployments supply that enablement through the existing mapping `MINIO_ENABLED=true`
-- preview artifacts remain out of scope; cached preview files are not migrated to MinIO in this phase
+- this migration flow covers raw resource files only; Phase T preview artifacts can now be MinIO-backed for newly generated cache entries, but historical local preview files are still not migrated, dual-read, or garbage-collected automatically
 
 ## Permissions
 
