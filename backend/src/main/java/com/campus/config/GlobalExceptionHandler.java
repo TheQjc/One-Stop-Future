@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.campus.common.BusinessException;
+import com.campus.common.JobImportValidationException;
 import com.campus.common.Result;
+import com.campus.dto.AdminJobImportValidationResponse;
 
 import jakarta.validation.ConstraintViolationException;
 
@@ -22,6 +24,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     public Result<Void> handleBusinessException(BusinessException exception) {
         return Result.error(exception.getCode(), exception.getMessage());
+    }
+
+    @ExceptionHandler(JobImportValidationException.class)
+    public Result<AdminJobImportValidationResponse> handleJobImportValidationException(
+            JobImportValidationException exception) {
+        return Result.error(400, "job import validation failed", exception.response());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
