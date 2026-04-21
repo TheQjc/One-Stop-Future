@@ -14,9 +14,12 @@ import com.campus.common.Result;
 import com.campus.dto.AdminResourceListResponse;
 import com.campus.dto.AdminResourceMigrationRequest;
 import com.campus.dto.AdminResourceMigrationResponse;
+import com.campus.dto.AdminResourcePreviewMigrationRequest;
+import com.campus.dto.AdminResourcePreviewMigrationResponse;
 import com.campus.dto.AdminResourceReviewRequest;
 import com.campus.dto.ResourceDetailResponse;
 import com.campus.service.AdminResourceMigrationService;
+import com.campus.service.AdminResourcePreviewMigrationService;
 import com.campus.service.AdminResourceService;
 
 @Validated
@@ -27,11 +30,14 @@ public class AdminResourceController {
 
     private final AdminResourceService adminResourceService;
     private final AdminResourceMigrationService adminResourceMigrationService;
+    private final AdminResourcePreviewMigrationService adminResourcePreviewMigrationService;
 
     public AdminResourceController(AdminResourceService adminResourceService,
-            AdminResourceMigrationService adminResourceMigrationService) {
+            AdminResourceMigrationService adminResourceMigrationService,
+            AdminResourcePreviewMigrationService adminResourcePreviewMigrationService) {
         this.adminResourceService = adminResourceService;
         this.adminResourceMigrationService = adminResourceMigrationService;
+        this.adminResourcePreviewMigrationService = adminResourcePreviewMigrationService;
     }
 
     @GetMapping
@@ -65,5 +71,16 @@ public class AdminResourceController {
                 : request;
         return Result.success(
                 adminResourceMigrationService.migrateResources(authentication.getName(), normalizedRequest));
+    }
+
+    @PostMapping("/migrate-preview-artifacts-to-minio")
+    public Result<AdminResourcePreviewMigrationResponse> migratePreviewArtifactsToMinio(
+            Authentication authentication,
+            @Validated @RequestBody(required = false) AdminResourcePreviewMigrationRequest request) {
+        AdminResourcePreviewMigrationRequest normalizedRequest = request == null
+                ? new AdminResourcePreviewMigrationRequest(null, null, null, null, null, null)
+                : request;
+        return Result.success(
+                adminResourcePreviewMigrationService.migratePreviewArtifacts(authentication.getName(), normalizedRequest));
     }
 }

@@ -42,8 +42,10 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.campus.dto.AdminResourceMigrationResponse;
+import com.campus.dto.AdminResourcePreviewMigrationResponse;
 import com.campus.preview.DocxPreviewGenerator;
 import com.campus.service.AdminResourceMigrationService;
+import com.campus.service.AdminResourcePreviewMigrationService;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -61,6 +63,9 @@ class AdminResourceControllerTests {
 
     @MockBean
     private AdminResourceMigrationService adminResourceMigrationService;
+
+    @MockBean
+    private AdminResourcePreviewMigrationService adminResourcePreviewMigrationService;
 
     @MockBean
     private DocxPreviewGenerator docxPreviewGenerator;
@@ -141,6 +146,64 @@ class AdminResourceControllerTests {
     @WithMockUser(username = "1", roles = "ADMIN")
     void invalidMigrationLimitReturnsBodyCode400() throws Exception {
         mockMvc.perform(post("/api/admin/resources/migrate-to-minio")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"limit":201}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(400));
+    }
+
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
+    void normalUserCannotTriggerHistoricalPreviewArtifactMigration() throws Exception {
+        mockMvc.perform(post("/api/admin/resources/migrate-preview-artifacts-to-minio")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(username = "1", roles = "ADMIN")
+    void adminCanDryRunHistoricalPreviewArtifactMigration() throws Exception {
+        when(adminResourcePreviewMigrationService.migratePreviewArtifacts(eq("1"), any()))
+                .thenReturn(new AdminResourcePreviewMigrationResponse(
+                        true,
+                        100,
+                        1,
+                        1,
+                        1,
+                        0,
+                        0,
+                        List.of(new AdminResourcePreviewMigrationResponse.Item(
+                                7L,
+                                "Career Deck",
+                                "PUBLISHED",
+                                "PPTX",
+                                "pptx/7/fingerprint.pdf",
+                                "SUCCESS",
+                                "ready to migrate"))));
+
+        mockMvc.perform(post("/api/admin/resources/migrate-preview-artifacts-to-minio")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"dryRun":true,"statuses":["PUBLISHED"],"keyword":"deck","limit":100}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.dryRun").value(true))
+                .andExpect(jsonPath("$.data.requestedLimit").value(100))
+                .andExpect(jsonPath("$.data.successCount").value(1))
+                .andExpect(jsonPath("$.data.items[0].resourceId").value(7))
+                .andExpect(jsonPath("$.data.items[0].previewType").value("PPTX"))
+                .andExpect(jsonPath("$.data.items[0].artifactKey").value("pptx/7/fingerprint.pdf"))
+                .andExpect(jsonPath("$.data.items[0].message").value("ready to migrate"));
+    }
+
+    @Test
+    @WithMockUser(username = "1", roles = "ADMIN")
+    void invalidPreviewArtifactMigrationLimitReturnsBodyCode400() throws Exception {
+        mockMvc.perform(post("/api/admin/resources/migrate-preview-artifacts-to-minio")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {"limit":201}
