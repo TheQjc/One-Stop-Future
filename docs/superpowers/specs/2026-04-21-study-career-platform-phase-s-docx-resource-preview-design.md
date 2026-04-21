@@ -1,5 +1,7 @@
 # Study Career Platform Phase S DOCX Resource Preview Design
 
+> **Validation note:** This design was implemented and validated on 2026-04-21. Execution record: `docs/superpowers/plans/2026-04-21-study-career-platform-phase-s-docx-resource-preview-implementation.md`. Local verification covered `SofficeDocxPreviewGeneratorTests`, `ResourcePreviewServiceTests`, `ResourceControllerTests`, `AdminResourceControllerTests`, the targeted frontend resource-preview Vitest suite, and `frontend` production build.
+
 ## 1. Goal
 
 Phase S completes the smallest remaining resource-preview gap from Phase H by adding online preview support for `DOCX` files in the resource library.
