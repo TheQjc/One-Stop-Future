@@ -11,4 +11,11 @@ import lombok.Data;
 public class ResourcePreviewProperties {
 
     private String localRoot = ".local-storage/previews";
+    private Docx docx = new Docx();
+
+    @Data
+    public static class Docx {
+
+        private String sofficeCommand = "soffice";
+    }
 }
