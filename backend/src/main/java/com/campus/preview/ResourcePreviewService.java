@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HexFormat;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -49,6 +50,22 @@ public class ResourcePreviewService {
 
     public String zipArtifactKeyOf(ResourceItem resource) {
         return "zip/" + resource.getId() + "/" + fingerprintOf(resource) + ".json";
+    }
+
+    public Optional<PreviewArtifactTarget> previewArtifactTargetOf(ResourceItem resource) {
+        if (resource == null) {
+            return Optional.empty();
+        }
+        if (isPptx(resource)) {
+            return Optional.of(new PreviewArtifactTarget("PPTX", pptxArtifactKeyOf(resource)));
+        }
+        if (isDocx(resource)) {
+            return Optional.of(new PreviewArtifactTarget("DOCX", docxArtifactKeyOf(resource)));
+        }
+        if (isZip(resource)) {
+            return Optional.of(new PreviewArtifactTarget("ZIP", zipArtifactKeyOf(resource)));
+        }
+        return Optional.empty();
     }
 
     public PreviewFile previewFile(ResourceItem resource, PptxSourceSupplier pptxSourceSupplier) {
@@ -174,7 +191,27 @@ public class ResourcePreviewService {
         return fileName.substring(0, lastDot) + ".pdf";
     }
 
+    private boolean isPptx(ResourceItem resource) {
+        return "pptx".equalsIgnoreCase(resource.getFileExt())
+                || "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+                        .equalsIgnoreCase(resource.getContentType());
+    }
+
+    private boolean isDocx(ResourceItem resource) {
+        return "docx".equalsIgnoreCase(resource.getFileExt())
+                || "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                        .equalsIgnoreCase(resource.getContentType());
+    }
+
+    private boolean isZip(ResourceItem resource) {
+        return "zip".equalsIgnoreCase(resource.getFileExt())
+                || "application/zip".equalsIgnoreCase(resource.getContentType());
+    }
+
     public record PreviewFile(String fileName, String contentType, InputStream inputStream) {
+    }
+
+    public record PreviewArtifactTarget(String previewType, String artifactKey) {
     }
 
     @FunctionalInterface

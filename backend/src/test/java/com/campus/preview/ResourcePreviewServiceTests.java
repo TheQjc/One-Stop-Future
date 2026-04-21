@@ -37,6 +37,69 @@ class ResourcePreviewServiceTests {
     }
 
     @Test
+    void previewArtifactTargetOfReturnsPptxLogicalArtifactKey() {
+        ResourcePreviewService service = new ResourcePreviewService(
+                new NoopStorage(),
+                new ObjectMapper(),
+                new NoopPptxPreviewGenerator(),
+                new NoopDocxPreviewGenerator(),
+                new CountingZipPreviewGenerator(payload("resume/", "resume/a.md")));
+        ResourceItem resource = resource(9L, "career-deck.pptx", "pptx", "seed/career-deck.pptx", 1024L,
+                LocalDateTime.now());
+
+        assertThat(service.previewArtifactTargetOf(resource))
+                .contains(new ResourcePreviewService.PreviewArtifactTarget(
+                        "PPTX",
+                        service.pptxArtifactKeyOf(resource)));
+    }
+
+    @Test
+    void previewArtifactTargetOfReturnsDocxLogicalArtifactKey() {
+        ResourcePreviewService service = new ResourcePreviewService(
+                new NoopStorage(),
+                new ObjectMapper(),
+                new NoopPptxPreviewGenerator(),
+                new NoopDocxPreviewGenerator(),
+                new CountingZipPreviewGenerator(payload("resume/", "resume/a.md")));
+        ResourceItem resource = resource(9L, "writing-workbook.docx", "docx", "seed/workbook.docx", 1024L,
+                LocalDateTime.now());
+
+        assertThat(service.previewArtifactTargetOf(resource))
+                .contains(new ResourcePreviewService.PreviewArtifactTarget(
+                        "DOCX",
+                        service.docxArtifactKeyOf(resource)));
+    }
+
+    @Test
+    void previewArtifactTargetOfReturnsZipLogicalArtifactKey() {
+        ResourcePreviewService service = new ResourcePreviewService(
+                new NoopStorage(),
+                new ObjectMapper(),
+                new NoopPptxPreviewGenerator(),
+                new NoopDocxPreviewGenerator(),
+                new CountingZipPreviewGenerator(payload("resume/", "resume/a.md")));
+        ResourceItem resource = resource(9L, "resume.zip", "zip", "seed/resume.zip", 1024L, LocalDateTime.now());
+
+        assertThat(service.previewArtifactTargetOf(resource))
+                .contains(new ResourcePreviewService.PreviewArtifactTarget(
+                        "ZIP",
+                        service.zipArtifactKeyOf(resource)));
+    }
+
+    @Test
+    void previewArtifactTargetOfReturnsEmptyForPdfResources() {
+        ResourcePreviewService service = new ResourcePreviewService(
+                new NoopStorage(),
+                new ObjectMapper(),
+                new NoopPptxPreviewGenerator(),
+                new NoopDocxPreviewGenerator(),
+                new CountingZipPreviewGenerator(payload("resume/", "resume/a.md")));
+        ResourceItem resource = resource(9L, "resume.pdf", "pdf", "seed/resume.pdf", 1024L, LocalDateTime.now());
+
+        assertThat(service.previewArtifactTargetOf(resource)).isEmpty();
+    }
+
+    @Test
     void zipPreviewReusesCachedArtifactUntilFingerprintChanges() throws IOException {
         InMemoryStorage storage = new InMemoryStorage();
         CountingZipPreviewGenerator generator = new CountingZipPreviewGenerator(payload("resume/", "resume/a.md"));
