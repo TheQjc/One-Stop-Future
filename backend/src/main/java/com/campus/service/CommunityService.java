@@ -2,9 +2,12 @@ package com.campus.service;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +19,7 @@ import com.campus.common.CommunityHotPeriodType;
 import com.campus.common.CommunityPostStatus;
 import com.campus.common.CommunityTag;
 import com.campus.common.FavoriteTargetType;
+import com.campus.common.NotificationType;
 import com.campus.dto.CommunityHotPostListResponse;
 import com.campus.dto.CommunityPostDetailResponse;
 import com.campus.dto.CommunityPostListResponse;
@@ -39,21 +43,27 @@ public class CommunityService {
     private static final int DEFAULT_HOT_LIMIT = 3;
     private static final int MAX_HOT_LIMIT = 10;
     private static final int CONTENT_PREVIEW_LIMIT = 140;
+    private static final int EXPERIENCE_TARGET_LABEL_LIMIT = 120;
+    private static final int EXPERIENCE_OUTCOME_LABEL_LIMIT = 120;
+    private static final int EXPERIENCE_TIMELINE_SUMMARY_LIMIT = 255;
+    private static final int EXPERIENCE_ACTION_SUMMARY_LIMIT = 500;
 
     private final CommunityPostMapper communityPostMapper;
     private final CommunityCommentMapper communityCommentMapper;
     private final CommunityPostLikeMapper communityPostLikeMapper;
     private final UserFavoriteMapper userFavoriteMapper;
     private final UserService userService;
+    private final NotificationService notificationService;
 
     public CommunityService(CommunityPostMapper communityPostMapper, CommunityCommentMapper communityCommentMapper,
             CommunityPostLikeMapper communityPostLikeMapper, UserFavoriteMapper userFavoriteMapper,
-            UserService userService) {
+            UserService userService, NotificationService notificationService) {
         this.communityPostMapper = communityPostMapper;
         this.communityCommentMapper = communityCommentMapper;
         this.communityPostLikeMapper = communityPostLikeMapper;
         this.userFavoriteMapper = userFavoriteMapper;
         this.userService = userService;
+        this.notificationService = notificationService;
     }
 
     public CommunityHotPostListResponse listHotPosts(String period, Integer limit) {
@@ -165,6 +175,7 @@ public class CommunityService {
         User author = userService.requireByIdentity(identity);
         CommunityPost post = new CommunityPost();
         LocalDateTime now = LocalDateTime.now();
+        boolean experiencePost = Boolean.TRUE.equals(request.experiencePost());
         post.setAuthorId(author.getId());
         post.setTag(normalizeTag(request.tag(), true));
         post.setTitle(request.title().trim());
@@ -173,6 +184,23 @@ public class CommunityService {
         post.setLikeCount(0);
         post.setCommentCount(0);
         post.setFavoriteCount(0);
+        post.setIsExperiencePost(experiencePost);
+        post.setExperienceTargetLabel(experiencePost
+                ? normalizeExperienceField(request.experienceTargetLabel(), EXPERIENCE_TARGET_LABEL_LIMIT,
+                        "invalid experience target label")
+                : null);
+        post.setExperienceOutcomeLabel(experiencePost
+                ? normalizeExperienceField(request.experienceOutcomeLabel(), EXPERIENCE_OUTCOME_LABEL_LIMIT,
+                        "invalid experience outcome label")
+                : null);
+        post.setExperienceTimelineSummary(experiencePost
+                ? normalizeExperienceField(request.experienceTimelineSummary(), EXPERIENCE_TIMELINE_SUMMARY_LIMIT,
+                        "invalid experience timeline summary")
+                : null);
+        post.setExperienceActionSummary(experiencePost
+                ? normalizeExperienceField(request.experienceActionSummary(), EXPERIENCE_ACTION_SUMMARY_LIMIT,
+                        "invalid experience action summary")
+                : null);
         post.setCreatedAt(now);
         post.setUpdatedAt(now);
         communityPostMapper.insert(post);
@@ -187,11 +215,49 @@ public class CommunityService {
         LocalDateTime now = LocalDateTime.now();
         comment.setPostId(post.getId());
         comment.setAuthorId(author.getId());
+        comment.setParentCommentId(null);
+        comment.setReplyToUserId(null);
         comment.setContent(request.content().trim());
         comment.setStatus(CommunityCommentStatus.VISIBLE.name());
         comment.setCreatedAt(now);
         comment.setUpdatedAt(now);
         communityCommentMapper.insert(comment);
+        recalculatePostStats(post.getId());
+        return toPostDetail(requirePublishedPost(post.getId()), author);
+    }
+
+    @Transactional
+    public CommunityPostDetailResponse createReply(String identity, Long targetCommentId,
+            CreateCommunityCommentRequest request) {
+        User author = userService.requireByIdentity(identity);
+        CommunityComment targetComment = requireVisibleComment(targetCommentId);
+        if (targetComment.getParentCommentId() != null) {
+            throw new BusinessException(400, "cannot reply to a reply");
+        }
+
+        CommunityPost post = requirePublishedPost(targetComment.getPostId());
+        CommunityComment reply = new CommunityComment();
+        LocalDateTime now = LocalDateTime.now();
+        reply.setPostId(post.getId());
+        reply.setAuthorId(author.getId());
+        reply.setParentCommentId(targetComment.getId());
+        reply.setReplyToUserId(targetComment.getAuthorId());
+        reply.setContent(request.content().trim());
+        reply.setStatus(CommunityCommentStatus.VISIBLE.name());
+        reply.setCreatedAt(now);
+        reply.setUpdatedAt(now);
+        communityCommentMapper.insert(reply);
+
+        if (!author.getId().equals(targetComment.getAuthorId())) {
+            notificationService.createNotification(
+                    targetComment.getAuthorId(),
+                    NotificationType.COMMUNITY_REPLY_RECEIVED.name(),
+                    "Your comment received a reply",
+                    author.getNickname() + " replied to your comment under \"" + post.getTitle() + "\"",
+                    "COMMUNITY_POST",
+                    post.getId());
+        }
+
         recalculatePostStats(post.getId());
         return toPostDetail(requirePublishedPost(post.getId()), author);
     }
@@ -346,6 +412,14 @@ public class CommunityService {
         communityPostMapper.updateById(post);
     }
 
+    private CommunityComment requireVisibleComment(Long commentId) {
+        CommunityComment comment = communityCommentMapper.selectById(commentId);
+        if (comment == null || !CommunityCommentStatus.VISIBLE.name().equals(comment.getStatus())) {
+            throw new BusinessException(404, "community comment not found");
+        }
+        return comment;
+    }
+
     private boolean matchesHotPeriod(LocalDateTime createdAt, CommunityHotPeriodType periodType) {
         if (createdAt == null) {
             return false;
@@ -424,6 +498,7 @@ public class CommunityService {
                 safeCount(post.getFavoriteCount()),
                 viewer != null && hasLike(post.getId(), viewer.getId()),
                 viewer != null && hasFavorite(post.getId(), viewer.getId()),
+                toListExperienceSummary(post),
                 post.getCreatedAt());
     }
 
@@ -445,9 +520,30 @@ public class CommunityService {
                 safeCount(post.getFavoriteCount()),
                 viewer != null && hasLike(post.getId(), viewer.getId()),
                 viewer != null && hasFavorite(post.getId(), viewer.getId()),
+                toDetailExperienceSummary(post),
                 post.getCreatedAt(),
                 post.getUpdatedAt(),
                 loadVisibleComments(post.getId(), viewer == null ? null : viewer.getId()));
+    }
+
+    private CommunityPostListResponse.ExperienceSummary toListExperienceSummary(CommunityPost post) {
+        boolean enabled = Boolean.TRUE.equals(post.getIsExperiencePost());
+        return new CommunityPostListResponse.ExperienceSummary(
+                enabled,
+                enabled ? post.getExperienceTargetLabel() : null,
+                enabled ? post.getExperienceOutcomeLabel() : null,
+                enabled ? post.getExperienceTimelineSummary() : null,
+                enabled ? post.getExperienceActionSummary() : null);
+    }
+
+    private CommunityPostDetailResponse.ExperienceSummary toDetailExperienceSummary(CommunityPost post) {
+        boolean enabled = Boolean.TRUE.equals(post.getIsExperiencePost());
+        return new CommunityPostDetailResponse.ExperienceSummary(
+                enabled,
+                enabled ? post.getExperienceTargetLabel() : null,
+                enabled ? post.getExperienceOutcomeLabel() : null,
+                enabled ? post.getExperienceTimelineSummary() : null,
+                enabled ? post.getExperienceActionSummary() : null);
     }
 
     private String authorNicknameOf(Long authorId) {
@@ -456,24 +552,63 @@ public class CommunityService {
     }
 
     private List<CommunityPostDetailResponse.CommentItem> loadVisibleComments(Long postId, Long viewerId) {
-        return communityCommentMapper.selectList(new LambdaQueryWrapper<CommunityComment>()
-                        .eq(CommunityComment::getPostId, postId)
-                        .eq(CommunityComment::getStatus, CommunityCommentStatus.VISIBLE.name())
-                        .orderByAsc(CommunityComment::getCreatedAt)
-                        .orderByAsc(CommunityComment::getId))
-                .stream()
-                .map(comment -> {
-                    User author = userService.findByUserId(comment.getAuthorId());
-                    return new CommunityPostDetailResponse.CommentItem(
-                            comment.getId(),
-                            comment.getAuthorId(),
-                            author == null ? "Unknown" : author.getNickname(),
-                            comment.getContent(),
-                            comment.getStatus(),
-                            comment.getCreatedAt(),
-                            viewerId != null && viewerId.equals(comment.getAuthorId()));
-                })
+        List<CommunityComment> visibleComments = communityCommentMapper.selectList(new LambdaQueryWrapper<CommunityComment>()
+                .eq(CommunityComment::getPostId, postId)
+                .eq(CommunityComment::getStatus, CommunityCommentStatus.VISIBLE.name())
+                .orderByAsc(CommunityComment::getCreatedAt)
+                .orderByAsc(CommunityComment::getId));
+        Map<Long, String> nicknameCache = new LinkedHashMap<>();
+        Map<Long, LoadedCommentThread> topLevelThreads = new LinkedHashMap<>();
+
+        for (CommunityComment comment : visibleComments) {
+            if (comment.getParentCommentId() != null) {
+                continue;
+            }
+            topLevelThreads.put(comment.getId(), new LoadedCommentThread(
+                    comment,
+                    nicknameOf(comment.getAuthorId(), nicknameCache),
+                    viewerId != null && viewerId.equals(comment.getAuthorId()),
+                    new ArrayList<>()));
+        }
+
+        for (CommunityComment comment : visibleComments) {
+            if (comment.getParentCommentId() == null) {
+                continue;
+            }
+            LoadedCommentThread parentThread = topLevelThreads.get(comment.getParentCommentId());
+            if (parentThread == null) {
+                continue;
+            }
+            parentThread.replies().add(new CommunityPostDetailResponse.ReplyItem(
+                    comment.getId(),
+                    comment.getAuthorId(),
+                    nicknameOf(comment.getAuthorId(), nicknameCache),
+                    comment.getReplyToUserId(),
+                    nicknameOf(comment.getReplyToUserId(), nicknameCache),
+                    comment.getContent(),
+                    comment.getStatus(),
+                    comment.getCreatedAt(),
+                    viewerId != null && viewerId.equals(comment.getAuthorId())));
+        }
+
+        return topLevelThreads.values().stream()
+                .map(thread -> new CommunityPostDetailResponse.CommentItem(
+                        thread.comment().getId(),
+                        thread.comment().getAuthorId(),
+                        thread.authorNickname(),
+                        thread.comment().getContent(),
+                        thread.comment().getStatus(),
+                        thread.comment().getCreatedAt(),
+                        thread.mine(),
+                        List.copyOf(thread.replies())))
                 .toList();
+    }
+
+    private String nicknameOf(Long userId, Map<Long, String> nicknameCache) {
+        if (userId == null) {
+            return "Unknown";
+        }
+        return nicknameCache.computeIfAbsent(userId, this::authorNicknameOf);
     }
 
     private boolean hasLike(Long postId, Long userId) {
@@ -500,7 +635,25 @@ public class CommunityService {
         return content.substring(0, limit) + "...";
     }
 
+    private String normalizeExperienceField(String value, int maxLength, String errorMessage) {
+        String normalized = normalizeOptional(value);
+        if (normalized == null) {
+            return null;
+        }
+        if (normalized.length() > maxLength) {
+            throw new BusinessException(400, errorMessage);
+        }
+        return normalized;
+    }
+
     private boolean containsKeyword(String value, String keyword) {
         return value != null && value.toLowerCase(Locale.ROOT).contains(keyword.toLowerCase(Locale.ROOT));
+    }
+
+    private record LoadedCommentThread(
+            CommunityComment comment,
+            String authorNickname,
+            boolean mine,
+            List<CommunityPostDetailResponse.ReplyItem> replies) {
     }
 }

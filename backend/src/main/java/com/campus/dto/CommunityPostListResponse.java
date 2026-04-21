@@ -21,6 +21,15 @@ public record CommunityPostListResponse(
             int favoriteCount,
             boolean likedByMe,
             boolean favoritedByMe,
+            ExperienceSummary experience,
             LocalDateTime createdAt) {
+    }
+
+    public record ExperienceSummary(
+            boolean enabled,
+            String targetLabel,
+            String outcomeLabel,
+            String timelineSummary,
+            String actionSummary) {
     }
 }

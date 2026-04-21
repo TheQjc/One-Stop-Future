@@ -4,11 +4,42 @@ VALUES
   (2, '13800000001', 'NormalUser', 'Normal User', 'USER', 'ACTIVE', 'UNVERIFIED', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
   (3, '13800000002', 'VerifiedUser', 'Verified User', 'USER', 'ACTIVE', 'VERIFIED', '20260001', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
-INSERT INTO t_community_post (id, author_id, tag, title, content, status, like_count, comment_count, favorite_count, created_at, updated_at)
+INSERT INTO t_community_post (
+  id, author_id, tag, title, content, status, like_count, comment_count, favorite_count,
+  is_experience_post, experience_target_label, experience_outcome_label,
+  experience_timeline_summary, experience_action_summary, created_at, updated_at
+)
 VALUES
-  (1, 2, 'CAREER', 'Offer timeline notes', 'Collected steps for internship and offer preparation.', 'PUBLISHED', 2, 0, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-  (2, 3, 'EXAM', 'Exam planning checklist', 'A compact checklist for target school planning and review rhythm.', 'PUBLISHED', 1, 0, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-  (3, 2, 'ABROAD', 'Language prep starter', 'A basic preparation outline for language tests and application timing.', 'PUBLISHED', 0, 0, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+  (
+    1, 2, 'CAREER', 'Offer timeline notes', 'Collected steps for internship and offer preparation.', 'PUBLISHED', 2, 0, 1,
+    0, NULL, NULL, NULL, NULL,
+    CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+  ),
+  (
+    2, 3, 'EXAM', 'Exam planning checklist', 'A compact checklist for target school planning and review rhythm.', 'PUBLISHED', 1, 0, 0,
+    0, NULL, NULL, NULL, NULL,
+    CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+  ),
+  (
+    3, 2, 'ABROAD', 'Language prep starter', 'A basic preparation outline for language tests and application timing.', 'PUBLISHED', 0, 0, 0,
+    1, 'IELTS 7.5 sprint', 'Mock score improved from 6.0 to 7.5',
+    'Month 1 basics, month 2 timed drills, month 3 full mocks',
+    'Keep one mistake log, one speaking routine, and one weekly full test.',
+    CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+  );
+
+INSERT INTO t_community_comment (
+  id, post_id, author_id, parent_comment_id, reply_to_user_id, content, status, created_at, updated_at
+)
+VALUES
+  (
+    1, 1, 2, NULL, NULL, 'Share your interview prep milestones here.', 'VISIBLE',
+    TIMESTAMPADD(MINUTE, -2, CURRENT_TIMESTAMP), TIMESTAMPADD(MINUTE, -2, CURRENT_TIMESTAMP)
+  ),
+  (
+    2, 1, 3, 1, 2, 'I used a weekly mock interview loop and it helped a lot.', 'VISIBLE',
+    TIMESTAMPADD(MINUTE, -1, CURRENT_TIMESTAMP), TIMESTAMPADD(MINUTE, -1, CURRENT_TIMESTAMP)
+  );
 
 INSERT INTO t_resource_item (
   id, title, category, summary, description, status, uploader_id, reviewed_by, reject_reason,

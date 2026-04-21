@@ -16,6 +16,8 @@ public class CommunityComment {
     private Long id;
     private Long postId;
     private Long authorId;
+    private Long parentCommentId;
+    private Long replyToUserId;
     private String content;
     private String status;
     private LocalDateTime createdAt;

@@ -28,6 +28,21 @@ const statusLabels = {
 
 const localizedTag = computed(() => tagLabels[props.post.tag] || props.post.tag || "未分类");
 const localizedStatus = computed(() => statusLabels[props.post.status] || props.post.status || "已发布");
+const experienceEnabled = computed(() => Boolean(props.post.experience?.enabled));
+
+const experiencePreview = computed(() => {
+  if (!experienceEnabled.value) {
+    return props.post.contentPreview || props.post.content || "暂无正文摘要";
+  }
+
+  const fields = [
+    props.post.experience?.targetLabel,
+    props.post.experience?.outcomeLabel,
+    props.post.experience?.timelineSummary,
+  ].filter(Boolean);
+
+  return fields.length ? fields.join(" · ") : (props.post.contentPreview || props.post.content || "暂无正文摘要");
+});
 
 function formatDate(value) {
   if (!value) {
@@ -56,14 +71,17 @@ function formatDate(value) {
     :to="`/community/${post.id}`"
   >
     <div class="community-post-card__topline">
-      <span class="community-post-card__tag">{{ localizedTag }}</span>
+      <div class="community-post-card__chips">
+        <span class="community-post-card__tag">{{ localizedTag }}</span>
+        <span v-if="experienceEnabled" class="community-post-card__experience-badge">Experience Post</span>
+      </div>
       <span v-if="post.status && post.status !== 'PUBLISHED'" class="status-badge pending">
         {{ localizedStatus }}
       </span>
     </div>
 
     <h3 class="community-post-card__title">{{ post.title }}</h3>
-    <p class="community-post-card__preview">{{ post.contentPreview || post.content || "暂无正文摘要" }}</p>
+    <p class="community-post-card__preview">{{ experiencePreview }}</p>
 
     <div class="community-post-card__meta">
       <span>{{ post.authorNickname || "匿名用户" }}</span>
@@ -116,6 +134,13 @@ function formatDate(value) {
   align-items: center;
 }
 
+.community-post-card__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
 .community-post-card__tag,
 .community-post-card__meta,
 .community-post-card__stats {
@@ -123,14 +148,27 @@ function formatDate(value) {
   color: var(--cp-ink-soft);
 }
 
-.community-post-card__tag {
+.community-post-card__tag,
+.community-post-card__experience-badge {
   display: inline-flex;
   align-items: center;
   min-height: 30px;
   padding: 0 12px;
   border-radius: var(--cp-radius-pill);
+}
+
+.community-post-card__tag {
   background: rgba(24, 38, 63, 0.08);
   color: var(--cp-ink);
+}
+
+.community-post-card__experience-badge {
+  background: rgba(197, 79, 45, 0.12);
+  color: #9a3e1f;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .community-post-card__title {

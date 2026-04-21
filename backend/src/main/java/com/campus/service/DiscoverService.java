@@ -24,6 +24,7 @@ public class DiscoverService {
 
     private static final int DEFAULT_LIMIT = 20;
     private static final int MAX_LIMIT = 50;
+    private static final double EXPERIENCE_POST_BONUS = 4.0;
 
     private final CommunityService communityService;
     private final JobService jobService;
@@ -135,7 +136,9 @@ public class DiscoverService {
                 "/resources/" + resource.getId(),
                 resource.getPublishedAt(),
                 resourceHotScore(resource),
-                periodType == DiscoverPeriodType.WEEK ? "本周高频下载" : "长期热门资料");
+                periodType == DiscoverPeriodType.WEEK
+                        ? "\u672c\u5468\u9ad8\u9891\u4e0b\u8f7d"
+                        : "\u957f\u671f\u70ed\u95e8\u8d44\u6599");
     }
 
     private DiscoverItemView toPostItem(CommunityPost post, DiscoverPeriodType periodType) {
@@ -144,13 +147,13 @@ public class DiscoverService {
                 post.getId(),
                 DiscoverContentType.POST.name(),
                 post.getTitle(),
-                abbreviate(post.getContent()),
+                postSummary(post),
                 author != null ? author.getNickname() : "Unknown User",
-                post.getTag(),
+                postSecondaryMeta(post),
                 "/community/" + post.getId(),
                 post.getCreatedAt(),
                 postHotScore(post, author),
-                periodType == DiscoverPeriodType.WEEK ? "本周热议" : "长期热议");
+                postHotLabel(post, periodType));
     }
 
     private DiscoverItemView toJobItem(JobPosting job, DiscoverPeriodType periodType, int favoriteCount) {
@@ -164,7 +167,9 @@ public class DiscoverService {
                 "/jobs/" + job.getId(),
                 job.getPublishedAt(),
                 jobHotScore(job, favoriteCount),
-                periodType == DiscoverPeriodType.WEEK ? "本周关注" : "持续关注");
+                periodType == DiscoverPeriodType.WEEK
+                        ? "\u672c\u5468\u5173\u6ce8"
+                        : "\u6301\u7eed\u5173\u6ce8");
     }
 
     private double resourceHotScore(ResourceItem resource) {
@@ -176,7 +181,8 @@ public class DiscoverService {
         double rawHeat = safeCount(post.getLikeCount()) * 3.0
                 + safeCount(post.getCommentCount()) * 4.0
                 + safeCount(post.getFavoriteCount()) * 5.0
-                + verifiedAuthorBonus(author);
+                + verifiedAuthorBonus(author)
+                + experiencePostBonus(post);
         return rawHeat + freshnessBonus(post.getCreatedAt());
     }
 
@@ -200,11 +206,54 @@ public class DiscoverService {
         return author != null && "VERIFIED".equals(author.getVerificationStatus()) ? 2.0 : 0.0;
     }
 
+    private double experiencePostBonus(CommunityPost post) {
+        return Boolean.TRUE.equals(post.getIsExperiencePost()) ? EXPERIENCE_POST_BONUS : 0.0;
+    }
+
     private String jobMetaSecondary(JobPosting job) {
         String city = job.getCity() == null ? "" : job.getCity();
         String jobType = job.getJobType() == null ? "" : job.getJobType();
         String sourcePlatform = job.getSourcePlatform() == null ? "" : job.getSourcePlatform();
         return city + " / " + jobType + " / " + sourcePlatform;
+    }
+
+    private String postSecondaryMeta(CommunityPost post) {
+        if (!Boolean.TRUE.equals(post.getIsExperiencePost())) {
+            return post.getTag();
+        }
+        return (post.getTag() == null || post.getTag().isBlank())
+                ? "Experience Post"
+                : post.getTag() + " / Experience Post";
+    }
+
+    private String postSummary(CommunityPost post) {
+        if (!Boolean.TRUE.equals(post.getIsExperiencePost())) {
+            return abbreviate(post.getContent());
+        }
+
+        String structuredSummary = joinExperienceSummary(
+                post.getExperienceTargetLabel(),
+                post.getExperienceOutcomeLabel(),
+                post.getExperienceTimelineSummary());
+        return structuredSummary == null ? abbreviate(post.getContent()) : structuredSummary;
+    }
+
+    private String joinExperienceSummary(String targetLabel, String outcomeLabel, String timelineSummary) {
+        return java.util.stream.Stream.of(targetLabel, outcomeLabel, timelineSummary)
+                .filter(value -> value != null && !value.isBlank())
+                .map(String::trim)
+                .reduce((left, right) -> left + " | " + right)
+                .map(this::abbreviate)
+                .orElse(null);
+    }
+
+    private String postHotLabel(CommunityPost post, DiscoverPeriodType periodType) {
+        if (Boolean.TRUE.equals(post.getIsExperiencePost())) {
+            return periodType == DiscoverPeriodType.WEEK ? "Weekly experience pick" : "Evergreen experience note";
+        }
+        return periodType == DiscoverPeriodType.WEEK
+                ? "\u672c\u5468\u70ed\u8bae"
+                : "\u957f\u671f\u70ed\u8bae";
     }
 
     private String abbreviate(String content) {

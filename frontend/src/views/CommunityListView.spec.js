@@ -24,10 +24,6 @@ function mountView() {
           props: ["to"],
           template: "<a :data-to='to'><slot /></a>",
         },
-        CommunityPostCard: {
-          props: ["post"],
-          template: "<article class='stub-post'>{{ post.title }}</article>",
-        },
         CommunityFilterTabs: {
           props: ["modelValue", "options"],
           emits: ["update:modelValue"],
@@ -57,11 +53,47 @@ test("loads posts and refetches when the tag filter changes", async () => {
   getCommunityPosts
     .mockResolvedValueOnce({
       total: 1,
-      posts: [{ id: 1, title: "First post" }],
+      posts: [{
+        id: 1,
+        tag: "ABROAD",
+        title: "First post",
+        contentPreview: "Language prep recap",
+        status: "PUBLISHED",
+        authorNickname: "Alice",
+        likeCount: 2,
+        commentCount: 1,
+        favoriteCount: 0,
+        createdAt: "2026-04-15T10:00:00",
+        experience: {
+          enabled: true,
+          targetLabel: "IELTS 7.5 sprint",
+          outcomeLabel: "Score improved in six weeks",
+          timelineSummary: "Week 1 basics, week 2 drills",
+          actionSummary: "Track mistakes every day",
+        },
+      }],
     })
     .mockResolvedValueOnce({
       total: 1,
-      posts: [{ id: 2, title: "Career post" }],
+      posts: [{
+        id: 2,
+        tag: "CAREER",
+        title: "Career post",
+        contentPreview: "Plain summary",
+        status: "PUBLISHED",
+        authorNickname: "Bob",
+        likeCount: 0,
+        commentCount: 0,
+        favoriteCount: 0,
+        createdAt: "2026-04-16T10:00:00",
+        experience: {
+          enabled: false,
+          targetLabel: null,
+          outcomeLabel: null,
+          timelineSummary: null,
+          actionSummary: null,
+        },
+      }],
     });
 
   const wrapper = mountView();
@@ -71,6 +103,8 @@ test("loads posts and refetches when the tag filter changes", async () => {
   expect(getCommunityPosts).toHaveBeenNthCalledWith(1, {});
   expect(wrapper.text()).toContain("Hot board leader");
   expect(wrapper.text()).toContain("First post");
+  expect(wrapper.text()).toContain("Experience Post");
+  expect(wrapper.text()).toContain("IELTS 7.5 sprint");
 
   await wrapper.find(".filter-career").trigger("click");
   await flushPromises();

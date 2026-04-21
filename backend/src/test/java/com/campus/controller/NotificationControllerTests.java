@@ -51,6 +51,23 @@ class NotificationControllerTests {
 
     @Test
     @WithMockUser(username = "2", roles = "USER")
+    void listIncludesCommunityReplyNotifications() throws Exception {
+        insertNotification(101L, 2L, "COMMUNITY_REPLY_RECEIVED", "Your comment received a reply",
+                "VerifiedUser replied to your comment under \"Offer timeline notes\"", 0,
+                LocalDateTime.now().minusMinutes(30));
+
+        mockMvc.perform(get("/api/notifications"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.unreadCount").value(1))
+                .andExpect(jsonPath("$.data.notifications[0].type").value("COMMUNITY_REPLY_RECEIVED"))
+                .andExpect(jsonPath("$.data.notifications[0].title").value("Your comment received a reply"))
+                .andExpect(jsonPath("$.data.notifications[0].content")
+                        .value("VerifiedUser replied to your comment under \"Offer timeline notes\""));
+    }
+
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
     void markReadMarksSingleNotificationAsRead() throws Exception {
         insertNotification(101L, 2L, "WELCOME", "Unread", "Unread notification", 0, LocalDateTime.now().minusHours(1));
 

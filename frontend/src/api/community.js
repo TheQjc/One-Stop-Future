@@ -30,6 +30,11 @@ export async function createCommunityComment(id, payload) {
   return data.data;
 }
 
+export async function createCommunityReply(id, payload) {
+  const { data } = await http.post(`/community/comments/${id}/replies`, payload);
+  return data.data;
+}
+
 export async function likeCommunityPost(id) {
   const { data } = await http.post(`/community/posts/${id}/like`);
   return data.data;

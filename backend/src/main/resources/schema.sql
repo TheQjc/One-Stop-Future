@@ -78,6 +78,11 @@ CREATE TABLE t_community_post (
   like_count INT NOT NULL DEFAULT 0,
   comment_count INT NOT NULL DEFAULT 0,
   favorite_count INT NOT NULL DEFAULT 0,
+  is_experience_post TINYINT NOT NULL DEFAULT 0,
+  experience_target_label VARCHAR(120) NULL,
+  experience_outcome_label VARCHAR(120) NULL,
+  experience_timeline_summary VARCHAR(255) NULL,
+  experience_action_summary VARCHAR(500) NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -86,6 +91,8 @@ CREATE TABLE t_community_comment (
   id BIGINT PRIMARY KEY AUTO_INCREMENT,
   post_id BIGINT NOT NULL,
   author_id BIGINT NOT NULL,
+  parent_comment_id BIGINT NULL,
+  reply_to_user_id BIGINT NULL,
   content VARCHAR(1000) NOT NULL,
   status VARCHAR(20) NOT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

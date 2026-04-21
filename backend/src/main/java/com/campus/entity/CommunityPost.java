@@ -22,6 +22,11 @@ public class CommunityPost {
     private Integer likeCount;
     private Integer commentCount;
     private Integer favoriteCount;
+    private Boolean isExperiencePost;
+    private String experienceTargetLabel;
+    private String experienceOutcomeLabel;
+    private String experienceTimelineSummary;
+    private String experienceActionSummary;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

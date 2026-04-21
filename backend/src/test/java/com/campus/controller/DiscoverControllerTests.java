@@ -37,7 +37,7 @@ class DiscoverControllerTests {
                 .andExpect(jsonPath("$.data.items[0].type").value("RESOURCE"))
                 .andExpect(jsonPath("$.data.items[0].id").value(1))
                 .andExpect(jsonPath("$.data.items[0].path").value("/resources/1"))
-                .andExpect(jsonPath("$.data.items[0].hotLabel").value("本周高频下载"));
+                .andExpect(jsonPath("$.data.items[0].hotLabel").value("\u672c\u5468\u9ad8\u9891\u4e0b\u8f7d"));
     }
 
     @Test
@@ -108,7 +108,47 @@ class DiscoverControllerTests {
                 .andExpect(jsonPath("$.data.total").value(1))
                 .andExpect(jsonPath("$.data.items[0].type").value("JOB"))
                 .andExpect(jsonPath("$.data.items[0].path").value("/jobs/101"))
-                .andExpect(jsonPath("$.data.items[0].hotLabel").value("持续关注"));
+                .andExpect(jsonPath("$.data.items[0].hotLabel").value("\u6301\u7eed\u5173\u6ce8"));
+    }
+
+    @Test
+    void experiencePostsReceiveDeterministicDiscoverBonus() throws Exception {
+        replaceDiscoverFixtures();
+        jdbcTemplate.update("""
+                UPDATE t_community_post
+                SET author_id = 3,
+                    like_count = 2,
+                    comment_count = 0,
+                    favorite_count = 0,
+                    is_experience_post = 0,
+                    created_at = TIMESTAMPADD(DAY, -1, CURRENT_TIMESTAMP),
+                    updated_at = TIMESTAMPADD(DAY, -1, CURRENT_TIMESTAMP)
+                WHERE id = 101
+                """);
+        jdbcTemplate.update("""
+                UPDATE t_community_post
+                SET author_id = 2,
+                    like_count = 1,
+                    comment_count = 1,
+                    favorite_count = 0,
+                    is_experience_post = 1,
+                    experience_target_label = 'Interview sprint',
+                    experience_outcome_label = 'Reached final round',
+                    created_at = TIMESTAMPADD(DAY, -1, CURRENT_TIMESTAMP),
+                    updated_at = TIMESTAMPADD(DAY, -1, CURRENT_TIMESTAMP)
+                WHERE id = 102
+                """);
+
+        mockMvc.perform(get("/api/discover")
+                        .param("tab", "POST")
+                        .param("period", "WEEK"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.total").value(2))
+                .andExpect(jsonPath("$.data.items[0].id").value(102))
+                .andExpect(jsonPath("$.data.items[0].secondaryMeta").value("EXAM / Experience Post"))
+                .andExpect(jsonPath("$.data.items[0].hotLabel").value("Weekly experience pick"))
+                .andExpect(jsonPath("$.data.items[1].id").value(101));
     }
 
     private void replaceDiscoverFixtures() {
@@ -120,12 +160,28 @@ class DiscoverControllerTests {
         jdbcTemplate.update("DELETE FROM t_community_post");
 
         jdbcTemplate.update("""
-                INSERT INTO t_community_post (id, author_id, tag, title, content, status, like_count, comment_count, favorite_count, created_at, updated_at)
-                VALUES (101, 3, 'CAREER', 'Verified post momentum', 'A verified-user post with stable engagement.', 'PUBLISHED', 2, 1, 1, TIMESTAMPADD(DAY, -1, CURRENT_TIMESTAMP), TIMESTAMPADD(DAY, -1, CURRENT_TIMESTAMP))
+                INSERT INTO t_community_post (
+                    id, author_id, tag, title, content, status, like_count, comment_count, favorite_count,
+                    is_experience_post, experience_target_label, experience_outcome_label,
+                    experience_timeline_summary, experience_action_summary, created_at, updated_at
+                )
+                VALUES (
+                    101, 3, 'CAREER', 'Verified post momentum', 'A verified-user post with stable engagement.', 'PUBLISHED', 2, 1, 1,
+                    0, NULL, NULL, NULL, NULL,
+                    TIMESTAMPADD(DAY, -1, CURRENT_TIMESTAMP), TIMESTAMPADD(DAY, -1, CURRENT_TIMESTAMP)
+                )
                 """);
         jdbcTemplate.update("""
-                INSERT INTO t_community_post (id, author_id, tag, title, content, status, like_count, comment_count, favorite_count, created_at, updated_at)
-                VALUES (102, 2, 'EXAM', 'Old but visible planning post', 'An older planning note kept for total ranking only.', 'PUBLISHED', 4, 0, 0, TIMESTAMPADD(DAY, -10, CURRENT_TIMESTAMP), TIMESTAMPADD(DAY, -10, CURRENT_TIMESTAMP))
+                INSERT INTO t_community_post (
+                    id, author_id, tag, title, content, status, like_count, comment_count, favorite_count,
+                    is_experience_post, experience_target_label, experience_outcome_label,
+                    experience_timeline_summary, experience_action_summary, created_at, updated_at
+                )
+                VALUES (
+                    102, 2, 'EXAM', 'Old but visible planning post', 'An older planning note kept for total ranking only.', 'PUBLISHED', 4, 0, 0,
+                    1, 'Exam turnaround', 'Reached shortlist', 'Month 1 diagnose, month 2 drills', 'Use one notebook for mistakes and weekly review',
+                    TIMESTAMPADD(DAY, -10, CURRENT_TIMESTAMP), TIMESTAMPADD(DAY, -10, CURRENT_TIMESTAMP)
+                )
                 """);
         jdbcTemplate.update("""
                 INSERT INTO t_job_posting (id, title, company_name, city, job_type, education_requirement, source_platform, source_url, summary, content, deadline_at, published_at, status, created_by, updated_by, created_at, updated_at)

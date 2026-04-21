@@ -15,6 +15,7 @@ public record CommunityPostDetailResponse(
         int favoriteCount,
         boolean likedByMe,
         boolean favoritedByMe,
+        ExperienceSummary experience,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         List<CommentItem> comments) {
@@ -33,6 +34,27 @@ public record CommunityPostDetailResponse(
             String content,
             String status,
             LocalDateTime createdAt,
+            boolean mine,
+            List<ReplyItem> replies) {
+    }
+
+    public record ReplyItem(
+            Long id,
+            Long authorId,
+            String authorNickname,
+            Long replyToUserId,
+            String replyToUserNickname,
+            String content,
+            String status,
+            LocalDateTime createdAt,
             boolean mine) {
+    }
+
+    public record ExperienceSummary(
+            boolean enabled,
+            String targetLabel,
+            String outcomeLabel,
+            String timelineSummary,
+            String actionSummary) {
     }
 }

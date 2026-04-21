@@ -11,6 +11,11 @@ const form = reactive({
   tag: "CAREER",
   title: "",
   content: "",
+  experiencePost: false,
+  experienceTargetLabel: "",
+  experienceOutcomeLabel: "",
+  experienceTimelineSummary: "",
+  experienceActionSummary: "",
 });
 
 const tagOptions = [
@@ -36,11 +41,21 @@ async function handleSubmit() {
   submitting.value = true;
 
   try {
-    const created = await createCommunityPost({
+    const payload = {
       tag: form.tag,
       title: form.title.trim(),
       content: form.content.trim(),
-    });
+      ...(form.experiencePost
+        ? {
+            experiencePost: true,
+            experienceTargetLabel: form.experienceTargetLabel.trim(),
+            experienceOutcomeLabel: form.experienceOutcomeLabel.trim(),
+            experienceTimelineSummary: form.experienceTimelineSummary.trim(),
+            experienceActionSummary: form.experienceActionSummary.trim(),
+          }
+        : {}),
+    };
+    const created = await createCommunityPost(payload);
     router.push(`/community/${created.id}`);
   } catch (error) {
     errorMessage.value = error.message || "帖子发布失败，请稍后重试。";
@@ -54,10 +69,11 @@ async function handleSubmit() {
   <section class="page-stack">
     <article class="section-card community-create-hero">
       <span class="section-eyebrow">Write a Post</span>
-      <h1 class="hero-title" style="margin-top: 18px;">先把结论写清，再补充细节和上下文。</h1>
+      <h1 class="hero-title" style="margin-top: 18px;">Write the main story first, then add structure where it helps.</h1>
       <hr class="editorial-rule" />
       <p class="hero-copy">
-        社区首期先只做纯文本帖子，重点是把经验、提醒和判断过程完整沉淀下来。
+        Community posts can stay lightweight, or you can switch on the optional experience layer to summarize
+        target, outcome, timeline, and actionable notes for readers.
       </p>
     </article>
 
@@ -88,7 +104,7 @@ async function handleSubmit() {
             name="title"
             type="text"
             maxlength="120"
-            placeholder="例如：秋招时间线复盘、考研选校取舍、留学材料踩坑总结"
+            placeholder="例如：秋招时间线复盘、考研选校取舍、留学材料避坑清单"
           />
         </label>
 
@@ -99,9 +115,71 @@ async function handleSubmit() {
             class="field-textarea"
             name="content"
             maxlength="10000"
-            placeholder="正文里建议写清楚背景、过程、结果和建议。"
+            placeholder="正文里建议写清楚背景、过程、结果和你最想提醒别人的部分。"
           />
         </label>
+
+        <article class="panel-card experience-panel">
+          <label class="experience-panel__toggle">
+            <input
+              v-model="form.experiencePost"
+              name="experience-post"
+              type="checkbox"
+            />
+            <div class="experience-panel__toggle-copy">
+              <strong>Add experience structure</strong>
+              <span class="meta-copy">Turn this on when you want the post to surface a quick summary card.</span>
+            </div>
+          </label>
+
+          <div v-if="form.experiencePost" class="field-grid experience-panel__fields">
+            <label class="field-label">
+              Target
+              <input
+                v-model.trim="form.experienceTargetLabel"
+                class="field-control"
+                name="experience-target-label"
+                type="text"
+                maxlength="120"
+                placeholder="Backend internship sprint"
+              />
+            </label>
+
+            <label class="field-label">
+              Outcome
+              <input
+                v-model.trim="form.experienceOutcomeLabel"
+                class="field-control"
+                name="experience-outcome-label"
+                type="text"
+                maxlength="120"
+                placeholder="Received 2 interview invitations"
+              />
+            </label>
+
+            <label class="field-label">
+              Timeline
+              <textarea
+                v-model.trim="form.experienceTimelineSummary"
+                class="field-textarea"
+                name="experience-timeline-summary"
+                maxlength="255"
+                placeholder="Week 1 resume refresh, week 2 projects, week 3 applications"
+              />
+            </label>
+
+            <label class="field-label">
+              Action notes
+              <textarea
+                v-model.trim="form.experienceActionSummary"
+                class="field-textarea"
+                name="experience-action-summary"
+                maxlength="500"
+                placeholder="Refine one showcase project, then batch tailored applications."
+              />
+            </label>
+          </div>
+        </article>
 
         <p v-if="errorMessage" class="field-error" role="alert">{{ errorMessage }}</p>
 
@@ -117,3 +195,30 @@ async function handleSubmit() {
     </article>
   </section>
 </template>
+
+<style scoped>
+.experience-panel {
+  display: grid;
+  gap: 18px;
+}
+
+.experience-panel__toggle {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  cursor: pointer;
+}
+
+.experience-panel__toggle input {
+  margin-top: 4px;
+}
+
+.experience-panel__toggle-copy {
+  display: grid;
+  gap: 6px;
+}
+
+.experience-panel__fields {
+  margin-top: 4px;
+}
+</style>

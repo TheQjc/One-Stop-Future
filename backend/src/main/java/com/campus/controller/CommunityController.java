@@ -64,6 +64,12 @@ public class CommunityController {
         return Result.success(communityService.createComment(authentication.getName(), id, request));
     }
 
+    @PostMapping("/comments/{id}/replies")
+    public Result<CommunityPostDetailResponse> reply(@PathVariable Long id, Authentication authentication,
+            @Validated @RequestBody CreateCommunityCommentRequest request) {
+        return Result.success(communityService.createReply(authentication.getName(), id, request));
+    }
+
     @PostMapping("/posts/{id}/like")
     public Result<CommunityPostDetailResponse> like(@PathVariable Long id, Authentication authentication) {
         return Result.success(communityService.likePost(authentication.getName(), id));

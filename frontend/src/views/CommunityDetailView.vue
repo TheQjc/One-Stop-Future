@@ -4,6 +4,7 @@ import { RouterLink, useRoute, useRouter } from "vue-router";
 import CommunityCommentList from "../components/CommunityCommentList.vue";
 import {
   createCommunityComment,
+  createCommunityReply,
   favoriteCommunityPost,
   getCommunityPostDetail,
   likeCommunityPost,
@@ -23,18 +24,33 @@ const actionLoading = ref("");
 const commentForm = reactive({
   content: "",
 });
+const openReplyForms = ref([]);
+const replyDrafts = reactive({});
 const detail = ref(null);
 
 const tagLabels = {
-  CAREER: "就业",
-  EXAM: "考研",
-  ABROAD: "留学",
-  CHAT: "闲聊",
+  CAREER: "Career",
+  EXAM: "Exam",
+  ABROAD: "Abroad",
+  CHAT: "Chat",
 };
 
 const localizedTag = computed(() => (
-  tagLabels[detail.value?.tag] || detail.value?.tag || "未分类"
+  tagLabels[detail.value?.tag] || detail.value?.tag || "Uncategorized"
 ));
+
+const experienceItems = computed(() => {
+  if (!detail.value?.experience?.enabled) {
+    return [];
+  }
+
+  return [
+    { label: "Target", value: detail.value.experience.targetLabel },
+    { label: "Outcome", value: detail.value.experience.outcomeLabel },
+    { label: "Timeline", value: detail.value.experience.timelineSummary },
+    { label: "Action Notes", value: detail.value.experience.actionSummary },
+  ].filter((item) => item.value);
+});
 
 async function loadDetail() {
   loading.value = true;
@@ -43,7 +59,7 @@ async function loadDetail() {
   try {
     detail.value = await getCommunityPostDetail(route.params.id);
   } catch (error) {
-    errorMessage.value = error.message || "帖子详情加载失败，请稍后重试。";
+    errorMessage.value = error.message || "Post detail loading failed. Please try again.";
   } finally {
     loading.value = false;
   }
@@ -78,7 +94,7 @@ async function handleToggleLike() {
       ? await unlikeCommunityPost(detail.value.id)
       : await likeCommunityPost(detail.value.id);
   } catch (error) {
-    actionError.value = error.message || "点赞操作失败，请稍后重试。";
+    actionError.value = error.message || "Like action failed. Please try again.";
   } finally {
     actionLoading.value = "";
   }
@@ -97,7 +113,7 @@ async function handleToggleFavorite() {
       ? await unfavoriteCommunityPost(detail.value.id)
       : await favoriteCommunityPost(detail.value.id);
   } catch (error) {
-    actionError.value = error.message || "收藏操作失败，请稍后重试。";
+    actionError.value = error.message || "Favorite action failed. Please try again.";
   } finally {
     actionLoading.value = "";
   }
@@ -111,7 +127,7 @@ async function handleSubmitComment() {
   actionError.value = "";
 
   if (!commentForm.content.trim()) {
-    actionError.value = "请输入评论内容。";
+    actionError.value = "Please enter a comment.";
     return;
   }
 
@@ -123,7 +139,53 @@ async function handleSubmitComment() {
     });
     commentForm.content = "";
   } catch (error) {
-    actionError.value = error.message || "评论提交失败，请稍后重试。";
+    actionError.value = error.message || "Comment submit failed. Please try again.";
+  } finally {
+    actionLoading.value = "";
+  }
+}
+
+function handleToggleReplyForm(commentId) {
+  if (!ensureAuthenticated()) {
+    return;
+  }
+
+  actionError.value = "";
+
+  if (openReplyForms.value.includes(commentId)) {
+    openReplyForms.value = openReplyForms.value.filter((id) => id !== commentId);
+    return;
+  }
+
+  openReplyForms.value = [...openReplyForms.value, commentId];
+  replyDrafts[commentId] = replyDrafts[commentId] || "";
+}
+
+function handleUpdateReplyDraft({ commentId, value }) {
+  replyDrafts[commentId] = value;
+}
+
+async function handleSubmitReply(commentId) {
+  if (!ensureAuthenticated()) {
+    return;
+  }
+
+  actionError.value = "";
+  const content = (replyDrafts[commentId] || "").trim();
+
+  if (!content) {
+    actionError.value = "Please enter a reply.";
+    return;
+  }
+
+  actionLoading.value = `reply-${commentId}`;
+
+  try {
+    detail.value = await createCommunityReply(commentId, { content });
+    replyDrafts[commentId] = "";
+    openReplyForms.value = openReplyForms.value.filter((id) => id !== commentId);
+  } catch (error) {
+    actionError.value = error.message || "Reply submit failed. Please try again.";
   } finally {
     actionLoading.value = "";
   }
@@ -137,29 +199,44 @@ watch(() => route.params.id, () => {
 <template>
   <section class="page-stack">
     <article class="section-card">
-      <div v-if="loading" class="empty-state">正在加载帖子详情...</div>
+      <div v-if="loading" class="empty-state">Loading post detail...</div>
       <div v-else-if="errorMessage" class="field-grid">
         <p class="field-error" role="alert">{{ errorMessage }}</p>
         <button type="button" class="ghost-btn" @click="loadDetail">
-          重新加载
+          Retry
         </button>
       </div>
       <div v-else-if="detail" class="community-detail">
         <div class="community-detail__main">
           <div class="chip-row">
             <span class="section-eyebrow">{{ localizedTag }}</span>
-            <span class="status-badge approved">{{ detail.author?.nickname || "匿名用户" }}</span>
+            <span class="status-badge approved">{{ detail.author?.nickname || "Anonymous" }}</span>
           </div>
 
           <h1 class="hero-title" style="margin-top: 18px;">{{ detail.title }}</h1>
+
+          <article v-if="experienceItems.length" class="panel-card experience-summary">
+            <span class="section-eyebrow">Experience Summary</span>
+            <div class="experience-summary__grid">
+              <div
+                v-for="item in experienceItems"
+                :key="item.label"
+                class="experience-summary__item"
+              >
+                <strong>{{ item.label }}</strong>
+                <p>{{ item.value }}</p>
+              </div>
+            </div>
+          </article>
+
           <hr class="editorial-rule" />
           <p class="community-detail__body">{{ detail.content }}</p>
 
           <div class="community-detail__meta">
-            <span>发布时间 {{ new Date(detail.createdAt).toLocaleString("zh-CN") }}</span>
-            <span>赞 {{ detail.likeCount }}</span>
-            <span>评 {{ detail.commentCount }}</span>
-            <span>藏 {{ detail.favoriteCount }}</span>
+            <span>Published {{ new Date(detail.createdAt).toLocaleString("zh-CN") }}</span>
+            <span>Likes {{ detail.likeCount }}</span>
+            <span>Comments {{ detail.commentCount }}</span>
+            <span>Favorites {{ detail.favoriteCount }}</span>
           </div>
         </div>
 
@@ -173,7 +250,7 @@ watch(() => route.params.id, () => {
                 :disabled="actionLoading === 'like'"
                 @click="handleToggleLike"
               >
-                {{ detail.likedByMe ? "取消点赞" : "点赞" }}
+                {{ detail.likedByMe ? "Unlike" : "Like" }}
               </button>
               <button
                 type="button"
@@ -181,18 +258,18 @@ watch(() => route.params.id, () => {
                 :disabled="actionLoading === 'favorite'"
                 @click="handleToggleFavorite"
               >
-                {{ detail.favoritedByMe ? "取消收藏" : "加入收藏" }}
+                {{ detail.favoritedByMe ? "Remove Favorite" : "Add Favorite" }}
               </button>
               <RouterLink to="/community" class="ghost-btn">
-                返回社区列表
+                Back to Community
               </RouterLink>
             </div>
           </article>
 
           <article class="panel-card">
-            <strong>互动提示</strong>
+            <strong>Participation</strong>
             <p class="meta-copy" style="margin-top: 12px;">
-              游客可浏览详情；评论、点赞和收藏会在登录后开放。
+              Guests can read the discussion. Commenting, replying, liking, and favorites require login.
             </p>
           </article>
         </aside>
@@ -203,18 +280,18 @@ watch(() => route.params.id, () => {
       <div class="section-header">
         <div>
           <span class="section-eyebrow">Comments</span>
-          <h2 class="page-title" style="margin-top: 16px;">评论区</h2>
+          <h2 class="page-title" style="margin-top: 16px;">Comments</h2>
         </div>
       </div>
 
-      <form class="field-grid" @submit.prevent="handleSubmitComment">
+      <form class="field-grid community-detail__comment-form" @submit.prevent="handleSubmitComment">
         <label class="field-label">
-          添加评论
+          Add a comment
           <textarea
             v-model.trim="commentForm.content"
             class="field-textarea"
             name="comment"
-            placeholder="补充你的经验、提醒或反对意见。"
+            placeholder="Share your experience, caution, or perspective."
             :disabled="actionLoading === 'comment'"
           />
         </label>
@@ -227,7 +304,7 @@ watch(() => route.params.id, () => {
             class="app-btn"
             :disabled="actionLoading === 'comment'"
           >
-            {{ actionLoading === "comment" ? "提交中..." : "发表评论" }}
+            {{ actionLoading === "comment" ? "Posting..." : "Post Comment" }}
           </button>
           <button
             v-if="!userStore.isAuthenticated"
@@ -235,13 +312,21 @@ watch(() => route.params.id, () => {
             class="ghost-btn"
             @click="redirectToLogin"
           >
-            登录后参与讨论
+            Log in to join
           </button>
         </div>
       </form>
 
       <div style="margin-top: 24px;">
-        <CommunityCommentList :comments="detail?.comments || []" />
+        <CommunityCommentList
+          :comments="detail?.comments || []"
+          :open-reply-forms="openReplyForms"
+          :reply-drafts="replyDrafts"
+          :action-loading="actionLoading"
+          @toggle-reply="handleToggleReplyForm"
+          @update-reply="handleUpdateReplyDraft"
+          @submit-reply="handleSubmitReply"
+        />
       </div>
     </article>
   </section>
@@ -275,8 +360,35 @@ watch(() => route.params.id, () => {
   font-size: var(--cp-text-sm);
 }
 
+.experience-summary {
+  display: grid;
+  gap: 16px;
+}
+
+.experience-summary__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.experience-summary__item {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border-radius: var(--cp-radius-md);
+  background: rgba(255, 249, 241, 0.78);
+  border: 1px solid rgba(197, 79, 45, 0.14);
+}
+
+.experience-summary__item p {
+  margin: 0;
+  color: var(--cp-ink-soft);
+  line-height: 1.6;
+}
+
 @media (max-width: 1023px) {
-  .community-detail {
+  .community-detail,
+  .experience-summary__grid {
     grid-template-columns: 1fr;
   }
 }

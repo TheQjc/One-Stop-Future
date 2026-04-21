@@ -34,14 +34,18 @@ class CommunityControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.total").value(3))
-                .andExpect(jsonPath("$.data.posts[0].title").isNotEmpty());
+                .andExpect(jsonPath("$.data.posts[0].title").isNotEmpty())
+                .andExpect(jsonPath("$.data.posts[0].experience.enabled").value(true))
+                .andExpect(jsonPath("$.data.posts[0].experience.targetLabel").value("IELTS 7.5 sprint"));
 
         mockMvc.perform(get("/api/community/posts").param("tag", "EXAM"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.selectedTag").value("EXAM"))
                 .andExpect(jsonPath("$.data.total").value(1))
-                .andExpect(jsonPath("$.data.posts[0].tag").value("EXAM"));
+                .andExpect(jsonPath("$.data.posts[0].tag").value("EXAM"))
+                .andExpect(jsonPath("$.data.posts[0].experience.enabled").value(false))
+                .andExpect(jsonPath("$.data.posts[0].experience.targetLabel").value(org.hamcrest.Matchers.nullValue()));
     }
 
     @Test
@@ -51,7 +55,23 @@ class CommunityControllerTests {
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.id").value(1))
                 .andExpect(jsonPath("$.data.title").value("Offer timeline notes"))
-                .andExpect(jsonPath("$.data.comments").isArray());
+                .andExpect(jsonPath("$.data.comments").isArray())
+                .andExpect(jsonPath("$.data.comments[0].content").value("Share your interview prep milestones here."))
+                .andExpect(jsonPath("$.data.comments[0].replies[0].content")
+                        .value("I used a weekly mock interview loop and it helped a lot."))
+                .andExpect(jsonPath("$.data.comments[0].replies[0].replyToUserId").value(2))
+                .andExpect(jsonPath("$.data.comments[0].replies[0].replyToUserNickname").value("NormalUser"));
+    }
+
+    @Test
+    void legacyNonExperiencePostsStillReturnDisabledExperienceBlock() throws Exception {
+        mockMvc.perform(get("/api/community/posts/2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.id").value(2))
+                .andExpect(jsonPath("$.data.experience.enabled").value(false))
+                .andExpect(jsonPath("$.data.experience.targetLabel").value(org.hamcrest.Matchers.nullValue()))
+                .andExpect(jsonPath("$.data.experience.actionSummary").value(org.hamcrest.Matchers.nullValue()));
     }
 
     @Test
@@ -147,6 +167,52 @@ class CommunityControllerTests {
 
     @Test
     @WithMockUser(username = "2", roles = "USER")
+    void authenticatedUserCanCreateExperiencePostWithStructuredFields() throws Exception {
+        mockMvc.perform(post("/api/community/posts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "tag": "CAREER",
+                                  "title": "Campus recruiting recap",
+                                  "content": "Focus on project proof before pushing volume.",
+                                  "experiencePost": true,
+                                  "experienceTargetLabel": "  Backend internship sprint  ",
+                                  "experienceOutcomeLabel": "Received 2 interview invitations",
+                                  "experienceTimelineSummary": "Week 1 resume refresh, week 2 projects, week 3 applications",
+                                  "experienceActionSummary": "Refine one showcase project, then batch tailored applications."
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.tag").value("CAREER"))
+                .andExpect(jsonPath("$.data.experience.enabled").value(true))
+                .andExpect(jsonPath("$.data.experience.targetLabel").value("Backend internship sprint"))
+                .andExpect(jsonPath("$.data.experience.outcomeLabel").value("Received 2 interview invitations"))
+                .andExpect(jsonPath("$.data.experience.timelineSummary").value("Week 1 resume refresh, week 2 projects, week 3 applications"))
+                .andExpect(jsonPath("$.data.experience.actionSummary").value("Refine one showcase project, then batch tailored applications."));
+
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT is_experience_post FROM t_community_post WHERE id = 4", Integer.class)).isEqualTo(1);
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT experience_target_label FROM t_community_post WHERE id = 4", String.class))
+                .isEqualTo("Backend internship sprint");
+
+        mockMvc.perform(get("/api/community/posts/4"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.experience.enabled").value(true))
+                .andExpect(jsonPath("$.data.experience.targetLabel").value("Backend internship sprint"));
+
+        mockMvc.perform(get("/api/community/posts/mine"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.total").value(3))
+                .andExpect(jsonPath("$.data.posts[0].title").value("Campus recruiting recap"))
+                .andExpect(jsonPath("$.data.posts[0].experience.enabled").value(true));
+    }
+
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
     void authenticatedUserCanCommentLikeAndFavoriteWithIdempotentInteractions() throws Exception {
         mockMvc.perform(post("/api/community/posts/2/comments")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -185,6 +251,58 @@ class CommunityControllerTests {
 
         assertThat(likeCount).isEqualTo(1);
         assertThat(commentCount).isEqualTo(1);
+    }
+
+    @Test
+    @WithMockUser(username = "3", roles = "USER")
+    void authenticatedUserCanReplyToTopLevelCommentAndTriggerNotification() throws Exception {
+        mockMvc.perform(post("/api/community/comments/1/replies")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"content":"Try batching your prep notes by interview stage."}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.comments[0].replies[1].content")
+                        .value("Try batching your prep notes by interview stage."))
+                .andExpect(jsonPath("$.data.comments[0].replies[1].replyToUserNickname").value("NormalUser"));
+
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM t_notification WHERE user_id = 2 AND type = 'COMMUNITY_REPLY_RECEIVED'",
+                Integer.class)).isEqualTo(1);
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT content FROM t_notification WHERE user_id = 2 AND type = 'COMMUNITY_REPLY_RECEIVED'",
+                String.class)).contains("VerifiedUser").contains("Offer timeline notes");
+    }
+
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
+    void selfReplyDoesNotCreateNotification() throws Exception {
+        mockMvc.perform(post("/api/community/comments/1/replies")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"content":"Adding my own follow-up note."}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.comments[0].replies[1].content").value("Adding my own follow-up note."));
+
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM t_notification WHERE user_id = 2 AND type = 'COMMUNITY_REPLY_RECEIVED'",
+                Integer.class)).isEqualTo(0);
+    }
+
+    @Test
+    @WithMockUser(username = "3", roles = "USER")
+    void replyingToAReplyIsRejected() throws Exception {
+        mockMvc.perform(post("/api/community/comments/2/replies")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"content":"Third-level threads are out of scope."}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.message").value("cannot reply to a reply"));
     }
 
     @Test
