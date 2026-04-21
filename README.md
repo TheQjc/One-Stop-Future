@@ -1,6 +1,6 @@
 # One-Stop Future
 
-Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice + Phase H resource preview expansion first slice + Phase I MinIO raw resource storage first slice + Phase J historical local resource MinIO migration first slice + Phase K decision support first slice + Phase L decision analytics first slice + Phase M admin dashboard first slice + Phase N job application and resume workflow first slice + Phase O admin user status management first slice + Phase P community hot ranking first slice + Phase Q community experience post structure first slice + Phase R community threaded replies first slice + Phase S DOCX resource preview first slice + Phase T MinIO preview artifact storage first slice`.
+Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice + Phase H resource preview expansion first slice + Phase I MinIO raw resource storage first slice + Phase J historical local resource MinIO migration first slice + Phase K decision support first slice + Phase L decision analytics first slice + Phase M admin dashboard first slice + Phase N job application and resume workflow first slice + Phase O admin user status management first slice + Phase P community hot ranking first slice + Phase Q community experience post structure first slice + Phase R community threaded replies first slice + Phase S DOCX resource preview first slice + Phase T MinIO preview artifact storage first slice + Phase U admin batch job import first slice`.
 
 ## Current Scope
 
@@ -28,6 +28,7 @@ Implemented now:
 - admin verification review
 - admin community moderation
 - admin jobs create / edit / publish / offline / delete
+- admin batch job import from UTF-8 CSV on `/admin/jobs`, with imported rows created as `DRAFT` and whole-file rollback on validation failure
 - admin resource publish / reject / offline review workspace
 - MinIO-backed raw resource storage for non-`local` runtimes and independently selectable MinIO-backed preview artifact storage for newly generated `PPTX` / `DOCX` / `ZIP` preview artifacts
 - admin historical local-resource MinIO migration with dry-run and bounded batch execution
@@ -51,7 +52,6 @@ Implemented now:
 
 Explicitly not implemented yet:
 
-- batch job import
 - third-party job sync
 - historical preview-artifact migration, local+MinIO dual-read fallback, or automatic preview-artifact cleanup
 - full admin operations dashboards, DAU / funnel metrics, or exportable analytics reports

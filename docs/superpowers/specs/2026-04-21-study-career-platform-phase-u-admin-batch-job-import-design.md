@@ -1,5 +1,7 @@
 # Study Career Platform Phase U Admin Batch Job Import Design
 
+> **Validation note:** This design was implemented and validated on 2026-04-21. Execution record: `docs/superpowers/plans/2026-04-21-study-career-platform-phase-u-admin-batch-job-import-implementation.md`.
+
 ## 1. Goal
 
 Phase U adds the first admin-side batch import flow for jobs while preserving the current Spring Boot monolith, Vue SPA, existing jobs board, existing admin jobs desk, and the current job publish/offline lifecycle.
