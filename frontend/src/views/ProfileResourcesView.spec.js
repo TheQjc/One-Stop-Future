@@ -105,7 +105,7 @@ test("profile resources map preview labels from previewKind", async () => {
   expect(wrapper.text()).toContain("backend/questions.md");
 });
 
-test("docx resources still do not expose preview actions", async () => {
+test("docx resources use the generic FILE preview action", async () => {
   getMyResources.mockResolvedValue({
     total: 1,
     resources: [
@@ -114,14 +114,23 @@ test("docx resources still do not expose preview actions", async () => {
         title: "Workbook",
         status: "PENDING",
         category: "OTHER",
-        previewAvailable: false,
-        previewKind: "NONE",
+        fileName: "workbook.docx",
+        previewAvailable: true,
+        previewKind: "FILE",
       },
     ],
   });
+  previewResource.mockResolvedValue("blob:docx-preview");
 
   const wrapper = mount(ProfileResourcesView);
   await flushPromises();
 
-  expect(wrapper.find(".preview-action").exists()).toBe(false);
+  expect(wrapper.find('[data-testid="preview-action-5"]').exists()).toBe(true);
+  expect(wrapper.text()).toContain("Preview");
+  expect(wrapper.text()).not.toContain("Preview Contents");
+
+  await wrapper.find('[data-testid="preview-action-5"]').trigger("click");
+  await flushPromises();
+
+  expect(previewResource).toHaveBeenCalledWith(5);
 });

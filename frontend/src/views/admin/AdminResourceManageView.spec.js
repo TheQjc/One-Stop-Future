@@ -162,7 +162,7 @@ test("admin selected panel shows Preview Contents for ZIP resources and renders 
   expect(wrapper.text()).toContain("backend/questions.md");
 });
 
-test("docx resources still do not expose preview actions", async () => {
+test("docx resources use the generic FILE preview action in the selected panel", async () => {
   getAdminResources.mockResolvedValue({
     total: 1,
     resources: [
@@ -171,11 +171,13 @@ test("docx resources still do not expose preview actions", async () => {
         title: "Workbook",
         uploaderNickname: "NormalUser",
         status: "PENDING",
-        previewAvailable: false,
-        previewKind: "NONE",
+        fileName: "workbook.docx",
+        previewAvailable: true,
+        previewKind: "FILE",
       },
     ],
   });
+  previewResource.mockResolvedValue("blob:docx-preview");
 
   const wrapper = mount(AdminResourceManageView);
   await flushPromises();
@@ -183,5 +185,12 @@ test("docx resources still do not expose preview actions", async () => {
   await wrapper.find(".select-action").trigger("click");
   await flushPromises();
 
-  expect(wrapper.find('[data-testid="selected-preview-action"]').exists()).toBe(false);
+  expect(wrapper.find('[data-testid="selected-preview-action"]').exists()).toBe(true);
+  expect(wrapper.text()).toContain("Preview");
+  expect(wrapper.text()).not.toContain("Preview Contents");
+
+  await wrapper.find('[data-testid="selected-preview-action"]').trigger("click");
+  await flushPromises();
+
+  expect(previewResource).toHaveBeenCalledWith(41);
 });

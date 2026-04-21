@@ -157,20 +157,28 @@ test("resource detail shows Preview Contents for ZIP resources and loads the tre
   expect(wrapper.text()).toContain("backend/questions.md");
 });
 
-test("resource detail does not show preview action for NONE preview kind", async () => {
+test("resource detail lets docx resources use the generic FILE preview flow", async () => {
   getResourceDetail.mockResolvedValue({
     ...baseDetail,
     fileName: "interview-notes.docx",
     fileExt: "docx",
     contentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    previewAvailable: false,
-    previewKind: "NONE",
+    previewAvailable: true,
+    previewKind: "FILE",
   });
+  previewResource.mockResolvedValue("blob:docx-preview");
 
   const wrapper = mountView();
   await flushPromises();
 
-  expect(wrapper.find('[data-testid="preview-action"]').exists()).toBe(false);
+  expect(wrapper.find('[data-testid="preview-action"]').exists()).toBe(true);
+  expect(wrapper.text()).toContain("Preview");
+  expect(wrapper.text()).not.toContain("Preview Contents");
+
+  await wrapper.find('[data-testid="preview-action"]').trigger("click");
+  await flushPromises();
+
+  expect(previewResource).toHaveBeenCalledWith(11);
 });
 
 test("favorites and downloads a resource for authenticated users", async () => {
