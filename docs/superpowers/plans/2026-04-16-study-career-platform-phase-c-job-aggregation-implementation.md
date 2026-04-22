@@ -144,7 +144,7 @@ Use the current visual system as the base:
 - Create: `backend/src/main/java/com/campus/entity/JobPosting.java`
 - Create: `backend/src/main/java/com/campus/mapper/JobPostingMapper.java`
 
-- [ ] **Step 1: Write the failing schema smoke test**
+- [x] **Step 1: Write the failing schema smoke test**
 
 ```java
 @SpringBootTest
@@ -163,7 +163,7 @@ class CampusApplicationTests {
 }
 ```
 
-- [ ] **Step 2: Run the schema smoke test**
+- [x] **Step 2: Run the schema smoke test**
 
 Run:
 
@@ -174,7 +174,7 @@ mvn -q -Dtest=CampusApplicationTests test
 
 Expected: FAIL because `t_job_posting` does not exist yet.
 
-- [ ] **Step 3: Add the Phase C job schema, enum set, and seed data**
+- [x] **Step 3: Add the Phase C job schema, enum set, and seed data**
 
 Add this minimum table:
 
@@ -213,7 +213,7 @@ Seed `data.sql` with at least:
 - 1 draft or offline job visible only to admins/tests
 - realistic `source_url`, `source_platform`, `deadline_at`, and `published_at` values
 
-- [ ] **Step 4: Re-run the schema smoke test**
+- [x] **Step 4: Re-run the schema smoke test**
 
 Run:
 
@@ -224,7 +224,7 @@ mvn -q -Dtest=CampusApplicationTests test
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/resources/schema.sql backend/src/main/resources/data.sql backend/src/main/java/com/campus/common/FavoriteTargetType.java backend/src/test/java/com/campus/CampusApplicationTests.java backend/src/main/java/com/campus/common/JobType.java backend/src/main/java/com/campus/common/JobEducationRequirement.java backend/src/main/java/com/campus/common/JobPostingStatus.java backend/src/main/java/com/campus/entity/JobPosting.java backend/src/main/java/com/campus/mapper/JobPostingMapper.java
@@ -241,7 +241,7 @@ git commit -m "feat: add phase c job persistence model"
 - Create: `backend/src/main/java/com/campus/service/JobService.java`
 - Create: `backend/src/test/java/com/campus/controller/JobControllerTests.java`
 
-- [ ] **Step 1: Write failing public jobs controller tests**
+- [x] **Step 1: Write failing public jobs controller tests**
 
 ```java
 @SpringBootTest
@@ -268,7 +268,7 @@ class JobControllerTests {
 }
 ```
 
-- [ ] **Step 2: Run the failing public jobs tests**
+- [x] **Step 2: Run the failing public jobs tests**
 
 Run:
 
@@ -279,7 +279,7 @@ mvn -q -Dtest=JobControllerTests test
 
 Expected: FAIL because the controller/service/DTOs do not exist yet.
 
-- [ ] **Step 3: Implement the public jobs API slice**
+- [x] **Step 3: Implement the public jobs API slice**
 
 Required endpoints:
 
@@ -319,7 +319,7 @@ public record JobListResponse(
         List<JobSummary> jobs) {}
 ```
 
-- [ ] **Step 4: Re-run the public jobs tests**
+- [x] **Step 4: Re-run the public jobs tests**
 
 Run:
 
@@ -330,7 +330,7 @@ mvn -q -Dtest=JobControllerTests test
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/java/com/campus/config/SecurityConfig.java backend/src/main/java/com/campus/dto/JobListResponse.java backend/src/main/java/com/campus/dto/JobDetailResponse.java backend/src/main/java/com/campus/controller/JobController.java backend/src/main/java/com/campus/service/JobService.java backend/src/test/java/com/campus/controller/JobControllerTests.java
@@ -352,7 +352,7 @@ git commit -m "feat: add public job browse and favorite apis"
 - Create: `backend/src/main/java/com/campus/service/AdminJobService.java`
 - Create: `backend/src/test/java/com/campus/controller/admin/AdminJobControllerTests.java`
 
-- [ ] **Step 1: Write failing favorites/home/admin tests**
+- [x] **Step 1: Write failing favorites/home/admin tests**
 
 ```java
 @Test
@@ -371,7 +371,7 @@ void normalUserCannotOpenAdminJobsList() throws Exception {
 }
 ```
 
-- [ ] **Step 2: Run the failing tests**
+- [x] **Step 2: Run the failing tests**
 
 Run:
 
@@ -382,7 +382,7 @@ mvn -q -Dtest=UserControllerTests,HomeControllerTests,AdminJobControllerTests te
 
 Expected: FAIL because the jobs favorites branch, home entry change, and admin jobs endpoints do not exist yet.
 
-- [ ] **Step 3: Implement admin job maintenance and jobs favorites branching**
+- [x] **Step 3: Implement admin job maintenance and jobs favorites branching**
 
 Required endpoints:
 
@@ -424,7 +424,7 @@ public record CreateJobRequest(
         LocalDateTime deadlineAt) {}
 ```
 
-- [ ] **Step 4: Re-run the admin/favorites/home tests**
+- [x] **Step 4: Re-run the admin/favorites/home tests**
 
 Run:
 
@@ -435,7 +435,7 @@ mvn -q -Dtest=UserControllerTests,HomeControllerTests,AdminJobControllerTests te
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/java/com/campus/controller/UserController.java backend/src/main/java/com/campus/service/JobService.java backend/src/main/java/com/campus/service/HomeService.java backend/src/test/java/com/campus/controller/UserControllerTests.java backend/src/test/java/com/campus/controller/HomeControllerTests.java backend/src/main/java/com/campus/dto/CreateJobRequest.java backend/src/main/java/com/campus/dto/UpdateJobRequest.java backend/src/main/java/com/campus/dto/AdminJobListResponse.java backend/src/main/java/com/campus/controller/admin/AdminJobController.java backend/src/main/java/com/campus/service/AdminJobService.java backend/src/test/java/com/campus/controller/admin/AdminJobControllerTests.java
@@ -456,7 +456,7 @@ git commit -m "feat: add admin job maintenance and job favorites"
 - Create: `frontend/src/views/JobsListView.spec.js`
 - Create: `frontend/src/views/JobDetailView.spec.js`
 
-- [ ] **Step 1: Write failing jobs view tests**
+- [x] **Step 1: Write failing jobs view tests**
 
 ```js
 import { mount } from "@vue/test-utils";
@@ -485,7 +485,7 @@ test("job detail exposes the source jump action", () => {
 });
 ```
 
-- [ ] **Step 2: Run the failing jobs frontend tests**
+- [x] **Step 2: Run the failing jobs frontend tests**
 
 Run:
 
@@ -496,7 +496,7 @@ npm run test -- --run src/views/JobsListView.spec.js src/views/JobDetailView.spe
 
 Expected: FAIL because the jobs pages and API client do not exist yet.
 
-- [ ] **Step 3: Build the public jobs list/detail flow**
+- [x] **Step 3: Build the public jobs list/detail flow**
 
 Before writing UI code:
 
@@ -537,7 +537,7 @@ Required behavior:
 - guests can read, but favoriting redirects to login with `redirect=/jobs/:id`
 - the jobs badge on home should no longer render as `COMING_SOON`
 
-- [ ] **Step 4: Re-run the jobs frontend tests**
+- [x] **Step 4: Re-run the jobs frontend tests**
 
 Run:
 
@@ -548,7 +548,7 @@ npm run test -- --run src/views/JobsListView.spec.js src/views/JobDetailView.spe
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/router/index.js frontend/src/views/HomeView.vue frontend/src/views/HomeView.spec.js frontend/src/api/jobs.js frontend/src/components/JobPostingCard.vue frontend/src/components/JobFilterBar.vue frontend/src/views/JobsListView.vue frontend/src/views/JobDetailView.vue frontend/src/views/JobsListView.spec.js frontend/src/views/JobDetailView.spec.js
@@ -565,7 +565,7 @@ git commit -m "feat: add public jobs frontend experience"
 - Create: `frontend/src/views/admin/AdminJobManageView.vue`
 - Create: `frontend/src/views/admin/AdminJobManageView.spec.js`
 
-- [ ] **Step 1: Write failing profile/admin jobs UI tests**
+- [x] **Step 1: Write failing profile/admin jobs UI tests**
 
 ```js
 import { mount } from "@vue/test-utils";
@@ -591,7 +591,7 @@ test("admin jobs view exposes publish and offline actions", () => {
 });
 ```
 
-- [ ] **Step 2: Run the failing profile/admin jobs tests**
+- [x] **Step 2: Run the failing profile/admin jobs tests**
 
 Run:
 
@@ -602,7 +602,7 @@ npm run test -- --run src/views/ProfileFavoritesView.spec.js src/views/admin/Adm
 
 Expected: FAIL because the jobs tab and admin jobs page do not exist yet.
 
-- [ ] **Step 3: Implement favorites switching and the admin jobs workspace**
+- [x] **Step 3: Implement favorites switching and the admin jobs workspace**
 
 Before writing UI code:
 
@@ -627,7 +627,7 @@ Required behavior:
   - delete
 - the admin jobs page should be usable on desktop and mobile without a second route
 
-- [ ] **Step 4: Re-run the profile/admin jobs tests**
+- [x] **Step 4: Re-run the profile/admin jobs tests**
 
 Run:
 
@@ -638,7 +638,7 @@ npm run test -- --run src/views/ProfileFavoritesView.spec.js src/views/admin/Adm
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/router/index.js frontend/src/api/admin.js frontend/src/views/ProfileFavoritesView.vue frontend/src/views/ProfileFavoritesView.spec.js frontend/src/views/admin/AdminJobManageView.vue frontend/src/views/admin/AdminJobManageView.spec.js
@@ -650,7 +650,7 @@ git commit -m "feat: add job favorites tab and admin jobs ui"
 **Files:**
 - Modify: `README.md`
 
-- [ ] **Step 1: Update README for local Phase C jobs development**
+- [x] **Step 1: Update README for local Phase C jobs development**
 
 Document:
 
@@ -663,7 +663,7 @@ Document:
 - guest, user, admin permissions
 - profile favorites `POST` vs `JOB` usage
 
-- [ ] **Step 2: Run the backend verification set**
+- [x] **Step 2: Run the backend verification set**
 
 Run:
 
@@ -674,7 +674,7 @@ mvn -q test
 
 Expected: PASS.
 
-- [ ] **Step 3: Run the frontend verification set**
+- [x] **Step 3: Run the frontend verification set**
 
 Run:
 
@@ -689,7 +689,7 @@ Expected:
 - frontend tests PASS
 - frontend build PASS
 
-- [ ] **Step 4: Run the local smoke pass**
+- [x] **Step 4: Run the local smoke pass**
 
 Validate in this order:
 
@@ -714,7 +714,7 @@ Validate in this order:
    - verify public list/detail no longer expose it
 6. Open `/` and verify the jobs card now routes into the live jobs module
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add README.md

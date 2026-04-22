@@ -148,7 +148,7 @@ Use the existing visual system as the base:
 - Create: `backend/src/main/java/com/campus/mapper/CommunityCommentMapper.java`
 - Create: `backend/src/main/java/com/campus/mapper/UserFavoriteMapper.java`
 
-- [ ] **Step 1: Write the failing schema smoke test**
+- [x] **Step 1: Write the failing schema smoke test**
 
 ```java
 @SpringBootTest
@@ -169,7 +169,7 @@ class CampusApplicationTests {
 }
 ```
 
-- [ ] **Step 2: Run the schema smoke test**
+- [x] **Step 2: Run the schema smoke test**
 
 Run:
 
@@ -180,7 +180,7 @@ mvn -q -Dtest=CampusApplicationTests test
 
 Expected: FAIL because the community tables do not exist yet.
 
-- [ ] **Step 3: Add the Phase B community schema and enums**
+- [x] **Step 3: Add the Phase B community schema and enums**
 
 Add these minimum tables:
 
@@ -228,7 +228,7 @@ Model rules:
 
 Seed `data.sql` with 2-3 sample published posts and no sample comments.
 
-- [ ] **Step 4: Re-run the schema smoke test**
+- [x] **Step 4: Re-run the schema smoke test**
 
 Run:
 
@@ -239,7 +239,7 @@ mvn -q -Dtest=CampusApplicationTests test
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/resources/schema.sql backend/src/main/resources/data.sql backend/src/test/java/com/campus/CampusApplicationTests.java backend/src/main/java/com/campus/common/CommunityTag.java backend/src/main/java/com/campus/common/CommunityPostStatus.java backend/src/main/java/com/campus/common/CommunityCommentStatus.java backend/src/main/java/com/campus/common/FavoriteTargetType.java backend/src/main/java/com/campus/entity/CommunityPost.java backend/src/main/java/com/campus/entity/CommunityComment.java backend/src/main/java/com/campus/entity/UserFavorite.java backend/src/main/java/com/campus/mapper/CommunityPostMapper.java backend/src/main/java/com/campus/mapper/CommunityCommentMapper.java backend/src/main/java/com/campus/mapper/UserFavoriteMapper.java
@@ -258,7 +258,7 @@ git commit -m "feat: add phase b community persistence model"
 - Create: `backend/src/main/java/com/campus/service/CommunityService.java`
 - Create: `backend/src/test/java/com/campus/controller/CommunityControllerTests.java`
 
-- [ ] **Step 1: Write failing community controller tests**
+- [x] **Step 1: Write failing community controller tests**
 
 ```java
 @SpringBootTest
@@ -288,7 +288,7 @@ class CommunityControllerTests {
 }
 ```
 
-- [ ] **Step 2: Run the failing community controller tests**
+- [x] **Step 2: Run the failing community controller tests**
 
 Run:
 
@@ -299,7 +299,7 @@ mvn -q -Dtest=CommunityControllerTests test
 
 Expected: FAIL because the controller and DTOs do not exist yet.
 
-- [ ] **Step 3: Implement the public community API slice**
+- [x] **Step 3: Implement the public community API slice**
 
 Required endpoints:
 
@@ -332,7 +332,7 @@ Implementation rules:
   - content non-empty and max 10000
   - tag in allowed enum
 
-- [ ] **Step 4: Re-run the community controller tests**
+- [x] **Step 4: Re-run the community controller tests**
 
 Run:
 
@@ -343,7 +343,7 @@ mvn -q -Dtest=CommunityControllerTests test
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/java/com/campus/config/SecurityConfig.java backend/src/main/java/com/campus/dto/CreateCommunityPostRequest.java backend/src/main/java/com/campus/dto/CreateCommunityCommentRequest.java backend/src/main/java/com/campus/dto/CommunityPostListResponse.java backend/src/main/java/com/campus/dto/CommunityPostDetailResponse.java backend/src/main/java/com/campus/controller/CommunityController.java backend/src/main/java/com/campus/service/CommunityService.java backend/src/test/java/com/campus/controller/CommunityControllerTests.java
@@ -362,7 +362,7 @@ git commit -m "feat: add public community backend apis"
 - Create: `backend/src/main/java/com/campus/service/AdminCommunityService.java`
 - Create: `backend/src/test/java/com/campus/controller/admin/AdminCommunityControllerTests.java`
 
-- [ ] **Step 1: Write failing admin and favorites tests**
+- [x] **Step 1: Write failing admin and favorites tests**
 
 ```java
 @Test
@@ -381,7 +381,7 @@ void normalUserCannotOpenAdminCommunityList() throws Exception {
 }
 ```
 
-- [ ] **Step 2: Run the failing admin and favorites tests**
+- [x] **Step 2: Run the failing admin and favorites tests**
 
 Run:
 
@@ -392,7 +392,7 @@ mvn -q -Dtest=UserControllerTests,AdminCommunityControllerTests test
 
 Expected: FAIL because these endpoints do not exist yet.
 
-- [ ] **Step 3: Implement favorites query and admin governance**
+- [x] **Step 3: Implement favorites query and admin governance**
 
 Required endpoints:
 
@@ -412,7 +412,7 @@ Required behavior:
 - front-end public read APIs must stop exposing hidden and deleted posts
 - home service keeps the `community` home entry enabled and pointed to `/community`
 
-- [ ] **Step 4: Re-run the admin and favorites tests**
+- [x] **Step 4: Re-run the admin and favorites tests**
 
 Run:
 
@@ -423,7 +423,7 @@ mvn -q -Dtest=UserControllerTests,AdminCommunityControllerTests test
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/java/com/campus/controller/UserController.java backend/src/main/java/com/campus/service/UserService.java backend/src/main/java/com/campus/service/HomeService.java backend/src/test/java/com/campus/controller/UserControllerTests.java backend/src/main/java/com/campus/dto/AdminCommunityPostListResponse.java backend/src/main/java/com/campus/controller/admin/AdminCommunityController.java backend/src/main/java/com/campus/service/AdminCommunityService.java backend/src/test/java/com/campus/controller/admin/AdminCommunityControllerTests.java
@@ -447,7 +447,7 @@ git commit -m "feat: add admin community governance and post favorites"
 - Create: `frontend/src/views/CommunityDetailView.spec.js`
 - Create: `frontend/src/views/CommunityCreateView.spec.js`
 
-- [ ] **Step 1: Write failing community view tests**
+- [x] **Step 1: Write failing community view tests**
 
 ```js
 import { mount } from "@vue/test-utils";
@@ -474,7 +474,7 @@ test("create post view renders title tag and content controls", () => {
 });
 ```
 
-- [ ] **Step 2: Run the failing community view tests**
+- [x] **Step 2: Run the failing community view tests**
 
 Run:
 
@@ -485,7 +485,7 @@ npm run test -- --run src/views/CommunityListView.spec.js src/views/CommunityCre
 
 Expected: FAIL because the views and routes do not exist yet.
 
-- [ ] **Step 3: Build the community list / detail / create experience**
+- [x] **Step 3: Build the community list / detail / create experience**
 
 Before writing UI code:
 
@@ -508,7 +508,7 @@ Required behavior:
 - guest users can read but see login guidance for write actions
 - create page posts then redirects to the new detail route
 
-- [ ] **Step 4: Re-run the community view tests**
+- [x] **Step 4: Re-run the community view tests**
 
 Run:
 
@@ -519,7 +519,7 @@ npm run test -- --run src/views/CommunityListView.spec.js src/views/CommunityCre
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/router/index.js frontend/src/components/NavBar.vue frontend/src/views/HomeView.vue frontend/src/api/community.js frontend/src/components/CommunityPostCard.vue frontend/src/components/CommunityCommentList.vue frontend/src/components/CommunityFilterTabs.vue frontend/src/views/CommunityListView.vue frontend/src/views/CommunityDetailView.vue frontend/src/views/CommunityCreateView.vue frontend/src/views/CommunityListView.spec.js frontend/src/views/CommunityDetailView.spec.js frontend/src/views/CommunityCreateView.spec.js
@@ -538,7 +538,7 @@ git commit -m "feat: add community public frontend experience"
 - Create: `frontend/src/views/ProfileFavoritesView.spec.js`
 - Create: `frontend/src/views/admin/AdminCommunityManageView.spec.js`
 
-- [ ] **Step 1: Write failing profile/admin UI tests**
+- [x] **Step 1: Write failing profile/admin UI tests**
 
 ```js
 import { mount } from "@vue/test-utils";
@@ -564,7 +564,7 @@ test("admin community view shows hide and delete actions", () => {
 });
 ```
 
-- [ ] **Step 2: Run the failing profile/admin UI tests**
+- [x] **Step 2: Run the failing profile/admin UI tests**
 
 Run:
 
@@ -575,7 +575,7 @@ npm run test -- --run src/views/ProfilePostsView.spec.js src/views/ProfileFavori
 
 Expected: FAIL because the profile subpages and admin community page do not exist yet.
 
-- [ ] **Step 3: Implement profile community subpages and admin manage page**
+- [x] **Step 3: Implement profile community subpages and admin manage page**
 
 Before writing UI code:
 
@@ -591,7 +591,7 @@ Required behavior:
 - admin page supports `下架` and `删除`
 - non-admins are blocked by route meta and backend role checks
 
-- [ ] **Step 4: Re-run the profile/admin UI tests**
+- [x] **Step 4: Re-run the profile/admin UI tests**
 
 Run:
 
@@ -602,7 +602,7 @@ npm run test -- --run src/views/ProfilePostsView.spec.js src/views/ProfileFavori
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/views/ProfileView.vue frontend/src/App.spec.js frontend/src/views/ProfilePostsView.vue frontend/src/views/ProfileFavoritesView.vue frontend/src/views/admin/AdminCommunityManageView.vue frontend/src/views/ProfilePostsView.spec.js frontend/src/views/ProfileFavoritesView.spec.js frontend/src/views/admin/AdminCommunityManageView.spec.js
@@ -614,7 +614,7 @@ git commit -m "feat: add profile and admin community ui"
 **Files:**
 - Modify: `README.md`
 
-- [ ] **Step 1: Update local-run docs**
+- [x] **Step 1: Update local-run docs**
 
 Document:
 
@@ -626,7 +626,7 @@ Document:
 - guest vs login permissions
 - admin community demo flow
 
-- [ ] **Step 2: Run the backend test set**
+- [x] **Step 2: Run the backend test set**
 
 Run:
 
@@ -637,7 +637,7 @@ mvn test
 
 Expected: PASS.
 
-- [ ] **Step 3: Run the frontend test set**
+- [x] **Step 3: Run the frontend test set**
 
 Run:
 
@@ -652,7 +652,7 @@ Expected:
 - frontend tests PASS
 - frontend build PASS
 
-- [ ] **Step 4: Run the local smoke pass**
+- [x] **Step 4: Run the local smoke pass**
 
 Validate in this order:
 
@@ -665,7 +665,7 @@ Validate in this order:
 7. Admin opens `/admin/community`, hides the post
 8. Guest or normal user can no longer open the hidden post
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add README.md

@@ -205,7 +205,7 @@ Use this visual direction unless the spec changes:
 - Create: `backend/src/main/java/com/campus/entity/Notification.java`
 - Test: `backend/src/test/java/com/campus/CampusApplicationTests.java`
 
-- [ ] **Step 1: Write a failing schema smoke test**
+- [x] **Step 1: Write a failing schema smoke test**
 
 ```java
 package com.campus;
@@ -239,7 +239,7 @@ class CampusApplicationTests {
 }
 ```
 
-- [ ] **Step 2: Run the schema smoke test**
+- [x] **Step 2: Run the schema smoke test**
 
 Run:
 
@@ -250,7 +250,7 @@ mvn -q -Dtest=CampusApplicationTests test
 
 Expected: FAIL because the legacy schema still only provides `t_user` and `t_notice`.
 
-- [ ] **Step 3: Replace the legacy schema with the Phase A model**
+- [x] **Step 3: Replace the legacy schema with the Phase A model**
 
 Implement this minimum schema shape:
 
@@ -321,7 +321,7 @@ Seed `data.sql` with:
 - one verified user
 - zero legacy notice data
 
-- [ ] **Step 4: Re-run the schema smoke test**
+- [x] **Step 4: Re-run the schema smoke test**
 
 Run:
 
@@ -332,7 +332,7 @@ mvn -q -Dtest=CampusApplicationTests test
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/resources/schema.sql backend/src/main/resources/data.sql backend/src/main/resources/application.yml backend/src/test/resources/application.yml backend/src/main/java/com/campus/common/Result.java backend/src/main/java/com/campus/common/UserRole.java backend/src/main/java/com/campus/common/UserStatus.java backend/src/main/java/com/campus/common/VerificationStatus.java backend/src/main/java/com/campus/common/NotificationType.java backend/src/main/java/com/campus/entity/User.java backend/src/main/java/com/campus/entity/VerificationApplication.java backend/src/main/java/com/campus/entity/VerificationCode.java backend/src/main/java/com/campus/entity/Notification.java backend/src/main/java/com/campus/dto/UserProfile.java backend/src/test/java/com/campus/CampusApplicationTests.java
@@ -357,7 +357,7 @@ git commit -m "refactor: align backend schema with phase a model"
 - Modify: `backend/src/test/java/com/campus/common/JwtUtilTests.java`
 - Modify: `backend/src/test/java/com/campus/controller/AuthControllerTests.java`
 
-- [ ] **Step 1: Write failing auth tests for phone-code flow**
+- [x] **Step 1: Write failing auth tests for phone-code flow**
 
 ```java
 @SpringBootTest
@@ -392,7 +392,7 @@ class AuthControllerTests {
 }
 ```
 
-- [ ] **Step 2: Run the auth tests**
+- [x] **Step 2: Run the auth tests**
 
 Run:
 
@@ -403,7 +403,7 @@ mvn -q -Dtest=AuthControllerTests,JwtUtilTests test
 
 Expected: FAIL because auth still uses `username/password`.
 
-- [ ] **Step 3: Implement phone-code auth**
+- [x] **Step 3: Implement phone-code auth**
 
 API contract:
 
@@ -445,7 +445,7 @@ Implementation rules:
 - JWT subject should be stable user identity, not the removed legacy username
 - `SecurityConfig` must permit `POST /api/auth/**` and public `GET /api/home/summary`
 
-- [ ] **Step 4: Re-run auth tests**
+- [x] **Step 4: Re-run auth tests**
 
 Run:
 
@@ -456,7 +456,7 @@ mvn -q -Dtest=AuthControllerTests,JwtUtilTests test
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/java/com/campus/common/JwtUtil.java backend/src/main/java/com/campus/config/SecurityConfig.java backend/src/main/java/com/campus/config/JwtAuthenticationFilter.java backend/src/main/java/com/campus/controller/AuthController.java backend/src/main/java/com/campus/service/AuthService.java backend/src/main/java/com/campus/mapper/UserMapper.java backend/src/main/java/com/campus/mapper/VerificationCodeMapper.java backend/src/main/java/com/campus/dto/SendCodeRequest.java backend/src/main/java/com/campus/dto/SendCodeResponse.java backend/src/main/java/com/campus/dto/LoginRequest.java backend/src/main/java/com/campus/dto/RegisterRequest.java backend/src/main/java/com/campus/dto/AuthResponse.java backend/src/test/java/com/campus/common/JwtUtilTests.java backend/src/test/java/com/campus/controller/AuthControllerTests.java
@@ -491,7 +491,7 @@ git commit -m "feat: implement phone code authentication"
 - Create: `backend/src/test/java/com/campus/controller/admin/AdminVerificationControllerTests.java`
 - Modify: `backend/src/test/java/com/campus/controller/UserControllerTests.java`
 
-- [ ] **Step 1: Write failing integration tests for the Phase A backend slice**
+- [x] **Step 1: Write failing integration tests for the Phase A backend slice**
 
 ```java
 @SpringBootTest
@@ -541,7 +541,7 @@ class AdminVerificationControllerTests {
 }
 ```
 
-- [ ] **Step 2: Run the new integration tests**
+- [x] **Step 2: Run the new integration tests**
 
 Run:
 
@@ -552,7 +552,7 @@ mvn -q -Dtest=HomeControllerTests,VerificationControllerTests,NotificationContro
 
 Expected: FAIL because these endpoints do not exist yet.
 
-- [ ] **Step 3: Implement the Phase A backend APIs**
+- [x] **Step 3: Implement the Phase A backend APIs**
 
 Required endpoints:
 
@@ -593,7 +593,7 @@ public record HomeSummaryResponse(
 }
 ```
 
-- [ ] **Step 4: Re-run the Phase A backend test set**
+- [x] **Step 4: Re-run the Phase A backend test set**
 
 Run:
 
@@ -604,7 +604,7 @@ mvn -q -Dtest=HomeControllerTests,VerificationControllerTests,NotificationContro
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/java/com/campus/controller/UserController.java backend/src/main/java/com/campus/service/UserService.java backend/src/main/java/com/campus/config/GlobalExceptionHandler.java backend/src/main/java/com/campus/controller/HomeController.java backend/src/main/java/com/campus/controller/NotificationController.java backend/src/main/java/com/campus/controller/VerificationController.java backend/src/main/java/com/campus/controller/admin/AdminVerificationController.java backend/src/main/java/com/campus/dto/HomeSummaryResponse.java backend/src/main/java/com/campus/dto/NotificationListResponse.java backend/src/main/java/com/campus/dto/NotificationReadRequest.java backend/src/main/java/com/campus/dto/VerificationApplyRequest.java backend/src/main/java/com/campus/dto/AdminVerificationReviewRequest.java backend/src/main/java/com/campus/dto/AdminVerificationDashboardResponse.java backend/src/main/java/com/campus/mapper/NotificationMapper.java backend/src/main/java/com/campus/mapper/VerificationApplicationMapper.java backend/src/main/java/com/campus/service/HomeService.java backend/src/main/java/com/campus/service/NotificationService.java backend/src/main/java/com/campus/service/VerificationService.java backend/src/main/java/com/campus/service/AdminVerificationService.java backend/src/test/java/com/campus/controller/HomeControllerTests.java backend/src/test/java/com/campus/controller/NotificationControllerTests.java backend/src/test/java/com/campus/controller/VerificationControllerTests.java backend/src/test/java/com/campus/controller/admin/AdminVerificationControllerTests.java backend/src/test/java/com/campus/controller/UserControllerTests.java
@@ -638,7 +638,7 @@ git commit -m "feat: add phase a backend application slice"
 - Delete: `frontend/src/views/admin/NoticeManageView.spec.js`
 - Modify: `frontend/src/App.spec.js`
 
-- [ ] **Step 1: Write a failing shell test that reflects the new IA**
+- [x] **Step 1: Write a failing shell test that reflects the new IA**
 
 ```js
 import { mount } from "@vue/test-utils";
@@ -657,7 +657,7 @@ test("renders the phase a shell", () => {
 });
 ```
 
-- [ ] **Step 2: Run the shell test**
+- [x] **Step 2: Run the shell test**
 
 Run:
 
@@ -668,7 +668,7 @@ npm run test -- --run src/App.spec.js
 
 Expected: FAIL or become irrelevant because the shell still assumes notice-first navigation.
 
-- [ ] **Step 3: Replace the shell, routing, and store model**
+- [x] **Step 3: Replace the shell, routing, and store model**
 
 Before writing UI code, use `@frontend-design` to restate the `editorial student decision desk` direction, then use `@ui-ux-pro-max` to verify hierarchy, nav clarity, unread affordances, and mobile spacing.
 
@@ -708,7 +708,7 @@ Also update `http.js` so it:
 - normalizes backend `{code,message,data}`
 - clears auth and redirects on `401`
 
-- [ ] **Step 4: Re-run the shell test**
+- [x] **Step 4: Re-run the shell test**
 
 Run:
 
@@ -719,7 +719,7 @@ npm run test -- --run src/App.spec.js
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/App.vue frontend/src/main.js frontend/src/router/index.js frontend/src/stores/user.js frontend/src/api/http.js frontend/src/api/home.js frontend/src/api/notification.js frontend/src/api/verification.js frontend/src/api/admin.js frontend/src/components/NavBar.vue frontend/src/components/HomeEntryCard.vue frontend/src/components/NotificationBell.vue frontend/src/components/VerificationStatusBadge.vue frontend/src/styles/tokens.css frontend/src/styles/base.css frontend/src/App.spec.js
@@ -736,7 +736,7 @@ git commit -m "refactor: rebuild frontend shell for phase a"
 - Create: `frontend/src/views/HomeView.spec.js`
 - Modify: `frontend/src/views/LoginView.spec.js`
 
-- [ ] **Step 1: Write failing view tests**
+- [x] **Step 1: Write failing view tests**
 
 ```js
 import { mount } from "@vue/test-utils";
@@ -762,7 +762,7 @@ test("guest home renders module entries and auth guidance", () => {
 });
 ```
 
-- [ ] **Step 2: Run the guest/auth view tests**
+- [x] **Step 2: Run the guest/auth view tests**
 
 Run:
 
@@ -773,7 +773,7 @@ npm run test -- --run src/views/LoginView.spec.js src/views/HomeView.spec.js
 
 Expected: FAIL because views still use the old username/password and notice-first language.
 
-- [ ] **Step 3: Implement the guest auth and home experience**
+- [x] **Step 3: Implement the guest auth and home experience**
 
 Before writing code, use `@frontend-design` for layout and `@ui-ux-pro-max` for validation / readability review.
 
@@ -809,7 +809,7 @@ Auth page requirements:
 - registration and login separated as two pages
 - mock-SMS debug code shown only when backend returns it
 
-- [ ] **Step 4: Re-run the guest/auth view tests**
+- [x] **Step 4: Re-run the guest/auth view tests**
 
 Run:
 
@@ -820,7 +820,7 @@ npm run test -- --run src/views/LoginView.spec.js src/views/HomeView.spec.js
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/api/auth.js frontend/src/views/LoginView.vue frontend/src/views/RegisterView.vue frontend/src/views/HomeView.vue frontend/src/views/HomeView.spec.js frontend/src/views/LoginView.spec.js
@@ -837,7 +837,7 @@ git commit -m "feat: implement guest auth and home pages"
 - Modify: `frontend/src/views/ProfileView.spec.js`
 - Modify: `frontend/src/stores/user.js`
 
-- [ ] **Step 1: Write failing user-side Phase A tests**
+- [x] **Step 1: Write failing user-side Phase A tests**
 
 ```js
 import { mount } from "@vue/test-utils";
@@ -859,7 +859,7 @@ test("notification center renders unread and read controls", () => {
 });
 ```
 
-- [ ] **Step 2: Run the user-side tests**
+- [x] **Step 2: Run the user-side tests**
 
 Run:
 
@@ -870,7 +870,7 @@ npm run test -- --run src/views/ProfileView.spec.js src/views/NotificationCenter
 
 Expected: FAIL because profile still reflects the legacy account model and there is no notification center.
 
-- [ ] **Step 3: Implement profile, verification, and notification UI**
+- [x] **Step 3: Implement profile, verification, and notification UI**
 
 Use `@frontend-design` first, then `@ui-ux-pro-max`.
 
@@ -906,7 +906,7 @@ export async function updateProfile(payload) {
 }
 ```
 
-- [ ] **Step 4: Re-run the user-side tests**
+- [x] **Step 4: Re-run the user-side tests**
 
 Run:
 
@@ -917,7 +917,7 @@ npm run test -- --run src/views/ProfileView.spec.js src/views/NotificationCenter
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/api/user.js frontend/src/views/ProfileView.vue frontend/src/views/ProfileView.spec.js frontend/src/views/NotificationCenterView.vue frontend/src/views/NotificationCenterView.spec.js frontend/src/stores/user.js
@@ -933,7 +933,7 @@ git commit -m "feat: implement profile verification and notifications ui"
 - Modify: `frontend/src/api/admin.js`
 - Modify: `frontend/src/components/NavBar.vue`
 
-- [ ] **Step 1: Write a failing admin review test**
+- [x] **Step 1: Write a failing admin review test**
 
 ```js
 import { mount } from "@vue/test-utils";
@@ -946,7 +946,7 @@ test("admin review page shows approve and reject actions", () => {
 });
 ```
 
-- [ ] **Step 2: Run the admin review test**
+- [x] **Step 2: Run the admin review test**
 
 Run:
 
@@ -957,7 +957,7 @@ npm run test -- --run src/views/admin/AdminVerificationReviewView.spec.js
 
 Expected: FAIL because the page and route do not exist.
 
-- [ ] **Step 3: Build the minimal admin backbone**
+- [x] **Step 3: Build the minimal admin backbone**
 
 Use `@frontend-design` and `@ui-ux-pro-max`.
 
@@ -983,7 +983,7 @@ export async function reviewVerification(id, payload) {
 }
 ```
 
-- [ ] **Step 4: Re-run the admin review test**
+- [x] **Step 4: Re-run the admin review test**
 
 Run:
 
@@ -994,7 +994,7 @@ npm run test -- --run src/views/admin/AdminVerificationReviewView.spec.js
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/router/index.js frontend/src/api/admin.js frontend/src/components/NavBar.vue frontend/src/views/admin/AdminVerificationReviewView.vue frontend/src/views/admin/AdminVerificationReviewView.spec.js
@@ -1027,7 +1027,7 @@ git commit -m "feat: implement admin verification review ui"
 - Create: `docker-compose.yml`
 - Create: `deploy/nginx/default.conf`
 
-- [ ] **Step 1: Write the failing deployment sanity check**
+- [x] **Step 1: Write the failing deployment sanity check**
 
 Add a short README checklist section that assumes these commands exist:
 
@@ -1044,7 +1044,7 @@ docker compose config
 
 Expected: FAIL because no Compose stack exists yet.
 
-- [ ] **Step 2: Add deployment files and remove dead legacy code**
+- [x] **Step 2: Add deployment files and remove dead legacy code**
 
 Create minimum containerization:
 
@@ -1093,7 +1093,7 @@ README must include:
 
 Then delete all dead notice-domain files listed above.
 
-- [ ] **Step 3: Run full verification**
+- [x] **Step 3: Run full verification**
 
 Run:
 
@@ -1114,7 +1114,7 @@ Expected:
 - frontend build PASS
 - `docker compose config` PASS
 
-- [ ] **Step 4: Manual smoke pass**
+- [x] **Step 4: Manual smoke pass**
 
 Validate:
 
@@ -1129,7 +1129,7 @@ Validate:
 - notification center supports single read and read-all
 - admin entry is hidden from non-admin users
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add README.md backend/Dockerfile frontend/Dockerfile docker-compose.yml deploy/nginx/default.conf

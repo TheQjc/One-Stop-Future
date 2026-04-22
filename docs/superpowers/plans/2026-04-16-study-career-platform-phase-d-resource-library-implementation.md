@@ -172,7 +172,7 @@ Use the current visual system as the base:
 - Create: `backend/src/main/java/com/campus/entity/ResourceItem.java`
 - Create: `backend/src/main/java/com/campus/mapper/ResourceItemMapper.java`
 
-- [ ] **Step 1: Write the failing schema and config safety tests**
+- [x] **Step 1: Write the failing schema and config safety tests**
 
 ```java
 @Test
@@ -194,7 +194,7 @@ void localProfileConfigPinsResourceStorageToWorkspaceFolder() {
 }
 ```
 
-- [ ] **Step 2: Run the failing schema/config tests**
+- [x] **Step 2: Run the failing schema/config tests**
 
 Run:
 
@@ -205,7 +205,7 @@ mvn -q "-Dtest=CampusApplicationTests,ApplicationConfigSafetyTests" test
 
 Expected: FAIL because the resource table, enum wiring, and storage properties do not exist yet.
 
-- [ ] **Step 3: Add the Phase D persistence model and local-storage skeleton**
+- [x] **Step 3: Add the Phase D persistence model and local-storage skeleton**
 
 Add this minimum table:
 
@@ -249,7 +249,7 @@ Seed `data.sql` with at least:
 - 1 pending or rejected resource visible only to uploader/admin tests
 - realistic `storage_key`, `file_name`, `file_size`, `content_type`, and `published_at` values
 
-- [ ] **Step 4: Re-run the schema/config tests**
+- [x] **Step 4: Re-run the schema/config tests**
 
 Run:
 
@@ -260,7 +260,7 @@ mvn -q "-Dtest=CampusApplicationTests,ApplicationConfigSafetyTests" test
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/resources/schema.sql backend/src/main/resources/data.sql backend/src/main/resources/application.yml backend/src/main/resources/application-local.yml backend/src/main/java/com/campus/common/FavoriteTargetType.java backend/src/test/java/com/campus/CampusApplicationTests.java backend/src/test/java/com/campus/config/ApplicationConfigSafetyTests.java backend/src/main/java/com/campus/common/ResourceCategory.java backend/src/main/java/com/campus/common/ResourceStatus.java backend/src/main/java/com/campus/config/ResourceStorageProperties.java backend/src/main/java/com/campus/storage/ResourceFileStorage.java backend/src/main/java/com/campus/storage/LocalResourceFileStorage.java backend/src/main/java/com/campus/entity/ResourceItem.java backend/src/main/java/com/campus/mapper/ResourceItemMapper.java
@@ -277,7 +277,7 @@ git commit -m "feat: add phase d resource persistence model"
 - Create: `backend/src/main/java/com/campus/service/ResourceService.java`
 - Create: `backend/src/test/java/com/campus/controller/ResourceControllerTests.java`
 
-- [ ] **Step 1: Write failing resource controller tests**
+- [x] **Step 1: Write failing resource controller tests**
 
 ```java
 @Test
@@ -305,7 +305,7 @@ void loggedInUserCanUploadResource() throws Exception {
 }
 ```
 
-- [ ] **Step 2: Run the failing resource controller tests**
+- [x] **Step 2: Run the failing resource controller tests**
 
 Run:
 
@@ -316,7 +316,7 @@ mvn -q -Dtest=ResourceControllerTests test
 
 Expected: FAIL because the controller, DTOs, service, and upload flow do not exist yet.
 
-- [ ] **Step 3: Implement the public resource API slice**
+- [x] **Step 3: Implement the public resource API slice**
 
 Required endpoints:
 
@@ -358,7 +358,7 @@ public record ResourceListResponse(
         List<ResourceSummary> resources) {}
 ```
 
-- [ ] **Step 4: Re-run the resource controller tests**
+- [x] **Step 4: Re-run the resource controller tests**
 
 Run:
 
@@ -369,7 +369,7 @@ mvn -q -Dtest=ResourceControllerTests test
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/java/com/campus/config/SecurityConfig.java backend/src/main/java/com/campus/dto/ResourceListResponse.java backend/src/main/java/com/campus/dto/ResourceDetailResponse.java backend/src/main/java/com/campus/controller/ResourceController.java backend/src/main/java/com/campus/service/ResourceService.java backend/src/test/java/com/campus/controller/ResourceControllerTests.java
@@ -390,7 +390,7 @@ git commit -m "feat: add public resource browse and upload apis"
 - Create: `backend/src/main/java/com/campus/service/AdminResourceService.java`
 - Create: `backend/src/test/java/com/campus/controller/admin/AdminResourceControllerTests.java`
 
-- [ ] **Step 1: Write failing favorites/home/admin tests**
+- [x] **Step 1: Write failing favorites/home/admin tests**
 
 ```java
 @Test
@@ -409,7 +409,7 @@ void adminCanReviewPendingResources() throws Exception {
 }
 ```
 
-- [ ] **Step 2: Run the failing favorites/home/admin tests**
+- [x] **Step 2: Run the failing favorites/home/admin tests**
 
 Run:
 
@@ -420,7 +420,7 @@ mvn -q "-Dtest=UserControllerTests,HomeControllerTests,AdminResourceControllerTe
 
 Expected: FAIL because the `RESOURCE` favorites branch, home-entry activation, my-resources flow, and admin review endpoints do not exist yet.
 
-- [ ] **Step 3: Implement admin review and resource branching**
+- [x] **Step 3: Implement admin review and resource branching**
 
 Required endpoints:
 
@@ -451,7 +451,7 @@ Admin review request can stay intentionally small:
 public record AdminResourceReviewRequest(String reason) {}
 ```
 
-- [ ] **Step 4: Re-run the favorites/home/admin tests**
+- [x] **Step 4: Re-run the favorites/home/admin tests**
 
 Run:
 
@@ -462,7 +462,7 @@ mvn -q "-Dtest=UserControllerTests,HomeControllerTests,AdminResourceControllerTe
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/java/com/campus/controller/UserController.java backend/src/main/java/com/campus/service/HomeService.java backend/src/test/java/com/campus/controller/UserControllerTests.java backend/src/test/java/com/campus/controller/HomeControllerTests.java backend/src/main/java/com/campus/dto/MyResourceListResponse.java backend/src/main/java/com/campus/dto/AdminResourceListResponse.java backend/src/main/java/com/campus/dto/AdminResourceReviewRequest.java backend/src/main/java/com/campus/controller/admin/AdminResourceController.java backend/src/main/java/com/campus/service/AdminResourceService.java backend/src/test/java/com/campus/controller/admin/AdminResourceControllerTests.java
@@ -485,7 +485,7 @@ git commit -m "feat: add admin review and resource favorites flows"
 - Create: `frontend/src/views/ResourceDetailView.spec.js`
 - Create: `frontend/src/views/ResourceUploadView.spec.js`
 
-- [ ] **Step 1: Write failing resource view tests**
+- [x] **Step 1: Write failing resource view tests**
 
 ```js
 import { mount } from "@vue/test-utils";
@@ -515,7 +515,7 @@ test("resource upload view renders the file input and submit action", () => {
 });
 ```
 
-- [ ] **Step 2: Run the failing resource frontend tests**
+- [x] **Step 2: Run the failing resource frontend tests**
 
 Run:
 
@@ -526,7 +526,7 @@ npm run test -- --run src/views/ResourcesListView.spec.js src/views/ResourceDeta
 
 Expected: FAIL because the routes, views, API client, and components do not exist yet.
 
-- [ ] **Step 3: Build the public resource list/detail/upload flow**
+- [x] **Step 3: Build the public resource list/detail/upload flow**
 
 Before writing UI code:
 
@@ -567,7 +567,7 @@ Required behavior:
   - max-size hint and client-side guard
 - successful upload redirects to `/profile/resources`
 
-- [ ] **Step 4: Re-run the resource frontend tests**
+- [x] **Step 4: Re-run the resource frontend tests**
 
 Run:
 
@@ -578,7 +578,7 @@ npm run test -- --run src/views/ResourcesListView.spec.js src/views/ResourceDeta
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/router/index.js frontend/src/views/HomeView.vue frontend/src/views/HomeView.spec.js frontend/src/api/resources.js frontend/src/components/ResourceCard.vue frontend/src/components/ResourceFilterBar.vue frontend/src/views/ResourcesListView.vue frontend/src/views/ResourceDetailView.vue frontend/src/views/ResourceUploadView.vue frontend/src/views/ResourcesListView.spec.js frontend/src/views/ResourceDetailView.spec.js frontend/src/views/ResourceUploadView.spec.js
@@ -599,7 +599,7 @@ git commit -m "feat: add public resource frontend flow"
 - Create: `frontend/src/views/admin/AdminResourceManageView.vue`
 - Create: `frontend/src/views/admin/AdminResourceManageView.spec.js`
 
-- [ ] **Step 1: Write failing profile/admin resource UI tests**
+- [x] **Step 1: Write failing profile/admin resource UI tests**
 
 ```js
 import { mount } from "@vue/test-utils";
@@ -627,7 +627,7 @@ test("my resources view shows status labels and upload records", () => {
 });
 ```
 
-- [ ] **Step 2: Run the failing profile/admin resource tests**
+- [x] **Step 2: Run the failing profile/admin resource tests**
 
 Run:
 
@@ -638,7 +638,7 @@ npm run test -- --run src/views/ProfileFavoritesView.spec.js src/views/ProfileRe
 
 Expected: FAIL because the resource tab, my-resources page, profile shortcut, and admin review page do not exist yet.
 
-- [ ] **Step 3: Implement profile/admin resource workflows**
+- [x] **Step 3: Implement profile/admin resource workflows**
 
 Before writing UI code:
 
@@ -669,7 +669,7 @@ Required behavior:
   - offline published resources
 - admin page should work on desktop and mobile without a second route
 
-- [ ] **Step 4: Re-run the profile/admin resource tests**
+- [x] **Step 4: Re-run the profile/admin resource tests**
 
 Run:
 
@@ -680,7 +680,7 @@ npm run test -- --run src/views/ProfileFavoritesView.spec.js src/views/ProfileRe
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/router/index.js frontend/src/api/admin.js frontend/src/views/ProfileView.vue frontend/src/views/ProfileView.spec.js frontend/src/views/ProfileFavoritesView.vue frontend/src/views/ProfileFavoritesView.spec.js frontend/src/views/ProfileResourcesView.vue frontend/src/views/ProfileResourcesView.spec.js frontend/src/views/admin/AdminResourceManageView.vue frontend/src/views/admin/AdminResourceManageView.spec.js
@@ -692,7 +692,7 @@ git commit -m "feat: add resource profile and admin review ui"
 **Files:**
 - Modify: `README.md`
 
-- [ ] **Step 1: Update README for local Phase D resource development**
+- [x] **Step 1: Update README for local Phase D resource development**
 
 Document:
 
@@ -707,7 +707,7 @@ Document:
 - admin resource route
 - guest, user, and admin permissions
 
-- [ ] **Step 2: Run the backend verification set**
+- [x] **Step 2: Run the backend verification set**
 
 Run:
 
@@ -718,7 +718,7 @@ mvn -q test
 
 Expected: PASS.
 
-- [ ] **Step 3: Run the frontend verification set**
+- [x] **Step 3: Run the frontend verification set**
 
 Run:
 
@@ -733,7 +733,7 @@ Expected:
 - frontend tests PASS
 - frontend build PASS
 
-- [ ] **Step 4: Run the local smoke pass**
+- [x] **Step 4: Run the local smoke pass**
 
 Validate in this order:
 
@@ -761,7 +761,7 @@ Validate in this order:
    - verify the favorited resource appears
 7. Open `/` and verify the resources card now routes into the live resources module
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add README.md

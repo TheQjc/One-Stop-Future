@@ -162,7 +162,7 @@ Use the current visual system as the base:
 - Create: `backend/src/main/java/com/campus/service/DiscoverService.java`
 - Create: `backend/src/test/java/com/campus/controller/DiscoverControllerTests.java`
 
-- [ ] **Step 1: Write the failing discover contract tests**
+- [x] **Step 1: Write the failing discover contract tests**
 
 ```java
 @Test
@@ -198,7 +198,7 @@ void defaultsAndValidationErrorsMatchTheContract() throws Exception {
 }
 ```
 
-- [ ] **Step 2: Run the failing backend discover tests**
+- [x] **Step 2: Run the failing backend discover tests**
 
 Run:
 
@@ -209,7 +209,7 @@ mvn -q -Dtest=DiscoverControllerTests test
 
 Expected: FAIL because the discover enums, DTOs, controller, service, and security rule do not exist yet.
 
-- [ ] **Step 3: Implement the minimal public discover contract**
+- [x] **Step 3: Implement the minimal public discover contract**
 
 Create these enums:
 
@@ -285,7 +285,7 @@ double rawHeat = resource.getDownloadCount() * 2.0 + resource.getFavoriteCount()
 double hotScore = rawHeat + Math.max(0, 14 - ageDays);
 ```
 
-- [ ] **Step 4: Run the discover tests again and make them pass**
+- [x] **Step 4: Run the discover tests again and make them pass**
 
 Run:
 
@@ -296,7 +296,7 @@ mvn -q -Dtest=DiscoverControllerTests test
 
 Expected: PASS with guest access, default values, and validation behavior working.
 
-- [ ] **Step 5: Commit the first discover backend slice**
+- [x] **Step 5: Commit the first discover backend slice**
 
 ```bash
 git add backend/src/main/java/com/campus/config/SecurityConfig.java backend/src/main/java/com/campus/common/DiscoverContentType.java backend/src/main/java/com/campus/common/DiscoverPeriodType.java backend/src/main/java/com/campus/dto/DiscoverItemView.java backend/src/main/java/com/campus/dto/DiscoverResponse.java backend/src/main/java/com/campus/controller/DiscoverController.java backend/src/main/java/com/campus/service/DiscoverService.java backend/src/main/java/com/campus/service/ResourceService.java backend/src/test/java/com/campus/controller/DiscoverControllerTests.java
@@ -312,7 +312,7 @@ git commit -m "feat: add discover api contract"
 - Modify: `backend/src/main/java/com/campus/service/DiscoverService.java`
 - Modify: `backend/src/test/java/com/campus/controller/DiscoverControllerTests.java`
 
-- [ ] **Step 1: Write the failing aggregation and ranking tests**
+- [x] **Step 1: Write the failing aggregation and ranking tests**
 
 ```java
 @Test
@@ -355,7 +355,7 @@ void tabFilterReturnsOnlyMatchingTypeButKeepsSharedItemShape() throws Exception 
 }
 ```
 
-- [ ] **Step 2: Run the expanded discover tests to verify they fail**
+- [x] **Step 2: Run the expanded discover tests to verify they fail**
 
 Run:
 
@@ -366,7 +366,7 @@ mvn -q -Dtest=DiscoverControllerTests test
 
 Expected: FAIL because only the minimal resource-only discover slice exists.
 
-- [ ] **Step 3: Implement the cross-domain discover aggregation**
+- [x] **Step 3: Implement the cross-domain discover aggregation**
 
 Expose read-only candidate methods from existing domain services and keep each service responsible for published-content visibility:
 
@@ -413,7 +413,7 @@ double verifiedAuthorBonus = isVerifiedAuthor ? 2.0 : 0.0;
 
 Implementation note: batch favorite-count lookup for jobs inside `JobService` instead of calling `selectCount` once per job.
 
-- [ ] **Step 4: Run the discover controller tests again**
+- [x] **Step 4: Run the discover controller tests again**
 
 Run:
 
@@ -424,7 +424,7 @@ mvn -q -Dtest=DiscoverControllerTests test
 
 Expected: PASS with all-tab aggregation, period filtering, type filtering, and label mapping working.
 
-- [ ] **Step 5: Commit the complete ranking backend**
+- [x] **Step 5: Commit the complete ranking backend**
 
 ```bash
 git add backend/src/main/java/com/campus/service/CommunityService.java backend/src/main/java/com/campus/service/JobService.java backend/src/main/java/com/campus/service/ResourceService.java backend/src/main/java/com/campus/service/DiscoverService.java backend/src/test/java/com/campus/controller/DiscoverControllerTests.java
@@ -439,7 +439,7 @@ git commit -m "feat: add discover ranking aggregation"
 - Modify: `backend/src/test/java/com/campus/controller/HomeControllerTests.java`
 - Create: `backend/src/test/java/com/campus/service/HomeServiceTests.java`
 
-- [ ] **Step 1: Write the failing home-summary preview tests**
+- [x] **Step 1: Write the failing home-summary preview tests**
 
 Add one integration test to the existing controller suite:
 
@@ -468,7 +468,7 @@ void discoverPreviewFallsBackToEmptyListWhenDiscoverServiceFails() {
 }
 ```
 
-- [ ] **Step 2: Run the home controller and home service tests to verify failure**
+- [x] **Step 2: Run the home controller and home service tests to verify failure**
 
 Run:
 
@@ -479,7 +479,7 @@ mvn -q -Dtest=HomeControllerTests,HomeServiceTests test
 
 Expected: FAIL because `HomeSummaryResponse` and `HomeService` do not expose discover preview yet.
 
-- [ ] **Step 3: Implement `discoverPreview` on the home summary contract**
+- [x] **Step 3: Implement `discoverPreview` on the home summary contract**
 
 Add shared preview records inside `HomeSummaryResponse` and reuse `DiscoverItemView`:
 
@@ -511,7 +511,7 @@ Update `HomeService` to:
 
 Keep all existing home fields untouched and append the new preview field at the end of the contract.
 
-- [ ] **Step 4: Run the home tests again and make them pass**
+- [x] **Step 4: Run the home tests again and make them pass**
 
 Run:
 
@@ -522,7 +522,7 @@ mvn -q -Dtest=HomeControllerTests,HomeServiceTests test
 
 Expected: PASS with `discoverPreview` included and the degradation path covered.
 
-- [ ] **Step 5: Commit the home-summary extension**
+- [x] **Step 5: Commit the home-summary extension**
 
 ```bash
 git add backend/src/main/java/com/campus/dto/HomeSummaryResponse.java backend/src/main/java/com/campus/service/HomeService.java backend/src/test/java/com/campus/controller/HomeControllerTests.java backend/src/test/java/com/campus/service/HomeServiceTests.java
@@ -540,7 +540,7 @@ git commit -m "feat: add discover preview to home summary"
 - Create: `frontend/src/views/DiscoverView.vue`
 - Create: `frontend/src/views/DiscoverView.spec.js`
 
-- [ ] **Step 1: Write the failing frontend discover navigation and page tests**
+- [x] **Step 1: Write the failing frontend discover navigation and page tests**
 
 Add navbar coverage:
 
@@ -573,7 +573,7 @@ test("tab and period toggles sync the url-backed discover state", async () => {
 });
 ```
 
-- [ ] **Step 2: Run the targeted frontend tests and confirm failure**
+- [x] **Step 2: Run the targeted frontend tests and confirm failure**
 
 Run:
 
@@ -584,7 +584,7 @@ npm run test -- src/components/NavBar.spec.js src/views/DiscoverView.spec.js
 
 Expected: FAIL because the discover route, API client, card, page, and navbar entry do not exist yet.
 
-- [ ] **Step 3: Implement the discover frontend slice**
+- [x] **Step 3: Implement the discover frontend slice**
 
 Create the API layer:
 
@@ -633,7 +633,7 @@ Implement `DiscoverItemCard.vue` with:
 - published time
 - `hotLabel`
 
-- [ ] **Step 4: Run the discover navbar and page tests again**
+- [x] **Step 4: Run the discover navbar and page tests again**
 
 Run:
 
@@ -644,7 +644,7 @@ npm run test -- src/components/NavBar.spec.js src/views/DiscoverView.spec.js
 
 Expected: PASS with the discover route, URL-backed toggles, navbar entry, and discover card rendering working.
 
-- [ ] **Step 5: Commit the discover frontend slice**
+- [x] **Step 5: Commit the discover frontend slice**
 
 ```bash
 git add frontend/src/router/index.js frontend/src/components/NavBar.vue frontend/src/components/NavBar.spec.js frontend/src/api/discover.js frontend/src/components/DiscoverItemCard.vue frontend/src/views/DiscoverView.vue frontend/src/views/DiscoverView.spec.js
@@ -657,7 +657,7 @@ git commit -m "feat: add discover page and navigation"
 - Modify: `frontend/src/views/HomeView.vue`
 - Modify: `frontend/src/views/HomeView.spec.js`
 
-- [ ] **Step 1: Write the failing homepage discover preview tests**
+- [x] **Step 1: Write the failing homepage discover preview tests**
 
 Extend the mocked home summary shape:
 
@@ -701,7 +701,7 @@ test("home preview shows a graceful empty state when preview items are empty", a
 });
 ```
 
-- [ ] **Step 2: Run the targeted homepage tests and verify they fail**
+- [x] **Step 2: Run the targeted homepage tests and verify they fail**
 
 Run:
 
@@ -712,7 +712,7 @@ npm run test -- src/views/HomeView.spec.js
 
 Expected: FAIL because `HomeView.vue` does not render discover preview data yet.
 
-- [ ] **Step 3: Implement the homepage preview UI**
+- [x] **Step 3: Implement the homepage preview UI**
 
 Keep `getHomeSummary()` unchanged at the transport layer and update `HomeView.vue` to consume the new response field.
 
@@ -736,7 +736,7 @@ Render a small homepage block that:
 
 - shows a graceful empty-state message instead of hiding the entire section
 
-- [ ] **Step 4: Run the homepage tests again**
+- [x] **Step 4: Run the homepage tests again**
 
 Run:
 
@@ -747,7 +747,7 @@ npm run test -- src/views/HomeView.spec.js
 
 Expected: PASS with discover preview items, CTA, and empty-state rendering covered.
 
-- [ ] **Step 5: Commit the homepage preview**
+- [x] **Step 5: Commit the homepage preview**
 
 ```bash
 git add frontend/src/views/HomeView.vue frontend/src/views/HomeView.spec.js
@@ -759,7 +759,7 @@ git commit -m "feat: add home discover preview"
 **Files:**
 - Modify: `README.md`
 
-- [ ] **Step 1: Update README for the new discover flow**
+- [x] **Step 1: Update README for the new discover flow**
 
 Document:
 
@@ -773,7 +773,7 @@ Document:
   - no day ranking
   - no Redis/cache layer yet
 
-- [ ] **Step 2: Run targeted backend verification**
+- [x] **Step 2: Run targeted backend verification**
 
 Run:
 
@@ -784,7 +784,7 @@ mvn -q -Dtest=DiscoverControllerTests,HomeControllerTests,HomeServiceTests test
 
 Expected: PASS
 
-- [ ] **Step 3: Run targeted frontend verification**
+- [x] **Step 3: Run targeted frontend verification**
 
 Run:
 
@@ -795,7 +795,7 @@ npm run test -- src/components/NavBar.spec.js src/views/DiscoverView.spec.js src
 
 Expected: PASS
 
-- [ ] **Step 4: Run full regression and build checks**
+- [x] **Step 4: Run full regression and build checks**
 
 Run:
 
@@ -812,7 +812,7 @@ npm run build
 
 Expected: PASS across the full backend suite, full frontend suite, and production build.
 
-- [ ] **Step 5: Manual smoke and final commit**
+- [x] **Step 5: Manual smoke and final commit**
 
 Manual smoke checklist:
 

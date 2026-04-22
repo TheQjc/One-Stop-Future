@@ -148,7 +148,7 @@ Use the current visual system as the base:
 - Create: `backend/src/main/java/com/campus/service/SearchService.java`
 - Create: `backend/src/test/java/com/campus/controller/SearchControllerTests.java`
 
-- [ ] **Step 1: Write the failing search contract tests**
+- [x] **Step 1: Write the failing search contract tests**
 
 ```java
 @Test
@@ -191,7 +191,7 @@ void invalidTypeAndSortReturnBusinessErrors() throws Exception {
 }
 ```
 
-- [ ] **Step 2: Run the failing search contract tests**
+- [x] **Step 2: Run the failing search contract tests**
 
 Run:
 
@@ -202,7 +202,7 @@ mvn -q -Dtest=SearchControllerTests test
 
 Expected: FAIL because the search enums, DTO, controller, service, security rule, and resource-search branch do not exist yet.
 
-- [ ] **Step 3: Implement the minimal public search contract**
+- [x] **Step 3: Implement the minimal public search contract**
 
 Create these enums:
 
@@ -284,7 +284,7 @@ public List<SearchResponse.SearchResultItem> searchPublishedResources(String key
     - `publishedAt = publishedAt`
 - `SearchService` may start with the resource branch only in this task, but it must already normalize query/type/sort and produce stable totals plus sorting helpers that Task 2 can extend.
 
-- [ ] **Step 4: Re-run the search contract tests**
+- [x] **Step 4: Re-run the search contract tests**
 
 Run:
 
@@ -295,7 +295,7 @@ mvn -q -Dtest=SearchControllerTests test
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/java/com/campus/config/SecurityConfig.java backend/src/main/java/com/campus/service/ResourceService.java backend/src/main/java/com/campus/common/SearchContentType.java backend/src/main/java/com/campus/common/SearchSortType.java backend/src/main/java/com/campus/dto/SearchResponse.java backend/src/main/java/com/campus/controller/SearchController.java backend/src/main/java/com/campus/service/SearchService.java backend/src/test/java/com/campus/controller/SearchControllerTests.java
@@ -311,7 +311,7 @@ git commit -m "feat: add unified search api contract"
 - Modify: `backend/src/main/java/com/campus/service/SearchService.java`
 - Modify: `backend/src/test/java/com/campus/controller/SearchControllerTests.java`
 
-- [ ] **Step 1: Write the failing aggregation and sort tests**
+- [x] **Step 1: Write the failing aggregation and sort tests**
 
 Use deterministic test-local rows instead of guessing against shared seed data:
 
@@ -359,7 +359,7 @@ private void insertUnifiedSearchFixtures() {
 }
 ```
 
-- [ ] **Step 2: Run the failing aggregation tests**
+- [x] **Step 2: Run the failing aggregation tests**
 
 Run:
 
@@ -370,7 +370,7 @@ mvn -q -Dtest=SearchControllerTests test
 
 Expected: FAIL because community/job branches, totals, and cross-domain ordering are not implemented yet.
 
-- [ ] **Step 3: Implement the final backend aggregation behavior**
+- [x] **Step 3: Implement the final backend aggregation behavior**
 
 Expose these domain methods:
 
@@ -431,7 +431,7 @@ Scoring rule:
 
 - sort by `publishedAt DESC`, then `id DESC`
 
-- [ ] **Step 4: Re-run the aggregation tests**
+- [x] **Step 4: Re-run the aggregation tests**
 
 Run:
 
@@ -442,7 +442,7 @@ mvn -q -Dtest=SearchControllerTests test
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/java/com/campus/service/CommunityService.java backend/src/main/java/com/campus/service/JobService.java backend/src/main/java/com/campus/service/ResourceService.java backend/src/main/java/com/campus/service/SearchService.java backend/src/test/java/com/campus/controller/SearchControllerTests.java
@@ -458,7 +458,7 @@ git commit -m "feat: aggregate community jobs and resources in search"
 - Create: `frontend/src/views/SearchView.vue`
 - Create: `frontend/src/views/SearchView.spec.js`
 
-- [ ] **Step 1: Write the failing search view tests**
+- [x] **Step 1: Write the failing search view tests**
 
 ```js
 import { flushPromises, mount } from "@vue/test-utils";
@@ -520,7 +520,7 @@ test("blank query stays in guided empty state and does not hit the api", async (
 });
 ```
 
-- [ ] **Step 2: Run the failing search view tests**
+- [x] **Step 2: Run the failing search view tests**
 
 Run:
 
@@ -531,7 +531,7 @@ npm run test -- --run src/views/SearchView.spec.js
 
 Expected: FAIL because the route, API client, search view, and result card do not exist yet.
 
-- [ ] **Step 3: Build the search page flow**
+- [x] **Step 3: Build the search page flow**
 
 Before writing UI code:
 
@@ -596,7 +596,7 @@ Card content must show:
 - `metaSecondary`
 - formatted `publishedAt`
 
-- [ ] **Step 4: Re-run the search view tests**
+- [x] **Step 4: Re-run the search view tests**
 
 Run:
 
@@ -607,7 +607,7 @@ npm run test -- --run src/views/SearchView.spec.js
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/router/index.js frontend/src/api/search.js frontend/src/components/SearchResultCard.vue frontend/src/views/SearchView.vue frontend/src/views/SearchView.spec.js
@@ -622,7 +622,7 @@ git commit -m "feat: add unified search page"
 - Modify: `frontend/src/components/NavBar.vue`
 - Create: `frontend/src/components/NavBar.spec.js`
 
-- [ ] **Step 1: Write the failing entry-point tests**
+- [x] **Step 1: Write the failing entry-point tests**
 
 Add a focused homepage submit test:
 
@@ -689,7 +689,7 @@ test("navbar exposes a search entry", () => {
 });
 ```
 
-- [ ] **Step 2: Run the failing entry-point tests**
+- [x] **Step 2: Run the failing entry-point tests**
 
 Run:
 
@@ -700,7 +700,7 @@ npm run test -- --run src/views/HomeView.spec.js src/components/NavBar.spec.js
 
 Expected: FAIL because the homepage search form and navbar search entry do not exist yet.
 
-- [ ] **Step 3: Implement the two public entry points**
+- [x] **Step 3: Implement the two public entry points**
 
 Before writing UI code:
 
@@ -728,7 +728,7 @@ Navbar rules:
 - keep current nav items and role-based admin items intact
 - do not turn the navbar into a second full search form in this slice
 
-- [ ] **Step 4: Re-run the entry-point tests**
+- [x] **Step 4: Re-run the entry-point tests**
 
 Run:
 
@@ -739,7 +739,7 @@ npm run test -- --run src/views/HomeView.spec.js src/components/NavBar.spec.js
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/views/HomeView.vue frontend/src/views/HomeView.spec.js frontend/src/components/NavBar.vue frontend/src/components/NavBar.spec.js
@@ -751,7 +751,7 @@ git commit -m "feat: add unified search entry points"
 **Files:**
 - Modify: `README.md`
 
-- [ ] **Step 1: Update README for Phase E unified search**
+- [x] **Step 1: Update README for Phase E unified search**
 
 Document:
 
@@ -786,7 +786,7 @@ cd frontend
 npm run test -- --run src/views/SearchView.spec.js src/views/HomeView.spec.js src/components/NavBar.spec.js
 ```
 
-- [ ] **Step 2: Run the backend verification set**
+- [x] **Step 2: Run the backend verification set**
 
 Run:
 
@@ -801,7 +801,7 @@ Expected:
 - targeted search controller tests PASS
 - full backend suite PASS
 
-- [ ] **Step 3: Run the frontend verification set**
+- [x] **Step 3: Run the frontend verification set**
 
 Run:
 
@@ -818,7 +818,7 @@ Expected:
 - full frontend suite PASS
 - frontend build PASS
 
-- [ ] **Step 4: Run the local smoke pass**
+- [x] **Step 4: Run the local smoke pass**
 
 Validate in this order:
 
@@ -834,7 +834,7 @@ Validate in this order:
 10. Open the navbar search entry directly and confirm the guided empty state appears when there is no `q`.
 11. Confirm guests never see hidden, draft, pending, rejected, or offline content in unified results.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add README.md
