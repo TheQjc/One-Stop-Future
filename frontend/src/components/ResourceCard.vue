@@ -14,25 +14,25 @@ const props = defineProps({
 });
 
 const categoryLabels = {
-  EXAM_PAPER: "Exam Paper",
-  LANGUAGE_TEST: "Language Test",
-  RESUME_TEMPLATE: "Resume Template",
-  INTERVIEW_EXPERIENCE: "Interview Notes",
-  OTHER: "Other",
+  EXAM_PAPER: "真题试卷",
+  LANGUAGE_TEST: "语言考试",
+  RESUME_TEMPLATE: "简历模板",
+  INTERVIEW_EXPERIENCE: "面试经验",
+  OTHER: "其他资料",
 };
 
 const localizedCategory = computed(() => (
-  categoryLabels[props.resource.category] || props.resource.category || "Resource"
+  categoryLabels[props.resource.category] || props.resource.category || "资料"
 ));
 
 function formatDate(value) {
   if (!value) {
-    return "Queued";
+    return "待发布";
   }
 
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
-    return "Queued";
+    return "待发布";
   }
 
   return new Intl.DateTimeFormat("zh-CN", {
@@ -44,7 +44,7 @@ function formatDate(value) {
 function formatSize(value) {
   const size = Number(value || 0);
   if (!size) {
-    return "Unknown Size";
+    return "大小未知";
   }
   if (size >= 1024 * 1024) {
     return `${(size / (1024 * 1024)).toFixed(1)} MB`;
@@ -64,20 +64,20 @@ function formatSize(value) {
   >
     <div class="resource-card__topline">
       <span class="resource-card__pill">{{ localizedCategory }}</span>
-      <span class="resource-card__file">{{ resource.fileName || "Archive File" }}</span>
-      <span v-if="resource.favoritedByMe" class="status-badge approved">Saved</span>
+      <span class="resource-card__file">{{ resource.fileName || "资料文件" }}</span>
+      <span v-if="resource.favoritedByMe" class="status-badge approved">已收藏</span>
     </div>
 
     <div class="resource-card__header">
       <h3 class="resource-card__title">{{ resource.title }}</h3>
-      <p class="resource-card__summary">{{ resource.summary || "No summary yet." }}</p>
+      <p class="resource-card__summary">{{ resource.summary || "暂未提供资料摘要" }}</p>
     </div>
 
     <div class="resource-card__meta">
-      <span>{{ resource.uploaderNickname || "Archive Desk" }}</span>
+      <span>{{ resource.uploaderNickname || "资料库" }}</span>
       <span>{{ formatSize(resource.fileSize) }}</span>
-      <span>{{ resource.downloadCount || 0 }} downloads</span>
-      <span>{{ formatDate(resource.publishedAt) }}</span>
+      <span>{{ resource.downloadCount || 0 }} 次下载</span>
+      <span>发布 {{ formatDate(resource.publishedAt) }}</span>
     </div>
   </RouterLink>
 </template>

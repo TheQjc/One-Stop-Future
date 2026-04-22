@@ -20,18 +20,22 @@ const summary = ref({
 });
 
 const categoryOptions = [
-  { value: "", label: "All Categories" },
-  { value: "EXAM_PAPER", label: "Exam Paper" },
-  { value: "LANGUAGE_TEST", label: "Language Test" },
-  { value: "RESUME_TEMPLATE", label: "Resume Template" },
-  { value: "INTERVIEW_EXPERIENCE", label: "Interview Notes" },
-  { value: "OTHER", label: "Other" },
+  { value: "", label: "全部分类" },
+  { value: "EXAM_PAPER", label: "真题试卷" },
+  { value: "LANGUAGE_TEST", label: "语言考试" },
+  { value: "RESUME_TEMPLATE", label: "简历模板" },
+  { value: "INTERVIEW_EXPERIENCE", label: "面试经验" },
+  { value: "OTHER", label: "其他资料" },
 ];
+
+function getOptionLabel(options, value) {
+  return options.find((option) => option.value === value)?.label || value;
+}
 
 const activeFilterLabels = computed(() => {
   const items = [];
-  if (filters.keyword) items.push(`Keyword: ${filters.keyword}`);
-  if (filters.category) items.push(`Category: ${filters.category}`);
+  if (filters.keyword) items.push(`关键词：${filters.keyword}`);
+  if (filters.category) items.push(`分类：${getOptionLabel(categoryOptions, filters.category)}`);
   return items;
 });
 
@@ -54,7 +58,7 @@ async function loadResources() {
   try {
     summary.value = await getResources(buildParams());
   } catch (error) {
-    errorMessage.value = error.message || "Resource library loading failed. Please try again.";
+    errorMessage.value = error.message || "资料库加载失败，请稍后重试。";
   } finally {
     loading.value = false;
   }
@@ -79,13 +83,12 @@ onMounted(loadResources);
   <section class="page-stack">
     <article class="section-card archive-hero">
       <div class="archive-hero__copy">
-        <span class="section-eyebrow">Archive Desk</span>
-        <h1 class="hero-title" style="margin-top: 18px;">Resources</h1>
+        <span class="section-eyebrow">资料库</span>
+        <h1 class="hero-title" style="margin-top: 18px;">把常用资料集中整理好，查阅前先看清分类。</h1>
         <hr class="editorial-rule" />
         <p class="hero-copy">
-          Treat the library like a working table, not a dump. Published files stay browseable,
-          category filters stay narrow, and every card keeps the summary, uploader, file weight,
-          and download signal visible before you open the detail page.
+          资料页会把公开资料、分类筛选和下载信息放在同一页，方便你先比较摘要、上传者、
+          文件大小和下载热度，再决定是否打开详情。
         </p>
 
         <div v-if="activeFilterLabels.length" class="chip-row" style="margin-top: 24px;">
@@ -101,15 +104,15 @@ onMounted(loadResources);
 
       <div class="archive-hero__panel">
         <div class="panel-card archive-hero__stat">
-          <span class="archive-hero__label">Published Files</span>
+          <span class="archive-hero__label">已收录资料</span>
           <strong>{{ summary.total }}</strong>
         </div>
         <div class="panel-card archive-hero__stat">
-          <span class="archive-hero__label">Download Access</span>
-          <strong>{{ userStore.isAuthenticated ? "On" : "Login" }}</strong>
+          <span class="archive-hero__label">下载权限</span>
+          <strong>{{ userStore.isAuthenticated ? "已开启" : "登录后可用" }}</strong>
         </div>
         <RouterLink :to="uploadTarget" class="app-btn">
-          {{ userStore.isAuthenticated ? "Upload Resource" : "Sign In To Upload" }}
+          {{ userStore.isAuthenticated ? "上传资料" : "登录后上传" }}
         </RouterLink>
       </div>
     </article>
@@ -117,8 +120,8 @@ onMounted(loadResources);
     <article class="section-card">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Filter Desk</span>
-          <h2 class="page-title" style="margin-top: 16px;">Slice the archive before opening files.</h2>
+          <span class="section-eyebrow">资料筛选</span>
+          <h2 class="page-title" style="margin-top: 16px;">先缩小范围，再打开具体资料。</h2>
         </div>
       </div>
 
@@ -135,24 +138,23 @@ onMounted(loadResources);
     <article class="section-card">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Published Shelf</span>
-          <h2 class="page-title" style="margin-top: 16px;">Current Archive</h2>
+          <span class="section-eyebrow">资料列表</span>
+          <h2 class="page-title" style="margin-top: 16px;">当前资料</h2>
           <p class="page-subtitle" style="margin-top: 16px;">
-            Cards stay intentionally scannable so you can compare category, file weight,
-            publisher, and download heat without leaving the grid.
+            资料卡片会集中展示分类、上传者、文件大小和下载热度，方便你不离开页面也能快速比较。
           </p>
         </div>
       </div>
 
-      <div v-if="loading" class="empty-state">Loading published resources...</div>
+      <div v-if="loading" class="empty-state">正在加载资料...</div>
       <div v-else-if="errorMessage" class="field-grid">
         <p class="field-error" role="alert">{{ errorMessage }}</p>
         <button type="button" class="ghost-btn" @click="loadResources">
-          Retry
+          重试
         </button>
       </div>
       <div v-else-if="!summary.resources.length" class="empty-state">
-        No resources matched the current filters. Reset and widen the archive.
+        当前筛选条件下还没有匹配的资料，试试重置筛选后再看看。
       </div>
       <div v-else class="resources-grid">
         <ResourceCard

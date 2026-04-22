@@ -32,7 +32,41 @@ function mountView() {
   });
 }
 
-test("loads job cards and refetches with filters", async () => {
+function createDeferred() {
+  let resolve;
+  let reject;
+
+  const promise = new Promise((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+
+  return { promise, resolve, reject };
+}
+
+test("renders Chinese-first shell copy and loading state", async () => {
+  const deferred = createDeferred();
+  getJobs.mockImplementationOnce(() => deferred.promise);
+
+  const wrapper = mountView();
+  await wrapper.vm.$nextTick();
+
+  expect(wrapper.text()).toContain("岗位专区");
+  expect(wrapper.text()).toContain("先看清岗位条件，再决定要投哪一个机会");
+  expect(wrapper.text()).toContain("登录后收藏岗位");
+  expect(wrapper.text()).toContain("岗位筛选");
+  expect(wrapper.text()).toContain("当前岗位");
+  expect(wrapper.text()).toContain("正在加载岗位信息...");
+  expect(wrapper.text()).toContain("筛选中...");
+
+  deferred.resolve({
+    total: 0,
+    jobs: [],
+  });
+  await flushPromises();
+});
+
+test("loads job cards, refetches with filters, and shows localized filter summary", async () => {
   getJobs
     .mockResolvedValueOnce({
       total: 1,
@@ -59,4 +93,26 @@ test("loads job cards and refetches with filters", async () => {
     city: "Shenzhen",
   });
   expect(wrapper.text()).toContain("Filtered Job");
+  expect(wrapper.text()).toContain("关键词：backend");
+  expect(wrapper.text()).toContain("城市：深圳");
+});
+
+test("shows localized error and retry copy", async () => {
+  getJobs
+    .mockRejectedValueOnce(new Error())
+    .mockResolvedValueOnce({
+      total: 0,
+      jobs: [],
+    });
+
+  const wrapper = mountView();
+  await flushPromises();
+
+  expect(wrapper.text()).toContain("岗位信息加载失败，请稍后重试。");
+  expect(wrapper.text()).toContain("重试");
+
+  await wrapper.find("button.ghost-btn").trigger("click");
+  await flushPromises();
+
+  expect(getJobs).toHaveBeenCalledTimes(2);
 });

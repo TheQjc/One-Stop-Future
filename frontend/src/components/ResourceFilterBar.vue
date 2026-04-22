@@ -28,19 +28,19 @@ function patchFilters(nextValues) {
   <form class="resource-filter-bar" @submit.prevent="emit('submit')">
     <div class="field-grid resource-filter-bar__grid">
       <label class="field-label">
-        Keyword
+        关键词
         <input
           :value="filters.keyword"
           class="field-control"
           name="keyword"
           type="text"
-          placeholder="Title, summary, or archive note"
+          placeholder="搜索标题、摘要或资料说明"
           @input="patchFilters({ keyword: $event.target.value })"
         />
       </label>
 
       <label class="field-label">
-        Category
+        分类
         <select
           :value="filters.category"
           class="field-select"
@@ -56,10 +56,10 @@ function patchFilters(nextValues) {
 
     <div class="inline-form-actions">
       <button type="submit" class="app-btn" :disabled="loading">
-        {{ loading ? "Loading..." : "Apply Filters" }}
+        {{ loading ? "筛选中..." : "应用筛选" }}
       </button>
       <button type="button" class="ghost-btn" :disabled="loading" @click="emit('reset')">
-        Reset
+        重置
       </button>
     </div>
   </form>

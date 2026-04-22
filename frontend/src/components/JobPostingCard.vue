@@ -14,31 +14,48 @@ const props = defineProps({
 });
 
 const typeLabels = {
-  INTERNSHIP: "Internship",
-  FULL_TIME: "Full Time",
-  CAMPUS: "Campus",
+  INTERNSHIP: "实习",
+  FULL_TIME: "全职",
+  CAMPUS: "校招",
 };
 
 const educationLabels = {
-  ANY: "Any",
-  BACHELOR: "Bachelor",
-  MASTER: "Master",
-  DOCTOR: "Doctor",
+  ANY: "不限",
+  BACHELOR: "本科",
+  MASTER: "硕士",
+  DOCTOR: "博士",
 };
 
-const localizedType = computed(() => typeLabels[props.job.jobType] || props.job.jobType || "Role");
+const cityLabels = {
+  Shenzhen: "深圳",
+  Guangzhou: "广州",
+  Shanghai: "上海",
+  Hangzhou: "杭州",
+};
+
+const sourceLabels = {
+  "Official Site": "官网",
+  "WeCom Channel": "企业微信",
+  "Internal Referral": "内推",
+};
+
+const localizedType = computed(() => typeLabels[props.job.jobType] || props.job.jobType || "岗位");
 const localizedEducation = computed(() => (
-  educationLabels[props.job.educationRequirement] || props.job.educationRequirement || "Requirement"
+  educationLabels[props.job.educationRequirement] || props.job.educationRequirement || "学历要求"
+));
+const localizedCity = computed(() => cityLabels[props.job.city] || props.job.city || "城市待定");
+const localizedSource = computed(() => (
+  sourceLabels[props.job.sourcePlatform] || props.job.sourcePlatform || "来源待定"
 ));
 
 function formatDate(value) {
   if (!value) {
-    return "Open";
+    return "待定";
   }
 
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
-    return "Open";
+    return "待定";
   }
 
   return new Intl.DateTimeFormat("zh-CN", {
@@ -56,21 +73,21 @@ function formatDate(value) {
   >
     <div class="job-posting-card__topline">
       <span class="job-posting-card__pill">{{ localizedType }}</span>
-      <span v-if="job.favoritedByMe" class="status-badge approved">Saved</span>
+      <span v-if="job.favoritedByMe" class="status-badge approved">已收藏</span>
     </div>
 
     <div class="job-posting-card__header">
       <h3 class="job-posting-card__title">{{ job.title }}</h3>
-      <p class="job-posting-card__company">{{ job.companyName }}</p>
+      <p class="job-posting-card__company">{{ job.companyName || "暂未提供公司信息" }}</p>
     </div>
 
-    <p class="job-posting-card__summary">{{ job.summary || "No summary yet." }}</p>
+    <p class="job-posting-card__summary">{{ job.summary || "暂未提供岗位摘要" }}</p>
 
     <div class="job-posting-card__meta">
-      <span>{{ job.city || "City TBD" }}</span>
+      <span>{{ localizedCity }}</span>
       <span>{{ localizedEducation }}</span>
-      <span>{{ job.sourcePlatform || "Source TBD" }}</span>
-      <span>Deadline {{ formatDate(job.deadlineAt) }}</span>
+      <span>{{ localizedSource }}</span>
+      <span>截止 {{ formatDate(job.deadlineAt) }}</span>
     </div>
   </RouterLink>
 </template>

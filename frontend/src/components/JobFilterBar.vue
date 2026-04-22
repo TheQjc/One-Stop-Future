@@ -44,19 +44,19 @@ function handleReset() {
   <form class="job-filter-bar" @submit.prevent="emit('submit')">
     <div class="field-grid job-filter-bar__grid">
       <label class="field-label">
-        Keyword
+        关键词
         <input
           :value="filters.keyword"
           class="field-control"
           name="keyword"
           type="text"
-          placeholder="Title, company, or summary"
+          placeholder="搜索岗位名称、公司或摘要"
           @input="patchFilters({ keyword: $event.target.value })"
         />
       </label>
 
       <label class="field-label">
-        City
+        城市
         <select
           :value="filters.city"
           class="field-select"
@@ -70,7 +70,7 @@ function handleReset() {
       </label>
 
       <label class="field-label">
-        Type
+        类型
         <select
           :value="filters.jobType"
           class="field-select"
@@ -84,7 +84,7 @@ function handleReset() {
       </label>
 
       <label class="field-label">
-        Education
+        学历要求
         <select
           :value="filters.educationRequirement"
           class="field-select"
@@ -98,7 +98,7 @@ function handleReset() {
       </label>
 
       <label class="field-label">
-        Source
+        来源
         <select
           :value="filters.sourcePlatform"
           class="field-select"
@@ -114,10 +114,10 @@ function handleReset() {
 
     <div class="inline-form-actions">
       <button type="submit" class="app-btn" :disabled="loading">
-        {{ loading ? "Loading..." : "Apply Filters" }}
+        {{ loading ? "筛选中..." : "应用筛选" }}
       </button>
       <button type="button" class="ghost-btn" :disabled="loading" @click="handleReset">
-        Reset
+        重置
       </button>
     </div>
   </form>

@@ -23,42 +23,46 @@ const summary = ref({
 });
 
 const cityOptions = [
-  { value: "", label: "All Cities" },
-  { value: "Shenzhen", label: "Shenzhen" },
-  { value: "Guangzhou", label: "Guangzhou" },
-  { value: "Shanghai", label: "Shanghai" },
-  { value: "Hangzhou", label: "Hangzhou" },
+  { value: "", label: "全部城市" },
+  { value: "Shenzhen", label: "深圳" },
+  { value: "Guangzhou", label: "广州" },
+  { value: "Shanghai", label: "上海" },
+  { value: "Hangzhou", label: "杭州" },
 ];
 
 const jobTypeOptions = [
-  { value: "", label: "All Types" },
-  { value: "INTERNSHIP", label: "Internship" },
-  { value: "FULL_TIME", label: "Full Time" },
-  { value: "CAMPUS", label: "Campus" },
+  { value: "", label: "全部类型" },
+  { value: "INTERNSHIP", label: "实习" },
+  { value: "FULL_TIME", label: "全职" },
+  { value: "CAMPUS", label: "校招" },
 ];
 
 const educationOptions = [
-  { value: "", label: "All Levels" },
-  { value: "ANY", label: "Any" },
-  { value: "BACHELOR", label: "Bachelor" },
-  { value: "MASTER", label: "Master" },
-  { value: "DOCTOR", label: "Doctor" },
+  { value: "", label: "全部学历" },
+  { value: "ANY", label: "不限" },
+  { value: "BACHELOR", label: "本科" },
+  { value: "MASTER", label: "硕士" },
+  { value: "DOCTOR", label: "博士" },
 ];
 
 const sourcePlatformOptions = [
-  { value: "", label: "All Sources" },
-  { value: "Official Site", label: "Official Site" },
-  { value: "WeCom Channel", label: "WeCom Channel" },
-  { value: "Internal Referral", label: "Internal Referral" },
+  { value: "", label: "全部来源" },
+  { value: "Official Site", label: "官网" },
+  { value: "WeCom Channel", label: "企业微信" },
+  { value: "Internal Referral", label: "内推" },
 ];
+
+function getOptionLabel(options, value) {
+  return options.find((option) => option.value === value)?.label || value;
+}
 
 const activeFilterLabels = computed(() => {
   const items = [];
-  if (filters.keyword) items.push(`Keyword: ${filters.keyword}`);
-  if (filters.city) items.push(`City: ${filters.city}`);
-  if (filters.jobType) items.push(`Type: ${filters.jobType}`);
-  if (filters.educationRequirement) items.push(`Education: ${filters.educationRequirement}`);
-  if (filters.sourcePlatform) items.push(`Source: ${filters.sourcePlatform}`);
+  if (filters.keyword) items.push(`关键词：${filters.keyword}`);
+  if (filters.city) items.push(`城市：${getOptionLabel(cityOptions, filters.city)}`);
+  if (filters.jobType) items.push(`岗位类型：${getOptionLabel(jobTypeOptions, filters.jobType)}`);
+  if (filters.educationRequirement) items.push(`学历要求：${getOptionLabel(educationOptions, filters.educationRequirement)}`);
+  if (filters.sourcePlatform) items.push(`来源：${getOptionLabel(sourcePlatformOptions, filters.sourcePlatform)}`);
   return items;
 });
 
@@ -75,7 +79,7 @@ async function loadJobs() {
   try {
     summary.value = await getJobs(buildParams());
   } catch (error) {
-    errorMessage.value = error.message || "Jobs loading failed. Please try again.";
+    errorMessage.value = error.message || "岗位信息加载失败，请稍后重试。";
   } finally {
     loading.value = false;
   }
@@ -103,12 +107,12 @@ onMounted(loadJobs);
   <section class="page-stack">
     <article class="section-card jobs-hero">
       <div class="jobs-hero__copy">
-        <span class="section-eyebrow">Opportunity Desk</span>
-        <h1 class="hero-title" style="margin-top: 18px;">Browse live job cards before you fragment your search again.</h1>
+        <span class="section-eyebrow">岗位专区</span>
+        <h1 class="hero-title" style="margin-top: 18px;">先看清岗位条件，再决定要投哪一个机会。</h1>
         <hr class="editorial-rule" />
         <p class="hero-copy">
-          The jobs first slice is intentionally focused: curated cards, structured filters, a clean summary,
-          and a direct jump back to the original source. No application workflow, no noisy ranking layer.
+          岗位页会把公开岗位卡片、筛选条件和原始来源放在同一页，方便你先比较城市、类型、
+          学历要求和截止时间，再决定是否继续查看详情。
         </p>
 
         <div v-if="activeFilterLabels.length" class="chip-row" style="margin-top: 24px;">
@@ -124,15 +128,15 @@ onMounted(loadJobs);
 
       <div class="jobs-hero__panel">
         <div class="panel-card jobs-hero__stat">
-          <span class="jobs-hero__label">Published Cards</span>
+          <span class="jobs-hero__label">已收录岗位</span>
           <strong>{{ summary.total }}</strong>
         </div>
         <div class="panel-card jobs-hero__stat">
-          <span class="jobs-hero__label">Filter Fields</span>
+          <span class="jobs-hero__label">筛选维度</span>
           <strong>5</strong>
         </div>
         <RouterLink :to="userStore.isAuthenticated ? '/profile/favorites' : '/login'" class="app-btn">
-          {{ userStore.isAuthenticated ? "Open My Favorites" : "Sign In To Save Jobs" }}
+          {{ userStore.isAuthenticated ? "查看我的收藏" : "登录后收藏岗位" }}
         </RouterLink>
       </div>
     </article>
@@ -140,8 +144,8 @@ onMounted(loadJobs);
     <article class="section-card">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Filter Desk</span>
-          <h2 class="page-title" style="margin-top: 16px;">Shape the shortlist before you leave the page.</h2>
+          <span class="section-eyebrow">岗位筛选</span>
+          <h2 class="page-title" style="margin-top: 16px;">先缩小范围，再继续比较岗位。</h2>
         </div>
       </div>
 
@@ -161,24 +165,23 @@ onMounted(loadJobs);
     <article class="section-card">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Current Board</span>
-          <h2 class="page-title" style="margin-top: 16px;">Jobs</h2>
+          <span class="section-eyebrow">岗位列表</span>
+          <h2 class="page-title" style="margin-top: 16px;">当前岗位</h2>
           <p class="page-subtitle" style="margin-top: 16px;">
-            Cards stay intentionally compact so you can compare city, requirement, source, and deadline without
-            drilling into every row.
+            岗位卡片会集中展示城市、学历要求、来源渠道和截止时间，方便你不离开页面也能快速比较。
           </p>
         </div>
       </div>
 
-      <div v-if="loading" class="empty-state">Loading job cards...</div>
+      <div v-if="loading" class="empty-state">正在加载岗位信息...</div>
       <div v-else-if="errorMessage" class="field-grid">
         <p class="field-error" role="alert">{{ errorMessage }}</p>
         <button type="button" class="ghost-btn" @click="loadJobs">
-          Retry
+          重试
         </button>
       </div>
       <div v-else-if="!summary.jobs.length" class="empty-state">
-        No jobs matched the current filters. Reset and widen the search.
+        当前筛选条件下还没有匹配的岗位，试试重置筛选后再看看。
       </div>
       <div v-else class="jobs-grid">
         <JobPostingCard
