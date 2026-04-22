@@ -45,7 +45,7 @@
 - Modify: `backend/src/main/java/com/campus/service/CommunityService.java`
 - Test: `backend/src/test/java/com/campus/controller/CommunityControllerTests.java`
 
-- [ ] **Step 1: Write failing backend coverage for nested replies**
+- [x] **Step 1: Write failing backend coverage for nested replies**
 
 Add controller tests for:
 
@@ -54,7 +54,7 @@ Add controller tests for:
 - authenticated users creating replies through `POST /api/community/comments/{id}/replies`
 - rejecting reply creation when the target comment is already a reply
 
-- [ ] **Step 2: Run the backend community tests to confirm failure**
+- [x] **Step 2: Run the backend community tests to confirm failure**
 
 Run:
 
@@ -63,7 +63,7 @@ cd backend
 mvn -q -Dtest=CommunityControllerTests test
 ```
 
-- [ ] **Step 3: Implement the threaded reply backend contract**
+- [x] **Step 3: Implement the threaded reply backend contract**
 
 Add:
 
@@ -76,7 +76,7 @@ Add:
 - ordered detail mapping that groups replies under their owning top-level comment
 - unchanged `commentCount` semantics so all visible rows still count toward discussion volume
 
-- [ ] **Step 4: Re-run the backend community tests**
+- [x] **Step 4: Re-run the backend community tests**
 
 Run:
 
@@ -85,7 +85,7 @@ cd backend
 mvn -q -Dtest=CommunityControllerTests test
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/resources/schema.sql backend/src/main/resources/data.sql backend/src/main/java/com/campus/entity/CommunityComment.java backend/src/main/java/com/campus/dto/CommunityPostDetailResponse.java backend/src/main/java/com/campus/controller/CommunityController.java backend/src/main/java/com/campus/service/CommunityService.java backend/src/test/java/com/campus/controller/CommunityControllerTests.java
@@ -101,7 +101,7 @@ git commit -m "feat: add community threaded reply api"
 - Test: `backend/src/test/java/com/campus/controller/CommunityControllerTests.java`
 - Test: `backend/src/test/java/com/campus/controller/NotificationControllerTests.java`
 
-- [ ] **Step 1: Write failing notification coverage**
+- [x] **Step 1: Write failing notification coverage**
 
 Add tests proving that:
 
@@ -109,7 +109,7 @@ Add tests proving that:
 - replying to your own top-level comment does not create a notification
 - the recipient notification list exposes the new type, title, content, and source post reference
 
-- [ ] **Step 2: Run the backend notification-focused tests**
+- [x] **Step 2: Run the backend notification-focused tests**
 
 Run:
 
@@ -118,7 +118,7 @@ cd backend
 mvn -q "-Dtest=CommunityControllerTests,NotificationControllerTests" test
 ```
 
-- [ ] **Step 3: Implement the minimal notification flow**
+- [x] **Step 3: Implement the minimal notification flow**
 
 Update the backend to:
 
@@ -131,7 +131,7 @@ Update the backend to:
   - sourceType: `COMMUNITY_POST`
   - sourceId: `<post id>`
 
-- [ ] **Step 4: Re-run the backend notification-focused tests**
+- [x] **Step 4: Re-run the backend notification-focused tests**
 
 Run:
 
@@ -140,7 +140,7 @@ cd backend
 mvn -q "-Dtest=CommunityControllerTests,NotificationControllerTests" test
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/java/com/campus/common/NotificationType.java backend/src/main/java/com/campus/service/CommunityService.java backend/src/test/java/com/campus/controller/CommunityControllerTests.java backend/src/test/java/com/campus/controller/NotificationControllerTests.java
@@ -156,7 +156,7 @@ git commit -m "feat: notify users about community replies"
 - Modify: `frontend/src/views/CommunityDetailView.vue`
 - Modify: `frontend/src/views/CommunityDetailView.spec.js`
 
-- [ ] **Step 1: Write failing frontend detail tests**
+- [x] **Step 1: Write failing frontend detail tests**
 
 Cover:
 
@@ -165,7 +165,7 @@ Cover:
 - submitting a reply through the new reply API and refreshing the detail state with the returned payload
 - preserving the existing first-level comment submit flow
 
-- [ ] **Step 2: Run the frontend detail tests to confirm failure**
+- [x] **Step 2: Run the frontend detail tests to confirm failure**
 
 Run:
 
@@ -174,7 +174,7 @@ cd frontend
 npx vitest run src/views/CommunityDetailView.spec.js
 ```
 
-- [ ] **Step 3: Implement the threaded reply UI**
+- [x] **Step 3: Implement the threaded reply UI**
 
 Add:
 
@@ -184,7 +184,7 @@ Add:
 - nested reply rendering in `CommunityCommentList.vue` with reply author, reply target nickname, content, and timestamp
 - a visually lighter reply container so second-level discussion is distinct without changing the overall page structure
 
-- [ ] **Step 4: Re-run the frontend detail tests**
+- [x] **Step 4: Re-run the frontend detail tests**
 
 Run:
 
@@ -193,7 +193,7 @@ cd frontend
 npx vitest run src/views/CommunityDetailView.spec.js
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/api/community.js frontend/src/components/CommunityCommentList.vue frontend/src/views/CommunityDetailView.vue frontend/src/views/CommunityDetailView.spec.js
@@ -207,11 +207,11 @@ git commit -m "feat: add community threaded reply ui"
 - Modify: `frontend/src/views/NotificationCenterView.vue`
 - Modify: `frontend/src/views/NotificationCenterView.spec.js`
 
-- [ ] **Step 1: Write failing notification-center coverage**
+- [x] **Step 1: Write failing notification-center coverage**
 
 Add a frontend test proving that `COMMUNITY_REPLY_RECEIVED` renders with a readable label and still participates in the existing unread/read interaction flow.
 
-- [ ] **Step 2: Run the notification-center test to confirm failure**
+- [x] **Step 2: Run the notification-center test to confirm failure**
 
 Run:
 
@@ -220,11 +220,11 @@ cd frontend
 npx vitest run src/views/NotificationCenterView.spec.js
 ```
 
-- [ ] **Step 3: Implement the new notification label mapping**
+- [x] **Step 3: Implement the new notification label mapping**
 
 Update `NotificationCenterView.vue` so the label map recognizes `COMMUNITY_REPLY_RECEIVED` with a community-reply-specific display label while leaving the existing notification actions untouched.
 
-- [ ] **Step 4: Re-run the notification-center test**
+- [x] **Step 4: Re-run the notification-center test**
 
 Run:
 
@@ -233,7 +233,7 @@ cd frontend
 npx vitest run src/views/NotificationCenterView.spec.js
 ```
 
-- [ ] **Step 5: Run targeted regression verification**
+- [x] **Step 5: Run targeted regression verification**
 
 Run:
 
@@ -248,7 +248,7 @@ npx vitest run src/views/CommunityDetailView.spec.js src/views/NotificationCente
 npm run build
 ```
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add frontend/src/views/NotificationCenterView.vue frontend/src/views/NotificationCenterView.spec.js
