@@ -1,5 +1,6 @@
 package com.campus.storage;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -65,6 +66,14 @@ public class SdkMinioObjectOperations implements MinioObjectOperations {
                     .bucket(bucketName)
                     .object(objectKey)
                     .build());
+        } catch (ErrorResponseException exception) {
+            String code = exception.errorResponse() == null ? null : exception.errorResponse().code();
+            if ("NoSuchKey".equals(code) || "NoSuchObject".equals(code)) {
+                FileNotFoundException notFound = new FileNotFoundException("failed to get minio object");
+                notFound.initCause(exception);
+                throw notFound;
+            }
+            throw asIoException("failed to get minio object", exception);
         } catch (Exception exception) {
             throw asIoException("failed to get minio object", exception);
         }

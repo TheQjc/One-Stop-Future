@@ -3,6 +3,7 @@ package com.campus.preview;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -54,5 +55,14 @@ class HistoricalLocalResourcePreviewArtifactReaderTests {
         assertThatThrownBy(() -> reader.open("../escape.pdf"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("escapes local preview root");
+    }
+
+    @Test
+    void readerOpenMissingArtifactBecomesFileNotFoundException() {
+        HistoricalLocalResourcePreviewArtifactReader reader =
+                new HistoricalLocalResourcePreviewArtifactReader(tempDir.toString());
+
+        assertThatThrownBy(() -> reader.open("pptx/9/missing.pdf"))
+                .isInstanceOf(FileNotFoundException.class);
     }
 }
