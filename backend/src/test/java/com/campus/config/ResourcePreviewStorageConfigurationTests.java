@@ -14,6 +14,7 @@ import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.context.ConfigurationPropertiesAutoConfiguration;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
+import com.campus.preview.FallbackResourcePreviewArtifactStorage;
 import com.campus.preview.LocalResourcePreviewArtifactStorage;
 import com.campus.preview.MinioResourcePreviewArtifactStorage;
 import com.campus.preview.ResourcePreviewArtifactStorage;
@@ -73,6 +74,39 @@ class ResourcePreviewStorageConfigurationTests {
                     assertThat(context).hasSingleBean(ResourcePreviewArtifactStorage.class);
                     assertThat(context).hasSingleBean(MinioResourcePreviewArtifactStorage.class);
                     assertThat(context).doesNotHaveBean(LocalResourcePreviewArtifactStorage.class);
+                });
+    }
+
+    @Test
+    void minioPreviewTypeWithFallbackEnabledCreatesComposedFallbackStorage() {
+        contextRunner
+                .withBean(MinioObjectOperations.class, FakeMinioObjectOperations::new)
+                .withPropertyValues(
+                        "app.resource-preview.type=minio",
+                        "app.resource-preview.read-fallback-local-enabled=true",
+                        "app.resource-preview.minio-prefix=preview-artifacts",
+                        "platform.integrations.minio.enabled=true",
+                        "platform.integrations.minio.endpoint=http://127.0.0.1:9000",
+                        "platform.integrations.minio.access-key=minioadmin",
+                        "platform.integrations.minio.secret-key=minioadmin",
+                        "platform.integrations.minio.bucket=campus-platform")
+                .run(context -> {
+                    assertThat(context).hasSingleBean(ResourcePreviewArtifactStorage.class);
+                    assertThat(context).hasSingleBean(FallbackResourcePreviewArtifactStorage.class);
+                    assertThat(context).doesNotHaveBean(LocalResourcePreviewArtifactStorage.class);
+                });
+    }
+
+    @Test
+    void localPreviewTypeIgnoresFallbackFlagAndStaysLocalOnly() {
+        contextRunner
+                .withPropertyValues(
+                        "app.resource-preview.type=local",
+                        "app.resource-preview.read-fallback-local-enabled=true")
+                .run(context -> {
+                    assertThat(context).hasSingleBean(ResourcePreviewArtifactStorage.class);
+                    assertThat(context).hasSingleBean(LocalResourcePreviewArtifactStorage.class);
+                    assertThat(context).doesNotHaveBean(FallbackResourcePreviewArtifactStorage.class);
                 });
     }
 

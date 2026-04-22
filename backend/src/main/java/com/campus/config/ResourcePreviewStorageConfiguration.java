@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 
+import com.campus.preview.FallbackResourcePreviewArtifactStorage;
+import com.campus.preview.HistoricalLocalResourcePreviewArtifactReader;
 import com.campus.preview.LocalResourcePreviewArtifactStorage;
 import com.campus.preview.MinioResourcePreviewArtifactStorage;
 import com.campus.preview.ResourcePreviewArtifactStorage;
@@ -38,9 +40,15 @@ public class ResourcePreviewStorageConfiguration {
             ResourcePreviewProperties previewProperties,
             MinioIntegrationProperties minioProperties,
             MinioObjectOperations operations) throws IOException {
-        return new MinioResourcePreviewArtifactStorage(
+        MinioResourcePreviewArtifactStorage primaryStorage = new MinioResourcePreviewArtifactStorage(
                 minioProperties.getBucket(),
                 previewProperties.getMinioPrefix(),
                 operations);
+        if (!previewProperties.isReadFallbackLocalEnabled()) {
+            return primaryStorage;
+        }
+        return new FallbackResourcePreviewArtifactStorage(
+                primaryStorage,
+                new HistoricalLocalResourcePreviewArtifactReader(previewProperties.getLocalRoot()));
     }
 }

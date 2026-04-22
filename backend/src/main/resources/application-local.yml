@@ -20,6 +20,7 @@ app:
     type: local
     local-root: .local-storage/previews
     minio-prefix: preview-artifacts
+    read-fallback-local-enabled: false
     docx:
       soffice-command: soffice
 

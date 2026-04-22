@@ -13,6 +13,7 @@ public class ResourcePreviewProperties {
     private String type = "local";
     private String localRoot = ".local-storage/previews";
     private String minioPrefix = "preview-artifacts";
+    private boolean readFallbackLocalEnabled = false;
     private Docx docx = new Docx();
 
     @Data
