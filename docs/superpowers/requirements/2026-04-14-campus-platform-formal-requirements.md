@@ -1,5 +1,7 @@
 # 校园一站式信息平台正式需求清单
 
+> **Baseline note:** Historical campus-platform requirements artifact kept for traceability only. It was superseded by the regenerated study-career-platform baseline in `docs/superpowers/requirements/2026-04-15-study-career-platform-formal-requirements.md` and should not drive current implementation planning.
+
 本文档按模块和约束分层整理已有方案中的显式需求、隐含约束和已确认补充需求，面向后续开发使用。每条需求应具备编号、来源、适用角色和优先级，便于拆解、实现和验收。
 
 ## 1. 文档目标与范围

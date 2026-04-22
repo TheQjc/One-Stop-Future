@@ -1,5 +1,7 @@
 # 校园一站式信息平台（就业 / 考研 / 出国留学）正式需求清单
 
+> **Active baseline note:** This is the active formal requirements baseline for the regenerated study-career-platform scope. Downstream phase designs, implementation plans, and execution records should trace back to this document unless a later approved requirements revision supersedes it.
+
 ## 1. 文档目的
 
 本文档基于《校园一站式信息平台_软件需求说明书》整理当前项目的正式需求清单，作为后续架构、实施计划、编码和验收的统一依据。
