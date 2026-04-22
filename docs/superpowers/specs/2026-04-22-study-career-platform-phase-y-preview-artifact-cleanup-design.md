@@ -1,5 +1,7 @@
 # Study Career Platform Phase Y Preview Artifact Cleanup Design
 
+> **Validation note:** This design was implemented and validated on 2026-04-22 using the approved execution record at `docs/superpowers/plans/2026-04-22-study-career-platform-phase-y-preview-artifact-cleanup-implementation.md`. Local verification suites now present for this slice are `LocalResourcePreviewArtifactStorageTests`, `MinioResourcePreviewArtifactStorageTests`, `FallbackResourcePreviewArtifactStorageTests`, `HistoricalLocalResourcePreviewArtifactCleanerTests`, `PreviewArtifactCleanupServiceTests`, `ResourcePreviewServiceTests`, `AdminResourcePreviewMigrationServiceTests`, `ResourceControllerPreviewFallbackTests`, `ResourceControllerTests`, `AdminResourceControllerTests`, and `ResourcePreviewStorageConfigurationTests`.
+
 ## 1. Goal
 
 Phase Y adds a narrow automatic cleanup slice for stale preview artifacts while preserving the current Spring Boot monolith, Vue SPA, preview HTTP contracts, database schema, and the Phase T / W / X preview-storage rollout model.

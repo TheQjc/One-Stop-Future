@@ -1,6 +1,6 @@
 # One-Stop Future
 
-Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice + Phase H resource preview expansion first slice + Phase I MinIO raw resource storage first slice + Phase J historical local resource MinIO migration first slice + Phase K decision support first slice + Phase L decision analytics first slice + Phase M admin dashboard first slice + Phase N job application and resume workflow first slice + Phase O admin user status management first slice + Phase P community hot ranking first slice + Phase Q community experience post structure first slice + Phase R community threaded replies first slice + Phase S DOCX resource preview first slice + Phase T MinIO preview artifact storage first slice + Phase U admin batch job import first slice + Phase V third-party job sync first slice + Phase W historical preview artifact MinIO migration first slice + Phase X preview artifact runtime dual-read fallback first slice`.
+Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice + Phase H resource preview expansion first slice + Phase I MinIO raw resource storage first slice + Phase J historical local resource MinIO migration first slice + Phase K decision support first slice + Phase L decision analytics first slice + Phase M admin dashboard first slice + Phase N job application and resume workflow first slice + Phase O admin user status management first slice + Phase P community hot ranking first slice + Phase Q community experience post structure first slice + Phase R community threaded replies first slice + Phase S DOCX resource preview first slice + Phase T MinIO preview artifact storage first slice + Phase U admin batch job import first slice + Phase V third-party job sync first slice + Phase W historical preview artifact MinIO migration first slice + Phase X preview artifact runtime dual-read fallback first slice + Phase Y preview artifact cleanup first slice`.
 
 ## Current Scope
 
@@ -54,7 +54,6 @@ Implemented now:
 
 Explicitly not implemented yet:
 
-- automatic preview-artifact cleanup
 - full admin operations dashboards, DAU / funnel metrics, or exportable analytics reports
 - version history, chunk upload, resume rename / replace, or online resume preview
 
@@ -69,7 +68,9 @@ Explicitly not implemented yet:
   - switching preview storage from local to MinIO does not automatically migrate historical local preview artifacts
   - runtime reads can use `MinIO first -> local historical fallback` only when `RESOURCE_PREVIEW_READ_FALLBACK_LOCAL_ENABLED=true`
   - admins can instead trigger historical preview-artifact MinIO migration through `POST /api/admin/resources/migrate-preview-artifacts-to-minio`
-  - old preview artifacts are not garbage-collected automatically
+  - stale derived preview artifacts are cleaned up best-effort after rejected-resource resubmission when the old logical preview key is known exactly
+  - passive resource interactions and admin status transitions no longer rotate preview artifact keys through unrelated `updatedAt` writes
+  - this phase still does not introduce recursive preview-root scanning or scheduled preview garbage collection
   - to reset derived preview state during local development, stop the backend and delete `backend/.local-storage/previews/`
 
 ## Local Run
@@ -148,7 +149,9 @@ Current behavior:
 - admins can call `POST /api/admin/resources/migrate-preview-artifacts-to-minio` to dry-run or execute historical preview-artifact migration into MinIO
 - migration targets only the current logical `PPTX`, `DOCX`, or `ZIP` preview artifact for each eligible resource
 - successful migration keeps local source preview artifacts in place
-- preview-artifact garbage collection remains out of scope in this phase
+- stale derived preview artifacts are cleaned up best-effort after rejected-resource resubmission when the old logical preview key is known exactly
+- passive resource interactions and admin status transitions no longer rotate preview artifact keys through unrelated `updatedAt` writes
+- this phase still does not introduce recursive preview-root scanning or scheduled preview garbage collection
 
 ## Local Demo Accounts
 
