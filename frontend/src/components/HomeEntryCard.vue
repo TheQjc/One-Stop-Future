@@ -37,7 +37,6 @@ const cardMeta = computed(() => {
     class="home-entry-card"
     :class="{ 'home-entry-card--muted': !entry.enabled }"
   >
-    <p class="home-entry-card__code">{{ entry.code }}</p>
     <h3 class="home-entry-card__title">{{ entry.title }}</h3>
     <p v-if="entry.description" class="home-entry-card__description">
       {{ entry.description }}
@@ -75,17 +74,11 @@ const cardMeta = computed(() => {
   opacity: 0.72;
 }
 
-.home-entry-card__code,
 .home-entry-card__description,
 .home-entry-card__meta {
   margin: 0;
   font-size: var(--cp-text-sm);
   color: var(--cp-ink-soft);
-}
-
-.home-entry-card__code {
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
 }
 
 .home-entry-card__title {

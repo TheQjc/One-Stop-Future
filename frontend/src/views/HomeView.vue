@@ -64,7 +64,7 @@ function entryStatusText(entry) {
   }
 
   if (entry.enabled) {
-    return "Live";
+    return "已开放";
   }
 
   return badgeToText("COMING_SOON");
@@ -303,8 +303,8 @@ const serviceCards = computed(() => {
     },
     {
       code: "Track 06",
-      title: "Analytics",
-      description: "A live board that combines public trends with the current direction mix, plus your personal snapshot when available.",
+      title: "路径分析",
+      description: "把公开趋势、方向变化和你的当前状态放到同一个视图里，方便继续判断下一步。",
       path: "/analytics",
       enabled: Boolean(findEntry("analytics")?.enabled),
       metaLabel: entryStatusText(findEntry("analytics")),
@@ -314,15 +314,15 @@ const serviceCards = computed(() => {
   if (canReviewVerifications.value) {
     cards.push({
       code: "Desk 06",
-      title: "运营总览台",
-      description: "先读四个管理台的当日队列与计数，再进入具体审核与维护页面。",
+      title: "运营总览",
+      description: "先看当日队列和计数，再进入具体审核与维护页面。",
       path: "/admin/dashboard",
       enabled: true,
-      metaLabel: "进入总览台",
+      metaLabel: "进入总览",
     });
     cards.push({
       code: "Desk 07",
-      title: "认证审核台",
+      title: "认证审核",
       description: "教师与管理员可统一审核学生认证申请。",
       path: "/admin/verifications",
       enabled: true,
@@ -330,15 +330,15 @@ const serviceCards = computed(() => {
     });
     cards.push({
       code: "Desk 08",
-      title: "社区治理台",
+      title: "社区管理",
       description: "查看帖子状态和基础计数，并执行下架或删除操作。",
       path: "/admin/community",
       enabled: true,
-      metaLabel: "管理员专属工作台",
+      metaLabel: "管理员专属入口",
     });
     cards.push({
       code: "Desk 09",
-      title: "岗位管理台",
+      title: "岗位管理",
       description: "创建、编辑、发布和下线岗位卡片，保持前台岗位聚合数据可用。",
       path: "/admin/jobs",
       enabled: true,
@@ -358,10 +358,15 @@ const roadmapSignals = computed(() => (
 
 const latestNotifications = computed(() => summary.value.latestNotifications || []);
 const discoverPreview = computed(() => summary.value.discoverPreview || { period: "WEEK", items: [] });
+const discoverPreviewEmptyTitle = computed(() => (
+  discoverPreview.value.period === "ALL"
+    ? "趋势内容还在整理中"
+    : "本周趋势还在更新中"
+));
 const discoverPreviewEmptyCopy = computed(() => (
   discoverPreview.value.period === "ALL"
-    ? "No discover picks have entered the all-time desk yet."
-    : "No discover picks have entered this weekly desk yet."
+    ? "全部时段还没有新的趋势内容。"
+    : "本周还没有新的趋势内容，稍后再来看看。"
 ));
 const homeDiscoverLink = computed(() => ({
   name: "discover",
@@ -484,11 +489,11 @@ onMounted(loadSummary);
         </div>
       </article>
 
-      <article class="section-card">
+      <article class="section-card" data-test="home-section-snapshot">
         <div class="section-header">
           <div>
-            <span class="section-eyebrow">Today's Snapshot</span>
-            <h2 class="page-title" style="margin-top: 16px;">首页态势</h2>
+            <span class="section-eyebrow">今日概览</span>
+            <h2 class="page-title" style="margin-top: 16px;">先看清你现在的状态和待办</h2>
           </div>
         </div>
 
@@ -576,23 +581,23 @@ onMounted(loadSummary);
       </div>
     </article>
 
-    <article class="section-card">
+    <article class="section-card" data-test="home-section-discover">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Discover Preview</span>
-          <h2 class="page-title" style="margin-top: 16px;">Spot what is gathering momentum before you search for it.</h2>
+          <span class="section-eyebrow">本周趋势</span>
+          <h2 class="page-title" style="margin-top: 16px;">看看这一周大家都在关注什么，再决定要不要深入查看</h2>
           <p class="page-subtitle" style="margin-top: 16px;">
-            Homepage preview keeps the weekly public board visible, then hands off to the dedicated discover desk for the full ranking view.
+            首页先保留每周公开趋势，想看完整排序和更多内容，再进入趋势页。
           </p>
         </div>
-        <RouterLink :to="homeDiscoverLink" class="app-link discover-preview__cta">
-          Enter Discover
+        <RouterLink :to="homeDiscoverLink" class="app-link discover-preview__cta" data-test="home-discover-cta">
+          查看全部趋势
         </RouterLink>
       </div>
 
-      <div v-if="loading" class="empty-state">Loading discover preview...</div>
+      <div v-if="loading" class="empty-state">正在整理本周趋势...</div>
       <div v-else-if="discoverPreview.items.length === 0" class="empty-state discover-preview__empty">
-        <strong>Weekly desk is still quiet</strong>
+        <strong>{{ discoverPreviewEmptyTitle }}</strong>
         <p class="meta-copy">{{ discoverPreviewEmptyCopy }}</p>
       </div>
       <div v-else class="discover-preview-grid">
@@ -605,11 +610,11 @@ onMounted(loadSummary);
     </article>
 
     <div class="dashboard-grid">
-      <article class="section-card">
+      <article class="section-card" data-test="home-section-notifications">
         <div class="section-header">
           <div>
-            <span class="section-eyebrow">Latest Updates</span>
-            <h2 class="page-title" style="margin-top: 16px;">最新通知预览</h2>
+            <span class="section-eyebrow">最新通知</span>
+            <h2 class="page-title" style="margin-top: 16px;">及时查看通知与审核反馈</h2>
           </div>
           <RouterLink
             v-if="!isGuest"
@@ -622,7 +627,7 @@ onMounted(loadSummary);
 
         <div v-if="loading" class="empty-state">正在同步最新通知...</div>
         <div v-else-if="latestNotifications.length === 0" class="empty-state">
-          {{ isGuest ? "登录后可查看个人通知与审核结果。" : "当前没有新的通知预览。" }}
+          {{ isGuest ? "登录后可查看与你相关的通知和处理结果。" : "当前还没有新的通知。" }}
         </div>
         <div v-else class="notification-list">
           <article
@@ -648,8 +653,8 @@ onMounted(loadSummary);
       <article class="section-card">
         <div class="section-header">
           <div>
-            <span class="section-eyebrow">Why This Home</span>
-            <h2 class="page-title" style="margin-top: 16px;">为什么要独立首页聚合展示</h2>
+            <span class="section-eyebrow">首页说明</span>
+            <h2 class="page-title" style="margin-top: 16px;">为什么这样安排首页结构</h2>
           </div>
         </div>
 

@@ -196,10 +196,16 @@ test("renders guest hero copy in approved Chinese wording with live resources li
   expect(wrapper.get('[data-test="home-status-chip"]').text()).toBe("首页服务已开启");
   expect(wrapper.get('[data-test="home-primary-cta"]').text()).toBe("登录查看个人待办");
   expect(wrapper.get('[data-test="home-secondary-cta"]').text()).toBe("立即注册");
+  expect(wrapper.get('[data-test="home-section-snapshot"]').text()).toContain("今日概览");
+  expect(wrapper.get('[data-test="home-section-discover"]').text()).toContain("本周趋势");
+  expect(wrapper.get('[data-test="home-section-notifications"]').text()).toContain("最新通知");
+  expect(wrapper.get('[data-test="home-discover-cta"]').text()).toBe("查看全部趋势");
   expect(wrapper.html()).toContain('data-to="/resources"');
   expect(wrapper.html()).toContain('data-to="/jobs"');
   expect(wrapper.html()).toContain('data-to="/analytics"');
   expect(wrapper.text()).toContain("Resume Pack");
+  expect(wrapper.text()).toContain("资料");
+  expect(wrapper.text()).toContain("热度 12");
   expect(wrapper.html()).toContain('data-to="/resources/11"');
   expect(wrapper.html()).toContain('data-to="{&quot;name&quot;:&quot;discover&quot;,&quot;query&quot;:{&quot;tab&quot;:&quot;ALL&quot;,&quot;period&quot;:&quot;WEEK&quot;}}"');
 });
@@ -263,6 +269,8 @@ test("home keeps common entry section before growth directions", async () => {
   expect(orderedSections.indexOf("home-section-entries")).toBeLessThan(orderedSections.indexOf("home-section-tracks"));
   expect(wrapper.get('[data-test="home-section-entries"]').text()).toContain("常用入口");
   expect(wrapper.get('[data-test="home-section-tracks"]').text()).toContain("成长方向");
+  expect(wrapper.text()).not.toContain("Desk 00");
+  expect(wrapper.text()).not.toContain("Track 03");
 });
 
 test("home search submits into the unified search page", async () => {
@@ -304,7 +312,20 @@ test("home preview shows a graceful empty state when preview items are empty", a
   const wrapper = mountView();
   await flushPromises();
 
-  expect(wrapper.text()).toContain("No discover picks have entered this weekly desk yet.");
+  expect(wrapper.get('[data-test="home-section-discover"]').text()).toContain("本周趋势还在更新中");
+  expect(wrapper.get('[data-test="home-section-discover"]').text()).toContain("本周还没有新的趋势内容，稍后再来看看。");
+});
+
+test("guest home shows a Chinese notification empty state", async () => {
+  getHomeSummary.mockResolvedValue({
+    ...guestSummary,
+    latestNotifications: [],
+  });
+
+  const wrapper = mountView();
+  await flushPromises();
+
+  expect(wrapper.get('[data-test="home-section-notifications"]').text()).toContain("登录后可查看与你相关的通知和处理结果。");
 });
 
 test("admin home shows the dashboard link before the existing admin destinations", async () => {

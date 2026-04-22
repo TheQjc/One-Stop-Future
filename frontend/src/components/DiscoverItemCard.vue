@@ -10,9 +10,9 @@ const props = defineProps({
 });
 
 const typeLabels = {
-  POST: "Community",
-  JOB: "Job",
-  RESOURCE: "Resource",
+  POST: "社区",
+  JOB: "岗位",
+  RESOURCE: "资料",
 };
 
 const typeClasses = {
@@ -21,18 +21,18 @@ const typeClasses = {
   RESOURCE: "discover-item-card__type--resource",
 };
 
-const localizedType = computed(() => typeLabels[props.item.type] || props.item.type || "Board Item");
+const localizedType = computed(() => typeLabels[props.item.type] || props.item.type || "内容");
 const typeClassName = computed(() => typeClasses[props.item.type] || "");
 
 function formatDate(value) {
   if (!value) {
-    return "Publishing window pending";
+    return "待发布";
   }
 
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    return "Publishing window pending";
+    return "待发布";
   }
 
   return new Intl.DateTimeFormat("zh-CN", {
@@ -46,12 +46,12 @@ function formatDate(value) {
   <RouterLink class="discover-item-card" :to="item.path">
     <div class="discover-item-card__topline">
       <span class="discover-item-card__type" :class="typeClassName">{{ localizedType }}</span>
-      <span class="discover-item-card__label">{{ item.hotLabel || "Discover Pick" }}</span>
+      <span class="discover-item-card__label">{{ item.hotLabel || "本周推荐" }}</span>
     </div>
 
     <div class="discover-item-card__body">
       <h3 class="discover-item-card__title">{{ item.title }}</h3>
-      <p class="discover-item-card__summary">{{ item.summary || "No summary has been attached to this board item yet." }}</p>
+      <p class="discover-item-card__summary">{{ item.summary || "暂未提供内容摘要" }}</p>
     </div>
 
     <div class="discover-item-card__meta">
@@ -61,7 +61,7 @@ function formatDate(value) {
 
     <div class="discover-item-card__footer">
       <span class="discover-item-card__date">{{ formatDate(item.publishedAt) }}</span>
-      <span class="discover-item-card__score">Heat {{ Math.round(Number(item.hotScore || 0)) }}</span>
+      <span class="discover-item-card__score">热度 {{ Math.round(Number(item.hotScore || 0)) }}</span>
     </div>
   </RouterLink>
 </template>
