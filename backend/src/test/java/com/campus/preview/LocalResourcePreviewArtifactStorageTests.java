@@ -40,4 +40,29 @@ class LocalResourcePreviewArtifactStorageTests {
         assertThat(new String(storage.open("pptx/9/fingerprint.pdf").readAllBytes(), StandardCharsets.UTF_8))
                 .isEqualTo("%PDF");
     }
+
+    @Test
+    void deleteExistingArtifactRemovesStoredFile() throws Exception {
+        ResourcePreviewProperties properties = new ResourcePreviewProperties();
+        properties.setLocalRoot(tempDir.toString());
+        LocalResourcePreviewArtifactStorage storage = new LocalResourcePreviewArtifactStorage(properties);
+        Path artifactPath = tempDir.resolve("pptx/9/fingerprint.pdf");
+        Files.createDirectories(artifactPath.getParent());
+        Files.writeString(artifactPath, "%PDF");
+
+        storage.delete("pptx/9/fingerprint.pdf");
+
+        assertThat(Files.exists(artifactPath)).isFalse();
+    }
+
+    @Test
+    void deleteMissingArtifactIsIdempotent() throws Exception {
+        ResourcePreviewProperties properties = new ResourcePreviewProperties();
+        properties.setLocalRoot(tempDir.toString());
+        LocalResourcePreviewArtifactStorage storage = new LocalResourcePreviewArtifactStorage(properties);
+
+        storage.delete("pptx/9/missing.pdf");
+
+        assertThat(Files.exists(tempDir.resolve("pptx/9/missing.pdf"))).isFalse();
+    }
 }

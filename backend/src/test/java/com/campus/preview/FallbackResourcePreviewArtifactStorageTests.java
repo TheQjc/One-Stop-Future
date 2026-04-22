@@ -89,9 +89,26 @@ class FallbackResourcePreviewArtifactStorageTests {
         assertThat(Files.exists(tempDir.resolve("pptx/9/fingerprint.pdf"))).isFalse();
     }
 
+    @Test
+    void deleteDelegatesToPrimaryOnly() throws Exception {
+        RecordingPrimaryStorage primary = new RecordingPrimaryStorage();
+        Path localArtifact = tempDir.resolve("pptx/9/fingerprint.pdf");
+        Files.createDirectories(localArtifact.getParent());
+        Files.writeString(localArtifact, "%PDF-local");
+        FallbackResourcePreviewArtifactStorage storage = new FallbackResourcePreviewArtifactStorage(
+                primary,
+                new HistoricalLocalResourcePreviewArtifactReader(tempDir.toString()));
+
+        storage.delete("pptx/9/fingerprint.pdf");
+
+        assertThat(primary.deletedKeys()).containsExactly("pptx/9/fingerprint.pdf");
+        assertThat(Files.exists(localArtifact)).isTrue();
+    }
+
     private static class RecordingPrimaryStorage implements ResourcePreviewArtifactStorage {
 
         private final Map<String, byte[]> artifacts = new LinkedHashMap<>();
+        private final java.util.List<String> deletedKeys = new java.util.ArrayList<>();
 
         void put(String artifactKey, String value) {
             artifacts.put(artifactKey, value.getBytes(StandardCharsets.UTF_8));
@@ -100,6 +117,10 @@ class FallbackResourcePreviewArtifactStorageTests {
         String stored(String artifactKey) {
             byte[] artifact = artifacts.get(artifactKey);
             return artifact == null ? null : new String(artifact, StandardCharsets.UTF_8);
+        }
+
+        java.util.List<String> deletedKeys() {
+            return deletedKeys;
         }
 
         @Override
@@ -120,6 +141,12 @@ class FallbackResourcePreviewArtifactStorageTests {
         public void write(String artifactKey, InputStream inputStream) throws IOException {
             artifacts.put(artifactKey, inputStream.readAllBytes());
         }
+
+        @Override
+        public void delete(String artifactKey) {
+            deletedKeys.add(artifactKey);
+            artifacts.remove(artifactKey);
+        }
     }
 
     private static class MissingPrimaryStorage implements ResourcePreviewArtifactStorage {
@@ -137,6 +164,10 @@ class FallbackResourcePreviewArtifactStorageTests {
         @Override
         public void write(String artifactKey, InputStream inputStream) throws IOException {
             throw new IOException("not implemented");
+        }
+
+        @Override
+        public void delete(String artifactKey) {
         }
     }
 
@@ -160,6 +191,11 @@ class FallbackResourcePreviewArtifactStorageTests {
 
         @Override
         public void write(String artifactKey, InputStream inputStream) throws IOException {
+            throw exception;
+        }
+
+        @Override
+        public void delete(String artifactKey) throws IOException {
             throw exception;
         }
     }

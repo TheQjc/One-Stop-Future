@@ -10,4 +10,6 @@ public interface ResourcePreviewArtifactStorage {
     InputStream open(String artifactKey) throws IOException;
 
     void write(String artifactKey, InputStream inputStream) throws IOException;
+
+    void delete(String artifactKey) throws IOException;
 }

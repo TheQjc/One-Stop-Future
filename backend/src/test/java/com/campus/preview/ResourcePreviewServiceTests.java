@@ -233,6 +233,11 @@ class ResourcePreviewServiceTests {
         public void write(String artifactKey, InputStream inputStream) throws IOException {
             throw new IOException("not implemented");
         }
+
+        @Override
+        public void delete(String artifactKey) throws IOException {
+            throw new IOException("not implemented");
+        }
     }
 
     private static class InMemoryStorage implements ResourcePreviewArtifactStorage {
@@ -256,6 +261,11 @@ class ResourcePreviewServiceTests {
         @Override
         public void write(String artifactKey, InputStream inputStream) throws IOException {
             artifacts.put(artifactKey, inputStream.readAllBytes());
+        }
+
+        @Override
+        public void delete(String artifactKey) {
+            artifacts.remove(artifactKey);
         }
     }
 
@@ -281,6 +291,11 @@ class ResourcePreviewServiceTests {
         public void write(String artifactKey, InputStream inputStream) throws IOException {
             throw new IOException("not implemented");
         }
+
+        @Override
+        public void delete(String artifactKey) throws IOException {
+            throw exception;
+        }
     }
 
     private static class MissingOnOpenStorage implements ResourcePreviewArtifactStorage {
@@ -301,6 +316,10 @@ class ResourcePreviewServiceTests {
         public void write(String artifactKey, InputStream inputStream) throws IOException {
             writtenKeys.add(artifactKey);
             inputStream.readAllBytes();
+        }
+
+        @Override
+        public void delete(String artifactKey) {
         }
 
         private List<String> writtenKeys() {

@@ -36,6 +36,11 @@ public class MinioResourcePreviewArtifactStorage implements ResourcePreviewArtif
         operations.putObject(bucketName, objectKeyOf(artifactKey), inputStream);
     }
 
+    @Override
+    public void delete(String artifactKey) throws IOException {
+        operations.removeObject(bucketName, objectKeyOf(artifactKey));
+    }
+
     private void ensureBucket() throws IOException {
         if (!operations.bucketExists(bucketName)) {
             operations.createBucket(bucketName);

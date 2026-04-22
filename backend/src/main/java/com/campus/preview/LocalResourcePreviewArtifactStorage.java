@@ -48,4 +48,9 @@ public class LocalResourcePreviewArtifactStorage implements ResourcePreviewArtif
         Files.createDirectories(artifactPath.getParent());
         Files.copy(inputStream, artifactPath, StandardCopyOption.REPLACE_EXISTING);
     }
+
+    @Override
+    public void delete(String artifactKey) throws IOException {
+        Files.deleteIfExists(pathResolver.resolve(artifactKey));
+    }
 }

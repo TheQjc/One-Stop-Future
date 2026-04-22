@@ -278,6 +278,10 @@ class AdminResourcePreviewMigrationServiceTests {
             @Override
             public void write(String artifactKey, InputStream inputStream) {
             }
+
+            @Override
+            public void delete(String artifactKey) {
+            }
         };
         PptxPreviewGenerator pptxGenerator = inputStream -> new byte[0];
         DocxPreviewGenerator docxGenerator = inputStream -> new byte[0];

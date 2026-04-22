@@ -38,4 +38,9 @@ public class FallbackResourcePreviewArtifactStorage implements ResourcePreviewAr
     public void write(String artifactKey, InputStream inputStream) throws IOException {
         primaryStorage.write(artifactKey, inputStream);
     }
+
+    @Override
+    public void delete(String artifactKey) throws IOException {
+        primaryStorage.delete(artifactKey);
+    }
 }

@@ -56,6 +56,18 @@ class MinioResourcePreviewArtifactStorageTests {
     }
 
     @Test
+    void deleteRemovesObjectUnderConfiguredPrefix() throws Exception {
+        FakeMinioObjectOperations operations = new FakeMinioObjectOperations();
+        MinioResourcePreviewArtifactStorage storage = new MinioResourcePreviewArtifactStorage(
+                "campus-platform", "preview-artifacts", operations);
+        storage.write("docx/9/fingerprint.pdf", new ByteArrayInputStream("%PDF".getBytes(StandardCharsets.UTF_8)));
+
+        storage.delete("docx/9/fingerprint.pdf");
+
+        assertThat(storage.exists("docx/9/fingerprint.pdf")).isFalse();
+    }
+
+    @Test
     void constructorRejectsBlankPrefix() {
         FakeMinioObjectOperations operations = new FakeMinioObjectOperations();
 
