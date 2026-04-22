@@ -337,6 +337,12 @@ Backend endpoints:
 - `GET /api/admin/applications/{id}/resume/preview`
 - `GET /api/admin/applications/{id}/resume/download`
 
+Frontend routes:
+
+- `/profile/resumes`
+- `/profile/applications`
+- `/admin/applications`
+
 Current Phase N + Phase AA scope:
 
 - authenticated users can keep multiple resume files in `/profile/resumes`
@@ -577,6 +583,10 @@ Public backend endpoint:
 
 - `GET /api/search`
 
+Frontend route:
+
+- `/search`
+
 Supported query params:
 
 - `q`
@@ -607,6 +617,10 @@ Current search scope:
 Public backend endpoint:
 
 - `GET /api/discover`
+
+Frontend route:
+
+- `/discover`
 
 Supported query params:
 
@@ -644,6 +658,13 @@ Backend endpoints:
 - `GET /api/decision/schools?track=EXAM|ABROAD&keyword=...`
 - `POST /api/decision/schools/compare`
 - `GET /api/analytics/summary?period=7D|30D`
+
+Frontend routes:
+
+- `/assessment`
+- `/timeline`
+- `/schools/compare`
+- `/analytics`
 
 Current decision-support and analytics scope:
 
