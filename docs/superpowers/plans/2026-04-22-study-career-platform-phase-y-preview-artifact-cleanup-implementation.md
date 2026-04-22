@@ -139,7 +139,7 @@ This plan explicitly does not implement:
 - Modify: `backend/src/test/java/com/campus/preview/ResourcePreviewServiceTests.java`
 - Modify: `backend/src/test/java/com/campus/service/AdminResourcePreviewMigrationServiceTests.java`
 
-- [ ] **Step 1: Write the failing delete-support tests**
+- [x] **Step 1: Write the failing delete-support tests**
 
 Extend `LocalResourcePreviewArtifactStorageTests`:
 
@@ -242,7 +242,7 @@ class HistoricalLocalResourcePreviewArtifactCleanerTests {
 }
 ```
 
-- [ ] **Step 2: Run the targeted storage tests and verify failure**
+- [x] **Step 2: Run the targeted storage tests and verify failure**
 
 Run:
 
@@ -253,7 +253,7 @@ mvn -q "-Dtest=LocalResourcePreviewArtifactStorageTests,MinioResourcePreviewArti
 
 Expected: FAIL because the storage interface does not expose delete yet and the historical cleaner does not exist.
 
-- [ ] **Step 3: Implement delete support and compile fixes**
+- [x] **Step 3: Implement delete support and compile fixes**
 
 Update `ResourcePreviewArtifactStorage`:
 
@@ -320,7 +320,7 @@ Also update every in-test `ResourcePreviewArtifactStorage` double to add a no-op
 - `backend/src/test/java/com/campus/preview/ResourcePreviewServiceTests.java`
 - `backend/src/test/java/com/campus/service/AdminResourcePreviewMigrationServiceTests.java`
 
-- [ ] **Step 4: Re-run the targeted storage tests and verify success**
+- [x] **Step 4: Re-run the targeted storage tests and verify success**
 
 Run:
 
@@ -331,7 +331,7 @@ mvn -q "-Dtest=LocalResourcePreviewArtifactStorageTests,MinioResourcePreviewArti
 
 Expected: PASS with exact-key deletion and no historical-root scanning.
 
-- [ ] **Step 5: Commit the storage delete foundation**
+- [x] **Step 5: Commit the storage delete foundation**
 
 ```bash
 git add backend/src/main/java/com/campus/preview/ResourcePreviewArtifactStorage.java backend/src/main/java/com/campus/preview/LocalResourcePreviewArtifactStorage.java backend/src/main/java/com/campus/preview/MinioResourcePreviewArtifactStorage.java backend/src/main/java/com/campus/preview/FallbackResourcePreviewArtifactStorage.java backend/src/main/java/com/campus/preview/HistoricalLocalResourcePreviewArtifactCleaner.java backend/src/test/java/com/campus/preview/LocalResourcePreviewArtifactStorageTests.java backend/src/test/java/com/campus/preview/MinioResourcePreviewArtifactStorageTests.java backend/src/test/java/com/campus/preview/FallbackResourcePreviewArtifactStorageTests.java backend/src/test/java/com/campus/preview/HistoricalLocalResourcePreviewArtifactCleanerTests.java backend/src/test/java/com/campus/preview/ResourcePreviewServiceTests.java backend/src/test/java/com/campus/service/AdminResourcePreviewMigrationServiceTests.java
@@ -344,7 +344,7 @@ git commit -m "refactor: add preview artifact delete support"
 - Create: `backend/src/main/java/com/campus/service/PreviewArtifactCleanupService.java`
 - Create: `backend/src/test/java/com/campus/service/PreviewArtifactCleanupServiceTests.java`
 
-- [ ] **Step 1: Write the failing cleanup-orchestration tests**
+- [x] **Step 1: Write the failing cleanup-orchestration tests**
 
 Create `PreviewArtifactCleanupServiceTests`:
 
@@ -418,7 +418,7 @@ class PreviewArtifactCleanupServiceTests {
 }
 ```
 
-- [ ] **Step 2: Run the targeted cleanup-service tests and verify failure**
+- [x] **Step 2: Run the targeted cleanup-service tests and verify failure**
 
 Run:
 
@@ -429,7 +429,7 @@ mvn -q "-Dtest=PreviewArtifactCleanupServiceTests" test
 
 Expected: FAIL because `PreviewArtifactCleanupService` does not exist yet.
 
-- [ ] **Step 3: Implement the cleanup service**
+- [x] **Step 3: Implement the cleanup service**
 
 Create `PreviewArtifactCleanupService`:
 
@@ -484,7 +484,7 @@ public class PreviewArtifactCleanupService {
 }
 ```
 
-- [ ] **Step 4: Re-run the targeted cleanup-service tests and verify success**
+- [x] **Step 4: Re-run the targeted cleanup-service tests and verify success**
 
 Run:
 
@@ -495,7 +495,7 @@ mvn -q "-Dtest=PreviewArtifactCleanupServiceTests" test
 
 Expected: PASS with clean local/minio routing and swallowed delete failures.
 
-- [ ] **Step 5: Commit the cleanup orchestration**
+- [x] **Step 5: Commit the cleanup orchestration**
 
 ```bash
 git add backend/src/main/java/com/campus/service/PreviewArtifactCleanupService.java backend/src/test/java/com/campus/service/PreviewArtifactCleanupServiceTests.java
@@ -508,7 +508,7 @@ git commit -m "feat: add preview artifact cleanup orchestration"
 - Modify: `backend/src/main/java/com/campus/service/ResourceService.java`
 - Modify: `backend/src/test/java/com/campus/controller/ResourceControllerTests.java`
 
-- [ ] **Step 1: Write the failing rejected-resource cleanup regressions**
+- [x] **Step 1: Write the failing rejected-resource cleanup regressions**
 
 Extend `ResourceControllerTests` with Spring-managed collaborators:
 
@@ -587,7 +587,7 @@ void replacingRejectedPptxWithPdfDeletesOldDerivedPreviewArtifact() throws Excep
 }
 ```
 
-- [ ] **Step 2: Run the targeted controller regressions and verify failure**
+- [x] **Step 2: Run the targeted controller regressions and verify failure**
 
 Run:
 
@@ -598,7 +598,7 @@ mvn -q "-Dtest=ResourceControllerTests" test
 
 Expected: FAIL because `updateRejectedResource(...)` does not clean stale preview artifacts yet.
 
-- [ ] **Step 3: Wire cleanup into `ResourceService.updateRejectedResource(...)`**
+- [x] **Step 3: Wire cleanup into `ResourceService.updateRejectedResource(...)`**
 
 Inject `PreviewArtifactCleanupService`:
 
@@ -655,7 +655,7 @@ public ResourceDetailResponse updateRejectedResource(...) {
 }
 ```
 
-- [ ] **Step 4: Re-run the targeted controller regressions and verify success**
+- [x] **Step 4: Re-run the targeted controller regressions and verify success**
 
 Run:
 
@@ -666,7 +666,7 @@ mvn -q "-Dtest=ResourceControllerTests" test
 
 Expected: PASS with stale local preview artifacts removed after rejected-resource resubmission.
 
-- [ ] **Step 5: Commit the rejected-resource cleanup wiring**
+- [x] **Step 5: Commit the rejected-resource cleanup wiring**
 
 ```bash
 git add backend/src/main/java/com/campus/service/ResourceService.java backend/src/test/java/com/campus/controller/ResourceControllerTests.java
@@ -681,7 +681,7 @@ git commit -m "feat: clean stale preview artifacts after resource resubmission"
 - Modify: `backend/src/test/java/com/campus/controller/ResourceControllerTests.java`
 - Modify: `backend/src/test/java/com/campus/controller/admin/AdminResourceControllerTests.java`
 
-- [ ] **Step 1: Write the failing timestamp-stability regressions**
+- [x] **Step 1: Write the failing timestamp-stability regressions**
 
 Extend `ResourceControllerTests`:
 
@@ -750,7 +750,7 @@ void publishRejectAndOfflineDoNotChangeUpdatedAt() throws Exception {
 
 Use the same pattern in the same test for seeded resource `3` on reject and seeded resource `1` on offline so all three admin transitions prove `updated_at` stability.
 
-- [ ] **Step 2: Run the targeted controller regressions and verify failure**
+- [x] **Step 2: Run the targeted controller regressions and verify failure**
 
 Run:
 
@@ -761,7 +761,7 @@ mvn -q "-Dtest=ResourceControllerTests,AdminResourceControllerTests" test
 
 Expected: FAIL because these flows currently call `setUpdatedAt(...)`.
 
-- [ ] **Step 3: Remove passive `updatedAt` churn**
+- [x] **Step 3: Remove passive `updatedAt` churn**
 
 Update `ResourceService.favoriteResource(...)` and `unfavoriteResource(...)` by removing:
 
@@ -784,7 +784,7 @@ resource.setUpdatedAt(LocalDateTime.now());
 
 Do not remove legitimate `reviewedAt` or `publishedAt` writes. Only stop the unrelated `updatedAt` churn.
 
-- [ ] **Step 4: Re-run the targeted controller regressions and verify success**
+- [x] **Step 4: Re-run the targeted controller regressions and verify success**
 
 Run:
 
@@ -795,7 +795,7 @@ mvn -q "-Dtest=ResourceControllerTests,AdminResourceControllerTests" test
 
 Expected: PASS with unchanged API behavior, but stable `updated_at` values for passive operations.
 
-- [ ] **Step 5: Commit the timestamp-stability refactor**
+- [x] **Step 5: Commit the timestamp-stability refactor**
 
 ```bash
 git add backend/src/main/java/com/campus/service/ResourceService.java backend/src/main/java/com/campus/service/AdminResourceService.java backend/src/test/java/com/campus/controller/ResourceControllerTests.java backend/src/test/java/com/campus/controller/admin/AdminResourceControllerTests.java
@@ -808,7 +808,7 @@ git commit -m "refactor: stop passive resource preview churn"
 - Modify: `README.md`
 - Modify: `docs/superpowers/specs/2026-04-22-study-career-platform-phase-y-preview-artifact-cleanup-design.md`
 
-- [ ] **Step 1: Update the README**
+- [x] **Step 1: Update the README**
 
 Apply the following documentation changes:
 
@@ -828,7 +828,7 @@ Suggested README wording:
 - this phase still does not introduce recursive preview-root scanning or scheduled preview garbage collection
 ```
 
-- [ ] **Step 2: Add the Phase Y validation note to the spec**
+- [x] **Step 2: Add the Phase Y validation note to the spec**
 
 Add a validation note near the top of the Phase Y spec:
 
@@ -836,7 +836,7 @@ Add a validation note near the top of the Phase Y spec:
 > **Validation note:** This design was implemented and validated on 2026-04-22 using the approved execution record at `docs/superpowers/plans/2026-04-22-study-career-platform-phase-y-preview-artifact-cleanup-implementation.md`. Local verification suites now present for this slice are `LocalResourcePreviewArtifactStorageTests`, `MinioResourcePreviewArtifactStorageTests`, `FallbackResourcePreviewArtifactStorageTests`, `HistoricalLocalResourcePreviewArtifactCleanerTests`, `PreviewArtifactCleanupServiceTests`, `ResourcePreviewServiceTests`, `AdminResourcePreviewMigrationServiceTests`, `ResourceControllerPreviewFallbackTests`, `ResourceControllerTests`, `AdminResourceControllerTests`, and `ResourcePreviewStorageConfigurationTests`.
 ```
 
-- [ ] **Step 3: Run the targeted verification suite**
+- [x] **Step 3: Run the targeted verification suite**
 
 Run:
 
@@ -853,7 +853,7 @@ Expected: PASS with:
 - Phase X preview fallback regressions still green
 - passive-operation timestamp stability green
 
-- [ ] **Step 4: Commit the rollout notes**
+- [x] **Step 4: Commit the rollout notes**
 
 ```bash
 git add README.md docs/superpowers/specs/2026-04-22-study-career-platform-phase-y-preview-artifact-cleanup-design.md
@@ -862,17 +862,17 @@ git commit -m "docs: add phase y preview cleanup rollout notes"
 
 ## Final Verification Checklist
 
-- [ ] `backend/src/test/java/com/campus/preview/LocalResourcePreviewArtifactStorageTests.java`
-- [ ] `backend/src/test/java/com/campus/preview/MinioResourcePreviewArtifactStorageTests.java`
-- [ ] `backend/src/test/java/com/campus/preview/FallbackResourcePreviewArtifactStorageTests.java`
-- [ ] `backend/src/test/java/com/campus/preview/HistoricalLocalResourcePreviewArtifactCleanerTests.java`
-- [ ] `backend/src/test/java/com/campus/service/PreviewArtifactCleanupServiceTests.java`
-- [ ] `backend/src/test/java/com/campus/preview/ResourcePreviewServiceTests.java`
-- [ ] `backend/src/test/java/com/campus/service/AdminResourcePreviewMigrationServiceTests.java`
-- [ ] `backend/src/test/java/com/campus/config/ResourcePreviewStorageConfigurationTests.java`
-- [ ] `backend/src/test/java/com/campus/controller/ResourceControllerPreviewFallbackTests.java`
-- [ ] `backend/src/test/java/com/campus/controller/ResourceControllerTests.java`
-- [ ] `backend/src/test/java/com/campus/controller/admin/AdminResourceControllerTests.java`
+- [x] `backend/src/test/java/com/campus/preview/LocalResourcePreviewArtifactStorageTests.java`
+- [x] `backend/src/test/java/com/campus/preview/MinioResourcePreviewArtifactStorageTests.java`
+- [x] `backend/src/test/java/com/campus/preview/FallbackResourcePreviewArtifactStorageTests.java`
+- [x] `backend/src/test/java/com/campus/preview/HistoricalLocalResourcePreviewArtifactCleanerTests.java`
+- [x] `backend/src/test/java/com/campus/service/PreviewArtifactCleanupServiceTests.java`
+- [x] `backend/src/test/java/com/campus/preview/ResourcePreviewServiceTests.java`
+- [x] `backend/src/test/java/com/campus/service/AdminResourcePreviewMigrationServiceTests.java`
+- [x] `backend/src/test/java/com/campus/config/ResourcePreviewStorageConfigurationTests.java`
+- [x] `backend/src/test/java/com/campus/controller/ResourceControllerPreviewFallbackTests.java`
+- [x] `backend/src/test/java/com/campus/controller/ResourceControllerTests.java`
+- [x] `backend/src/test/java/com/campus/controller/admin/AdminResourceControllerTests.java`
 
 ## Execution Notes
 

@@ -140,7 +140,7 @@ This plan explicitly does not implement:
 - Create: `backend/src/test/java/com/campus/preview/HistoricalLocalResourcePreviewArtifactReaderTests.java`
 - Modify: `backend/src/main/java/com/campus/preview/LocalResourcePreviewArtifactStorage.java`
 
-- [ ] **Step 1: Write the failing resolver and reader tests**
+- [x] **Step 1: Write the failing resolver and reader tests**
 
 Create `LocalPreviewArtifactPathResolverTests`:
 
@@ -197,7 +197,7 @@ class HistoricalLocalResourcePreviewArtifactReaderTests {
 }
 ```
 
-- [ ] **Step 2: Run the targeted backend tests and verify failure**
+- [x] **Step 2: Run the targeted backend tests and verify failure**
 
 Run:
 
@@ -208,7 +208,7 @@ mvn -q "-Dtest=LocalPreviewArtifactPathResolverTests,HistoricalLocalResourcePrev
 
 Expected: FAIL because the new preview resolver and historical preview reader do not exist yet, and `LocalResourcePreviewArtifactStorage` still owns its own private path logic.
 
-- [ ] **Step 3: Implement the shared preview-root resolver and reader**
+- [x] **Step 3: Implement the shared preview-root resolver and reader**
 
 Create the resolver:
 
@@ -255,7 +255,7 @@ public class HistoricalLocalResourcePreviewArtifactReader {
 
 Refactor `LocalResourcePreviewArtifactStorage` to depend on `LocalPreviewArtifactPathResolver` instead of its private `resolve(...)` and `normalizeKey(...)` helpers.
 
-- [ ] **Step 4: Re-run the targeted tests and verify success**
+- [x] **Step 4: Re-run the targeted tests and verify success**
 
 Run:
 
@@ -266,7 +266,7 @@ mvn -q "-Dtest=LocalPreviewArtifactPathResolverTests,HistoricalLocalResourcePrev
 
 Expected: PASS with backslash normalization, root-escape rejection, and local preview artifact reads covered.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/java/com/campus/preview/LocalPreviewArtifactPathResolver.java backend/src/main/java/com/campus/preview/HistoricalLocalResourcePreviewArtifactReader.java backend/src/main/java/com/campus/preview/LocalResourcePreviewArtifactStorage.java backend/src/test/java/com/campus/preview/LocalPreviewArtifactPathResolverTests.java backend/src/test/java/com/campus/preview/HistoricalLocalResourcePreviewArtifactReaderTests.java
@@ -279,7 +279,7 @@ git commit -m "refactor: share local preview artifact path resolution"
 - Modify: `backend/src/main/java/com/campus/preview/ResourcePreviewService.java`
 - Modify: `backend/src/test/java/com/campus/preview/ResourcePreviewServiceTests.java`
 
-- [ ] **Step 1: Write the failing artifact-target tests**
+- [x] **Step 1: Write the failing artifact-target tests**
 
 Extend `ResourcePreviewServiceTests`:
 
@@ -316,7 +316,7 @@ void previewArtifactTargetOfReturnsEmptyForPdfResources() {
 
 Add one `DOCX` and one `ZIP` assertion in the same style so the three supported artifact types are locked down explicitly.
 
-- [ ] **Step 2: Run the targeted preview-service tests and verify failure**
+- [x] **Step 2: Run the targeted preview-service tests and verify failure**
 
 Run:
 
@@ -327,7 +327,7 @@ mvn -q "-Dtest=ResourcePreviewServiceTests" test
 
 Expected: FAIL because `ResourcePreviewService` does not yet expose a migration-facing artifact target method or record.
 
-- [ ] **Step 3: Implement the migration-facing artifact target helper**
+- [x] **Step 3: Implement the migration-facing artifact target helper**
 
 Add a new public helper:
 
@@ -354,7 +354,7 @@ public record PreviewArtifactTarget(String previewType, String artifactKey) {
 
 Keep the existing preview generation and cache lookup flows unchanged.
 
-- [ ] **Step 4: Re-run the targeted tests and verify success**
+- [x] **Step 4: Re-run the targeted tests and verify success**
 
 Run:
 
@@ -365,7 +365,7 @@ mvn -q "-Dtest=ResourcePreviewServiceTests" test
 
 Expected: PASS with the new target-derivation contract covered alongside the existing cache and error-mapping tests.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/java/com/campus/preview/ResourcePreviewService.java backend/src/test/java/com/campus/preview/ResourcePreviewServiceTests.java
@@ -380,7 +380,7 @@ git commit -m "refactor: expose preview artifact migration targets"
 - Create: `backend/src/main/java/com/campus/service/AdminResourcePreviewMigrationService.java`
 - Create: `backend/src/test/java/com/campus/service/AdminResourcePreviewMigrationServiceTests.java`
 
-- [ ] **Step 1: Write the failing service tests**
+- [x] **Step 1: Write the failing service tests**
 
 Create `AdminResourcePreviewMigrationServiceTests` with focused cases:
 
@@ -435,7 +435,7 @@ void migrationFailsWhenMinioIntegrationIsDisabled() {
 
 Mirror the query-wrapper assertions from `AdminResourceMigrationServiceTests` so `statuses`, `resourceIds`, `keyword`, and bounded `limit` stay deterministic.
 
-- [ ] **Step 2: Run the targeted backend tests and verify failure**
+- [x] **Step 2: Run the targeted backend tests and verify failure**
 
 Run:
 
@@ -446,7 +446,7 @@ mvn -q "-Dtest=AdminResourcePreviewMigrationServiceTests" test
 
 Expected: FAIL because the new request/response DTOs and preview migration service do not exist yet.
 
-- [ ] **Step 3: Implement the DTOs and migration service**
+- [x] **Step 3: Implement the DTOs and migration service**
 
 Create the request DTO:
 
@@ -525,7 +525,7 @@ new MinioResourcePreviewArtifactStorage(
 - when executing, open the local artifact through `HistoricalLocalResourcePreviewArtifactReader` and upload it through `targetStorage.write(artifactKey, inputStream)`
 - keep local artifacts and database rows untouched
 
-- [ ] **Step 4: Re-run the targeted tests and verify success**
+- [x] **Step 4: Re-run the targeted tests and verify success**
 
 Run:
 
@@ -536,7 +536,7 @@ mvn -q "-Dtest=AdminResourcePreviewMigrationServiceTests" test
 
 Expected: PASS with dry-run, skip rules, overwrite behavior, MinIO failure handling, and bounded query behavior covered.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/java/com/campus/dto/AdminResourcePreviewMigrationRequest.java backend/src/main/java/com/campus/dto/AdminResourcePreviewMigrationResponse.java backend/src/main/java/com/campus/service/AdminResourcePreviewMigrationService.java backend/src/test/java/com/campus/service/AdminResourcePreviewMigrationServiceTests.java
@@ -549,7 +549,7 @@ git commit -m "feat: add admin preview artifact migration service"
 - Modify: `backend/src/main/java/com/campus/controller/admin/AdminResourceController.java`
 - Modify: `backend/src/test/java/com/campus/controller/admin/AdminResourceControllerTests.java`
 
-- [ ] **Step 1: Write the failing controller tests**
+- [x] **Step 1: Write the failing controller tests**
 
 Extend `AdminResourceControllerTests`:
 
@@ -601,7 +601,7 @@ void adminCanDryRunHistoricalPreviewArtifactMigration() throws Exception {
 
 Also add an invalid-limit test for the new request DTO so `{"limit":201}` still returns body `code=400` through the existing exception envelope.
 
-- [ ] **Step 2: Run the targeted controller tests and verify failure**
+- [x] **Step 2: Run the targeted controller tests and verify failure**
 
 Run:
 
@@ -612,7 +612,7 @@ mvn -q "-Dtest=AdminResourceControllerTests" test
 
 Expected: FAIL because the controller does not yet inject the new service or expose the preview-artifact migration endpoint.
 
-- [ ] **Step 3: Implement the new controller endpoint**
+- [x] **Step 3: Implement the new controller endpoint**
 
 Inject the new service and add:
 
@@ -631,7 +631,7 @@ public Result<AdminResourcePreviewMigrationResponse> migratePreviewArtifactsToMi
 
 Keep the existing raw-resource migration endpoint untouched.
 
-- [ ] **Step 4: Re-run the targeted controller tests and verify success**
+- [x] **Step 4: Re-run the targeted controller tests and verify success**
 
 Run:
 
@@ -642,7 +642,7 @@ mvn -q "-Dtest=AdminResourceControllerTests" test
 
 Expected: PASS with the new admin-only preview migration endpoint covered alongside the existing admin resource tests.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/java/com/campus/controller/admin/AdminResourceController.java backend/src/test/java/com/campus/controller/admin/AdminResourceControllerTests.java
@@ -655,7 +655,7 @@ git commit -m "feat: add admin preview artifact migration endpoint"
 - Modify: `README.md`
 - Modify: `docs/superpowers/specs/2026-04-21-study-career-platform-phase-w-historical-preview-artifact-minio-migration-design.md`
 
-- [ ] **Step 1: Update README for the new admin preview migration capability**
+- [x] **Step 1: Update README for the new admin preview migration capability**
 
 Update `README.md` so it:
 
@@ -675,7 +675,7 @@ Recommended wording to add under preview storage notes:
 - dual-read fallback and preview-artifact garbage collection remain out of scope in this phase
 ```
 
-- [ ] **Step 2: Add the validation note to the Phase W spec**
+- [x] **Step 2: Add the validation note to the Phase W spec**
 
 Prepend a validation note after implementation is complete:
 
@@ -683,7 +683,7 @@ Prepend a validation note after implementation is complete:
 > **Validation note:** This design was implemented and validated on 2026-04-21. Execution record: `docs/superpowers/plans/2026-04-21-study-career-platform-phase-w-historical-preview-artifact-minio-migration-implementation.md`. Local verification covered `LocalPreviewArtifactPathResolverTests`, `HistoricalLocalResourcePreviewArtifactReaderTests`, `ResourcePreviewServiceTests`, `AdminResourcePreviewMigrationServiceTests`, `AdminResourceControllerTests`, `ResourceControllerTests`, and the MinIO preview storage regression suites. Repository-safe MinIO verification used in-memory test doubles; no live MinIO smoke was executed in this environment.
 ```
 
-- [ ] **Step 3: Run the doc-specific sanity checks**
+- [x] **Step 3: Run the doc-specific sanity checks**
 
 Run:
 
@@ -693,7 +693,7 @@ rg -n "historical preview-artifact migration|migrate-preview-artifacts-to-minio|
 
 Expected: README shows the feature as implemented, the remaining gaps are still explicit, and the spec contains the new validation note.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add README.md docs/superpowers/specs/2026-04-21-study-career-platform-phase-w-historical-preview-artifact-minio-migration-design.md
@@ -712,7 +712,7 @@ git commit -m "docs: add phase w preview migration rollout notes"
 - Verify: `backend/src/test/java/com/campus/preview/MinioResourcePreviewArtifactStorageTests.java`
 - Verify: `backend/src/test/java/com/campus/config/ResourcePreviewStorageConfigurationTests.java`
 
-- [ ] **Step 1: Run the focused backend regression suite**
+- [x] **Step 1: Run the focused backend regression suite**
 
 Run:
 
@@ -723,7 +723,7 @@ mvn -q "-Dtest=LocalPreviewArtifactPathResolverTests,HistoricalLocalResourcePrev
 
 Expected: PASS with the new migration slice covered and the existing preview runtime behavior still stable.
 
-- [ ] **Step 2: Run the optional live smoke only if a real MinIO environment is available**
+- [x] **Step 2: Run the optional live smoke only if a real MinIO environment is available**
 
 Suggested smoke flow:
 
@@ -734,7 +734,7 @@ Suggested smoke flow:
 
 If no live MinIO runtime is available, explicitly skip this smoke and rely on the repository-safe test doubles.
 
-- [ ] **Step 3: Commit the final verification state**
+- [x] **Step 3: Commit the final verification state**
 
 ```bash
 git add backend/src/main/java/com/campus/preview/LocalPreviewArtifactPathResolver.java backend/src/main/java/com/campus/preview/HistoricalLocalResourcePreviewArtifactReader.java backend/src/main/java/com/campus/preview/LocalResourcePreviewArtifactStorage.java backend/src/main/java/com/campus/preview/ResourcePreviewService.java backend/src/main/java/com/campus/dto/AdminResourcePreviewMigrationRequest.java backend/src/main/java/com/campus/dto/AdminResourcePreviewMigrationResponse.java backend/src/main/java/com/campus/service/AdminResourcePreviewMigrationService.java backend/src/main/java/com/campus/controller/admin/AdminResourceController.java backend/src/test/java/com/campus/preview/LocalPreviewArtifactPathResolverTests.java backend/src/test/java/com/campus/preview/HistoricalLocalResourcePreviewArtifactReaderTests.java backend/src/test/java/com/campus/preview/ResourcePreviewServiceTests.java backend/src/test/java/com/campus/service/AdminResourcePreviewMigrationServiceTests.java backend/src/test/java/com/campus/controller/admin/AdminResourceControllerTests.java README.md docs/superpowers/specs/2026-04-21-study-career-platform-phase-w-historical-preview-artifact-minio-migration-design.md

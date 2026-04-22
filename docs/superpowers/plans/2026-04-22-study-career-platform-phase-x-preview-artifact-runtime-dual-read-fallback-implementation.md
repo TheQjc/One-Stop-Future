@@ -138,7 +138,7 @@ This plan explicitly does not implement:
 - Modify: `backend/src/main/java/com/campus/preview/HistoricalLocalResourcePreviewArtifactReader.java`
 - Modify: `backend/src/test/java/com/campus/preview/HistoricalLocalResourcePreviewArtifactReaderTests.java`
 
-- [ ] **Step 1: Write the failing MinIO and local-reader tests**
+- [x] **Step 1: Write the failing MinIO and local-reader tests**
 
 Create `SdkMinioObjectOperationsTests`:
 
@@ -210,7 +210,7 @@ void readerOpenMissingArtifactBecomesFileNotFoundException() {
 }
 ```
 
-- [ ] **Step 2: Run the targeted tests and verify failure**
+- [x] **Step 2: Run the targeted tests and verify failure**
 
 Run:
 
@@ -221,7 +221,7 @@ mvn -q "-Dtest=SdkMinioObjectOperationsTests,HistoricalLocalResourcePreviewArtif
 
 Expected: FAIL because `SdkMinioObjectOperations.getObject(...)` currently wraps missing objects as generic `IOException`, and the historical local reader currently leaks `NoSuchFileException`.
 
-- [ ] **Step 3: Implement explicit cache-miss mapping**
+- [x] **Step 3: Implement explicit cache-miss mapping**
 
 Update `SdkMinioObjectOperations.getObject(...)`:
 
@@ -262,7 +262,7 @@ public InputStream open(String artifactKey) throws IOException {
 }
 ```
 
-- [ ] **Step 4: Re-run the targeted tests and verify success**
+- [x] **Step 4: Re-run the targeted tests and verify success**
 
 Run:
 
@@ -273,7 +273,7 @@ mvn -q "-Dtest=SdkMinioObjectOperationsTests,HistoricalLocalResourcePreviewArtif
 
 Expected: PASS with explicit cache-miss signaling in both MinIO and historical local reads.
 
-- [ ] **Step 5: Commit the cache-miss signaling foundation**
+- [x] **Step 5: Commit the cache-miss signaling foundation**
 
 ```bash
 git add backend/src/main/java/com/campus/storage/SdkMinioObjectOperations.java backend/src/main/java/com/campus/preview/HistoricalLocalResourcePreviewArtifactReader.java backend/src/test/java/com/campus/storage/SdkMinioObjectOperationsTests.java backend/src/test/java/com/campus/preview/HistoricalLocalResourcePreviewArtifactReaderTests.java
@@ -286,7 +286,7 @@ git commit -m "refactor: surface explicit preview cache misses"
 - Create: `backend/src/main/java/com/campus/preview/FallbackResourcePreviewArtifactStorage.java`
 - Create: `backend/src/test/java/com/campus/preview/FallbackResourcePreviewArtifactStorageTests.java`
 
-- [ ] **Step 1: Write the failing fallback-storage tests**
+- [x] **Step 1: Write the failing fallback-storage tests**
 
 Create `FallbackResourcePreviewArtifactStorageTests`:
 
@@ -354,7 +354,7 @@ class FallbackResourcePreviewArtifactStorageTests {
 }
 ```
 
-- [ ] **Step 2: Run the targeted storage tests and verify failure**
+- [x] **Step 2: Run the targeted storage tests and verify failure**
 
 Run:
 
@@ -365,7 +365,7 @@ mvn -q "-Dtest=FallbackResourcePreviewArtifactStorageTests" test
 
 Expected: FAIL because the composed fallback storage does not exist yet.
 
-- [ ] **Step 3: Implement the composed storage**
+- [x] **Step 3: Implement the composed storage**
 
 Create `FallbackResourcePreviewArtifactStorage`:
 
@@ -412,7 +412,7 @@ Keep the implementation intentionally narrow:
 - no local deletion
 - no background sync
 
-- [ ] **Step 4: Re-run the targeted storage tests and verify success**
+- [x] **Step 4: Re-run the targeted storage tests and verify success**
 
 Run:
 
@@ -423,7 +423,7 @@ mvn -q "-Dtest=FallbackResourcePreviewArtifactStorageTests" test
 
 Expected: PASS with clear primary-hit, local-fallback-hit, and failure-propagation behavior.
 
-- [ ] **Step 5: Commit the composed fallback storage**
+- [x] **Step 5: Commit the composed fallback storage**
 
 ```bash
 git add backend/src/main/java/com/campus/preview/FallbackResourcePreviewArtifactStorage.java backend/src/test/java/com/campus/preview/FallbackResourcePreviewArtifactStorageTests.java
@@ -439,7 +439,7 @@ git commit -m "feat: add preview artifact fallback storage"
 - Modify: `backend/src/main/resources/application-local.yml`
 - Modify: `backend/src/test/java/com/campus/config/ResourcePreviewStorageConfigurationTests.java`
 
-- [ ] **Step 1: Write the failing configuration tests**
+- [x] **Step 1: Write the failing configuration tests**
 
 Extend `ResourcePreviewStorageConfigurationTests`:
 
@@ -477,7 +477,7 @@ void localPreviewTypeIgnoresFallbackFlagAndStaysLocalOnly() {
 }
 ```
 
-- [ ] **Step 2: Run the targeted configuration tests and verify failure**
+- [x] **Step 2: Run the targeted configuration tests and verify failure**
 
 Run:
 
@@ -488,7 +488,7 @@ mvn -q "-Dtest=ResourcePreviewStorageConfigurationTests" test
 
 Expected: FAIL because the new property does not exist yet and preview storage configuration cannot build the composed fallback storage.
 
-- [ ] **Step 3: Implement the new property and bean selection**
+- [x] **Step 3: Implement the new property and bean selection**
 
 Update `ResourcePreviewProperties`:
 
@@ -551,7 +551,7 @@ app:
     read-fallback-local-enabled: false
 ```
 
-- [ ] **Step 4: Re-run the targeted configuration tests**
+- [x] **Step 4: Re-run the targeted configuration tests**
 
 Run:
 
@@ -566,7 +566,7 @@ Expected: PASS with all three modes covered:
 - MinIO only
 - MinIO plus local fallback
 
-- [ ] **Step 5: Commit the fallback configuration wiring**
+- [x] **Step 5: Commit the fallback configuration wiring**
 
 ```bash
 git add backend/src/main/java/com/campus/config/ResourcePreviewProperties.java backend/src/main/java/com/campus/config/ResourcePreviewStorageConfiguration.java backend/src/main/resources/application.yml backend/src/main/resources/application-local.yml backend/src/test/java/com/campus/config/ResourcePreviewStorageConfigurationTests.java
@@ -579,7 +579,7 @@ git commit -m "feat: add preview fallback configuration"
 - Modify: `backend/src/main/java/com/campus/preview/ResourcePreviewService.java`
 - Modify: `backend/src/test/java/com/campus/preview/ResourcePreviewServiceTests.java`
 
-- [ ] **Step 1: Write the failing preview-service tests**
+- [x] **Step 1: Write the failing preview-service tests**
 
 Extend `ResourcePreviewServiceTests`:
 
@@ -660,7 +660,7 @@ private static class MissingOnOpenStorage implements ResourcePreviewArtifactStor
 }
 ```
 
-- [ ] **Step 2: Run the targeted preview-service tests and verify failure**
+- [x] **Step 2: Run the targeted preview-service tests and verify failure**
 
 Run:
 
@@ -671,7 +671,7 @@ mvn -q "-Dtest=ResourcePreviewServiceTests" test
 
 Expected: FAIL because `ResourcePreviewService` still depends on `exists(...)` for cache checks and does not treat `FileNotFoundException` from `open(...)` as a cache miss.
 
-- [ ] **Step 3: Implement the open-first cache-read flow**
+- [x] **Step 3: Implement the open-first cache-read flow**
 
 Refactor `ResourcePreviewService` around a helper:
 
@@ -716,7 +716,7 @@ private PreviewFile previewGeneratedPdf(
 
 Use the same pattern in `previewZip(...)` before generation.
 
-- [ ] **Step 4: Re-run the preview-service tests and verify success**
+- [x] **Step 4: Re-run the preview-service tests and verify success**
 
 Run:
 
@@ -727,7 +727,7 @@ mvn -q "-Dtest=ResourcePreviewServiceTests" test
 
 Expected: PASS with open-first cache-hit behavior, explicit cache-miss regeneration, and unchanged user-facing unavailable messages.
 
-- [ ] **Step 5: Commit the open-first preview read path**
+- [x] **Step 5: Commit the open-first preview read path**
 
 ```bash
 git add backend/src/main/java/com/campus/preview/ResourcePreviewService.java backend/src/test/java/com/campus/preview/ResourcePreviewServiceTests.java
@@ -739,7 +739,7 @@ git commit -m "refactor: use open-first preview cache reads"
 **Files:**
 - Create: `backend/src/test/java/com/campus/controller/ResourceControllerPreviewFallbackTests.java`
 
-- [ ] **Step 1: Write the failing controller regression tests**
+- [x] **Step 1: Write the failing controller regression tests**
 
 Create `ResourceControllerPreviewFallbackTests`:
 
@@ -842,7 +842,7 @@ Copy and adapt the local-storage helpers from `ResourceControllerTests` so this 
 - `samplePdfBytes()`
 - preview/resource root cleanup in `@AfterEach`
 
-- [ ] **Step 2: Run the targeted controller regression tests and verify failure**
+- [x] **Step 2: Run the targeted controller regression tests and verify failure**
 
 Run:
 
@@ -853,7 +853,7 @@ mvn -q "-Dtest=ResourceControllerPreviewFallbackTests" test
 
 Expected: FAIL because runtime fallback is not yet wired, so MinIO-mode preview requests either regenerate or fail instead of reading the historical local preview root.
 
-- [ ] **Step 3: Implement any remaining glue required by the regressions**
+- [x] **Step 3: Implement any remaining glue required by the regressions**
 
 At this point the only remaining code changes should be small correctness fixes surfaced by the controller tests, such as:
 
@@ -863,7 +863,7 @@ At this point the only remaining code changes should be small correctness fixes 
 
 Do not add ad-hoc controller logic. Keep fixes in the storage or preview service layer.
 
-- [ ] **Step 4: Re-run the controller regression tests and verify success**
+- [x] **Step 4: Re-run the controller regression tests and verify success**
 
 Run:
 
@@ -878,7 +878,7 @@ Expected: PASS with:
 - `ZIP` fallback hit returning cached JSON
 - MinIO failure still returning the existing `500` business error
 
-- [ ] **Step 5: Commit the HTTP regression coverage**
+- [x] **Step 5: Commit the HTTP regression coverage**
 
 ```bash
 git add backend/src/test/java/com/campus/controller/ResourceControllerPreviewFallbackTests.java
@@ -891,7 +891,7 @@ git commit -m "test: add preview fallback runtime regressions"
 - Modify: `README.md`
 - Modify: `docs/superpowers/specs/2026-04-22-study-career-platform-phase-x-preview-artifact-runtime-dual-read-fallback-design.md`
 
-- [ ] **Step 1: Update the README**
+- [x] **Step 1: Update the README**
 
 Apply the following documentation changes:
 
@@ -914,7 +914,7 @@ Suggested README wording:
 - MinIO infrastructure failures are not masked by local fallback
 ```
 
-- [ ] **Step 2: Add the Phase X validation note to the spec**
+- [x] **Step 2: Add the Phase X validation note to the spec**
 
 Add a validation note near the top of the Phase X spec similar to the Phase T and Phase W docs:
 
@@ -922,7 +922,7 @@ Add a validation note near the top of the Phase X spec similar to the Phase T an
 > **Validation note:** This design was implemented and validated on 2026-04-22 using the approved execution record at `docs/superpowers/plans/2026-04-22-study-career-platform-phase-x-preview-artifact-runtime-dual-read-fallback-implementation.md`. Local verification suites now present for this slice are `SdkMinioObjectOperationsTests`, `HistoricalLocalResourcePreviewArtifactReaderTests`, `FallbackResourcePreviewArtifactStorageTests`, `ResourcePreviewServiceTests`, `ResourcePreviewStorageConfigurationTests`, `ResourceControllerPreviewFallbackTests`, `ResourceControllerTests`, and `MinioResourcePreviewArtifactStorageTests`.
 ```
 
-- [ ] **Step 3: Run the targeted verification suite**
+- [x] **Step 3: Run the targeted verification suite**
 
 Run:
 
@@ -940,7 +940,7 @@ Expected: PASS with:
 - MinIO runtime fallback HTTP behavior green
 - existing local preview HTTP behavior preserved
 
-- [ ] **Step 4: Commit the rollout notes**
+- [x] **Step 4: Commit the rollout notes**
 
 ```bash
 git add README.md docs/superpowers/specs/2026-04-22-study-career-platform-phase-x-preview-artifact-runtime-dual-read-fallback-design.md
@@ -949,14 +949,14 @@ git commit -m "docs: add phase x preview fallback rollout notes"
 
 ## Final Verification Checklist
 
-- [ ] `backend/src/test/java/com/campus/storage/SdkMinioObjectOperationsTests.java`
-- [ ] `backend/src/test/java/com/campus/preview/HistoricalLocalResourcePreviewArtifactReaderTests.java`
-- [ ] `backend/src/test/java/com/campus/preview/FallbackResourcePreviewArtifactStorageTests.java`
-- [ ] `backend/src/test/java/com/campus/preview/ResourcePreviewServiceTests.java`
-- [ ] `backend/src/test/java/com/campus/config/ResourcePreviewStorageConfigurationTests.java`
-- [ ] `backend/src/test/java/com/campus/controller/ResourceControllerPreviewFallbackTests.java`
-- [ ] `backend/src/test/java/com/campus/controller/ResourceControllerTests.java`
-- [ ] `backend/src/test/java/com/campus/preview/MinioResourcePreviewArtifactStorageTests.java`
+- [x] `backend/src/test/java/com/campus/storage/SdkMinioObjectOperationsTests.java`
+- [x] `backend/src/test/java/com/campus/preview/HistoricalLocalResourcePreviewArtifactReaderTests.java`
+- [x] `backend/src/test/java/com/campus/preview/FallbackResourcePreviewArtifactStorageTests.java`
+- [x] `backend/src/test/java/com/campus/preview/ResourcePreviewServiceTests.java`
+- [x] `backend/src/test/java/com/campus/config/ResourcePreviewStorageConfigurationTests.java`
+- [x] `backend/src/test/java/com/campus/controller/ResourceControllerPreviewFallbackTests.java`
+- [x] `backend/src/test/java/com/campus/controller/ResourceControllerTests.java`
+- [x] `backend/src/test/java/com/campus/preview/MinioResourcePreviewArtifactStorageTests.java`
 
 ## Execution Notes
 
