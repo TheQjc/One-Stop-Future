@@ -1,10 +1,17 @@
 <script setup>
 import { computed, onMounted, ref } from "vue";
 import { RouterLink } from "vue-router";
-import { getMyApplications } from "../api/applications.js";
+import {
+  downloadMyApplicationResume,
+  getMyApplications,
+  previewMyApplicationResume,
+} from "../api/applications.js";
 
 const loading = ref(true);
 const errorMessage = ref("");
+const actionMessage = ref("");
+const actionError = ref("");
+const actionLoadingId = ref("");
 const summary = ref({
   total: 0,
   applications: [],
@@ -56,6 +63,35 @@ async function loadApplications() {
   }
 }
 
+async function handlePreview(application) {
+  actionMessage.value = "";
+  actionError.value = "";
+  actionLoadingId.value = `preview-${application.id}`;
+
+  try {
+    await previewMyApplicationResume(application.id);
+  } catch (error) {
+    actionError.value = error.message || "Snapshot preview failed. Please try again.";
+  } finally {
+    actionLoadingId.value = "";
+  }
+}
+
+async function handleDownload(application) {
+  actionMessage.value = "";
+  actionError.value = "";
+  actionLoadingId.value = `download-${application.id}`;
+
+  try {
+    const fileName = await downloadMyApplicationResume(application.id);
+    actionMessage.value = `Download started for ${fileName || application.resumeFileNameSnapshot || `application-${application.id}`}.`;
+  } catch (error) {
+    actionError.value = error.message || "Snapshot download failed. Please try again.";
+  } finally {
+    actionLoadingId.value = "";
+  }
+}
+
 onMounted(loadApplications);
 </script>
 
@@ -67,7 +103,8 @@ onMounted(loadApplications);
           <span class="section-eyebrow">My Applications</span>
           <h1 class="page-title" style="margin-top: 16px;">Application records</h1>
           <p class="page-subtitle" style="margin-top: 16px;">
-            Review submitted jobs, their resume snapshots, and a direct path back to each job card.
+            Review submitted jobs, preview or download their stored resume snapshots, and jump back
+            to each job card.
           </p>
         </div>
       </div>
@@ -96,6 +133,8 @@ onMounted(loadApplications);
         You have not submitted any in-platform applications yet.
       </div>
       <div v-else class="application-record-list">
+        <p v-if="actionMessage" class="field-hint">{{ actionMessage }}</p>
+        <p v-if="actionError" class="field-error" role="alert">{{ actionError }}</p>
         <article
           v-for="application in summary.applications"
           :key="application.id"
@@ -125,6 +164,25 @@ onMounted(loadApplications);
           </article>
 
           <div class="inline-form-actions">
+            <button
+              v-if="application.previewAvailable && application.previewKind === 'FILE'"
+              :data-testid="`preview-application-resume-${application.id}`"
+              type="button"
+              class="ghost-btn"
+              :disabled="actionLoadingId === `preview-${application.id}`"
+              @click="handlePreview(application)"
+            >
+              {{ actionLoadingId === `preview-${application.id}` ? "Opening Preview..." : "Preview" }}
+            </button>
+            <button
+              :data-testid="`download-application-resume-${application.id}`"
+              type="button"
+              class="ghost-btn"
+              :disabled="actionLoadingId === `download-${application.id}`"
+              @click="handleDownload(application)"
+            >
+              {{ actionLoadingId === `download-${application.id}` ? "Preparing Download..." : "Download" }}
+            </button>
             <RouterLink :to="`/jobs/${application.jobId}`" class="app-link">
               Open Job Detail
             </RouterLink>
