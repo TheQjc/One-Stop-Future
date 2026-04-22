@@ -1,4 +1,7 @@
 # 校园一站式信息平台 Phase Q 社区经验帖结构化增强设计说明
+
+> **Validation note:** This design was implemented and validated on 2026-04-20. Execution record: `docs/superpowers/plans/2026-04-20-study-career-platform-phase-q-community-experience-post-structure-implementation.md`. Documented verification covered `CommunityControllerTests`, `DiscoverControllerTests`, `HomeControllerTests`, `CommunityCreateView.spec.js`, `CommunityDetailView.spec.js`, `CommunityListView.spec.js`, `HomeView.spec.js`, `DiscoverView.spec.js`, and `frontend` production build.
+
 ## 1. 文档目标
 
 本文档用于确认 `FR-COMMUNITY-002 经验帖结构化字段` 的首期实现边界。

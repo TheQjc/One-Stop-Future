@@ -1,5 +1,7 @@
 # Study Career Platform Phase R Community Threaded Replies Design
 
+> **Validation note:** This design was implemented and validated on 2026-04-21. Execution record: `docs/superpowers/plans/2026-04-21-study-career-platform-phase-r-community-threaded-replies-implementation.md`. Documented verification covered `CommunityControllerTests`, `NotificationControllerTests`, `HomeControllerTests`, `CommunityDetailView.spec.js`, `NotificationCenterView.spec.js`, `HomeView.spec.js`, and `frontend` production build.
+
 ## 1. Document Goal
 
 This document defines the smallest delivery slice for `FR-COMMUNITY-003` after Phase Q.
@@ -331,4 +333,3 @@ Re-check:
 - existing comment rows stay valid because historical data defaults to `parent_comment_id = NULL`
 - old clients that only understand flat first-level comments will need the updated detail rendering logic before this can be exposed safely
 - this phase introduces a backward-compatible database change but a response-shape change for the community detail comment list, so backend and frontend should ship together
-

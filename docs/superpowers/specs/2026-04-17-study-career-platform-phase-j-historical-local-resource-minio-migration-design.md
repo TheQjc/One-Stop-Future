@@ -1,5 +1,7 @@
 # Study-Career Platform Phase J Historical Local Resource MinIO Migration Design
 
+> **Validation note:** This design was implemented and validated on 2026-04-17. Execution record: `docs/superpowers/plans/2026-04-17-study-career-platform-phase-j-historical-local-resource-minio-migration-implementation.md`. Documented verification covered `ResourceStorageConfigurationTests`, `LocalStoragePathResolverTests`, `HistoricalLocalResourceReaderTests`, `AdminResourceMigrationServiceTests`, and `AdminResourceControllerTests`, with optional live MinIO smoke recorded only when a reachable runtime was available.
+
 ## 1. Goal
 
 Phase J adds an admin-managed migration path that copies historical raw resource files from the existing local filesystem store into MinIO while preserving the current Spring Boot monolith, Vue SPA, resource HTTP contracts, database schema, and Phase H preview behavior.

@@ -1,5 +1,7 @@
 # Study-Career Platform Phase I MinIO Resource Storage Design
 
+> **Validation note:** This design was implemented and validated on 2026-04-17. Execution record: `docs/superpowers/plans/2026-04-17-study-career-platform-phase-i-minio-resource-storage-implementation.md`. Documented verification covered `StorageKeyFactoryTests`, `MinioResourceFileStorageTests`, `ResourceStorageConfigurationTests`, `ApplicationConfigSafetyTests`, `ResourceControllerTests`, `AdminResourceControllerTests`, `ResourcePreviewServiceTests`, `ApachePoiPptxPreviewGeneratorTests`, frontend regression/build checks, and optional Compose smoke when available.
+
 ## 1. Goal
 
 Phase I introduces MinIO-backed raw resource file storage for non-`local` environments while preserving the current Spring Boot monolith, Vue SPA, resource HTTP contracts, database schema, and Phase H preview behavior.

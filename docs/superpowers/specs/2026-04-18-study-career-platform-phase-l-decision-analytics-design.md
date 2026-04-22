@@ -1,5 +1,7 @@
 # Study-Career Platform Phase L Decision Analytics Design
 
+> **Validation note:** This design was implemented and validated on 2026-04-18. Execution record: `docs/superpowers/plans/2026-04-18-study-career-platform-phase-l-decision-analytics-implementation.md`. Documented verification covered `AnalyticsServiceTests`, `AnalyticsControllerTests`, `HomeServiceTests`, `HomeControllerTests`, `AnalyticsView.spec.js`, and `HomeView.spec.js`.
+
 ## 1. Goal
 
 Phase L turns the existing home-page `analytics` placeholder into a real first-slice analytics surface while preserving the current Spring Boot monolith, Vue SPA, home aggregation shell, and the Phase K decision-support flow that already ships:

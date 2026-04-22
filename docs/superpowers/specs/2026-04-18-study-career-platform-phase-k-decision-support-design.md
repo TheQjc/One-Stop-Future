@@ -1,5 +1,7 @@
 # Study-Career Platform Phase K Decision Support Design
 
+> **Validation note:** This design was implemented and validated on 2026-04-18. Execution record: `docs/superpowers/plans/2026-04-18-study-career-platform-phase-k-decision-support-implementation.md`. Documented verification covered `DecisionAssessmentServiceTests`, `DecisionAssessmentControllerTests`, `DecisionTimelineServiceTests`, `DecisionTimelineControllerTests`, `DecisionSchoolServiceTests`, `DecisionSchoolControllerTests`, `HomeServiceTests`, `HomeControllerTests`, `AssessmentView.spec.js`, `TimelineView.spec.js`, `SchoolCompareView.spec.js`, and `HomeView.spec.js`.
+
 ## 1. Goal
 
 Phase K adds the first real decision-support user flow to the study-career platform while preserving the current Spring Boot monolith, Vue SPA, existing home aggregation surface, and the already delivered community, jobs, resources, search, discover, preview, MinIO, and migration slices.

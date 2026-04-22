@@ -1,5 +1,7 @@
 # Study-Career Platform Phase P Community Hot Ranking Design
 
+> **Validation note:** This design was implemented and validated on 2026-04-20. Execution record: `docs/superpowers/plans/2026-04-20-study-career-platform-phase-p-community-hot-ranking-implementation.md`. Documented verification covered `CommunityControllerTests`, `CommunityListView.spec.js`, and `frontend` production build.
+
 ## 1. Document Goal
 
 This document defines the smallest delivery slice for `FR-COMMUNITY-005` after Phase O.

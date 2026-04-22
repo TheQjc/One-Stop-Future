@@ -1,5 +1,7 @@
 # Study-Career Platform Phase N Job Application And Resume Workflow Design
 
+> **Validation note:** This design was implemented and validated on 2026-04-18. Execution record: `docs/superpowers/plans/2026-04-18-study-career-platform-phase-n-job-application-resume-workflow-implementation.md`. Documented verification covered `ResumeControllerTests`, `JobApplicationControllerTests`, `AdminJobApplicationControllerTests`, `JobControllerTests`, `ProfileResumesView.spec.js`, `ProfileApplicationsView.spec.js`, `JobDetailView.spec.js`, `AdminApplicationsView.spec.js`, `ProfileView.spec.js`, and `NavBar.spec.js`.
+
 ## 1. Goal
 
 Phase N adds the first in-platform job application workflow and a user-owned resume library while preserving the current Spring Boot monolith, Vue SPA, existing jobs board, and existing raw file storage boundary.
