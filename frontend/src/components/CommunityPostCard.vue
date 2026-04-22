@@ -73,7 +73,7 @@ function formatDate(value) {
     <div class="community-post-card__topline">
       <div class="community-post-card__chips">
         <span class="community-post-card__tag">{{ localizedTag }}</span>
-        <span v-if="experienceEnabled" class="community-post-card__experience-badge">Experience Post</span>
+        <span v-if="experienceEnabled" class="community-post-card__experience-badge">经验贴</span>
       </div>
       <span v-if="post.status && post.status !== 'PUBLISHED'" class="status-badge pending">
         {{ localizedStatus }}
@@ -167,8 +167,7 @@ function formatDate(value) {
   color: #9a3e1f;
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .community-post-card__title {

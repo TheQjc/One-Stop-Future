@@ -9,17 +9,17 @@ import { useUserStore } from "../stores/user.js";
 const userStore = useUserStore();
 
 const TAG_OPTIONS = [
-  { value: "", label: "All", eyebrow: "Overview" },
-  { value: "CAREER", label: "Career", eyebrow: "Jobs" },
-  { value: "EXAM", label: "Exam", eyebrow: "Study" },
-  { value: "ABROAD", label: "Abroad", eyebrow: "Global" },
-  { value: "CHAT", label: "Chat", eyebrow: "Open" },
+  { value: "", label: "全部内容", eyebrow: "社区总览" },
+  { value: "CAREER", label: "就业", eyebrow: "求职方向" },
+  { value: "EXAM", label: "考研", eyebrow: "升学规划" },
+  { value: "ABROAD", label: "留学", eyebrow: "海外申请" },
+  { value: "CHAT", label: "闲聊", eyebrow: "开放交流" },
 ];
 
 const HOT_PERIOD_OPTIONS = [
-  { value: "DAY", label: "Today" },
-  { value: "WEEK", label: "This Week" },
-  { value: "ALL", label: "All Time" },
+  { value: "DAY", label: "今日" },
+  { value: "WEEK", label: "本周" },
+  { value: "ALL", label: "全部时间" },
 ];
 
 const loading = ref(false);
@@ -40,12 +40,16 @@ const hotBoard = ref({
 });
 
 const currentTagLabel = computed(() => (
-  TAG_OPTIONS.find((item) => item.value === selectedTag.value)?.label || "All"
+  TAG_OPTIONS.find((item) => item.value === selectedTag.value)?.label || "全部内容"
 ));
 
 const currentHotPeriodLabel = computed(() => (
-  HOT_PERIOD_OPTIONS.find((item) => item.value === hotPeriod.value)?.label || "This Week"
+  HOT_PERIOD_OPTIONS.find((item) => item.value === hotPeriod.value)?.label || "本周"
 ));
+
+function withLocalizedError(prefix, detail) {
+  return detail ? `${prefix}：${detail}` : prefix;
+}
 
 async function loadPosts() {
   loading.value = true;
@@ -56,7 +60,7 @@ async function loadPosts() {
       ...(selectedTag.value ? { tag: selectedTag.value } : {}),
     });
   } catch (error) {
-    errorMessage.value = error.message || "Community list loading failed. Please try again.";
+    errorMessage.value = withLocalizedError("社区帖子加载失败，请稍后再试", error.message);
   } finally {
     loading.value = false;
   }
@@ -72,7 +76,7 @@ async function loadHotBoard() {
       limit: 3,
     });
   } catch (error) {
-    hotErrorMessage.value = error.message || "Community hot board loading failed. Please try again.";
+    hotErrorMessage.value = withLocalizedError("社区热榜加载失败，请稍后再试", error.message);
     hotBoard.value = {
       period: hotPeriod.value,
       total: 0,
@@ -89,17 +93,17 @@ function retryHotBoard() {
 
 function formatDate(value) {
   if (!value) {
-    return "Just now";
+    return "刚刚";
   }
 
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    return "Just now";
+    return "刚刚";
   }
 
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
+  return new Intl.DateTimeFormat("zh-CN", {
+    month: "numeric",
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
@@ -119,29 +123,28 @@ watch(hotPeriod, () => {
   <section class="page-stack">
     <article class="section-card community-hero">
       <div class="community-hero__copy">
-        <span class="section-eyebrow">Campus Editorial Forum</span>
-        <h1 class="hero-title" style="margin-top: 18px;">One board for direction notes, application rhythm, and lived student advice.</h1>
+        <span class="section-eyebrow">学生成长社区</span>
+        <h1 class="hero-title" style="margin-top: 18px;">把经验、申请节奏和真实讨论放到一个社区里，先看他人经历，再决定下一步。</h1>
         <hr class="editorial-rule" />
         <p class="hero-copy">
-          Browse public discussion first, then move into posting, commenting, and collecting the threads
-          that actually help you decide what to do next.
+          先浏览公开讨论，再进入发帖、评论和收藏，把真正对你有帮助的内容沉淀下来。
         </p>
       </div>
 
       <div class="community-hero__panel">
         <div class="panel-card community-hero__stats">
-          <span class="community-hero__label">Current tag</span>
+          <span class="community-hero__label">当前筛选</span>
           <strong>{{ currentTagLabel }}</strong>
         </div>
         <div class="panel-card community-hero__stats">
-          <span class="community-hero__label">Visible posts</span>
+          <span class="community-hero__label">可见帖子</span>
           <strong>{{ summary.total }}</strong>
         </div>
         <RouterLink
           :to="userStore.isAuthenticated ? '/community/create' : '/login'"
           class="app-btn"
         >
-          {{ userStore.isAuthenticated ? "Write a post" : "Log in to join" }}
+          {{ userStore.isAuthenticated ? "发布帖子" : "登录后参与交流" }}
         </RouterLink>
       </div>
     </article>
@@ -149,14 +152,13 @@ watch(hotPeriod, () => {
     <article class="section-card hot-board">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Community Hot Board</span>
-          <h2 class="page-title" style="margin-top: 16px;">What is getting traction {{ currentHotPeriodLabel.toLowerCase() }}.</h2>
+          <span class="section-eyebrow">社区热榜</span>
+          <h2 class="page-title" style="margin-top: 16px;">看看{{ currentHotPeriodLabel }}最受关注的话题。</h2>
           <p class="page-subtitle" style="margin-top: 16px;">
-            The hot board uses likes, comments, favorites, and a small verified-author trust bonus. It
-            stays inside the community desk instead of sending you to discover.
+            热榜会综合点赞、评论、收藏和认证作者加权，帮你先快速看清社区里正在升温的讨论。
           </p>
         </div>
-        <span class="status-badge approved">Top {{ hotBoard.items.length || 0 }} / {{ hotBoard.total }}</span>
+        <span class="status-badge approved">前 {{ hotBoard.items.length || 0 }} / {{ hotBoard.total }}</span>
       </div>
 
       <div class="chip-row hot-board__chips">
@@ -177,16 +179,16 @@ watch(hotPeriod, () => {
         </button>
       </div>
 
-      <div v-if="hotLoading" class="empty-state">Loading community hot board...</div>
+      <div v-if="hotLoading" class="empty-state">正在加载社区热榜...</div>
       <div v-else-if="hotErrorMessage" class="field-grid">
         <p class="field-error" role="alert">{{ hotErrorMessage }}</p>
         <button type="button" class="ghost-btn retry-hot-board" @click="retryHotBoard">
-          Retry
+          重新加载
         </button>
       </div>
       <div v-else-if="!hotBoard.items.length" class="empty-state hot-board__empty">
-        <strong>No public posts have entered this board yet.</strong>
-        <p class="meta-copy">Try another period or publish the first thread for this desk.</p>
+        <strong>当前时间范围内还没有帖子进入热榜。</strong>
+        <p class="meta-copy">可以切换时间范围，或发布第一篇值得大家关注的帖子。</p>
       </div>
       <div v-else class="hot-board-grid">
         <RouterLink
@@ -203,21 +205,21 @@ watch(hotPeriod, () => {
           <div class="hot-board-card__body">
             <h3 class="hot-board-card__title">{{ item.title }}</h3>
             <p class="hot-board-card__summary">
-              {{ item.contentPreview || "No summary attached to this post yet." }}
+              {{ item.contentPreview || "暂未提供内容摘要" }}
             </p>
           </div>
 
           <div class="hot-board-card__meta">
-            <span>{{ item.authorNickname || "Unknown User" }}</span>
-            <span>{{ item.tag || "General" }}</span>
+            <span>{{ item.authorNickname || "匿名用户" }}</span>
+            <span>{{ item.tag || "未分类" }}</span>
             <span>{{ formatDate(item.createdAt) }}</span>
           </div>
 
           <div class="hot-board-card__footer">
-            <span>Likes {{ item.likeCount || 0 }}</span>
-            <span>Comments {{ item.commentCount || 0 }}</span>
-            <span>Favorites {{ item.favoriteCount || 0 }}</span>
-            <strong>Heat {{ Math.round(Number(item.hotScore || 0)) }}</strong>
+            <span>赞 {{ item.likeCount || 0 }}</span>
+            <span>评 {{ item.commentCount || 0 }}</span>
+            <span>藏 {{ item.favoriteCount || 0 }}</span>
+            <strong>热度 {{ Math.round(Number(item.hotScore || 0)) }}</strong>
           </div>
         </RouterLink>
       </div>
@@ -226,8 +228,8 @@ watch(hotPeriod, () => {
     <article class="section-card">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Tag Filter</span>
-          <h2 class="page-title" style="margin-top: 16px;">Browse discussion by direction.</h2>
+          <span class="section-eyebrow">标签筛选</span>
+          <h2 class="page-title" style="margin-top: 16px;">按方向浏览社区讨论</h2>
         </div>
       </div>
 
@@ -237,23 +239,23 @@ watch(hotPeriod, () => {
     <article class="section-card">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Latest Posts</span>
-          <h2 class="page-title" style="margin-top: 16px;">Newest community posts</h2>
+          <span class="section-eyebrow">最新帖子</span>
+          <h2 class="page-title" style="margin-top: 16px;">按发布时间查看社区更新</h2>
           <p class="page-subtitle" style="margin-top: 16px;">
-            Hot ranking handles momentum. The feed below stays focused on recent publishing order and tag browsing.
+            热榜帮你先看热度，下面的列表仍按最新发布时间展示，方便你继续按标签筛选。
           </p>
         </div>
       </div>
 
-      <div v-if="loading" class="empty-state">Loading community posts...</div>
+      <div v-if="loading" class="empty-state">正在加载社区帖子...</div>
       <div v-else-if="errorMessage" class="field-grid">
         <p class="field-error" role="alert">{{ errorMessage }}</p>
         <button type="button" class="ghost-btn" @click="loadPosts">
-          Retry
+          重新加载
         </button>
       </div>
       <div v-else-if="!summary.posts.length" class="empty-state">
-        No posts match this tag yet. Publish the first one for this lane.
+        当前标签下还没有帖子，欢迎发布第一篇内容。
       </div>
       <div v-else class="community-post-grid">
         <CommunityPostCard

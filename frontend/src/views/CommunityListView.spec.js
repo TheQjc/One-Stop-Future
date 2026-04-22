@@ -29,12 +29,13 @@ function mountView() {
           emits: ["update:modelValue"],
           template: `
             <div class="stub-tabs">
+              <span class="stub-current-label">{{ options.find((item) => item.value === modelValue)?.label || '' }}</span>
               <button
                 type="button"
                 class="filter-career"
                 @click="$emit('update:modelValue', 'CAREER')"
               >
-                career
+                切换到就业
               </button>
             </div>
           `,
@@ -101,9 +102,17 @@ test("loads posts and refetches when the tag filter changes", async () => {
 
   expect(getCommunityHotPosts).toHaveBeenCalledWith({ period: "WEEK", limit: 3 });
   expect(getCommunityPosts).toHaveBeenNthCalledWith(1, {});
+  expect(wrapper.text()).toContain("学生成长社区");
+  expect(wrapper.text()).toContain("当前筛选");
+  expect(wrapper.text()).toContain("全部内容");
+  expect(wrapper.text()).toContain("可见帖子");
+  expect(wrapper.text()).toContain("登录后参与交流");
+  expect(wrapper.text()).toContain("社区热榜");
+  expect(wrapper.text()).toContain("标签筛选");
+  expect(wrapper.text()).toContain("最新帖子");
   expect(wrapper.text()).toContain("Hot board leader");
   expect(wrapper.text()).toContain("First post");
-  expect(wrapper.text()).toContain("Experience Post");
+  expect(wrapper.text()).toContain("经验贴");
   expect(wrapper.text()).toContain("IELTS 7.5 sprint");
 
   await wrapper.find(".filter-career").trigger("click");
@@ -111,6 +120,7 @@ test("loads posts and refetches when the tag filter changes", async () => {
 
   expect(getCommunityPosts).toHaveBeenNthCalledWith(2, { tag: "CAREER" });
   expect(getCommunityHotPosts).toHaveBeenCalledTimes(1);
+  expect(wrapper.text()).toContain("就业");
   expect(wrapper.text()).toContain("Career post");
 });
 
@@ -139,6 +149,7 @@ test("switching the hot period refetches the hot board only", async () => {
 
   expect(getCommunityHotPosts).toHaveBeenNthCalledWith(2, { period: "ALL", limit: 3 });
   expect(getCommunityPosts).toHaveBeenCalledTimes(1);
+  expect(wrapper.text()).toContain("全部时间");
   expect(wrapper.text()).toContain("All time leader");
 });
 
@@ -158,7 +169,7 @@ test("hot board error state can retry", async () => {
   const wrapper = mountView();
   await flushPromises();
 
-  expect(wrapper.text()).toContain("Hot board failed.");
+  expect(wrapper.text()).toContain("社区热榜加载失败，请稍后再试：Hot board failed.");
 
   await wrapper.find(".retry-hot-board").trigger("click");
   await flushPromises();
