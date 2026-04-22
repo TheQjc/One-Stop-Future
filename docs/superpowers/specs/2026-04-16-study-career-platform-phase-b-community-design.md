@@ -1,5 +1,7 @@
 # 校园一站式信息平台 Phase B 社区模块设计说明
 
+> **Validation note:** This design was implemented and validated on 2026-04-16. Execution record: `docs/superpowers/plans/2026-04-16-study-career-platform-phase-b-community-implementation.md`. Documented verification covered `CampusApplicationTests`, `CommunityControllerTests`, `UserControllerTests`, `AdminCommunityControllerTests`, `CommunityListView.spec.js`, `CommunityCreateView.spec.js`, `CommunityDetailView.spec.js`, `ProfilePostsView.spec.js`, `ProfileFavoritesView.spec.js`, `AdminCommunityManageView.spec.js`, full backend/frontend regression, and local smoke.
+
 ## 1. 文档目标
 
 本文档用于确认 Phase A 基础能力完成后的下一阶段子项目范围，即 `社区模块首期`。  

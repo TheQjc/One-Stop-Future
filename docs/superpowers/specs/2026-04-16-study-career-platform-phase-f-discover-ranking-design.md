@@ -1,4 +1,6 @@
 # 校园一站式信息平台 Phase F 热榜与推荐首期设计说明
+
+> **Validation note:** This design was implemented and validated on 2026-04-16. Execution record: `docs/superpowers/plans/2026-04-16-study-career-platform-phase-f-discover-ranking-implementation.md`. Documented verification covered `DiscoverControllerTests`, `HomeControllerTests`, `HomeServiceTests`, `NavBar.spec.js`, `DiscoverView.spec.js`, `HomeView.spec.js`, full backend/frontend regression, and local smoke.
 ## 1. 文档目标
 
 本文档用于确认在 Phase E 统一搜索首期完成之后，下一个子项目 `热榜与推荐首期` 的设计边界。

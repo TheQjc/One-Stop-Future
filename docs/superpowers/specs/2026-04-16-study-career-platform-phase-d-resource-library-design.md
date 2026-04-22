@@ -1,5 +1,7 @@
 # 校园一站式信息平台 Phase D 资料库模块设计说明
 
+> **Validation note:** This design was implemented and validated on 2026-04-16. Execution record: `docs/superpowers/plans/2026-04-16-study-career-platform-phase-d-resource-library-implementation.md`. Documented verification covered `CampusApplicationTests`, `ApplicationConfigSafetyTests`, `ResourceControllerTests`, `UserControllerTests`, `HomeControllerTests`, `AdminResourceControllerTests`, `ResourcesListView.spec.js`, `ResourceDetailView.spec.js`, `ResourceUploadView.spec.js`, `HomeView.spec.js`, `ProfileFavoritesView.spec.js`, `ProfileResourcesView.spec.js`, `AdminResourceManageView.spec.js`, `ProfileView.spec.js`, full backend/frontend regression, and local smoke.
+
 ## 1. 文档目标
 
 本文档用于确认社区首期和岗位聚合首期完成后的下一阶段子项目范围，即 `资料库首期`。

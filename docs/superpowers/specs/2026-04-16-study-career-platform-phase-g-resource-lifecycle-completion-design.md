@@ -1,4 +1,6 @@
 # 校园一站式信息平台 Phase G 资料资源生命周期补完设计说明
+
+> **Validation note:** This design was implemented and validated on 2026-04-17. Execution record: `docs/superpowers/plans/2026-04-17-study-career-platform-phase-g-resource-lifecycle-completion-implementation.md`. Documented verification covered `ResourceControllerTests`, `AdminResourceControllerTests`, `ResourceUploadView.spec.js`, `ResourceEditView.spec.js`, `ResourceDetailView.spec.js`, `ProfileResourcesView.spec.js`, `AdminResourceManageView.spec.js`, full backend/frontend regression, and the local smoke evidence recorded for this slice.
 ## 1. 文档目标
 
 本文档用于确认在 Phase F 发现与热榜首期完成之后，下一阶段子项目 `资料资源生命周期补完首期` 的设计边界。

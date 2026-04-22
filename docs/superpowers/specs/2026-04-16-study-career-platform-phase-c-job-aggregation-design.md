@@ -1,5 +1,7 @@
 # 校园一站式信息平台 Phase C 岗位聚合设计说明
 
+> **Validation note:** This design was implemented and validated on 2026-04-16. Execution record: `docs/superpowers/plans/2026-04-16-study-career-platform-phase-c-job-aggregation-implementation.md`. Documented verification covered `CampusApplicationTests`, `JobControllerTests`, `UserControllerTests`, `HomeControllerTests`, `AdminJobControllerTests`, `JobsListView.spec.js`, `JobDetailView.spec.js`, `HomeView.spec.js`, `ProfileFavoritesView.spec.js`, `AdminJobManageView.spec.js`, full backend/frontend regression, and local smoke.
+
 ## 1. 文档目标
 
 本文档用于确认 Phase B 社区模块完成后的下一阶段子项目范围，即 `岗位聚合首期`。
