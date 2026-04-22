@@ -158,19 +158,25 @@ const viewerName = computed(() => (
 ));
 
 const heroEyebrow = computed(() => (
-  isGuest.value ? "Independent Home" : "Student Decision Desk"
+  "学生成长服务平台"
 ));
 
 const heroTitle = computed(() => (
   isGuest.value
-    ? "把就业、考研、留学三条主线收进同一张首页"
-    : `你好，${viewerName.value}。先看清状态，再安排今天的下一步`
+    ? "把就业、考研、留学放到一个首页里，先看方向，再做决定"
+    : `你好，${viewerName.value}，今天先从这几件事开始`
 ));
 
 const heroCopy = computed(() => (
   isGuest.value
-    ? "独立首页聚合展示的意思，是先给学生一个总览页，把就业、考研、留学方向与平台入口集中在一起，再进入各自模块，减少信息分散和来回切换。"
-    : "登录后，首页会把身份状态、认证进度、未读通知和方向入口集中到同一视图里，优先帮你判断该先做什么。"
+    ? "公开内容、常用入口和成长方向会集中展示，先帮你看清选择，再进入具体模块。"
+    : "认证进度、未读通知和常用入口都会集中在这里，帮你先处理当下，再继续规划下一步。"
+));
+
+const primaryStatusChip = computed(() => (
+  isGuest.value
+    ? "首页服务已开启"
+    : `${translateRole(summary.value.identity?.role || userStore.profile?.role)} / ${viewerName.value}`
 ));
 
 const translatedTodos = computed(() => {
@@ -408,13 +414,13 @@ onMounted(loadSummary);
     <div class="hero-grid">
       <article class="section-card hero-card">
         <span class="section-eyebrow">{{ heroEyebrow }}</span>
-        <h1 class="hero-title">{{ heroTitle }}</h1>
+        <h1 class="hero-title" data-test="home-hero-title">{{ heroTitle }}</h1>
         <hr class="editorial-rule" />
-        <p class="hero-copy">{{ heroCopy }}</p>
+        <p class="hero-copy" data-test="home-hero-copy">{{ heroCopy }}</p>
 
         <form class="hero-search" data-test="home-search-form" @submit.prevent="submitSearch">
-          <label class="hero-search__label" for="home-search">
-            Unified search
+          <label class="hero-search__label" for="home-search" data-test="home-search-label">
+            站内搜索
           </label>
           <div class="hero-search__controls">
             <input
@@ -423,18 +429,18 @@ onMounted(loadSummary);
               name="home-search"
               type="search"
               class="hero-search__input"
-              placeholder="Search posts, jobs, and resources"
+              placeholder="搜索经验帖、岗位、院校、资料"
               autocomplete="off"
             />
             <button type="submit" class="app-btn hero-search__submit">
-              Search
+              搜索
             </button>
           </div>
         </form>
 
         <div class="chip-row" style="margin-top: 24px;">
-          <span class="status-badge approved">
-            {{ isGuest ? "独立首页聚合展示已开启" : `${translateRole(summary.identity?.role || userStore.profile?.role)} / ${viewerName}` }}
+          <span class="status-badge approved" data-test="home-status-chip">
+            {{ primaryStatusChip }}
           </span>
           <VerificationStatusBadge
             v-if="!isGuest"
@@ -443,23 +449,24 @@ onMounted(loadSummary);
           <span
             v-if="!isGuest && summary.unreadNotificationCount > 0"
             class="status-badge pending"
+            data-test="home-unread-chip"
           >
             {{ summary.unreadNotificationCount }} 条未读通知
           </span>
         </div>
 
         <div class="action-row" style="margin-top: 28px;">
-          <RouterLink v-if="isGuest" to="/login" class="app-btn">
+          <RouterLink v-if="isGuest" to="/login" class="app-btn" data-test="home-primary-cta">
             登录查看个人待办
           </RouterLink>
-          <RouterLink v-if="isGuest" to="/register" class="ghost-btn">
+          <RouterLink v-if="isGuest" to="/register" class="ghost-btn" data-test="home-secondary-cta">
             立即注册
           </RouterLink>
-          <RouterLink v-if="!isGuest" to="/profile" class="app-btn">
-            前往个人中心
+          <RouterLink v-if="!isGuest" to="/profile" class="app-btn" data-test="home-primary-cta">
+            进入个人中心
           </RouterLink>
-          <RouterLink v-if="!isGuest" to="/notifications" class="ghost-btn">
-            查看通知中心
+          <RouterLink v-if="!isGuest" to="/notifications" class="ghost-btn" data-test="home-secondary-cta">
+            查看通知
           </RouterLink>
           <RouterLink v-if="canReviewVerifications" to="/admin/verifications" class="app-link">
             进入认证审核台
@@ -472,7 +479,7 @@ onMounted(loadSummary);
             :key="`${signal.label}-${signal.state}`"
             class="signal-chip"
           >
-            {{ signal.label }} · {{ signal.state }}
+            {{ signal.label }}：{{ signal.state }}
           </span>
         </div>
       </article>
@@ -518,10 +525,30 @@ onMounted(loadSummary);
       </article>
     </div>
 
-    <article class="section-card">
+    <article class="section-card" data-test="home-section-entries">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Three Tracks</span>
+          <span class="section-eyebrow">常用入口</span>
+          <h2 class="page-title" style="margin-top: 16px;">从首页直接进入当前最需要的入口</h2>
+          <p class="page-subtitle" style="margin-top: 16px;">
+            先开放个人中心、通知中心和管理审核台，三条方向入口保留为后续阶段能力。
+          </p>
+        </div>
+      </div>
+
+      <div class="service-grid">
+        <HomeEntryCard
+          v-for="card in serviceCards"
+          :key="card.code"
+          :entry="card"
+        />
+      </div>
+    </article>
+
+    <article class="section-card" data-test="home-section-tracks">
+      <div class="section-header">
+        <div>
+          <span class="section-eyebrow">成长方向</span>
           <h2 class="page-title" style="margin-top: 16px;">首页先讲方向，再进入模块</h2>
           <p class="page-subtitle" style="margin-top: 16px;">
             就业、考研、留学三条主线在首页先做聚合说明，帮助学生先判断路径，再决定进入哪个具体功能。
@@ -546,26 +573,6 @@ onMounted(loadSummary);
           </ul>
           <span class="track-card__badge">{{ track.badge }}</span>
         </article>
-      </div>
-    </article>
-
-    <article class="section-card">
-      <div class="section-header">
-        <div>
-          <span class="section-eyebrow">Quick Entry</span>
-          <h2 class="page-title" style="margin-top: 16px;">从首页直接进入当前最需要的入口</h2>
-          <p class="page-subtitle" style="margin-top: 16px;">
-            先开放个人中心、通知中心和管理审核台，三条方向入口保留为后续阶段能力。
-          </p>
-        </div>
-      </div>
-
-      <div class="service-grid">
-        <HomeEntryCard
-          v-for="card in serviceCards"
-          :key="card.code"
-          :entry="card"
-        />
       </div>
     </article>
 

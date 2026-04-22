@@ -181,13 +181,21 @@ function mountView(summary) {
   });
 }
 
-test("renders guest aggregation home with a live resources link", async () => {
+test("renders guest hero copy in approved Chinese wording with live resources links", async () => {
   getHomeSummary.mockResolvedValue(guestSummary);
 
   const wrapper = mountView(guestSummary);
   await flushPromises();
 
   expect(getHomeSummary).toHaveBeenCalledTimes(1);
+  expect(wrapper.get('[data-test="home-hero-title"]').text()).toBe("把就业、考研、留学放到一个首页里，先看方向，再做决定");
+  expect(wrapper.get('[data-test="home-hero-copy"]').text()).toBe("公开内容、常用入口和成长方向会集中展示，先帮你看清选择，再进入具体模块。");
+  expect(wrapper.get('[data-test="home-search-label"]').text()).toBe("站内搜索");
+  expect(wrapper.get('input[name="home-search"]').attributes("placeholder")).toBe("搜索经验帖、岗位、院校、资料");
+  expect(wrapper.get(".hero-search__submit").text()).toBe("搜索");
+  expect(wrapper.get('[data-test="home-status-chip"]').text()).toBe("首页服务已开启");
+  expect(wrapper.get('[data-test="home-primary-cta"]').text()).toBe("登录查看个人待办");
+  expect(wrapper.get('[data-test="home-secondary-cta"]').text()).toBe("立即注册");
   expect(wrapper.html()).toContain('data-to="/resources"');
   expect(wrapper.html()).toContain('data-to="/jobs"');
   expect(wrapper.html()).toContain('data-to="/analytics"');
@@ -196,7 +204,7 @@ test("renders guest aggregation home with a live resources link", async () => {
   expect(wrapper.html()).toContain('data-to="{&quot;name&quot;:&quot;discover&quot;,&quot;query&quot;:{&quot;tab&quot;:&quot;ALL&quot;,&quot;period&quot;:&quot;WEEK&quot;}}"');
 });
 
-test("hydrates authenticated summary into store", async () => {
+test("hydrates authenticated summary into store and shows signed-in hero copy", async () => {
   setActivePinia(createPinia());
   const userStore = useUserStore();
 
@@ -229,11 +237,32 @@ test("hydrates authenticated summary into store", async () => {
 
   expect(userStore.profile.nickname).toBe("SignedInUser");
   expect(userStore.unreadCount).toBe(3);
+  expect(wrapper.get('[data-test="home-hero-title"]').text()).toBe("你好，SignedInUser，今天先从这几件事开始");
+  expect(wrapper.get('[data-test="home-hero-copy"]').text()).toBe("认证进度、未读通知和常用入口都会集中在这里，帮你先处理当下，再继续规划下一步。");
+  expect(wrapper.get('[data-test="home-status-chip"]').text()).toBe("普通用户 / SignedInUser");
+  expect(wrapper.get('[data-test="home-unread-chip"]').text()).toBe("3 条未读通知");
+  expect(wrapper.get('[data-test="home-primary-cta"]').text()).toBe("进入个人中心");
+  expect(wrapper.get('[data-test="home-secondary-cta"]').text()).toBe("查看通知");
   expect(wrapper.html()).toContain('data-to="/resources"');
   expect(wrapper.html()).toContain('data-to="/assessment"');
   expect(wrapper.html()).toContain('data-to="/analytics"');
   expect(wrapper.text()).toContain("Verification Update");
   expect(wrapper.text()).toContain("Hiring Diary");
+});
+
+test("home keeps common entry section before growth directions", async () => {
+  getHomeSummary.mockResolvedValue(guestSummary);
+
+  const wrapper = mountView();
+  await flushPromises();
+
+  const orderedSections = wrapper.findAll('article.section-card[data-test]').map((node) => node.attributes("data-test"));
+
+  expect(orderedSections).toContain("home-section-entries");
+  expect(orderedSections).toContain("home-section-tracks");
+  expect(orderedSections.indexOf("home-section-entries")).toBeLessThan(orderedSections.indexOf("home-section-tracks"));
+  expect(wrapper.get('[data-test="home-section-entries"]').text()).toContain("常用入口");
+  expect(wrapper.get('[data-test="home-section-tracks"]').text()).toContain("成长方向");
 });
 
 test("home search submits into the unified search page", async () => {
