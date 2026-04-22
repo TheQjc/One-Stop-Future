@@ -43,7 +43,7 @@
 - Modify: `backend/src/main/java/com/campus/service/CommunityService.java`
 - Modify: `backend/src/test/java/com/campus/controller/CommunityControllerTests.java`
 
-- [ ] **Step 1: Write failing controller coverage**
+- [x] **Step 1: Write failing controller coverage**
 
 Add controller tests for:
 
@@ -52,7 +52,7 @@ Add controller tests for:
 - invalid `period`
 - ranking order with adjusted counters
 
-- [ ] **Step 2: Run the failing backend tests**
+- [x] **Step 2: Run the failing backend tests**
 
 Run:
 
@@ -61,7 +61,7 @@ cd backend
 mvn -q -Dtest=CommunityControllerTests test
 ```
 
-- [ ] **Step 3: Implement the public hot endpoint**
+- [x] **Step 3: Implement the public hot endpoint**
 
 Add:
 
@@ -74,7 +74,7 @@ Add:
   - sorts by `hotScore DESC, createdAt DESC, id DESC`
   - returns a capped list
 
-- [ ] **Step 4: Re-run backend tests**
+- [x] **Step 4: Re-run backend tests**
 
 Run:
 
@@ -83,7 +83,7 @@ cd backend
 mvn -q -Dtest=CommunityControllerTests test
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/java/com/campus/common/CommunityHotPeriodType.java backend/src/main/java/com/campus/dto/CommunityHotPostListResponse.java backend/src/main/java/com/campus/controller/CommunityController.java backend/src/main/java/com/campus/service/CommunityService.java backend/src/test/java/com/campus/controller/CommunityControllerTests.java
@@ -98,7 +98,7 @@ git commit -m "feat: add community hot ranking api"
 - Modify: `frontend/src/views/CommunityListView.vue`
 - Modify: `frontend/src/views/CommunityListView.spec.js`
 
-- [ ] **Step 1: Write failing frontend tests**
+- [x] **Step 1: Write failing frontend tests**
 
 Cover:
 
@@ -107,7 +107,7 @@ Cover:
 - ranking cards render with returned titles
 - error state renders retry action
 
-- [ ] **Step 2: Run the failing frontend tests**
+- [x] **Step 2: Run the failing frontend tests**
 
 Run:
 
@@ -116,7 +116,7 @@ cd frontend
 npx vitest run src/views/CommunityListView.spec.js
 ```
 
-- [ ] **Step 3: Implement the frontend board**
+- [x] **Step 3: Implement the frontend board**
 
 Add:
 
@@ -126,7 +126,7 @@ Add:
 - loading, empty, and error states
 - ranked card rendering above the existing latest-post list
 
-- [ ] **Step 4: Re-run frontend tests**
+- [x] **Step 4: Re-run frontend tests**
 
 Run:
 
@@ -135,7 +135,7 @@ cd frontend
 npx vitest run src/views/CommunityListView.spec.js
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/api/community.js frontend/src/views/CommunityListView.vue frontend/src/views/CommunityListView.spec.js
@@ -148,7 +148,7 @@ git commit -m "feat: add community hot board ui"
 
 - Modify: `README.md`
 
-- [ ] **Step 1: Update README**
+- [x] **Step 1: Update README**
 
 Document:
 
@@ -157,7 +157,7 @@ Document:
 - `/community` hot board
 - current rolling-window semantics
 
-- [ ] **Step 2: Run targeted verification**
+- [x] **Step 2: Run targeted verification**
 
 Run:
 
@@ -172,7 +172,7 @@ npx vitest run src/views/CommunityListView.spec.js
 npm run build
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add README.md
