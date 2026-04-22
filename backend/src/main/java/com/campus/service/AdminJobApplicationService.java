@@ -9,9 +9,11 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.campus.common.BusinessException;
+import com.campus.common.ResourcePreviewKind;
 import com.campus.dto.AdminJobApplicationListResponse;
 import com.campus.entity.JobApplication;
 import com.campus.mapper.JobApplicationMapper;
+import com.campus.preview.ApplicationSnapshotPreviewService;
 import com.campus.storage.ResourceFileStorage;
 
 @Service
@@ -21,11 +23,14 @@ public class AdminJobApplicationService {
 
     private final JobApplicationMapper jobApplicationMapper;
     private final ResourceFileStorage resourceFileStorage;
+    private final ApplicationSnapshotPreviewService applicationSnapshotPreviewService;
 
     public AdminJobApplicationService(JobApplicationMapper jobApplicationMapper,
-            ResourceFileStorage resourceFileStorage) {
+            ResourceFileStorage resourceFileStorage,
+            ApplicationSnapshotPreviewService applicationSnapshotPreviewService) {
         this.jobApplicationMapper = jobApplicationMapper;
         this.resourceFileStorage = resourceFileStorage;
+        this.applicationSnapshotPreviewService = applicationSnapshotPreviewService;
     }
 
     public AdminJobApplicationListResponse listApplications() {
@@ -46,18 +51,13 @@ public class AdminJobApplicationService {
 
     public DownloadedApplicationResume downloadResumeSnapshot(Long applicationId) {
         JobApplication application = requireApplication(applicationId);
-        try {
-            if (!resourceFileStorage.exists(application.getResumeStorageKeySnapshot())) {
-                throw new BusinessException(500, "application resume snapshot unavailable");
-            }
-            InputStream inputStream = resourceFileStorage.open(application.getResumeStorageKeySnapshot());
-            return new DownloadedApplicationResume(
-                    application.getResumeFileNameSnapshot(),
-                    application.getResumeContentTypeSnapshot(),
-                    inputStream);
-        } catch (IOException exception) {
-            throw new BusinessException(500, "application resume snapshot unavailable");
-        }
+        return openSnapshot(application, "application resume snapshot unavailable");
+    }
+
+    public ApplicationSnapshotPreviewService.PreviewFile previewResumeSnapshot(Long applicationId) {
+        JobApplication application = requireApplication(applicationId);
+        return applicationSnapshotPreviewService.preview(application,
+                () -> openSnapshotInputStream(application, "application resume preview unavailable"));
     }
 
     private JobApplication requireApplication(Long applicationId) {
@@ -70,6 +70,9 @@ public class AdminJobApplicationService {
 
     private AdminJobApplicationListResponse.ApplicationItem toAdminApplicationItem(
             JobApplicationMapper.AdminApplicationRow row) {
+        ResourcePreviewKind previewKind = applicationSnapshotPreviewService.previewKindOf(
+                row.getResumeFileExtSnapshot(),
+                row.getResumeContentTypeSnapshot());
         return new AdminJobApplicationListResponse.ApplicationItem(
                 row.getId(),
                 row.getJobId(),
@@ -78,8 +81,35 @@ public class AdminJobApplicationService {
                 row.getApplicantUserId(),
                 row.getApplicantNickname(),
                 row.getResumeFileNameSnapshot(),
+                previewKind != ResourcePreviewKind.NONE,
+                previewKind,
                 row.getStatus(),
                 row.getSubmittedAt());
+    }
+
+    private DownloadedApplicationResume openSnapshot(JobApplication application, String failureMessage) {
+        try {
+            if (!resourceFileStorage.exists(application.getResumeStorageKeySnapshot())) {
+                throw new BusinessException(500, failureMessage);
+            }
+            return new DownloadedApplicationResume(
+                    application.getResumeFileNameSnapshot(),
+                    application.getResumeContentTypeSnapshot(),
+                    resourceFileStorage.open(application.getResumeStorageKeySnapshot()));
+        } catch (IOException exception) {
+            throw new BusinessException(500, failureMessage);
+        }
+    }
+
+    private InputStream openSnapshotInputStream(JobApplication application, String failureMessage) {
+        try {
+            if (!resourceFileStorage.exists(application.getResumeStorageKeySnapshot())) {
+                throw new BusinessException(500, failureMessage);
+            }
+            return resourceFileStorage.open(application.getResumeStorageKeySnapshot());
+        } catch (IOException exception) {
+            throw new BusinessException(500, failureMessage);
+        }
     }
 
     public record DownloadedApplicationResume(String fileName, String contentType, InputStream inputStream) {

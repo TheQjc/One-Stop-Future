@@ -87,6 +87,8 @@ public interface JobApplicationMapper extends BaseMapper<JobApplication> {
                    a.applicant_user_id AS applicantUserId,
                    u.nickname AS applicantNickname,
                    a.resume_file_name_snapshot AS resumeFileNameSnapshot,
+                   a.resume_file_ext_snapshot AS resumeFileExtSnapshot,
+                   a.resume_content_type_snapshot AS resumeContentTypeSnapshot,
                    a.status,
                    a.submitted_at AS submittedAt
             FROM t_job_application a
@@ -135,6 +137,8 @@ public interface JobApplicationMapper extends BaseMapper<JobApplication> {
         private Long applicantUserId;
         private String applicantNickname;
         private String resumeFileNameSnapshot;
+        private String resumeFileExtSnapshot;
+        private String resumeContentTypeSnapshot;
         private String status;
         private LocalDateTime submittedAt;
     }

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.campus.common.Result;
 import com.campus.dto.AdminJobApplicationListResponse;
+import com.campus.preview.ApplicationSnapshotPreviewService;
 import com.campus.service.AdminJobApplicationService;
 import com.campus.service.AdminJobApplicationService.DownloadedApplicationResume;
 
@@ -47,6 +48,19 @@ public class AdminJobApplicationController {
                         .build()
                         .toString())
                 .body(new InputStreamResource(download.inputStream()));
+    }
+
+    @GetMapping("/{id}/resume/preview")
+    public ResponseEntity<InputStreamResource> previewResume(@PathVariable Long id) {
+        ApplicationSnapshotPreviewService.PreviewFile preview =
+                adminJobApplicationService.previewResumeSnapshot(id);
+        return ResponseEntity.ok()
+                .contentType(resolveMediaType(preview.contentType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.inline()
+                        .filename(preview.fileName(), StandardCharsets.UTF_8)
+                        .build()
+                        .toString())
+                .body(new InputStreamResource(preview.inputStream()));
     }
 
     private MediaType resolveMediaType(String contentType) {

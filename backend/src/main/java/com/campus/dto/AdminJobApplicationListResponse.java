@@ -3,6 +3,8 @@ package com.campus.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.campus.common.ResourcePreviewKind;
+
 public record AdminJobApplicationListResponse(
         int total,
         int submittedToday,
@@ -18,6 +20,8 @@ public record AdminJobApplicationListResponse(
             Long applicantUserId,
             String applicantNickname,
             String resumeFileNameSnapshot,
+            boolean previewAvailable,
+            ResourcePreviewKind previewKind,
             String status,
             LocalDateTime submittedAt) {
     }
