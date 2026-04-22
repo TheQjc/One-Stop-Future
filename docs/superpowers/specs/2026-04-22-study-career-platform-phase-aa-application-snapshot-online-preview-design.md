@@ -1,5 +1,7 @@
 # Study Career Platform Phase AA Application Snapshot Online Preview Design
 
+> **Validation note:** This design was implemented and validated on 2026-04-22 using the approved execution record at `docs/superpowers/plans/2026-04-22-study-career-platform-phase-aa-application-snapshot-online-preview-implementation.md`. Local verification suites now present for this slice are `ApplicationSnapshotPreviewServiceTests`, `JobApplicationControllerTests`, `AdminJobApplicationControllerTests`, `ProfileApplicationsView.spec.js`, and `AdminApplicationsView.spec.js`.
+
 ## 1. Goal
 
 Phase AA adds a narrow online-preview slice for immutable job-application resume snapshots while preserving the current Spring Boot monolith, Vue SPA, Phase N application workflow, Phase Z live-resume preview boundary, existing raw-file storage boundary, and the Phase T / X / Y preview-artifact runtime model.

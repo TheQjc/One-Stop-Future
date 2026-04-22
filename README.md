@@ -1,6 +1,6 @@
 # One-Stop Future
 
-Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice + Phase H resource preview expansion first slice + Phase I MinIO raw resource storage first slice + Phase J historical local resource MinIO migration first slice + Phase K decision support first slice + Phase L decision analytics first slice + Phase M admin dashboard first slice + Phase N job application and resume workflow first slice + Phase O admin user status management first slice + Phase P community hot ranking first slice + Phase Q community experience post structure first slice + Phase R community threaded replies first slice + Phase S DOCX resource preview first slice + Phase T MinIO preview artifact storage first slice + Phase U admin batch job import first slice + Phase V third-party job sync first slice + Phase W historical preview artifact MinIO migration first slice + Phase X preview artifact runtime dual-read fallback first slice + Phase Y preview artifact cleanup first slice + Phase Z resume online preview first slice`.
+Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice + Phase H resource preview expansion first slice + Phase I MinIO raw resource storage first slice + Phase J historical local resource MinIO migration first slice + Phase K decision support first slice + Phase L decision analytics first slice + Phase M admin dashboard first slice + Phase N job application and resume workflow first slice + Phase O admin user status management first slice + Phase P community hot ranking first slice + Phase Q community experience post structure first slice + Phase R community threaded replies first slice + Phase S DOCX resource preview first slice + Phase T MinIO preview artifact storage first slice + Phase U admin batch job import first slice + Phase V third-party job sync first slice + Phase W historical preview artifact MinIO migration first slice + Phase X preview artifact runtime dual-read fallback first slice + Phase Y preview artifact cleanup first slice + Phase Z resume online preview first slice + Phase AA application snapshot online preview first slice`.
 
 ## Current Scope
 
@@ -20,8 +20,8 @@ Implemented now:
 - job favorite / unfavorite
 - resume library upload / list / preview / download / delete
 - in-platform one-time job apply with resume snapshot
-- my applications history
-- admin applications read-only workbench with snapshot download
+- my applications history with snapshot preview / download actions
+- admin applications read-only workbench with snapshot preview / download
 - public resource list / detail / upload
 - resource preview / download / favorite / unfavorite
 - my resources / resource favorites / rejected edit-resubmit
@@ -239,10 +239,13 @@ Backend endpoints:
 - `DELETE /api/resumes/{id}`
 - `POST /api/jobs/{id}/apply`
 - `GET /api/applications/mine`
+- `GET /api/applications/{id}/resume/preview`
+- `GET /api/applications/{id}/resume/download`
 - `GET /api/admin/applications`
+- `GET /api/admin/applications/{id}/resume/preview`
 - `GET /api/admin/applications/{id}/resume/download`
 
-Current Phase N scope:
+Current Phase N + Phase AA scope:
 
 - authenticated users can keep multiple resume files in `/profile/resumes`
 - supported resume formats are `PDF`, `DOC`, and `DOCX`
@@ -251,9 +254,10 @@ Current Phase N scope:
 - published job detail pages keep the external `Source Link` and also expose in-platform apply
 - one user can apply to the same job at most once
 - each application stores an immutable resume snapshot so deleting the live resume does not break historical download
-- `/profile/applications` is applicant-facing and read-only
-- `/admin/applications` is admin-only and read-only
-- application snapshot preview and admin-side resume preview remain out of scope in this phase
+- `/profile/applications` is applicant-facing and read-only, and now supports snapshot preview for `PDF` / `DOCX` plus snapshot download for `PDF` / `DOCX` / `DOC`
+- `/admin/applications` is admin-only and read-only, and now supports snapshot preview for `PDF` / `DOCX` plus snapshot download for `PDF` / `DOCX` / `DOC`
+- application snapshot preview remains separate from live resume preview on `/profile/resumes`
+- `DOC` application snapshots remain download-only in this phase
 
 ## Admin Dashboard
 
@@ -490,7 +494,7 @@ Authenticated user:
 - can favorite jobs
 - can manage their own resume library at `/profile/resumes`
 - can apply to a published job once with one selected resume
-- can review their application history at `/profile/applications`
+- can review their application history at `/profile/applications`, preview `PDF` / `DOCX` snapshot resumes inline, and download stored snapshot resumes
 - can complete the decision assessment and view the latest result
 - can open `/analytics` and view personal snapshot / history / next actions when available
 - can open the direction timeline after assessment
@@ -504,7 +508,7 @@ Authenticated user:
 Admin:
 
 - can open `/admin/dashboard` for a read-only overview and use it to enter existing admin workbenches
-- can open `/admin/applications` and download application snapshot resumes
+- can open `/admin/applications` and preview `PDF` / `DOCX` application snapshot resumes inline, or download snapshot resumes
 - can review verification applications
 - can moderate community posts
 - can maintain job cards
