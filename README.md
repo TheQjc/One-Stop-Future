@@ -514,6 +514,10 @@ Public backend endpoint:
 
 - `GET /api/community/hot`
 
+Frontend route:
+
+- `/community`
+
 Supported query params:
 
 - `period`
@@ -547,6 +551,12 @@ Authenticated backend endpoint:
 
 - `POST /api/community/posts`
 
+Frontend routes:
+
+- `/community`
+- `/community/create`
+- `/community/:id`
+
 Current Phase Q scope:
 
 - community posts can optionally set `experiencePost=true` plus `experienceTargetLabel`, `experienceOutcomeLabel`, `experienceTimelineSummary`, and `experienceActionSummary`
@@ -565,6 +575,11 @@ Authenticated backend endpoints:
 
 - `POST /api/community/posts/{id}/comments`
 - `POST /api/community/comments/{id}/replies`
+
+Frontend routes:
+
+- `/community/:id`
+- `/notifications`
 
 Current Phase R scope:
 
