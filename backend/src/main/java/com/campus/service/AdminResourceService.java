@@ -64,7 +64,6 @@ public class AdminResourceService {
         resource.setRejectReason(null);
         resource.setPublishedAt(now);
         resource.setReviewedAt(now);
-        resource.setUpdatedAt(now);
         resourceItemMapper.updateById(resource);
         return resourceService.getResourceDetail(resource.getId(), identity);
     }
@@ -84,7 +83,6 @@ public class AdminResourceService {
         resource.setReviewedBy(admin.getId());
         resource.setRejectReason(reason.trim());
         resource.setReviewedAt(now);
-        resource.setUpdatedAt(now);
         resourceItemMapper.updateById(resource);
         return resourceService.getResourceDetail(resource.getId(), identity);
     }
@@ -102,7 +100,6 @@ public class AdminResourceService {
         resource.setStatus(ResourceStatus.OFFLINE.name());
         resource.setReviewedBy(admin.getId());
         resource.setReviewedAt(LocalDateTime.now());
-        resource.setUpdatedAt(LocalDateTime.now());
         resourceItemMapper.updateById(resource);
         return resourceService.getResourceDetail(resource.getId(), identity);
     }

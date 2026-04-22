@@ -187,6 +187,22 @@ class ResourceControllerTests {
 
     @Test
     @WithMockUser(username = "2", roles = "USER")
+    void favoriteAndUnfavoriteDoNotChangeResourceUpdatedAt() throws Exception {
+        LocalDateTime before = jdbcTemplate.queryForObject(
+                "SELECT updated_at FROM t_resource_item WHERE id = 1", LocalDateTime.class);
+
+        mockMvc.perform(post("/api/resources/1/favorite"))
+                .andExpect(status().isOk());
+        mockMvc.perform(delete("/api/resources/1/favorite"))
+                .andExpect(status().isOk());
+
+        LocalDateTime after = jdbcTemplate.queryForObject(
+                "SELECT updated_at FROM t_resource_item WHERE id = 1", LocalDateTime.class);
+        assertThat(after).isEqualTo(before);
+    }
+
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
     void authenticatedUserCanDownloadPublishedResource() throws Exception {
         writeStoredFile("seed/2026/04/resume-template-pack.pdf", "resource-file");
 
@@ -198,6 +214,21 @@ class ResourceControllerTests {
         Integer downloadCount = jdbcTemplate.queryForObject(
                 "SELECT download_count FROM t_resource_item WHERE id = 1", Integer.class);
         assertThat(downloadCount).isEqualTo(13);
+    }
+
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
+    void downloadDoesNotChangeResourceUpdatedAt() throws Exception {
+        writeStoredFile("seed/2026/04/resume-template-pack.pdf", "resource-file");
+        LocalDateTime before = jdbcTemplate.queryForObject(
+                "SELECT updated_at FROM t_resource_item WHERE id = 1", LocalDateTime.class);
+
+        mockMvc.perform(get("/api/resources/1/download"))
+                .andExpect(status().isOk());
+
+        LocalDateTime after = jdbcTemplate.queryForObject(
+                "SELECT updated_at FROM t_resource_item WHERE id = 1", LocalDateTime.class);
+        assertThat(after).isEqualTo(before);
     }
 
     @Test

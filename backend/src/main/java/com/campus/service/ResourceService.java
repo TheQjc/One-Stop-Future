@@ -247,7 +247,6 @@ public class ResourceService {
             favorite.setCreatedAt(LocalDateTime.now());
             userFavoriteMapper.insert(favorite);
             resource.setFavoriteCount(safeCount(resource.getFavoriteCount()) + 1);
-            resource.setUpdatedAt(LocalDateTime.now());
             resourceItemMapper.updateById(resource);
         }
         return toResourceDetail(requirePublishedResource(resourceId), viewer);
@@ -265,7 +264,6 @@ public class ResourceService {
         if (existing != null) {
             userFavoriteMapper.deleteById(existing.getId());
             resource.setFavoriteCount(Math.max(0, safeCount(resource.getFavoriteCount()) - 1));
-            resource.setUpdatedAt(LocalDateTime.now());
             resourceItemMapper.updateById(resource);
         }
         return toResourceDetail(requirePublishedResource(resourceId), viewer);
@@ -305,7 +303,6 @@ public class ResourceService {
         ResourceItem resource = requirePublishedResource(resourceId);
 
         resource.setDownloadCount(safeCount(resource.getDownloadCount()) + 1);
-        resource.setUpdatedAt(LocalDateTime.now());
         resourceItemMapper.updateById(resource);
 
         ResourceFileStream openedResource = openResourceFile(resource);

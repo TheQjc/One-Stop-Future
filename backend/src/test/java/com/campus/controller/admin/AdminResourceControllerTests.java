@@ -304,6 +304,56 @@ class AdminResourceControllerTests {
 
     @Test
     @WithMockUser(username = "1", roles = "ADMIN")
+    void publishRejectAndOfflineDoNotChangeUpdatedAt() throws Exception {
+        jdbcTemplate.update(
+                """
+                        INSERT INTO t_resource_item (
+                          id, title, category, summary, description, status, uploader_id, reviewed_by, reject_reason,
+                          file_name, file_ext, content_type, file_size, storage_key, download_count, favorite_count,
+                          published_at, reviewed_at, created_at, updated_at
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, NULL, NULL, ?, ?, ?, ?, ?, ?, ?, NULL, NULL, ?, ?)
+                        """,
+                4L, "Mock Exam Paper", "EXAM_PAPER", "Pending exam paper", "Pending exam paper details",
+                "PENDING", 2L, "mock-exam-paper.pdf", "pdf", "application/pdf", 2048L,
+                "seed/2026/04/mock-exam-paper.pdf", 0, 0,
+                LocalDateTime.now().minusHours(2), LocalDateTime.now().minusHours(2));
+        LocalDateTime publishBefore = jdbcTemplate.queryForObject(
+                "SELECT updated_at FROM t_resource_item WHERE id = 4", LocalDateTime.class);
+
+        mockMvc.perform(post("/api/admin/resources/4/publish"))
+                .andExpect(status().isOk());
+
+        LocalDateTime publishAfter = jdbcTemplate.queryForObject(
+                "SELECT updated_at FROM t_resource_item WHERE id = 4", LocalDateTime.class);
+        assertThat(publishAfter).isEqualTo(publishBefore);
+
+        LocalDateTime rejectBefore = jdbcTemplate.queryForObject(
+                "SELECT updated_at FROM t_resource_item WHERE id = 3", LocalDateTime.class);
+
+        mockMvc.perform(post("/api/admin/resources/3/reject")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"reason":"Need clearer naming"}
+                                """))
+                .andExpect(status().isOk());
+
+        LocalDateTime rejectAfter = jdbcTemplate.queryForObject(
+                "SELECT updated_at FROM t_resource_item WHERE id = 3", LocalDateTime.class);
+        assertThat(rejectAfter).isEqualTo(rejectBefore);
+
+        LocalDateTime offlineBefore = jdbcTemplate.queryForObject(
+                "SELECT updated_at FROM t_resource_item WHERE id = 1", LocalDateTime.class);
+
+        mockMvc.perform(post("/api/admin/resources/1/offline"))
+                .andExpect(status().isOk());
+
+        LocalDateTime offlineAfter = jdbcTemplate.queryForObject(
+                "SELECT updated_at FROM t_resource_item WHERE id = 1", LocalDateTime.class);
+        assertThat(offlineAfter).isEqualTo(offlineBefore);
+    }
+
+    @Test
+    @WithMockUser(username = "1", roles = "ADMIN")
     void adminCanPreviewPendingPptxAsInlinePdf() throws Exception {
         insertResource(4L, 2L, "PENDING", "admin-preview.pptx", "pptx",
                 "application/vnd.openxmlformats-officedocument.presentationml.presentation",
