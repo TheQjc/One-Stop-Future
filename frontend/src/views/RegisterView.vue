@@ -21,7 +21,7 @@ const cooldown = ref(0);
 let timerId = null;
 
 const sendCodeLabel = computed(() => (
-  cooldown.value > 0 ? `${cooldown.value}s 后重试` : "获取验证码"
+  cooldown.value > 0 ? `${cooldown.value} 秒后重试` : "获取验证码"
 ));
 
 function clearCooldown() {
@@ -106,10 +106,10 @@ onBeforeUnmount(() => {
   <section class="page-stack">
     <div class="two-col-grid">
       <article class="section-card">
-        <span class="section-eyebrow">New Account</span>
+        <span class="section-eyebrow">新账号注册</span>
         <h1 class="page-title" style="margin-top: 18px;">先完成注册，再回到首页看清你的下一步</h1>
         <p class="page-subtitle" style="margin-top: 16px;">
-          Phase A 默认开放普通用户自主注册。注册成功后会直接建立登录态，并把你带回独立首页聚合视图。
+          当前阶段默认开放普通用户自主注册。注册成功后会直接建立登录态，并带你回到首页继续查看常用入口和成长方向。
         </p>
 
         <div class="info-card-list" style="margin-top: 24px;">

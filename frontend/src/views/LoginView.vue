@@ -44,7 +44,7 @@ const cooldown = ref(0);
 let timerId = null;
 
 const sendCodeLabel = computed(() => (
-  cooldown.value > 0 ? `${cooldown.value}s 后重试` : "获取验证码"
+  cooldown.value > 0 ? `${cooldown.value} 秒后重试` : "获取验证码"
 ));
 
 function clearCooldown() {
@@ -124,7 +124,7 @@ onBeforeUnmount(() => {
   <section class="page-stack">
     <div class="hero-grid">
       <article class="section-card">
-        <span class="section-eyebrow">Phone Code Login</span>
+        <span class="section-eyebrow">统一登录入口</span>
         <h1 class="hero-title">先进入统一入口，再决定今天优先处理哪条主线</h1>
         <hr class="editorial-rule" />
         <p class="hero-copy">
@@ -137,7 +137,7 @@ onBeforeUnmount(() => {
             <p class="meta-copy">就业 / 考研 / 留学三条主线统一聚合</p>
           </article>
           <article class="panel-card">
-            <strong class="stat-value">Phase A</strong>
+            <strong class="stat-value">当前阶段</strong>
             <p class="meta-copy">首页、认证申请、通知中心与审核台已接通</p>
           </article>
         </div>
