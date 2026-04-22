@@ -121,7 +121,7 @@ This plan explicitly does not implement:
 - Modify: `backend/src/main/resources/application-local.yml`
 - Modify: `backend/src/test/resources/application.yml`
 
-- [ ] **Step 1: Write the failing config and key-format tests**
+- [x] **Step 1: Write the failing config and key-format tests**
 
 Add a focused key-format test:
 
@@ -171,7 +171,7 @@ void testConfigKeepsMinioDisabledByDefault() {
 }
 ```
 
-- [ ] **Step 2: Run the targeted tests and verify failure**
+- [x] **Step 2: Run the targeted tests and verify failure**
 
 Run:
 
@@ -182,7 +182,7 @@ mvn -q "-Dtest=StorageKeyFactoryTests,ApplicationConfigSafetyTests" test
 
 Expected: FAIL because `StorageKeyFactory` and `MinioIntegrationProperties` do not exist yet and the config assertions are not fully pinned.
 
-- [ ] **Step 3: Implement the shared key generator and config baseline**
+- [x] **Step 3: Implement the shared key generator and config baseline**
 
 Create `MinioIntegrationProperties`:
 
@@ -308,7 +308,7 @@ platform:
       bucket: campus-platform-test
 ```
 
-- [ ] **Step 4: Run the targeted tests again and make them pass**
+- [x] **Step 4: Run the targeted tests again and make them pass**
 
 Run:
 
@@ -319,7 +319,7 @@ mvn -q "-Dtest=StorageKeyFactoryTests,ApplicationConfigSafetyTests" test
 
 Expected: PASS with deterministic key-shape coverage and explicit MinIO config defaults.
 
-- [ ] **Step 5: Commit the shared storage baseline**
+- [x] **Step 5: Commit the shared storage baseline**
 
 ```bash
 git add backend/src/test/java/com/campus/config/ApplicationConfigSafetyTests.java backend/src/test/java/com/campus/storage/StorageKeyFactoryTests.java backend/src/main/java/com/campus/config/MinioIntegrationProperties.java backend/src/main/java/com/campus/storage/StorageKeyFactory.java backend/src/main/java/com/campus/storage/LocalResourceFileStorage.java backend/src/main/resources/application.yml backend/src/main/resources/application-local.yml backend/src/test/resources/application.yml
@@ -335,7 +335,7 @@ git commit -m "refactor: prepare shared resource storage key generation"
 - Create: `backend/src/main/java/com/campus/storage/MinioResourceFileStorage.java`
 - Create: `backend/src/test/java/com/campus/storage/MinioResourceFileStorageTests.java`
 
-- [ ] **Step 1: Write the failing MinIO storage tests**
+- [x] **Step 1: Write the failing MinIO storage tests**
 
 Create repository-safe tests around a fake `MinioObjectOperations` implementation:
 
@@ -385,7 +385,7 @@ class MinioResourceFileStorageTests {
 }
 ```
 
-- [ ] **Step 2: Run the MinIO storage tests and verify failure**
+- [x] **Step 2: Run the MinIO storage tests and verify failure**
 
 Run:
 
@@ -396,7 +396,7 @@ mvn -q "-Dtest=MinioResourceFileStorageTests" test
 
 Expected: FAIL because the MinIO storage classes and dependency do not exist yet.
 
-- [ ] **Step 3: Add the MinIO dependency and implement the storage backend**
+- [x] **Step 3: Add the MinIO dependency and implement the storage backend**
 
 Add the MinIO Java SDK dependency to `backend/pom.xml`:
 
@@ -535,7 +535,7 @@ public class MinioResourceFileStorage implements ResourceFileStorage {
 }
 ```
 
-- [ ] **Step 4: Run the MinIO storage tests again and make them pass**
+- [x] **Step 4: Run the MinIO storage tests again and make them pass**
 
 Run:
 
@@ -546,7 +546,7 @@ mvn -q "-Dtest=MinioResourceFileStorageTests" test
 
 Expected: PASS with bucket initialization and object round-trip behavior covered without requiring a live MinIO server.
 
-- [ ] **Step 5: Commit the MinIO storage backend**
+- [x] **Step 5: Commit the MinIO storage backend**
 
 ```bash
 git add backend/pom.xml backend/src/main/java/com/campus/storage/MinioObjectOperations.java backend/src/main/java/com/campus/storage/SdkMinioObjectOperations.java backend/src/main/java/com/campus/storage/MinioResourceFileStorage.java backend/src/test/java/com/campus/storage/MinioResourceFileStorageTests.java
@@ -564,7 +564,7 @@ git commit -m "feat: add minio resource file storage backend"
 - Modify: `backend/src/test/java/com/campus/controller/ResourceControllerTests.java`
 - Modify: `backend/src/test/java/com/campus/controller/admin/AdminResourceControllerTests.java`
 
-- [ ] **Step 1: Write the failing Spring wiring and regression tests**
+- [x] **Step 1: Write the failing Spring wiring and regression tests**
 
 Create focused storage-configuration tests:
 
@@ -625,7 +625,7 @@ void missingVisibleFileStillReturnsInfrastructureFailure() throws Exception {
 }
 ```
 
-- [ ] **Step 2: Run the targeted Spring wiring and controller tests and verify failure**
+- [x] **Step 2: Run the targeted Spring wiring and controller tests and verify failure**
 
 Run:
 
@@ -636,7 +636,7 @@ mvn -q "-Dtest=ResourceStorageConfigurationTests,ResourceControllerTests,AdminRe
 
 Expected: FAIL because Spring storage selection is not wired yet and `ResourceFileStorage` still assumes a local-only `exists(...)` contract.
 
-- [ ] **Step 3: Implement conditional bean selection and remote-safe storage handling**
+- [x] **Step 3: Implement conditional bean selection and remote-safe storage handling**
 
 Tighten the storage interface:
 
@@ -745,7 +745,7 @@ private void tryDeleteReplacedFile(String previousStorageKey, String currentStor
 
 Also remove direct `@Component` wiring from `LocalResourceFileStorage` so `ResourceStorageConfiguration` becomes the only selector.
 
-- [ ] **Step 4: Run the targeted Spring wiring and controller tests again and make them pass**
+- [x] **Step 4: Run the targeted Spring wiring and controller tests again and make them pass**
 
 Run:
 
@@ -756,7 +756,7 @@ mvn -q "-Dtest=ResourceStorageConfigurationTests,ResourceControllerTests,AdminRe
 
 Expected: PASS with local-vs-MinIO selection covered and resource controller behavior preserved.
 
-- [ ] **Step 5: Commit the Spring storage wiring**
+- [x] **Step 5: Commit the Spring storage wiring**
 
 ```bash
 git add backend/src/main/java/com/campus/config/ResourceStorageConfiguration.java backend/src/main/java/com/campus/storage/ResourceFileStorage.java backend/src/main/java/com/campus/storage/LocalResourceFileStorage.java backend/src/main/java/com/campus/service/ResourceService.java backend/src/test/java/com/campus/config/ResourceStorageConfigurationTests.java backend/src/test/java/com/campus/controller/ResourceControllerTests.java backend/src/test/java/com/campus/controller/admin/AdminResourceControllerTests.java
@@ -768,7 +768,7 @@ git commit -m "feat: wire selectable raw resource storage backends"
 **Files:**
 - Modify: `docker-compose.yml`
 
-- [ ] **Step 1: Update the Compose scaffold to include MinIO**
+- [x] **Step 1: Update the Compose scaffold to include MinIO**
 
 Extend `docker-compose.yml` so the stack becomes `mysql + minio + backend + frontend`.
 
@@ -809,7 +809,7 @@ Update backend env so raw resource storage explicitly switches to MinIO while pr
 Keep the existing backend local-storage volume because preview artifacts are still local in this phase.
 Use backend restart policy plus MinIO startup order instead of a container-internal `curl` healthcheck, since recent MinIO images no longer reliably ship curl.
 
-- [ ] **Step 2: Validate the Compose file**
+- [x] **Step 2: Validate the Compose file**
 
 Run:
 
@@ -819,7 +819,7 @@ docker compose config
 
 Expected: PASS with merged config output that includes `minio`, MinIO env vars on `backend`, and both `mysql-data`, `minio-data`, and `backend-data` volumes.
 
-- [ ] **Step 3: Commit the Compose update**
+- [x] **Step 3: Commit the Compose update**
 
 ```bash
 git add docker-compose.yml
@@ -831,7 +831,7 @@ git commit -m "chore(deploy): add minio-backed resource storage runtime"
 **Files:**
 - Modify: `README.md`
 
-- [ ] **Step 1: Update README for Phase I MinIO raw storage**
+- [x] **Step 1: Update README for Phase I MinIO raw storage**
 
 Document all of the following:
 
@@ -863,7 +863,7 @@ Optional Docker Stack notes:
 - backend stores raw resource files in MinIO and preview artifacts in the `backend-data` volume
 ```
 
-- [ ] **Step 2: Run targeted backend verification**
+- [x] **Step 2: Run targeted backend verification**
 
 Run:
 
@@ -874,7 +874,7 @@ mvn -q "-Dtest=StorageKeyFactoryTests,MinioResourceFileStorageTests,ResourceStor
 
 Expected: PASS.
 
-- [ ] **Step 3: Run full backend regression**
+- [x] **Step 3: Run full backend regression**
 
 Run:
 
@@ -885,7 +885,7 @@ mvn test
 
 Expected: PASS.
 
-- [ ] **Step 4: Run frontend regression and build checks**
+- [x] **Step 4: Run frontend regression and build checks**
 
 Run:
 
@@ -897,7 +897,7 @@ npm run build
 
 Expected: PASS. No frontend code changes are expected, so any failure here is a regression signal.
 
-- [ ] **Step 5: Run compose-level smoke when Docker is available**
+- [x] **Step 5: Run compose-level smoke when Docker is available**
 
 Run:
 
@@ -918,7 +918,7 @@ Manual smoke checklist:
 
 If Docker is unavailable in the execution environment, record that `docker compose config` passed but live compose smoke could not be executed.
 
-- [ ] **Step 6: Commit the docs and verification updates**
+- [x] **Step 6: Commit the docs and verification updates**
 
 ```bash
 git add README.md

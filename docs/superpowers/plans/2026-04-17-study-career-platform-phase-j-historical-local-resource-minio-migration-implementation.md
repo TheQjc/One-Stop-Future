@@ -108,7 +108,7 @@ This plan explicitly does not implement:
 - Modify: `backend/src/test/java/com/campus/config/ResourceStorageConfigurationTests.java`
 - Modify: `backend/src/main/java/com/campus/config/ResourceStorageConfiguration.java`
 
-- [ ] **Step 1: Write the failing configuration tests**
+- [x] **Step 1: Write the failing configuration tests**
 
 Extend `ResourceStorageConfigurationTests` so it covers the new migration wiring requirement:
 
@@ -141,7 +141,7 @@ void localStorageTypeDoesNotCreateMinioOperationsWhenMinioIntegrationIsDisabled(
 
 Keep the existing fail-fast assertion for `app.resource-storage.type=minio` plus `platform.integrations.minio.enabled=false`.
 
-- [ ] **Step 2: Run the targeted configuration tests and verify failure**
+- [x] **Step 2: Run the targeted configuration tests and verify failure**
 
 Run:
 
@@ -152,7 +152,7 @@ mvn -q "-Dtest=ResourceStorageConfigurationTests" test
 
 Expected: FAIL because the current configuration only exposes MinIO beans when `app.resource-storage.type=minio`.
 
-- [ ] **Step 3: Refactor the configuration to separate active-storage selection from MinIO infrastructure exposure**
+- [x] **Step 3: Refactor the configuration to separate active-storage selection from MinIO infrastructure exposure**
 
 Update `ResourceStorageConfiguration` so it follows this shape:
 
@@ -189,7 +189,7 @@ Keep the `ResourceFileStorage` bean selection unchanged:
 
 and make the `minio` storage bean depend on the new MinIO infrastructure beans plus the guard.
 
-- [ ] **Step 4: Run the configuration tests again and make them pass**
+- [x] **Step 4: Run the configuration tests again and make them pass**
 
 Run:
 
@@ -200,7 +200,7 @@ mvn -q "-Dtest=ResourceStorageConfigurationTests" test
 
 Expected: PASS with both the old fail-fast rule and the new migration-ready MinIO bean exposure covered.
 
-- [ ] **Step 5: Commit the MinIO wiring refactor**
+- [x] **Step 5: Commit the MinIO wiring refactor**
 
 ```bash
 git add backend/src/test/java/com/campus/config/ResourceStorageConfigurationTests.java backend/src/main/java/com/campus/config/ResourceStorageConfiguration.java
@@ -216,7 +216,7 @@ git commit -m "refactor: expose minio beans for historical migration"
 - Create: `backend/src/main/java/com/campus/storage/HistoricalLocalResourceReader.java`
 - Modify: `backend/src/main/java/com/campus/storage/LocalResourceFileStorage.java`
 
-- [ ] **Step 1: Write the failing path-safety and reader tests**
+- [x] **Step 1: Write the failing path-safety and reader tests**
 
 Create path resolver tests with `@TempDir` coverage:
 
@@ -263,7 +263,7 @@ void readerCanOpenExistingHistoricalFile() throws Exception {
 }
 ```
 
-- [ ] **Step 2: Run the targeted storage tests and verify failure**
+- [x] **Step 2: Run the targeted storage tests and verify failure**
 
 Run:
 
@@ -274,7 +274,7 @@ mvn -q "-Dtest=LocalStoragePathResolverTests,HistoricalLocalResourceReaderTests"
 
 Expected: FAIL because the resolver and historical reader classes do not exist yet.
 
-- [ ] **Step 3: Implement the shared resolver, the historical reader, and the local-storage reuse**
+- [x] **Step 3: Implement the shared resolver, the historical reader, and the local-storage reuse**
 
 Create the shared resolver:
 
@@ -332,7 +332,7 @@ public class HistoricalLocalResourceReader {
 
 Refactor `LocalResourceFileStorage` to replace its private `resolve(...)` logic with the shared resolver so both active local storage and historical migration use the same normalization rules.
 
-- [ ] **Step 4: Run the storage tests again and make them pass**
+- [x] **Step 4: Run the storage tests again and make them pass**
 
 Run:
 
@@ -343,7 +343,7 @@ mvn -q "-Dtest=LocalStoragePathResolverTests,HistoricalLocalResourceReaderTests"
 
 Expected: PASS with path traversal protection, slash normalization, and historical open/existence behavior covered.
 
-- [ ] **Step 5: Commit the safe historical reader layer**
+- [x] **Step 5: Commit the safe historical reader layer**
 
 ```bash
 git add backend/src/test/java/com/campus/storage/LocalStoragePathResolverTests.java backend/src/test/java/com/campus/storage/HistoricalLocalResourceReaderTests.java backend/src/main/java/com/campus/storage/LocalStoragePathResolver.java backend/src/main/java/com/campus/storage/HistoricalLocalResourceReader.java backend/src/main/java/com/campus/storage/LocalResourceFileStorage.java
@@ -358,7 +358,7 @@ git commit -m "feat: add safe historical local resource reader"
 - Create: `backend/src/test/java/com/campus/service/AdminResourceMigrationServiceTests.java`
 - Create: `backend/src/main/java/com/campus/service/AdminResourceMigrationService.java`
 
-- [ ] **Step 1: Write the failing service tests**
+- [x] **Step 1: Write the failing service tests**
 
 Create `AdminResourceMigrationServiceTests` with Mockito and temporary local files:
 
@@ -451,7 +451,7 @@ void migrationFailsWhenMinioIntegrationIsDisabled() {
 }
 ```
 
-- [ ] **Step 2: Run the targeted service tests and verify failure**
+- [x] **Step 2: Run the targeted service tests and verify failure**
 
 Run:
 
@@ -462,7 +462,7 @@ mvn -q "-Dtest=AdminResourceMigrationServiceTests" test
 
 Expected: FAIL because the request/response DTOs and migration service do not exist yet.
 
-- [ ] **Step 3: Implement the DTOs and the batch migration service**
+- [x] **Step 3: Implement the DTOs and the batch migration service**
 
 Create the request DTO with validation for `limit`:
 
@@ -564,7 +564,7 @@ Recommended user-facing per-item messages:
 - `failed to open local file`
 - `failed to upload to minio`
 
-- [ ] **Step 4: Run the service tests again and make them pass**
+- [x] **Step 4: Run the service tests again and make them pass**
 
 Run:
 
@@ -575,7 +575,7 @@ mvn -q "-Dtest=AdminResourceMigrationServiceTests" test
 
 Expected: PASS with dry-run, execute, overwrite policy, skip reasons, and partial success behavior covered.
 
-- [ ] **Step 5: Commit the migration service layer**
+- [x] **Step 5: Commit the migration service layer**
 
 ```bash
 git add backend/src/main/java/com/campus/dto/AdminResourceMigrationRequest.java backend/src/main/java/com/campus/dto/AdminResourceMigrationResponse.java backend/src/test/java/com/campus/service/AdminResourceMigrationServiceTests.java backend/src/main/java/com/campus/service/AdminResourceMigrationService.java
@@ -588,7 +588,7 @@ git commit -m "feat: add admin resource minio migration service"
 - Modify: `backend/src/main/java/com/campus/controller/admin/AdminResourceController.java`
 - Modify: `backend/src/test/java/com/campus/controller/admin/AdminResourceControllerTests.java`
 
-- [ ] **Step 1: Write the failing controller tests**
+- [x] **Step 1: Write the failing controller tests**
 
 Add a `@MockBean` for the new migration service to keep controller tests focused:
 
@@ -653,7 +653,7 @@ void invalidMigrationLimitReturnsBodyCode400() throws Exception {
 }
 ```
 
-- [ ] **Step 2: Run the targeted controller tests and verify failure**
+- [x] **Step 2: Run the targeted controller tests and verify failure**
 
 Run:
 
@@ -664,7 +664,7 @@ mvn -q "-Dtest=AdminResourceControllerTests" test
 
 Expected: FAIL because the controller does not expose the migration endpoint or inject the new service yet.
 
-- [ ] **Step 3: Implement the endpoint**
+- [x] **Step 3: Implement the endpoint**
 
 Update the controller constructor and add the new endpoint:
 
@@ -682,7 +682,7 @@ public Result<AdminResourceMigrationResponse> migrateToMinio(
 
 Keep the existing `publish`, `reject`, and `offline` endpoints unchanged.
 
-- [ ] **Step 4: Run the controller tests again and make them pass**
+- [x] **Step 4: Run the controller tests again and make them pass**
 
 Run:
 
@@ -693,7 +693,7 @@ mvn -q "-Dtest=AdminResourceControllerTests" test
 
 Expected: PASS with forbidden access, validated request shape, and `Result.success(...)` wrapping preserved.
 
-- [ ] **Step 5: Commit the admin endpoint**
+- [x] **Step 5: Commit the admin endpoint**
 
 ```bash
 git add backend/src/main/java/com/campus/controller/admin/AdminResourceController.java backend/src/test/java/com/campus/controller/admin/AdminResourceControllerTests.java
@@ -705,7 +705,7 @@ git commit -m "feat: add admin minio migration endpoint"
 **Files:**
 - Modify: `README.md`
 
-- [ ] **Step 1: Update README for the new admin migration capability**
+- [x] **Step 1: Update README for the new admin migration capability**
 
 Make all of these documentation updates:
 
@@ -736,7 +736,7 @@ Migration note:
 - in environment-variable-based deployments, that MinIO enablement is supplied by `MINIO_ENABLED=true`
 ```
 
-- [ ] **Step 2: Run focused backend tests for the new migration slice**
+- [x] **Step 2: Run focused backend tests for the new migration slice**
 
 Run:
 
@@ -747,7 +747,7 @@ mvn -q "-Dtest=ResourceStorageConfigurationTests,LocalStoragePathResolverTests,H
 
 Expected: PASS.
 
-- [ ] **Step 3: Run full backend regression**
+- [x] **Step 3: Run full backend regression**
 
 Run:
 
@@ -758,7 +758,7 @@ mvn test
 
 Expected: PASS.
 
-- [ ] **Step 4: Run optional live migration smoke when MinIO is available**
+- [x] **Step 4: Run optional live migration smoke when MinIO is available**
 
 If a reachable MinIO instance is available locally, run a manual smoke covering the key acceptance path:
 
@@ -771,7 +771,7 @@ If a reachable MinIO instance is available locally, run a manual smoke covering 
 
 If live MinIO is unavailable in the execution environment, record that automated and repository-safe tests passed but live smoke was not executed.
 
-- [ ] **Step 5: Commit the docs and verification updates**
+- [x] **Step 5: Commit the docs and verification updates**
 
 ```bash
 git add README.md
