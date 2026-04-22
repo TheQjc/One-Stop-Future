@@ -125,7 +125,7 @@ This plan explicitly does not implement:
 - Modify: `backend/src/main/java/com/campus/preview/ResourcePreviewService.java`
 - Modify: `backend/src/test/java/com/campus/preview/ResourcePreviewServiceTests.java`
 
-- [ ] **Step 1: Write the failing service tests for remote `exists(...)` failures**
+- [x] **Step 1: Write the failing service tests for remote `exists(...)` failures**
 
 Extend `ResourcePreviewServiceTests` with storage doubles that fail on artifact existence checks:
 
@@ -191,7 +191,7 @@ private static class ThrowingExistsStorage implements ResourcePreviewArtifactSto
 }
 ```
 
-- [ ] **Step 2: Run the targeted preview-service tests and verify failure**
+- [x] **Step 2: Run the targeted preview-service tests and verify failure**
 
 Run:
 
@@ -202,7 +202,7 @@ mvn -q "-Dtest=ResourcePreviewServiceTests" test
 
 Expected: FAIL because `ResourcePreviewArtifactStorage.exists(...)` cannot currently throw `IOException`, and `ResourcePreviewService` does not map lookup failures to controlled business errors.
 
-- [ ] **Step 3: Implement the I/O-capable storage contract and controlled failure mapping**
+- [x] **Step 3: Implement the I/O-capable storage contract and controlled failure mapping**
 
 Update the interface:
 
@@ -233,7 +233,7 @@ Use that helper in both the generated-PDF path and the ZIP path before `open(...
 
 Update all test doubles in `ResourcePreviewServiceTests` and `LocalResourcePreviewArtifactStorage` to match the new signature.
 
-- [ ] **Step 4: Re-run the preview-service tests**
+- [x] **Step 4: Re-run the preview-service tests**
 
 Run:
 
@@ -244,7 +244,7 @@ mvn -q "-Dtest=ResourcePreviewServiceTests" test
 
 Expected: PASS with both the old cache-reuse assertions and the new failure-mapping coverage.
 
-- [ ] **Step 5: Commit the remote-safe preview artifact contract**
+- [x] **Step 5: Commit the remote-safe preview artifact contract**
 
 ```bash
 git add backend/src/main/java/com/campus/preview/ResourcePreviewArtifactStorage.java backend/src/main/java/com/campus/preview/LocalResourcePreviewArtifactStorage.java backend/src/main/java/com/campus/preview/ResourcePreviewService.java backend/src/test/java/com/campus/preview/ResourcePreviewServiceTests.java
@@ -257,7 +257,7 @@ git commit -m "refactor: support io-aware preview artifact checks"
 - Create: `backend/src/main/java/com/campus/preview/MinioResourcePreviewArtifactStorage.java`
 - Create: `backend/src/test/java/com/campus/preview/MinioResourcePreviewArtifactStorageTests.java`
 
-- [ ] **Step 1: Write the failing MinIO preview storage tests**
+- [x] **Step 1: Write the failing MinIO preview storage tests**
 
 Mirror the storage-level test style from `MinioResourceFileStorageTests`, but target the preview-artifact contract:
 
@@ -313,7 +313,7 @@ void constructorRejectsBlankPrefix() {
 }
 ```
 
-- [ ] **Step 2: Run the targeted MinIO preview storage tests and verify failure**
+- [x] **Step 2: Run the targeted MinIO preview storage tests and verify failure**
 
 Run:
 
@@ -324,7 +324,7 @@ mvn -q "-Dtest=MinioResourcePreviewArtifactStorageTests" test
 
 Expected: FAIL because the MinIO preview artifact storage class does not exist yet.
 
-- [ ] **Step 3: Implement the minimal MinIO preview artifact storage**
+- [x] **Step 3: Implement the minimal MinIO preview artifact storage**
 
 Create `MinioResourcePreviewArtifactStorage` in the `preview` package:
 
@@ -370,7 +370,7 @@ Implementation rules:
 - keep bucket creation behavior aligned with `MinioResourceFileStorage`
 - do not add delete support or historical-migration logic in this phase
 
-- [ ] **Step 4: Re-run the MinIO preview storage tests**
+- [x] **Step 4: Re-run the MinIO preview storage tests**
 
 Run:
 
@@ -381,7 +381,7 @@ mvn -q "-Dtest=MinioResourcePreviewArtifactStorageTests" test
 
 Expected: PASS with prefix mapping, bucket readiness, and key normalization covered.
 
-- [ ] **Step 5: Commit the MinIO preview storage implementation**
+- [x] **Step 5: Commit the MinIO preview storage implementation**
 
 ```bash
 git add backend/src/main/java/com/campus/preview/MinioResourcePreviewArtifactStorage.java backend/src/test/java/com/campus/preview/MinioResourcePreviewArtifactStorageTests.java
@@ -398,7 +398,7 @@ git commit -m "feat: add minio preview artifact storage"
 - Modify: `backend/src/main/resources/application.yml`
 - Modify: `backend/src/main/resources/application-local.yml`
 
-- [ ] **Step 1: Write the failing configuration tests**
+- [x] **Step 1: Write the failing configuration tests**
 
 Create `ResourcePreviewStorageConfigurationTests` with `ApplicationContextRunner` and a fake `MinioObjectOperations` bean:
 
@@ -453,7 +453,7 @@ class ResourcePreviewStorageConfigurationTests {
 }
 ```
 
-- [ ] **Step 2: Run the preview-storage configuration tests and verify failure**
+- [x] **Step 2: Run the preview-storage configuration tests and verify failure**
 
 Run:
 
@@ -464,7 +464,7 @@ mvn -q "-Dtest=ResourcePreviewStorageConfigurationTests" test
 
 Expected: FAIL because the preview storage configuration class does not exist yet, `LocalResourcePreviewArtifactStorage` is still an unconditional component, and `ResourcePreviewProperties` does not bind preview storage type or MinIO prefix.
 
-- [ ] **Step 3: Implement preview storage selection and config defaults**
+- [x] **Step 3: Implement preview storage selection and config defaults**
 
 Extend `ResourcePreviewProperties`:
 
@@ -541,7 +541,7 @@ app:
     minio-prefix: preview-artifacts
 ```
 
-- [ ] **Step 4: Re-run the preview-storage configuration tests**
+- [x] **Step 4: Re-run the preview-storage configuration tests**
 
 Run:
 
@@ -552,7 +552,7 @@ mvn -q "-Dtest=ResourcePreviewStorageConfigurationTests" test
 
 Expected: PASS with local default selection, MinIO selection, and fail-fast behavior covered.
 
-- [ ] **Step 5: Commit the preview storage selection layer**
+- [x] **Step 5: Commit the preview storage selection layer**
 
 ```bash
 git add backend/src/main/java/com/campus/config/ResourcePreviewStorageConfiguration.java backend/src/test/java/com/campus/config/ResourcePreviewStorageConfigurationTests.java backend/src/main/java/com/campus/config/ResourcePreviewProperties.java backend/src/main/java/com/campus/preview/LocalResourcePreviewArtifactStorage.java backend/src/main/resources/application.yml backend/src/main/resources/application-local.yml
@@ -565,7 +565,7 @@ git commit -m "feat: add preview artifact storage selection"
 - Modify: `README.md`
 - Modify: `docs/superpowers/specs/2026-04-21-study-career-platform-phase-t-minio-preview-artifact-storage-design.md`
 
-- [ ] **Step 1: Confirm the current docs still describe preview artifacts as local-only**
+- [x] **Step 1: Confirm the current docs still describe preview artifacts as local-only**
 
 Run:
 
@@ -579,7 +579,7 @@ Expected:
 - README does not yet document `RESOURCE_PREVIEW_TYPE` or `RESOURCE_PREVIEW_MINIO_PREFIX`
 - the spec file does not yet carry a post-implementation validation note
 
-- [ ] **Step 2: Update README for the new Phase T behavior**
+- [x] **Step 2: Update README for the new Phase T behavior**
 
 Make all of these documentation updates:
 
@@ -605,7 +605,7 @@ Recommended README additions:
 - historical local preview artifacts are not migrated and are not dual-read after the switch
 ```
 
-- [ ] **Step 3: Add a validation note to the Phase T spec**
+- [x] **Step 3: Add a validation note to the Phase T spec**
 
 Prepend a validation note, following the Phase S pattern:
 
@@ -615,7 +615,7 @@ Prepend a validation note, following the Phase S pattern:
 
 If live MinIO smoke is not executed in the implementation environment, phrase the note to mention repository-safe verification plus any skipped live smoke explicitly.
 
-- [ ] **Step 4: Re-run the doc checks**
+- [x] **Step 4: Re-run the doc checks**
 
 Run:
 
@@ -625,7 +625,7 @@ rg -n "Phase T|RESOURCE_PREVIEW_TYPE|RESOURCE_PREVIEW_MINIO_PREFIX|historical lo
 
 Expected: PASS with the new runtime flags and scope limitations visible in the docs.
 
-- [ ] **Step 5: Commit the docs update**
+- [x] **Step 5: Commit the docs update**
 
 ```bash
 git add README.md docs/superpowers/specs/2026-04-21-study-career-platform-phase-t-minio-preview-artifact-storage-design.md
@@ -645,7 +645,7 @@ git commit -m "docs: add minio preview artifact rollout notes"
 - Verify: `frontend/src/views/ProfileResourcesView.spec.js`
 - Verify: `frontend/src/views/admin/AdminResourceManageView.spec.js`
 
-- [ ] **Step 1: Run the targeted backend verification suite**
+- [x] **Step 1: Run the targeted backend verification suite**
 
 Run:
 
@@ -656,7 +656,7 @@ mvn -q "-Dtest=ResourcePreviewStorageConfigurationTests,MinioResourcePreviewArti
 
 Expected: PASS.
 
-- [ ] **Step 2: Run the targeted frontend verification suite and production build**
+- [x] **Step 2: Run the targeted frontend verification suite and production build**
 
 Run:
 
@@ -668,7 +668,7 @@ npm run build
 
 Expected: PASS with no frontend code changes required for the new backend storage option.
 
-- [ ] **Step 3: Review the final diff for scope discipline**
+- [x] **Step 3: Review the final diff for scope discipline**
 
 Run:
 
@@ -685,7 +685,7 @@ Confirm:
 - no frontend runtime logic changes slipped in unless a red regression test forced a minimal fix
 - no Dockerfile or Compose LibreOffice work was accidentally pulled into this phase
 
-- [ ] **Step 4: Run optional live MinIO smoke if the environment supports it**
+- [x] **Step 4: Run optional live MinIO smoke if the environment supports it**
 
 If a reachable MinIO instance is available and the backend can run with the required preview dependencies:
 
@@ -698,7 +698,7 @@ If a reachable MinIO instance is available and the backend can run with the requ
 
 If live MinIO or `soffice` is unavailable, record that repository-safe tests passed and live smoke was skipped.
 
-- [ ] **Step 5: Commit final polish only if verification required code changes**
+- [x] **Step 5: Commit final polish only if verification required code changes**
 
 ```bash
 git add backend/src/main/java/com/campus/preview/ResourcePreviewArtifactStorage.java backend/src/main/java/com/campus/preview/MinioResourcePreviewArtifactStorage.java backend/src/main/java/com/campus/preview/LocalResourcePreviewArtifactStorage.java backend/src/main/java/com/campus/preview/ResourcePreviewService.java backend/src/main/java/com/campus/config/ResourcePreviewProperties.java backend/src/main/java/com/campus/config/ResourcePreviewStorageConfiguration.java backend/src/test/java/com/campus/preview/ResourcePreviewServiceTests.java backend/src/test/java/com/campus/preview/MinioResourcePreviewArtifactStorageTests.java backend/src/test/java/com/campus/config/ResourcePreviewStorageConfigurationTests.java backend/src/main/resources/application.yml backend/src/main/resources/application-local.yml README.md docs/superpowers/specs/2026-04-21-study-career-platform-phase-t-minio-preview-artifact-storage-design.md

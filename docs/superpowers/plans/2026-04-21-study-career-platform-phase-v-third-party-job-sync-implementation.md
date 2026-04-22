@@ -180,7 +180,7 @@ This plan explicitly does not implement:
 - Modify: `backend/src/test/resources/application.yml`
 - Modify: `backend/src/test/java/com/campus/config/ApplicationConfigSafetyTests.java`
 
-- [ ] **Step 1: Write the failing config and normalizer tests**
+- [x] **Step 1: Write the failing config and normalizer tests**
 
 Add `JobPostingFieldNormalizerTests` to lock down the shared rules:
 
@@ -238,7 +238,7 @@ void localAndTestConfigsKeepJobSyncDisabledWithoutPinnedFeedUrl() {
 }
 ```
 
-- [ ] **Step 2: Run the targeted backend tests and verify failure**
+- [x] **Step 2: Run the targeted backend tests and verify failure**
 
 Run:
 
@@ -249,7 +249,7 @@ mvn -q "-Dtest=JobPostingFieldNormalizerTests,ApplicationConfigSafetyTests" test
 
 Expected: FAIL because the new config properties bean and shared field normalizer do not exist yet.
 
-- [ ] **Step 3: Implement safe config defaults and the shared normalizer**
+- [x] **Step 3: Implement safe config defaults and the shared normalizer**
 
 Create `JobSyncProperties`:
 
@@ -326,7 +326,7 @@ Implementation rules:
 - preserve current manual admin create/update behavior
 - preserve current CSV import error messages where possible
 
-- [ ] **Step 4: Re-run the targeted backend tests**
+- [x] **Step 4: Re-run the targeted backend tests**
 
 Run:
 
@@ -337,7 +337,7 @@ mvn -q "-Dtest=JobPostingFieldNormalizerTests,ApplicationConfigSafetyTests" test
 
 Expected: PASS with shared normalization rules and safe `job-sync` defaults covered.
 
-- [ ] **Step 5: Commit the shared sync foundation**
+- [x] **Step 5: Commit the shared sync foundation**
 
 ```bash
 git add backend/src/main/java/com/campus/config/JobSyncProperties.java backend/src/main/java/com/campus/service/JobPostingFieldNormalizer.java backend/src/test/java/com/campus/service/JobPostingFieldNormalizerTests.java backend/src/main/java/com/campus/service/AdminJobService.java backend/src/main/java/com/campus/service/JobPostingDraftFactory.java backend/src/main/resources/application.yml backend/src/main/resources/application-local.yml backend/src/test/resources/application.yml backend/src/test/java/com/campus/config/ApplicationConfigSafetyTests.java
@@ -353,7 +353,7 @@ git commit -m "feat: add job sync config and field normalizer foundation"
 - Create: `backend/src/main/java/com/campus/service/ThirdPartyJobSyncService.java`
 - Create: `backend/src/test/java/com/campus/service/ThirdPartyJobSyncServiceTests.java`
 
-- [ ] **Step 1: Write the failing sync service tests**
+- [x] **Step 1: Write the failing sync service tests**
 
 Create `ThirdPartyJobSyncServiceTests` as a `@SpringBootTest` integration suite with `@Sql`, `JdbcTemplate`, and a local JDK `HttpServer`:
 
@@ -510,7 +510,7 @@ class ThirdPartyJobSyncServiceTests {
 }
 ```
 
-- [ ] **Step 2: Run the targeted sync service tests and verify failure**
+- [x] **Step 2: Run the targeted sync service tests and verify failure**
 
 Run:
 
@@ -521,7 +521,7 @@ mvn -q "-Dtest=ThirdPartyJobSyncServiceTests" test
 
 Expected: FAIL because the sync response DTO, feed client, and sync service do not exist yet.
 
-- [ ] **Step 3: Implement the feed client and sync service**
+- [x] **Step 3: Implement the feed client and sync service**
 
 Create `AdminJobSyncResponse` with nested issues:
 
@@ -670,7 +670,7 @@ Implementation rules:
 - do nothing for local jobs missing from the latest feed
 - keep item-level invalid issues non-fatal
 
-- [ ] **Step 4: Re-run the targeted sync service tests**
+- [x] **Step 4: Re-run the targeted sync service tests**
 
 Run:
 
@@ -681,7 +681,7 @@ mvn -q "-Dtest=ThirdPartyJobSyncServiceTests" test
 
 Expected: PASS with create, update, deleted-skip, invalid-item, malformed-feed, and duplicate-feed coverage in place.
 
-- [ ] **Step 5: Commit the backend sync engine**
+- [x] **Step 5: Commit the backend sync engine**
 
 ```bash
 git add backend/src/main/java/com/campus/dto/AdminJobSyncResponse.java backend/src/main/java/com/campus/service/ThirdPartyJobFeedItem.java backend/src/main/java/com/campus/service/ThirdPartyJobFeedClient.java backend/src/main/java/com/campus/service/ThirdPartyJobSyncService.java backend/src/test/java/com/campus/service/ThirdPartyJobSyncServiceTests.java
@@ -694,7 +694,7 @@ git commit -m "feat: add third-party job sync service"
 - Modify: `backend/src/main/java/com/campus/controller/admin/AdminJobController.java`
 - Create: `backend/src/test/java/com/campus/controller/admin/AdminJobSyncControllerTests.java`
 
-- [ ] **Step 1: Write the failing controller tests**
+- [x] **Step 1: Write the failing controller tests**
 
 Create `AdminJobSyncControllerTests`:
 
@@ -763,7 +763,7 @@ class AdminJobSyncControllerTests {
 }
 ```
 
-- [ ] **Step 2: Run the targeted controller tests and verify failure**
+- [x] **Step 2: Run the targeted controller tests and verify failure**
 
 Run:
 
@@ -774,7 +774,7 @@ mvn -q "-Dtest=AdminJobSyncControllerTests" test
 
 Expected: FAIL because the sync endpoint does not exist on `AdminJobController` yet.
 
-- [ ] **Step 3: Implement the controller action**
+- [x] **Step 3: Implement the controller action**
 
 Extend `AdminJobController`:
 
@@ -792,7 +792,7 @@ Implementation rules:
 - keep the request body empty
 - keep the existing `/api/admin/jobs` route family unchanged
 
-- [ ] **Step 4: Re-run the targeted controller tests**
+- [x] **Step 4: Re-run the targeted controller tests**
 
 Run:
 
@@ -803,7 +803,7 @@ mvn -q "-Dtest=AdminJobSyncControllerTests" test
 
 Expected: PASS with admin success, guest `401`, user `403`, and feed-failure envelope coverage.
 
-- [ ] **Step 5: Commit the sync endpoint**
+- [x] **Step 5: Commit the sync endpoint**
 
 ```bash
 git add backend/src/main/java/com/campus/controller/admin/AdminJobController.java backend/src/test/java/com/campus/controller/admin/AdminJobSyncControllerTests.java
@@ -817,7 +817,7 @@ git commit -m "feat: add admin job sync endpoint"
 - Modify: `frontend/src/views/admin/AdminJobManageView.vue`
 - Modify: `frontend/src/views/admin/AdminJobManageView.spec.js`
 
-- [ ] **Step 1: Write the failing frontend tests**
+- [x] **Step 1: Write the failing frontend tests**
 
 Extend `AdminJobManageView.spec.js`:
 
@@ -889,7 +889,7 @@ test("renders sync failure without reloading the jobs board", async () => {
 });
 ```
 
-- [ ] **Step 2: Run the targeted frontend tests and verify failure**
+- [x] **Step 2: Run the targeted frontend tests and verify failure**
 
 Run:
 
@@ -900,7 +900,7 @@ npx vitest run src/views/admin/AdminJobManageView.spec.js
 
 Expected: FAIL because there is no `syncAdminJobs()` API helper and no sync UI in the admin jobs view.
 
-- [ ] **Step 3: Implement the frontend sync flow**
+- [x] **Step 3: Implement the frontend sync flow**
 
 Add the API helper:
 
@@ -983,7 +983,7 @@ Implementation rules:
 - do not remove or redesign the existing CSV import surface
 - do not modify `frontend/src/api/http.js` unless a test proves the current error-data propagation is insufficient
 
-- [ ] **Step 4: Re-run the targeted frontend tests**
+- [x] **Step 4: Re-run the targeted frontend tests**
 
 Run:
 
@@ -994,7 +994,7 @@ npx vitest run src/views/admin/AdminJobManageView.spec.js
 
 Expected: PASS with sync success refresh, issue rendering, and feed-failure rendering covered.
 
-- [ ] **Step 5: Commit the admin sync UI**
+- [x] **Step 5: Commit the admin sync UI**
 
 ```bash
 git add frontend/src/api/admin.js frontend/src/views/admin/AdminJobManageView.vue frontend/src/views/admin/AdminJobManageView.spec.js
@@ -1015,7 +1015,7 @@ git commit -m "feat: add admin job sync workflow"
 - Verify: `backend/src/test/java/com/campus/controller/JobControllerTests.java`
 - Verify: `frontend/src/views/admin/AdminJobManageView.spec.js`
 
-- [ ] **Step 1: Update README and add the Phase V validation note**
+- [x] **Step 1: Update README and add the Phase V validation note**
 
 Update `README.md`:
 
@@ -1029,7 +1029,7 @@ Add a validation note near the top of the Phase V spec:
 > **Validation note:** This design was implemented and validated on 2026-04-21. Execution record: `docs/superpowers/plans/2026-04-21-study-career-platform-phase-v-third-party-job-sync-implementation.md`.
 ```
 
-- [ ] **Step 2: Run the targeted backend verification suite**
+- [x] **Step 2: Run the targeted backend verification suite**
 
 Run:
 
@@ -1040,7 +1040,7 @@ mvn -q "-Dtest=JobPostingFieldNormalizerTests,ThirdPartyJobSyncServiceTests,Admi
 
 Expected: PASS.
 
-- [ ] **Step 3: Run the targeted frontend verification suite and production build**
+- [x] **Step 3: Run the targeted frontend verification suite and production build**
 
 Run:
 
@@ -1052,7 +1052,7 @@ npm run build
 
 Expected: PASS.
 
-- [ ] **Step 4: Review the final diff for scope discipline**
+- [x] **Step 4: Review the final diff for scope discipline**
 
 Run:
 
@@ -1069,7 +1069,7 @@ Confirm:
 - existing public jobs behavior still reads from the same published job data
 - no generic connector abstraction or multi-feed UI slipped into this slice
 
-- [ ] **Step 5: Commit docs and rollout notes**
+- [x] **Step 5: Commit docs and rollout notes**
 
 ```bash
 git add README.md docs/superpowers/specs/2026-04-21-study-career-platform-phase-v-third-party-job-sync-design.md backend/src/test/java/com/campus/service/JobPostingFieldNormalizerTests.java backend/src/test/java/com/campus/service/ThirdPartyJobSyncServiceTests.java backend/src/test/java/com/campus/controller/admin/AdminJobSyncControllerTests.java backend/src/test/java/com/campus/controller/admin/AdminJobControllerTests.java backend/src/test/java/com/campus/controller/admin/AdminJobImportControllerTests.java backend/src/test/java/com/campus/service/JobBatchImportServiceTests.java backend/src/test/java/com/campus/controller/JobControllerTests.java frontend/src/views/admin/AdminJobManageView.spec.js

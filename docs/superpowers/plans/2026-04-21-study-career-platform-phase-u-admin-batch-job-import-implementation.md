@@ -159,7 +159,7 @@ This plan explicitly does not implement:
 - Create: `backend/src/main/java/com/campus/service/JobImportCsvParser.java`
 - Test: `backend/src/test/java/com/campus/service/JobImportCsvParserTests.java`
 
-- [ ] **Step 1: Write the failing CSV parser tests**
+- [x] **Step 1: Write the failing CSV parser tests**
 
 Create `JobImportCsvParserTests` to lock down the approved file contract:
 
@@ -224,7 +224,7 @@ void rejectsMalformedUtf8Payload() {
 }
 ```
 
-- [ ] **Step 2: Run the targeted parser tests and verify failure**
+- [x] **Step 2: Run the targeted parser tests and verify failure**
 
 Run:
 
@@ -235,7 +235,7 @@ mvn -q "-Dtest=JobImportCsvParserTests" test
 
 Expected: FAIL because the parser, DTOs, exception type, and CSV dependency do not exist yet.
 
-- [ ] **Step 3: Implement the strict CSV parser foundation**
+- [x] **Step 3: Implement the strict CSV parser foundation**
 
 Add Apache Commons CSV to `backend/pom.xml`:
 
@@ -332,7 +332,7 @@ Implementation rules:
 - keep raw cell values untouched here; trimming and domain validation happen later
 - set row numbers as `2..N+1` so the first data row is always row `2`
 
-- [ ] **Step 4: Re-run the parser tests**
+- [x] **Step 4: Re-run the parser tests**
 
 Run:
 
@@ -343,7 +343,7 @@ mvn -q "-Dtest=JobImportCsvParserTests" test
 
 Expected: PASS with UTF-8 decoding, quoted values, header enforcement, and the `200`-row limit covered.
 
-- [ ] **Step 5: Commit the parser foundation**
+- [x] **Step 5: Commit the parser foundation**
 
 ```bash
 git add backend/pom.xml backend/src/main/java/com/campus/common/JobImportValidationException.java backend/src/main/java/com/campus/dto/AdminJobImportValidationError.java backend/src/main/java/com/campus/dto/AdminJobImportValidationResponse.java backend/src/main/java/com/campus/service/JobImportRow.java backend/src/main/java/com/campus/service/JobImportCsvParser.java backend/src/test/java/com/campus/service/JobImportCsvParserTests.java
@@ -358,7 +358,7 @@ git commit -m "feat: add job import csv parser foundation"
 - Create: `backend/src/main/java/com/campus/service/JobBatchImportService.java`
 - Test: `backend/src/test/java/com/campus/service/JobBatchImportServiceTests.java`
 
-- [ ] **Step 1: Write the failing batch-import service tests**
+- [x] **Step 1: Write the failing batch-import service tests**
 
 Create `JobBatchImportServiceTests` as a transactional integration suite using `@SpringBootTest`, `@Sql`, `JdbcTemplate`, and `MockMultipartFile`:
 
@@ -434,7 +434,7 @@ void oneInvalidRowRollsBackTheWholeBatch() {
 }
 ```
 
-- [ ] **Step 2: Run the targeted batch-import service tests and verify failure**
+- [x] **Step 2: Run the targeted batch-import service tests and verify failure**
 
 Run:
 
@@ -445,7 +445,7 @@ mvn -q "-Dtest=JobBatchImportServiceTests" test
 
 Expected: FAIL because the draft factory, batch-import service, and success response DTO do not exist yet.
 
-- [ ] **Step 3: Implement row validation, duplicate checks, and transactional inserts**
+- [x] **Step 3: Implement row validation, duplicate checks, and transactional inserts**
 
 Create the success response:
 
@@ -556,7 +556,7 @@ Implementation rules:
 - sort aggregated errors by `rowNumber`, then `column`, before throwing
 - never insert any rows when `errors` is not empty
 
-- [ ] **Step 4: Re-run the batch-import service tests**
+- [x] **Step 4: Re-run the batch-import service tests**
 
 Run:
 
@@ -567,7 +567,7 @@ mvn -q "-Dtest=JobBatchImportServiceTests" test
 
 Expected: PASS with draft defaults, duplicate detection, and rollback behavior covered.
 
-- [ ] **Step 5: Commit the transactional batch-import service**
+- [x] **Step 5: Commit the transactional batch-import service**
 
 ```bash
 git add backend/src/main/java/com/campus/dto/AdminJobImportResponse.java backend/src/main/java/com/campus/service/JobPostingDraftFactory.java backend/src/main/java/com/campus/service/JobBatchImportService.java backend/src/test/java/com/campus/service/JobBatchImportServiceTests.java
@@ -582,7 +582,7 @@ git commit -m "feat: add transactional admin job batch import"
 - Create: `backend/src/main/java/com/campus/controller/admin/AdminJobImportController.java`
 - Test: `backend/src/test/java/com/campus/controller/admin/AdminJobImportControllerTests.java`
 
-- [ ] **Step 1: Write the failing controller tests**
+- [x] **Step 1: Write the failing controller tests**
 
 Create `AdminJobImportControllerTests` by mirroring `AdminJobControllerTests` and `ResumeControllerTests`:
 
@@ -637,7 +637,7 @@ void normalUserCannotImportJobs() throws Exception {
 }
 ```
 
-- [ ] **Step 2: Run the targeted controller tests and verify failure**
+- [x] **Step 2: Run the targeted controller tests and verify failure**
 
 Run:
 
@@ -648,7 +648,7 @@ mvn -q "-Dtest=AdminJobImportControllerTests" test
 
 Expected: FAIL because the import controller does not exist, and the current result helpers cannot return `code=400` with a typed `data` payload.
 
-- [ ] **Step 3: Implement the endpoint and structured error mapping**
+- [x] **Step 3: Implement the endpoint and structured error mapping**
 
 Extend `Result` with an overloaded error factory:
 
@@ -698,7 +698,7 @@ Implementation rules:
 - keep the endpoint under the same `/api/admin/jobs` route family
 - do not move single-job create/update/publish/offline/delete into the new controller
 
-- [ ] **Step 4: Re-run the controller tests**
+- [x] **Step 4: Re-run the controller tests**
 
 Run:
 
@@ -709,7 +709,7 @@ mvn -q "-Dtest=AdminJobImportControllerTests" test
 
 Expected: PASS with admin success, structured validation failure, and `403` coverage in place.
 
-- [ ] **Step 5: Commit the import HTTP boundary**
+- [x] **Step 5: Commit the import HTTP boundary**
 
 ```bash
 git add backend/src/main/java/com/campus/common/Result.java backend/src/main/java/com/campus/config/GlobalExceptionHandler.java backend/src/main/java/com/campus/controller/admin/AdminJobImportController.java backend/src/test/java/com/campus/controller/admin/AdminJobImportControllerTests.java
@@ -724,7 +724,7 @@ git commit -m "feat: add admin job import endpoint"
 - Modify: `frontend/src/views/admin/AdminJobManageView.vue`
 - Test: `frontend/src/views/admin/AdminJobManageView.spec.js`
 
-- [ ] **Step 1: Write the failing frontend tests**
+- [x] **Step 1: Write the failing frontend tests**
 
 Extend `AdminJobManageView.spec.js` with one success flow and one validation-error flow:
 
@@ -796,7 +796,7 @@ test("renders row-level import errors returned by the backend", async () => {
 });
 ```
 
-- [ ] **Step 2: Run the targeted frontend tests and verify failure**
+- [x] **Step 2: Run the targeted frontend tests and verify failure**
 
 Run:
 
@@ -807,7 +807,7 @@ npx vitest run src/views/admin/AdminJobManageView.spec.js
 
 Expected: FAIL because the admin API does not expose `importAdminJobs`, the view has no CSV import surface, and rejected Axios requests do not preserve `data.errors`.
 
-- [ ] **Step 3: Implement the frontend import flow**
+- [x] **Step 3: Implement the frontend import flow**
 
 Add the admin API call:
 
@@ -885,7 +885,7 @@ Implementation rules:
 - leave the current jobs list untouched on validation failure
 - keep the existing create/edit/publish/offline/delete flows intact
 
-- [ ] **Step 4: Re-run the frontend tests**
+- [x] **Step 4: Re-run the frontend tests**
 
 Run:
 
@@ -896,7 +896,7 @@ npx vitest run src/views/admin/AdminJobManageView.spec.js
 
 Expected: PASS with import success refresh and row-error rendering covered.
 
-- [ ] **Step 5: Commit the admin jobs import UI**
+- [x] **Step 5: Commit the admin jobs import UI**
 
 ```bash
 git add frontend/src/api/admin.js frontend/src/api/http.js frontend/src/views/admin/AdminJobManageView.vue frontend/src/views/admin/AdminJobManageView.spec.js
@@ -915,7 +915,7 @@ git commit -m "feat: add admin job import workflow"
 - Verify: `backend/src/test/java/com/campus/controller/JobControllerTests.java`
 - Verify: `frontend/src/views/admin/AdminJobManageView.spec.js`
 
-- [ ] **Step 1: Update README and add the Phase U validation note**
+- [x] **Step 1: Update README and add the Phase U validation note**
 
 Update `README.md` to mention the new admin capability in the implemented feature set, for example:
 
@@ -929,7 +929,7 @@ Add a validation note near the top of the Phase U spec:
 > **Validation note:** This design was implemented and validated on 2026-04-21. Execution record: `docs/superpowers/plans/2026-04-21-study-career-platform-phase-u-admin-batch-job-import-implementation.md`.
 ```
 
-- [ ] **Step 2: Run the targeted backend verification suite**
+- [x] **Step 2: Run the targeted backend verification suite**
 
 Run:
 
@@ -940,7 +940,7 @@ mvn -q "-Dtest=JobImportCsvParserTests,JobBatchImportServiceTests,AdminJobImport
 
 Expected: PASS.
 
-- [ ] **Step 3: Run the targeted frontend verification suite and production build**
+- [x] **Step 3: Run the targeted frontend verification suite and production build**
 
 Run:
 
@@ -952,7 +952,7 @@ npm run build
 
 Expected: PASS.
 
-- [ ] **Step 4: Review the final diff for scope discipline**
+- [x] **Step 4: Review the final diff for scope discipline**
 
 Run:
 
@@ -969,7 +969,7 @@ Confirm:
 - no `xlsx` parser or third-party sync logic slipped in
 - no partial-success behavior was mixed into this slice
 
-- [ ] **Step 5: Commit the docs and verification polish**
+- [x] **Step 5: Commit the docs and verification polish**
 
 ```bash
 git add README.md docs/superpowers/specs/2026-04-21-study-career-platform-phase-u-admin-batch-job-import-design.md backend/src/test/java/com/campus/service/JobImportCsvParserTests.java backend/src/test/java/com/campus/service/JobBatchImportServiceTests.java backend/src/test/java/com/campus/controller/admin/AdminJobImportControllerTests.java backend/src/test/java/com/campus/controller/admin/AdminJobControllerTests.java backend/src/test/java/com/campus/controller/JobControllerTests.java frontend/src/views/admin/AdminJobManageView.spec.js

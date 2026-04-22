@@ -52,7 +52,7 @@
 - Modify: `backend/src/main/resources/application.yml`
 - Modify: `backend/src/main/resources/application-local.yml`
 
-- [ ] **Step 1: Write failing unit tests for `soffice`-backed DOCX conversion**
+- [x] **Step 1: Write failing unit tests for `soffice`-backed DOCX conversion**
 
 Create focused tests that do not require LibreOffice to be installed by injecting a fake command runner into the generator:
 
@@ -83,7 +83,7 @@ void generatorFailsWhenCommandExitsWithoutPdfOutput() {
 }
 ```
 
-- [ ] **Step 2: Run the new DOCX generator tests and confirm failure**
+- [x] **Step 2: Run the new DOCX generator tests and confirm failure**
 
 Run:
 
@@ -94,7 +94,7 @@ mvn -q -Dtest=SofficeDocxPreviewGeneratorTests test
 
 Expected: FAIL because `DocxPreviewGenerator` and `SofficeDocxPreviewGenerator` do not exist yet.
 
-- [ ] **Step 3: Implement the minimal conversion boundary**
+- [x] **Step 3: Implement the minimal conversion boundary**
 
 Add the interface and implementation with a secondary constructor for tests:
 
@@ -159,7 +159,7 @@ app:
       soffice-command: ${RESOURCE_PREVIEW_DOCX_SOFFICE_COMMAND:soffice}
 ```
 
-- [ ] **Step 4: Re-run the DOCX generator tests**
+- [x] **Step 4: Re-run the DOCX generator tests**
 
 Run:
 
@@ -170,7 +170,7 @@ mvn -q -Dtest=SofficeDocxPreviewGeneratorTests test
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/java/com/campus/preview/DocxPreviewGenerator.java backend/src/main/java/com/campus/preview/SofficeDocxPreviewGenerator.java backend/src/test/java/com/campus/preview/SofficeDocxPreviewGeneratorTests.java backend/src/main/java/com/campus/config/ResourcePreviewProperties.java backend/src/main/resources/application.yml backend/src/main/resources/application-local.yml
@@ -185,7 +185,7 @@ git commit -m "feat: add docx preview generator boundary"
 - Modify: `backend/src/main/java/com/campus/service/ResourceService.java`
 - Modify: `backend/src/test/java/com/campus/preview/ResourcePreviewServiceTests.java`
 
-- [ ] **Step 1: Write failing service tests for DOCX cache reuse and failure mapping**
+- [x] **Step 1: Write failing service tests for DOCX cache reuse and failure mapping**
 
 Extend `ResourcePreviewServiceTests` with a counting DOCX stub:
 
@@ -218,7 +218,7 @@ void docxPreviewFailureBecomesBusinessException() {
 }
 ```
 
-- [ ] **Step 2: Run the preview-service test suite and confirm failure**
+- [x] **Step 2: Run the preview-service test suite and confirm failure**
 
 Run:
 
@@ -229,7 +229,7 @@ mvn -q -Dtest=ResourcePreviewServiceTests test
 
 Expected: FAIL because `ResourcePreviewService` has no DOCX path yet.
 
-- [ ] **Step 3: Implement DOCX preview caching and expose DOCX as `FILE`**
+- [x] **Step 3: Implement DOCX preview caching and expose DOCX as `FILE`**
 
 Keep the implementation DRY by sharing the generated-PDF code path:
 
@@ -274,7 +274,7 @@ ResourcePreviewKind previewKindOf(ResourceItem resource) {
 }
 ```
 
-- [ ] **Step 4: Re-run the preview-service tests**
+- [x] **Step 4: Re-run the preview-service tests**
 
 Run:
 
@@ -285,7 +285,7 @@ mvn -q -Dtest=ResourcePreviewServiceTests test
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/java/com/campus/preview/ResourcePreviewService.java backend/src/main/java/com/campus/service/ResourceService.java backend/src/test/java/com/campus/preview/ResourcePreviewServiceTests.java
@@ -299,7 +299,7 @@ git commit -m "feat: add docx preview caching flow"
 - Modify: `backend/src/test/java/com/campus/controller/ResourceControllerTests.java`
 - Modify: `backend/src/test/java/com/campus/controller/admin/AdminResourceControllerTests.java`
 
-- [ ] **Step 1: Write failing integration coverage for DOCX detail, list, and preview**
+- [x] **Step 1: Write failing integration coverage for DOCX detail, list, and preview**
 
 Add or update controller tests for these scenarios:
 
@@ -323,7 +323,7 @@ void stubDocxPreview() throws IOException {
 }
 ```
 
-- [ ] **Step 2: Run the backend controller suites and confirm failure**
+- [x] **Step 2: Run the backend controller suites and confirm failure**
 
 Run:
 
@@ -334,7 +334,7 @@ mvn -q "-Dtest=ResourceControllerTests,AdminResourceControllerTests" test
 
 Expected: FAIL because the current controllers still treat `DOCX` as non-previewable.
 
-- [ ] **Step 3: Make the controller suites green without broadening scope**
+- [x] **Step 3: Make the controller suites green without broadening scope**
 
 The production code changes from Task 2 should satisfy most of this work. Keep this task focused on test wiring and assertions:
 
@@ -357,7 +357,7 @@ mockMvc.perform(get("/api/resources/2/preview"))
         .andExpect(jsonPath("$.message").value("resource preview only supports pdf, pptx or docx"));
 ```
 
-- [ ] **Step 4: Re-run the backend controller suites**
+- [x] **Step 4: Re-run the backend controller suites**
 
 Run:
 
@@ -368,7 +368,7 @@ mvn -q "-Dtest=ResourceControllerTests,AdminResourceControllerTests" test
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/test/java/com/campus/controller/ResourceControllerTests.java backend/src/test/java/com/campus/controller/admin/AdminResourceControllerTests.java
@@ -386,7 +386,7 @@ git commit -m "test: cover docx resource preview endpoints"
 - Verify: `frontend/src/views/ProfileResourcesView.vue`
 - Verify: `frontend/src/views/admin/AdminResourceManageView.vue`
 
-- [ ] **Step 1: Rewrite the stale DOCX tests so they describe the new behavior**
+- [x] **Step 1: Rewrite the stale DOCX tests so they describe the new behavior**
 
 Replace the old "DOCX does not expose preview" assertions with tests that prove `DOCX` now rides the existing `FILE` flow:
 
@@ -415,7 +415,7 @@ Mirror the same update in:
 - `ProfileResourcesView.spec.js`
 - `AdminResourceManageView.spec.js`
 
-- [ ] **Step 2: Run the targeted frontend tests and confirm failure**
+- [x] **Step 2: Run the targeted frontend tests and confirm failure**
 
 Run:
 
@@ -426,7 +426,7 @@ npx vitest run src/views/ResourceDetailView.spec.js src/views/ProfileResourcesVi
 
 Expected: FAIL until the stale non-preview assertions are replaced.
 
-- [ ] **Step 3: Keep runtime Vue changes minimal**
+- [x] **Step 3: Keep runtime Vue changes minimal**
 
 If the red tests show the existing generic `FILE` handling already works, change only the tests.
 
@@ -441,7 +441,7 @@ function canPreview(resource) {
 
 No new `DOCX`-specific branch or label should be introduced in the UI.
 
-- [ ] **Step 4: Re-run frontend tests and build verification**
+- [x] **Step 4: Re-run frontend tests and build verification**
 
 Run:
 
@@ -453,7 +453,7 @@ npm run build
 
 Expected: PASS for all three specs and a successful production build.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/views/ResourceDetailView.spec.js frontend/src/views/ProfileResourcesView.spec.js frontend/src/views/admin/AdminResourceManageView.spec.js frontend/src/views/ResourceDetailView.vue frontend/src/views/ProfileResourcesView.vue frontend/src/views/admin/AdminResourceManageView.vue
@@ -475,7 +475,7 @@ git commit -m "test: update docx resource preview ui coverage"
 - Modify: `frontend/src/views/ProfileResourcesView.spec.js`
 - Modify: `frontend/src/views/admin/AdminResourceManageView.spec.js`
 
-- [ ] **Step 1: Run the full targeted backend verification set**
+- [x] **Step 1: Run the full targeted backend verification set**
 
 Run:
 
@@ -486,7 +486,7 @@ mvn -q "-Dtest=ResourcePreviewServiceTests,SofficeDocxPreviewGeneratorTests,Reso
 
 Expected: PASS.
 
-- [ ] **Step 2: Re-run the full targeted frontend verification set**
+- [x] **Step 2: Re-run the full targeted frontend verification set**
 
 Run:
 
@@ -497,7 +497,7 @@ npx vitest run src/views/ResourceDetailView.spec.js src/views/ProfileResourcesVi
 
 Expected: PASS.
 
-- [ ] **Step 3: Review the final diff for scope discipline**
+- [x] **Step 3: Review the final diff for scope discipline**
 
 Run:
 
@@ -513,14 +513,14 @@ Confirm:
 - no new public preview route was introduced
 - no MinIO preview migration work was mixed into this slice
 
-- [ ] **Step 4: Commit final polish if verification required code adjustments**
+- [x] **Step 4: Commit final polish if verification required code adjustments**
 
 ```bash
 git add backend/src/main/java/com/campus/preview/SofficeDocxPreviewGenerator.java backend/src/main/java/com/campus/preview/ResourcePreviewService.java backend/src/main/java/com/campus/service/ResourceService.java backend/src/test/java/com/campus/preview/SofficeDocxPreviewGeneratorTests.java backend/src/test/java/com/campus/preview/ResourcePreviewServiceTests.java backend/src/test/java/com/campus/controller/ResourceControllerTests.java backend/src/test/java/com/campus/controller/admin/AdminResourceControllerTests.java frontend/src/views/ResourceDetailView.spec.js frontend/src/views/ProfileResourcesView.spec.js frontend/src/views/admin/AdminResourceManageView.spec.js
 git commit -m "chore: finalize docx resource preview verification"
 ```
 
-- [ ] **Step 5: Record rollout dependency**
+- [x] **Step 5: Record rollout dependency**
 
 Before shipping beyond local verification, note in the task handoff or release notes:
 
