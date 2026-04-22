@@ -263,6 +263,42 @@ Current Phase A scope:
 - `/notifications` supports list, single-read, and read-all behavior for welcome, verification, and later workflow notifications
 - the admin-side verification review loop stays on `/admin/verifications`; approval and rejection both flow back into user-visible status and notifications
 
+## Resource Library, Lifecycle, And Review
+
+Backend endpoints:
+
+- `GET /api/resources`
+- `GET /api/resources/mine`
+- `GET /api/resources/{id}`
+- `POST /api/resources`
+- `PUT /api/resources/{id}`
+- `POST /api/resources/{id}/favorite`
+- `DELETE /api/resources/{id}/favorite`
+- `GET /api/resources/{id}/download`
+- `GET /api/resources/{id}/preview`
+- `GET /api/resources/{id}/preview-zip`
+- `GET /api/admin/resources`
+- `POST /api/admin/resources/{id}/publish`
+- `POST /api/admin/resources/{id}/reject`
+- `POST /api/admin/resources/{id}/offline`
+
+Frontend routes:
+
+- `/resources`
+- `/resources/upload`
+- `/resources/:id`
+- `/resources/:id/edit`
+- `/profile/resources`
+- `/admin/resources`
+
+Current Phase D + G + H + S scope:
+
+- public resources list and detail pages support keyword/category browsing, visible-detail viewing, and favorite / unfavorite behavior
+- authenticated users can upload resources, revisit them in `/profile/resources`, and resubmit rejected records through `/resources/:id/edit`
+- resource review stays inside `/admin/resources`, where admins can publish, reject, or offline submitted records
+- PDF preview is supported inline, while PPTX and DOCX preview flow through cached PDF conversion and ZIP preview uses a directory-tree response
+- raw-resource and preview-artifact MinIO migration details stay documented in the dedicated storage sections below
+
 ## Job Application And Resume Workflow
 
 Backend endpoints:
@@ -859,6 +895,22 @@ mvn -q "-Dtest=AuthControllerTests,HomeControllerTests,UserControllerTests,Verif
 ```bash
 cd frontend
 npx vitest run src/App.spec.js src/views/LoginView.spec.js src/views/HomeView.spec.js src/views/ProfileView.spec.js src/views/NotificationCenterView.spec.js
+```
+
+## Targeted Resource Lifecycle Verification
+
+### Backend
+
+```bash
+cd backend
+mvn -q "-Dtest=ResourceControllerTests,AdminResourceControllerTests" test
+```
+
+### Frontend
+
+```bash
+cd frontend
+npx vitest run src/views/ResourcesListView.spec.js src/views/ResourceUploadView.spec.js src/views/ResourceEditView.spec.js src/views/ResourceDetailView.spec.js src/views/ProfileResourcesView.spec.js src/views/admin/AdminResourceManageView.spec.js
 ```
 
 ## Targeted Resource Preview Verification
