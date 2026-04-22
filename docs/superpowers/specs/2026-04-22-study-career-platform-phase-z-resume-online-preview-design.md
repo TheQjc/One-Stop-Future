@@ -1,5 +1,7 @@
 # Study Career Platform Phase Z Resume Online Preview Design
 
+> **Validation note:** This design was implemented and validated on 2026-04-22 using the approved execution record at `docs/superpowers/plans/2026-04-22-study-career-platform-phase-z-resume-online-preview-implementation.md`. Local verification suites now present for this slice are `ResumePreviewServiceTests`, `ResumeControllerTests`, `ResourcePreviewStorageConfigurationTests`, and `ProfileResumesView.spec.js`.
+
 ## 1. Goal
 
 Phase Z adds a narrow online-preview slice for user-owned resumes while preserving the current Spring Boot monolith, Vue SPA, Phase N resume-library workflow, existing raw-file storage boundary, and the Phase T / X / Y preview-artifact runtime model.

@@ -1,6 +1,6 @@
 # One-Stop Future
 
-Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice + Phase H resource preview expansion first slice + Phase I MinIO raw resource storage first slice + Phase J historical local resource MinIO migration first slice + Phase K decision support first slice + Phase L decision analytics first slice + Phase M admin dashboard first slice + Phase N job application and resume workflow first slice + Phase O admin user status management first slice + Phase P community hot ranking first slice + Phase Q community experience post structure first slice + Phase R community threaded replies first slice + Phase S DOCX resource preview first slice + Phase T MinIO preview artifact storage first slice + Phase U admin batch job import first slice + Phase V third-party job sync first slice + Phase W historical preview artifact MinIO migration first slice + Phase X preview artifact runtime dual-read fallback first slice + Phase Y preview artifact cleanup first slice`.
+Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice + Phase H resource preview expansion first slice + Phase I MinIO raw resource storage first slice + Phase J historical local resource MinIO migration first slice + Phase K decision support first slice + Phase L decision analytics first slice + Phase M admin dashboard first slice + Phase N job application and resume workflow first slice + Phase O admin user status management first slice + Phase P community hot ranking first slice + Phase Q community experience post structure first slice + Phase R community threaded replies first slice + Phase S DOCX resource preview first slice + Phase T MinIO preview artifact storage first slice + Phase U admin batch job import first slice + Phase V third-party job sync first slice + Phase W historical preview artifact MinIO migration first slice + Phase X preview artifact runtime dual-read fallback first slice + Phase Y preview artifact cleanup first slice + Phase Z resume online preview first slice`.
 
 ## Current Scope
 
@@ -18,7 +18,7 @@ Implemented now:
 - my posts / my favorites
 - jobs list / detail / filters / source jump
 - job favorite / unfavorite
-- resume library upload / list / download / delete
+- resume library upload / list / preview / download / delete
 - in-platform one-time job apply with resume snapshot
 - my applications history
 - admin applications read-only workbench with snapshot download
@@ -55,7 +55,7 @@ Implemented now:
 Explicitly not implemented yet:
 
 - full admin operations dashboards, DAU / funnel metrics, or exportable analytics reports
-- version history, chunk upload, resume rename / replace, or online resume preview
+- version history, chunk upload, or resume rename / replace
 
 ## Project Structure
 
@@ -234,6 +234,7 @@ Backend endpoints:
 
 - `GET /api/resumes/mine`
 - `POST /api/resumes`
+- `GET /api/resumes/{id}/preview`
 - `GET /api/resumes/{id}/download`
 - `DELETE /api/resumes/{id}`
 - `POST /api/jobs/{id}/apply`
@@ -245,11 +246,14 @@ Current Phase N scope:
 
 - authenticated users can keep multiple resume files in `/profile/resumes`
 - supported resume formats are `PDF`, `DOC`, and `DOCX`
+- authenticated users can preview their own `PDF` and `DOCX` resumes from `/profile/resumes`
+- `DOC` resumes remain download-only in this phase
 - published job detail pages keep the external `Source Link` and also expose in-platform apply
 - one user can apply to the same job at most once
 - each application stores an immutable resume snapshot so deleting the live resume does not break historical download
 - `/profile/applications` is applicant-facing and read-only
 - `/admin/applications` is admin-only and read-only
+- application snapshot preview and admin-side resume preview remain out of scope in this phase
 
 ## Admin Dashboard
 
