@@ -188,6 +188,22 @@ export async function downloadAdminApplicationResume(id) {
   return filename;
 }
 
+export async function previewAdminApplicationResume(id) {
+  const response = await http.get(`/admin/applications/${id}/resume/preview`, {
+    responseType: "blob",
+  });
+
+  const objectUrl = window.URL.createObjectURL(response.data);
+  const previewWindow = window.open(objectUrl, "_blank", "noopener");
+
+  if (!previewWindow) {
+    window.location.assign(objectUrl);
+  }
+
+  window.setTimeout(() => window.URL.revokeObjectURL(objectUrl), 60_000);
+  return objectUrl;
+}
+
 export async function getVerificationApplications() {
   if (preferMock) {
     const applications = readApplications();

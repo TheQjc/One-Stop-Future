@@ -1,7 +1,11 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import { RouterLink } from "vue-router";
-import { downloadAdminApplicationResume, getAdminApplications } from "../../api/admin.js";
+import {
+  downloadAdminApplicationResume,
+  getAdminApplications,
+  previewAdminApplicationResume,
+} from "../../api/admin.js";
 
 const loading = ref(true);
 const errorMessage = ref("");
@@ -59,6 +63,20 @@ async function handleDownload(application) {
   }
 }
 
+async function handlePreview(application) {
+  actionMessage.value = "";
+  actionError.value = "";
+  actionLoadingId.value = `preview-${application.id}`;
+
+  try {
+    await previewAdminApplicationResume(application.id);
+  } catch (error) {
+    actionError.value = error.message || "Resume snapshot preview failed. Please try again.";
+  } finally {
+    actionLoadingId.value = "";
+  }
+}
+
 onMounted(loadApplications);
 </script>
 
@@ -84,8 +102,8 @@ onMounted(loadApplications);
             <span class="section-eyebrow">Admin Applications Desk</span>
             <h1 class="page-title" style="margin-top: 16px;">Application workbench</h1>
             <p class="page-subtitle" style="margin-top: 16px;">
-              Read the latest application records, download resume snapshots, and jump back to the
-              original job card. This board stays read-only in this phase.
+              Read the latest application records, preview or download resume snapshots, and jump
+              back to the original job card. This board stays read-only in this phase.
             </p>
           </div>
         </div>
@@ -145,6 +163,16 @@ onMounted(loadApplications);
                 <td>
                   <div class="inline-form-actions">
                     <button
+                      v-if="application.previewAvailable && application.previewKind === 'FILE'"
+                      :data-testid="`preview-application-resume-${application.id}`"
+                      type="button"
+                      class="ghost-btn"
+                      :disabled="actionLoadingId === `preview-${application.id}`"
+                      @click="handlePreview(application)"
+                    >
+                      {{ actionLoadingId === `preview-${application.id}` ? "Opening Preview..." : "Preview" }}
+                    </button>
+                    <button
                       :data-testid="`download-application-resume-${application.id}`"
                       type="button"
                       class="ghost-btn"
@@ -185,6 +213,16 @@ onMounted(loadApplications);
               <p class="meta-copy">Submitted {{ formatTime(application.submittedAt) }}</p>
 
               <div class="inline-form-actions" style="margin-top: 12px;">
+                <button
+                  v-if="application.previewAvailable && application.previewKind === 'FILE'"
+                  :data-testid="`preview-application-resume-${application.id}`"
+                  type="button"
+                  class="ghost-btn"
+                  :disabled="actionLoadingId === `preview-${application.id}`"
+                  @click="handlePreview(application)"
+                >
+                  {{ actionLoadingId === `preview-${application.id}` ? "Opening Preview..." : "Preview" }}
+                </button>
                 <button
                   :data-testid="`download-application-resume-${application.id}`"
                   type="button"
