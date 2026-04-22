@@ -102,8 +102,8 @@ class AdminDashboardControllerTests {
                 .andExpect(jsonPath("$.data.resources.latestPendingResources[1].id").value(601))
                 .andExpect(jsonPath("$.data.resources.latestPendingResources[0].previewAvailable").value(true))
                 .andExpect(jsonPath("$.data.resources.latestPendingResources[0].previewKind").value("FILE"))
-                .andExpect(jsonPath("$.data.resources.latestPendingResources[1].previewAvailable").value(false))
-                .andExpect(jsonPath("$.data.resources.latestPendingResources[1].previewKind").value("NONE"));
+                .andExpect(jsonPath("$.data.resources.latestPendingResources[1].previewAvailable").value(true))
+                .andExpect(jsonPath("$.data.resources.latestPendingResources[1].previewKind").value("FILE"));
     }
 
     @Test
