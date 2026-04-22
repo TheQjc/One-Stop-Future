@@ -230,6 +230,39 @@ Admin:
 - `/admin/jobs`
 - `/admin/resources`
 
+## Foundation Auth, Home, Profile, Notifications, And Verification
+
+Backend endpoints:
+
+- `POST /api/auth/codes/send`
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `POST /api/auth/logout`
+- `GET /api/home/summary`
+- `GET /api/users/me`
+- `PUT /api/users/me`
+- `POST /api/verifications`
+- `GET /api/notifications`
+- `POST /api/notifications/{id}/read`
+- `POST /api/notifications/read-all`
+
+Frontend routes:
+
+- `/`
+- `/login`
+- `/register`
+- `/profile`
+- `/notifications`
+
+Current Phase A scope:
+
+- guests can open the independent home page, request a phone code, and enter the auth flow from `/login` or `/register`
+- authenticated users receive the same home summary entry with identity state, unread counts, and next-step guidance
+- `/profile` exposes the current account profile and the verification-status view of the signed-in user
+- one user can submit one active verification application at a time through the first verification flow
+- `/notifications` supports list, single-read, and read-all behavior for welcome, verification, and later workflow notifications
+- the admin-side verification review loop stays on `/admin/verifications`; approval and rejection both flow back into user-visible status and notifications
+
 ## Job Application And Resume Workflow
 
 Backend endpoints:
@@ -810,6 +843,22 @@ mvn -q -Dtest=AdminCommunityControllerTests test
 ```bash
 cd frontend
 npx vitest run src/views/admin/AdminCommunityManageView.spec.js
+```
+
+## Targeted Foundation User Flow Verification
+
+### Backend
+
+```bash
+cd backend
+mvn -q "-Dtest=AuthControllerTests,HomeControllerTests,UserControllerTests,VerificationControllerTests,NotificationControllerTests" test
+```
+
+### Frontend
+
+```bash
+cd frontend
+npx vitest run src/App.spec.js src/views/LoginView.spec.js src/views/HomeView.spec.js src/views/ProfileView.spec.js src/views/NotificationCenterView.spec.js
 ```
 
 ## Targeted Resource Preview Verification
