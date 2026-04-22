@@ -1,6 +1,7 @@
 package com.campus.preview;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -80,8 +81,9 @@ public class ResourcePreviewService {
 
     public ResourceZipPreviewResponse previewZip(ResourceItem resource, ZipSourceSupplier zipSourceSupplier) {
         String artifactKey = zipArtifactKeyOf(resource);
-        if (artifactExists(artifactKey, "zip preview unavailable")) {
-            return readZipArtifact(artifactKey);
+        Optional<InputStream> cachedArtifact = openArtifactIfPresent(artifactKey, "zip preview unavailable");
+        if (cachedArtifact.isPresent()) {
+            return readZipArtifact(cachedArtifact.get());
         }
 
         try (InputStream zipInputStream = zipSourceSupplier.open()) {
@@ -135,9 +137,9 @@ public class ResourcePreviewService {
         return Long.toString(value);
     }
 
-    private ResourceZipPreviewResponse readZipArtifact(String artifactKey) {
-        try (InputStream artifactInputStream = artifactStorage.open(artifactKey)) {
-            return objectMapper.readValue(artifactInputStream, ResourceZipPreviewResponse.class);
+    private ResourceZipPreviewResponse readZipArtifact(InputStream artifactInputStream) {
+        try (InputStream inputStream = artifactInputStream) {
+            return objectMapper.readValue(inputStream, ResourceZipPreviewResponse.class);
         } catch (IOException exception) {
             throw new BusinessException(500, "zip preview unavailable");
         }
@@ -145,8 +147,9 @@ public class ResourcePreviewService {
 
     private PreviewFile previewGeneratedPdf(String artifactKey, ResourceItem resource,
             GeneratedPdfSourceSupplier sourceSupplier, GeneratedPdfGenerator generator, String unavailableMessage) {
-        if (artifactExists(artifactKey, unavailableMessage)) {
-            return openGeneratedPdfArtifact(resource, artifactKey, unavailableMessage);
+        Optional<InputStream> cachedArtifact = openArtifactIfPresent(artifactKey, unavailableMessage);
+        if (cachedArtifact.isPresent()) {
+            return new PreviewFile(previewFileName(resource.getFileName()), "application/pdf", cachedArtifact.get());
         }
 
         try (InputStream sourceInputStream = sourceSupplier.open()) {
@@ -163,18 +166,11 @@ public class ResourcePreviewService {
         return previewType + "/" + resource.getId() + "/" + fingerprintOf(resource) + ".pdf";
     }
 
-    private boolean artifactExists(String artifactKey, String unavailableMessage) {
+    private Optional<InputStream> openArtifactIfPresent(String artifactKey, String unavailableMessage) {
         try {
-            return artifactStorage.exists(artifactKey);
-        } catch (IOException exception) {
-            throw new BusinessException(500, unavailableMessage);
-        }
-    }
-
-    private PreviewFile openGeneratedPdfArtifact(ResourceItem resource, String artifactKey, String unavailableMessage) {
-        try {
-            return new PreviewFile(previewFileName(resource.getFileName()), "application/pdf",
-                    artifactStorage.open(artifactKey));
+            return Optional.of(artifactStorage.open(artifactKey));
+        } catch (FileNotFoundException exception) {
+            return Optional.empty();
         } catch (IOException exception) {
             throw new BusinessException(500, unavailableMessage);
         }

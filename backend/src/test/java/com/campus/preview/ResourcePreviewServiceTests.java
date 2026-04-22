@@ -3,12 +3,14 @@ package com.campus.preview;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.io.FileNotFoundException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -159,8 +161,27 @@ class ResourcePreviewServiceTests {
     }
 
     @Test
-    void docxPreviewExistsFailureBecomesBusinessException() {
-        ResourcePreviewService service = new ResourcePreviewService(new ThrowingExistsStorage(new IOException("boom")),
+    void pptxPreviewCacheMissOnOpenRegeneratesAndWritesArtifact() throws IOException {
+        MissingOnOpenStorage storage = new MissingOnOpenStorage();
+        CountingPptxPreviewGenerator generator = new CountingPptxPreviewGenerator();
+        ResourcePreviewService service = new ResourcePreviewService(
+                storage,
+                new ObjectMapper(),
+                generator,
+                new NoopDocxPreviewGenerator(),
+                new CountingZipPreviewGenerator(payload("resume/", "resume/a.md")));
+        ResourceItem resource = resource(9L, "career-deck.pptx", "pptx", "seed/career-deck.pptx", 1024L,
+                LocalDateTime.now());
+
+        service.previewFile(resource, this::samplePptxStream);
+
+        assertThat(generator.invocationCount()).isEqualTo(1);
+        assertThat(storage.writtenKeys()).containsExactly(service.pptxArtifactKeyOf(resource));
+    }
+
+    @Test
+    void docxPreviewOpenFailureBecomesBusinessException() {
+        ResourcePreviewService service = new ResourcePreviewService(new ThrowingOpenStorage(new IOException("boom")),
                 new ObjectMapper(), new NoopPptxPreviewGenerator(), new NoopDocxPreviewGenerator(),
                 new CountingZipPreviewGenerator(payload("resume/", "resume/a.md")));
         ResourceItem resource = resource(9L, "writing-workbook.docx", "docx", "seed/workbook.docx", 1024L,
@@ -172,8 +193,21 @@ class ResourcePreviewServiceTests {
     }
 
     @Test
-    void zipPreviewExistsFailureBecomesBusinessException() {
-        ResourcePreviewService service = new ResourcePreviewService(new ThrowingExistsStorage(new IOException("boom")),
+    void pptxPreviewOpenFailureBecomesBusinessException() {
+        ResourcePreviewService service = new ResourcePreviewService(new ThrowingOpenStorage(new IOException("boom")),
+                new ObjectMapper(), new NoopPptxPreviewGenerator(), new NoopDocxPreviewGenerator(),
+                new CountingZipPreviewGenerator(payload("resume/", "resume/a.md")));
+        ResourceItem resource = resource(9L, "career-deck.pptx", "pptx", "seed/career-deck.pptx", 1024L,
+                LocalDateTime.now());
+
+        assertThatThrownBy(() -> service.previewFile(resource, this::samplePptxStream))
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("pptx preview unavailable");
+    }
+
+    @Test
+    void zipPreviewOpenFailureBecomesBusinessException() {
+        ResourcePreviewService service = new ResourcePreviewService(new ThrowingOpenStorage(new IOException("boom")),
                 new ObjectMapper(), new NoopPptxPreviewGenerator(), new NoopDocxPreviewGenerator(),
                 new CountingZipPreviewGenerator(payload("resume/", "resume/a.md")));
         ResourceItem resource = resource(9L, "resume.zip", "zip", "seed/resume.zip", 1024L, LocalDateTime.now());
@@ -192,7 +226,7 @@ class ResourcePreviewServiceTests {
 
         @Override
         public InputStream open(String artifactKey) throws IOException {
-            throw new IOException("not implemented");
+            throw new FileNotFoundException(artifactKey);
         }
 
         @Override
@@ -214,7 +248,7 @@ class ResourcePreviewServiceTests {
         public InputStream open(String artifactKey) throws IOException {
             byte[] artifact = artifacts.get(artifactKey);
             if (artifact == null) {
-                throw new IOException("artifact not found");
+                throw new FileNotFoundException(artifactKey);
             }
             return new ByteArrayInputStream(artifact);
         }
@@ -225,27 +259,52 @@ class ResourcePreviewServiceTests {
         }
     }
 
-    private static class ThrowingExistsStorage implements ResourcePreviewArtifactStorage {
+    private static class ThrowingOpenStorage implements ResourcePreviewArtifactStorage {
 
         private final IOException exception;
 
-        private ThrowingExistsStorage(IOException exception) {
+        private ThrowingOpenStorage(IOException exception) {
             this.exception = exception;
         }
 
         @Override
         public boolean exists(String artifactKey) throws IOException {
-            throw exception;
+            return false;
         }
 
         @Override
         public InputStream open(String artifactKey) throws IOException {
-            throw new IOException("not implemented");
+            throw exception;
         }
 
         @Override
         public void write(String artifactKey, InputStream inputStream) throws IOException {
             throw new IOException("not implemented");
+        }
+    }
+
+    private static class MissingOnOpenStorage implements ResourcePreviewArtifactStorage {
+
+        private final List<String> writtenKeys = new ArrayList<>();
+
+        @Override
+        public boolean exists(String artifactKey) {
+            return false;
+        }
+
+        @Override
+        public InputStream open(String artifactKey) throws IOException {
+            throw new FileNotFoundException(artifactKey);
+        }
+
+        @Override
+        public void write(String artifactKey, InputStream inputStream) throws IOException {
+            writtenKeys.add(artifactKey);
+            inputStream.readAllBytes();
+        }
+
+        private List<String> writtenKeys() {
+            return writtenKeys;
         }
     }
 
