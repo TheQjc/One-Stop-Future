@@ -299,6 +299,27 @@ Current Phase D + G + H + S scope:
 - PDF preview is supported inline, while PPTX and DOCX preview flow through cached PDF conversion and ZIP preview uses a directory-tree response
 - raw-resource and preview-artifact MinIO migration details stay documented in the dedicated storage sections below
 
+## Jobs Browsing, Detail, And Favorites
+
+Backend endpoints:
+
+- `GET /api/jobs`
+- `GET /api/jobs/{id}`
+- `POST /api/jobs/{id}/favorite`
+- `DELETE /api/jobs/{id}/favorite`
+
+Frontend routes:
+
+- `/jobs`
+- `/jobs/:id`
+
+Current Phase C scope:
+
+- public jobs list supports keyword, city, job type, education requirement, and source-platform filtering
+- job detail keeps the public source link and reflects the signed-in user's current favorite state
+- authenticated users can favorite and unfavorite visible job cards without leaving the jobs list or detail context
+- in-platform apply, resume selection, and application history remain documented in the dedicated workflow section below
+
 ## Job Application And Resume Workflow
 
 Backend endpoints:
@@ -432,6 +453,36 @@ Current Phase B scope:
 - admins can review submitted community posts from one moderation list
 - hiding a post removes it from public visibility without treating it as a hard delete in the UI contract
 - deleting a post is an explicit admin moderation action for content that should not remain available
+
+## Community Feed And Interaction
+
+Backend endpoints:
+
+- `GET /api/community/posts`
+- `GET /api/community/posts/mine`
+- `GET /api/community/posts/{id}`
+- `POST /api/community/posts`
+- `POST /api/community/posts/{id}/comments`
+- `POST /api/community/comments/{id}/replies`
+- `POST /api/community/posts/{id}/like`
+- `DELETE /api/community/posts/{id}/like`
+- `POST /api/community/posts/{id}/favorite`
+- `DELETE /api/community/posts/{id}/favorite`
+
+Frontend routes:
+
+- `/community`
+- `/community/create`
+- `/community/:id`
+- `/profile/posts`
+- `/profile/favorites`
+
+Current Phase B scope:
+
+- the public community feed supports list and detail browsing for published posts
+- authenticated users can create posts, publish top-level comments, like posts, and favorite posts
+- `/profile/posts` and `/profile/favorites` provide the signed-in user's authored-post and favorite-post views
+- the dedicated hot-ranking, experience-post, and threaded-reply refinements remain documented in the community sections below
 
 ## Community Hot Ranking
 
@@ -911,6 +962,38 @@ mvn -q "-Dtest=ResourceControllerTests,AdminResourceControllerTests" test
 ```bash
 cd frontend
 npx vitest run src/views/ResourcesListView.spec.js src/views/ResourceUploadView.spec.js src/views/ResourceEditView.spec.js src/views/ResourceDetailView.spec.js src/views/ProfileResourcesView.spec.js src/views/admin/AdminResourceManageView.spec.js
+```
+
+## Targeted Jobs Browsing Verification
+
+### Backend
+
+```bash
+cd backend
+mvn -q -Dtest=JobControllerTests test
+```
+
+### Frontend
+
+```bash
+cd frontend
+npx vitest run src/views/JobsListView.spec.js src/views/JobDetailView.spec.js src/views/ProfileFavoritesView.spec.js
+```
+
+## Targeted Community Feed Verification
+
+### Backend
+
+```bash
+cd backend
+mvn -q -Dtest=CommunityControllerTests test
+```
+
+### Frontend
+
+```bash
+cd frontend
+npx vitest run src/views/CommunityListView.spec.js src/views/CommunityCreateView.spec.js src/views/CommunityDetailView.spec.js src/views/ProfilePostsView.spec.js src/views/ProfileFavoritesView.spec.js
 ```
 
 ## Targeted Resource Preview Verification
