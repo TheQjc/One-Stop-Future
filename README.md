@@ -298,6 +298,33 @@ Current Phase O scope:
 - non-admin accounts can be banned and restored from the same admin surface
 - banned users are blocked at login and also rejected on authenticated business APIs until restored
 
+## Admin Job Management, Import, And Sync
+
+Admin backend endpoints:
+
+- `GET /api/admin/jobs`
+- `POST /api/admin/jobs`
+- `PUT /api/admin/jobs/{id}`
+- `POST /api/admin/jobs/{id}/publish`
+- `POST /api/admin/jobs/{id}/offline`
+- `POST /api/admin/jobs/{id}/delete`
+- `POST /api/admin/jobs/import`
+- `POST /api/admin/jobs/sync`
+
+Admin frontend route:
+
+- `/admin/jobs`
+
+Current Phase C + U + V scope:
+
+- admin-only jobs workbench keeps the existing create / edit / publish / offline / delete lifecycle in one place
+- CSV batch import accepts one `UTF-8` file through the existing `/admin/jobs` page and creates valid imported rows as `DRAFT`
+- CSV import is all-or-nothing in this phase; validation failure rolls back the whole file instead of partially importing rows
+- third-party sync pulls one fixed server-side HTTP JSON feed from the same `/admin/jobs` workbench with no separate admin route
+- newly synced jobs are created as `DRAFT`, while existing non-`DELETED` rows update in place by `sourceUrl`
+- local `DELETED` jobs are skipped and reported instead of being recreated automatically
+- neither CSV import nor third-party sync auto-publishes jobs in this phase
+
 ## Community Hot Ranking
 
 Public backend endpoint:
@@ -513,7 +540,7 @@ Admin:
 - can open `/admin/applications` and preview `PDF` / `DOCX` application snapshot resumes inline, or download snapshot resumes
 - can review verification applications
 - can moderate community posts
-- can maintain job cards
+- can maintain job cards, import UTF-8 CSV jobs, and trigger fixed-feed job sync from `/admin/jobs`
 - can review resources through publish / reject / offline actions
 - can preview PDF, PPTX, and DOCX resources inline and ZIP contents from the admin resource board
 
@@ -696,6 +723,22 @@ mvn -q "-Dtest=AdminDashboardControllerTests,HomeServiceTests,HomeControllerTest
 ```bash
 cd frontend
 npx vitest run src/views/admin/AdminDashboardView.spec.js src/views/HomeView.spec.js src/components/NavBar.spec.js
+```
+
+## Targeted Admin Job Management Verification
+
+### Backend
+
+```bash
+cd backend
+mvn -q "-Dtest=AdminJobControllerTests,AdminJobImportControllerTests,AdminJobSyncControllerTests,JobImportCsvParserTests,JobBatchImportServiceTests,ThirdPartyJobSyncServiceTests,JobControllerTests" test
+```
+
+### Frontend
+
+```bash
+cd frontend
+npx vitest run src/views/admin/AdminJobManageView.spec.js src/components/NavBar.spec.js
 ```
 
 ## Targeted Resource Preview Verification
