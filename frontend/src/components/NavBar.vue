@@ -10,23 +10,23 @@ const router = useRouter();
 
 const navItems = computed(() => {
   const items = [
-    { to: "/", label: "Home" },
-    { to: "/community", label: "Community" },
-    { to: "/discover", label: "Discover" },
-    { to: "/search", label: "Search" },
+    { to: "/", label: "首页" },
+    { to: "/community", label: "社区" },
+    { to: "/discover", label: "趋势" },
+    { to: "/search", label: "搜索" },
   ];
 
   if (userStore.isAuthenticated) {
-    items.push({ to: "/profile", label: "Profile" });
-    items.push({ to: "/notifications", label: "Notifications" });
+    items.push({ to: "/profile", label: "我的" });
+    items.push({ to: "/notifications", label: "通知" });
   }
 
   if (userStore.canReviewVerifications) {
-    items.push({ to: "/admin/dashboard", label: "Operations" });
-    items.push({ to: "/admin/users", label: "User Desk" });
-    items.push({ to: "/admin/applications", label: "Applications" });
-    items.push({ to: "/admin/verifications", label: "Verifications" });
-    items.push({ to: "/admin/community", label: "Community Desk" });
+    items.push({ to: "/admin/dashboard", label: "运营总览" });
+    items.push({ to: "/admin/users", label: "用户管理" });
+    items.push({ to: "/admin/applications", label: "申请管理" });
+    items.push({ to: "/admin/verifications", label: "认证审核" });
+    items.push({ to: "/admin/community", label: "社区管理" });
   }
 
   return items;
@@ -42,12 +42,12 @@ async function handleLogout() {
   <header class="site-header">
     <div class="site-header__inner">
       <RouterLink class="site-brand" to="/">
-        <span class="site-brand__mark">Editorial Student Decision Desk</span>
-        <strong>One-Stop Future</strong>
-        <small>Career / Exam / Abroad in one working entrance</small>
+        <span class="site-brand__mark">学生成长服务平台</span>
+        <strong>一站式成长平台</strong>
+        <small>One-Stop Future</small>
       </RouterLink>
 
-      <nav class="site-nav" aria-label="Primary">
+      <nav class="site-nav" aria-label="主导航">
         <RouterLink
           v-for="item in navItems"
           :key="item.to"
@@ -71,13 +71,13 @@ async function handleLogout() {
         </div>
 
         <RouterLink v-if="!userStore.isAuthenticated" to="/login" class="app-link">
-          Log In
+          登录
         </RouterLink>
         <RouterLink v-if="!userStore.isAuthenticated" to="/register" class="ghost-btn">
-          Register
+          注册
         </RouterLink>
         <button v-else type="button" class="ghost-btn" @click="handleLogout">
-          Log Out
+          退出登录
         </button>
       </div>
     </div>
