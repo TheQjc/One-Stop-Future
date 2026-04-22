@@ -42,7 +42,10 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.campus.entity.ResourceItem;
+import com.campus.mapper.ResourceItemMapper;
 import com.campus.preview.DocxPreviewGenerator;
+import com.campus.preview.ResourcePreviewService;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -57,6 +60,12 @@ class ResourceControllerTests {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private ResourceItemMapper resourceItemMapper;
+
+    @Autowired
+    private ResourcePreviewService resourcePreviewService;
 
     @MockBean
     private DocxPreviewGenerator docxPreviewGenerator;
@@ -409,6 +418,65 @@ class ResourceControllerTests {
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.fileName").value("revised-pack.pdf"))
                 .andExpect(jsonPath("$.data.status").value("PENDING"));
+    }
+
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
+    void resubmittingRejectedPptxWithoutFileReplacementDeletesOldPreviewArtifact() throws Exception {
+        insertResource(4L, 2L, "REJECTED", "Please simplify the intro section",
+                "career-deck.pptx", "pptx",
+                "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                "seed/2026/04/career-deck.pptx");
+        writeStoredBinaryFile("seed/2026/04/career-deck.pptx", simplePptxBytes("Career Deck"));
+        ResourceItem original = resourceItemMapper.selectById(4L);
+        String oldArtifactKey = resourcePreviewService.pptxArtifactKeyOf(original);
+        Path oldPreviewPath = PREVIEW_ROOT.resolve(oldArtifactKey);
+        Files.createDirectories(oldPreviewPath.getParent());
+        Files.writeString(oldPreviewPath, "%PDF-old");
+
+        mockMvc.perform(multipart("/api/resources/4")
+                        .with(request -> {
+                            request.setMethod("PUT");
+                            return request;
+                        })
+                        .param("title", "Revised Career Deck")
+                        .param("category", "RESUME_TEMPLATE")
+                        .param("summary", "Revised summary"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.status").value("PENDING"));
+
+        assertThat(Files.exists(oldPreviewPath)).isFalse();
+    }
+
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
+    void replacingRejectedPptxWithPdfDeletesOldDerivedPreviewArtifact() throws Exception {
+        insertResource(4L, 2L, "REJECTED", "Please simplify the intro section",
+                "career-deck.pptx", "pptx",
+                "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                "seed/2026/04/career-deck.pptx");
+        writeStoredBinaryFile("seed/2026/04/career-deck.pptx", simplePptxBytes("Career Deck"));
+        ResourceItem original = resourceItemMapper.selectById(4L);
+        String oldArtifactKey = resourcePreviewService.pptxArtifactKeyOf(original);
+        Path oldPreviewPath = PREVIEW_ROOT.resolve(oldArtifactKey);
+        Files.createDirectories(oldPreviewPath.getParent());
+        Files.writeString(oldPreviewPath, "%PDF-old");
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "revised-pack.pdf", "application/pdf", "new-pdf".getBytes(StandardCharsets.UTF_8));
+
+        mockMvc.perform(multipart("/api/resources/4")
+                        .file(file)
+                        .with(request -> {
+                            request.setMethod("PUT");
+                            return request;
+                        })
+                        .param("title", "Revised Resume Pack")
+                        .param("category", "RESUME_TEMPLATE")
+                        .param("summary", "Revised summary"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.fileName").value("revised-pack.pdf"));
+
+        assertThat(Files.exists(oldPreviewPath)).isFalse();
     }
 
     @Test

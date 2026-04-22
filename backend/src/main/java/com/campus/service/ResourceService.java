@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -45,15 +47,20 @@ public class ResourceService {
     private final UserService userService;
     private final ResourceFileStorage resourceFileStorage;
     private final ResourcePreviewService resourcePreviewService;
+    private final PreviewArtifactCleanupService previewArtifactCleanupService;
 
     public ResourceService(ResourceItemMapper resourceItemMapper, UserFavoriteMapper userFavoriteMapper,
             UserService userService, ResourceFileStorage resourceFileStorage,
-            ResourcePreviewService resourcePreviewService) {
+            ResourcePreviewService resourcePreviewService,
+            PreviewArtifactCleanupService previewArtifactCleanupService) {
         this.resourceItemMapper = resourceItemMapper;
         this.userFavoriteMapper = userFavoriteMapper;
         this.userService = userService;
-        this.resourceFileStorage = resourceFileStorage;
-        this.resourcePreviewService = resourcePreviewService;
+        this.resourceFileStorage = Objects.requireNonNull(resourceFileStorage, "resourceFileStorage");
+        this.resourcePreviewService = Objects.requireNonNull(resourcePreviewService, "resourcePreviewService");
+        this.previewArtifactCleanupService = Objects.requireNonNull(
+                previewArtifactCleanupService,
+                "previewArtifactCleanupService");
     }
 
     public ResourceListResponse listResources(String keyword, String category, String identity) {
@@ -194,6 +201,8 @@ public class ResourceService {
             String summary, String description, MultipartFile file) {
         User viewer = userService.requireByIdentity(identity);
         ResourceItem resource = requireEditableRejectedResource(resourceId, viewer);
+        Optional<ResourcePreviewService.PreviewArtifactTarget> oldTarget =
+                resourcePreviewService.previewArtifactTargetOf(resource);
 
         resource.setTitle(requireText(title, "title"));
         resource.setCategory(normalizeRequiredCategory(category));
@@ -220,6 +229,9 @@ public class ResourceService {
         resourceItemMapper.updateById(resource);
 
         tryDeleteReplacedFile(previousStorageKey, resource.getStorageKey());
+        previewArtifactCleanupService.cleanupAfterResourceMutation(
+                oldTarget,
+                resourcePreviewService.previewArtifactTargetOf(resource));
         return toResourceDetail(resource, viewer);
     }
 
