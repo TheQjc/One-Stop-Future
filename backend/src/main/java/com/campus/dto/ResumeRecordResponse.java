@@ -2,6 +2,8 @@ package com.campus.dto;
 
 import java.time.LocalDateTime;
 
+import com.campus.common.ResourcePreviewKind;
+
 public record ResumeRecordResponse(
         Long id,
         String title,
@@ -10,5 +12,7 @@ public record ResumeRecordResponse(
         String contentType,
         Long fileSize,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt) {
+        LocalDateTime updatedAt,
+        boolean previewAvailable,
+        ResourcePreviewKind previewKind) {
 }

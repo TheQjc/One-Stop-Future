@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -17,11 +19,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.campus.common.BusinessException;
+import com.campus.common.ResourcePreviewKind;
 import com.campus.dto.ResumeListResponse;
 import com.campus.dto.ResumeRecordResponse;
 import com.campus.entity.Resume;
 import com.campus.entity.User;
 import com.campus.mapper.ResumeMapper;
+import com.campus.preview.ResumePreviewService;
 import com.campus.storage.ResourceFileStorage;
 
 @Service
@@ -34,13 +38,15 @@ public class ResumeService {
     private final UserService userService;
     private final ResourceFileStorage resourceFileStorage;
     private final MultipartProperties multipartProperties;
+    private final ResumePreviewService resumePreviewService;
 
     public ResumeService(ResumeMapper resumeMapper, UserService userService, ResourceFileStorage resourceFileStorage,
-            MultipartProperties multipartProperties) {
+            MultipartProperties multipartProperties, ResumePreviewService resumePreviewService) {
         this.resumeMapper = resumeMapper;
         this.userService = userService;
-        this.resourceFileStorage = resourceFileStorage;
-        this.multipartProperties = multipartProperties;
+        this.resourceFileStorage = Objects.requireNonNull(resourceFileStorage, "resourceFileStorage");
+        this.multipartProperties = Objects.requireNonNull(multipartProperties, "multipartProperties");
+        this.resumePreviewService = Objects.requireNonNull(resumePreviewService, "resumePreviewService");
     }
 
     @Transactional
@@ -79,16 +85,35 @@ public class ResumeService {
     public DownloadedResume download(String identity, Long resumeId) {
         User viewer = userService.requireByIdentity(identity);
         Resume resume = requireOwnedResume(viewer.getId(), resumeId);
-        return new DownloadedResume(resume.getFileName(), resume.getContentType(), openResumeFile(resume));
+        ResumeFileStream openedResume = openResumeFile(resume, "resume file unavailable");
+        return new DownloadedResume(openedResume.fileName(), openedResume.contentType(), openedResume.inputStream());
+    }
+
+    public ResumeFileStream preview(String identity, Long resumeId) {
+        User viewer = userService.requireByIdentity(identity);
+        Resume resume = requireOwnedResume(viewer.getId(), resumeId);
+        if (isPdf(resume)) {
+            return openResumeFile(resume, "resume preview unavailable");
+        }
+        if (isDocx(resume)) {
+            ResumePreviewService.PreviewFile previewFile = resumePreviewService.previewDocx(
+                    resume,
+                    () -> openResumeFile(resume, "resume preview unavailable").inputStream());
+            return new ResumeFileStream(previewFile.fileName(), previewFile.contentType(), previewFile.inputStream());
+        }
+        throw new BusinessException(400, "resume preview only supports pdf or docx");
     }
 
     @Transactional
     public void delete(String identity, Long resumeId) {
         User viewer = userService.requireByIdentity(identity);
         Resume resume = requireOwnedResume(viewer.getId(), resumeId);
+        Optional<ResumePreviewService.PreviewArtifactTarget> oldTarget =
+                resumePreviewService.previewArtifactTargetOf(resume);
         String storageKey = resume.getStorageKey();
         resumeMapper.deleteById(resumeId);
         tryDeleteStoredFile(storageKey);
+        tryDeletePreviewArtifact(oldTarget);
     }
 
     private Resume requireOwnedResume(Long userId, Long resumeId) {
@@ -100,6 +125,7 @@ public class ResumeService {
     }
 
     private ResumeRecordResponse toRecord(Resume resume) {
+        ResourcePreviewKind previewKind = resumePreviewService.previewKindOf(resume);
         return new ResumeRecordResponse(
                 resume.getId(),
                 resume.getTitle(),
@@ -108,17 +134,22 @@ public class ResumeService {
                 resume.getContentType(),
                 resume.getFileSize(),
                 resume.getCreatedAt(),
-                resume.getUpdatedAt());
+                resume.getUpdatedAt(),
+                previewKind != ResourcePreviewKind.NONE,
+                previewKind);
     }
 
-    private InputStream openResumeFile(Resume resume) {
+    private ResumeFileStream openResumeFile(Resume resume, String unavailableMessage) {
         try {
             if (!resourceFileStorage.exists(resume.getStorageKey())) {
-                throw new BusinessException(500, "resume file unavailable");
+                throw new BusinessException(500, unavailableMessage);
             }
-            return resourceFileStorage.open(resume.getStorageKey());
+            return new ResumeFileStream(
+                    resume.getFileName(),
+                    resume.getContentType(),
+                    resourceFileStorage.open(resume.getStorageKey()));
         } catch (IOException exception) {
-            throw new BusinessException(500, "resume file unavailable");
+            throw new BusinessException(500, unavailableMessage);
         }
     }
 
@@ -141,6 +172,18 @@ public class ResumeService {
             resourceFileStorage.delete(storageKey);
         } catch (IOException exception) {
             log.warn("Failed to delete resume file: {}", storageKey, exception);
+        }
+    }
+
+    private void tryDeletePreviewArtifact(Optional<ResumePreviewService.PreviewArtifactTarget> oldTarget) {
+        if (oldTarget.isEmpty()) {
+            return;
+        }
+        String artifactKey = oldTarget.get().artifactKey();
+        try {
+            resumePreviewService.delete(artifactKey);
+        } catch (IOException | RuntimeException exception) {
+            log.warn("Failed to delete resume preview artifact: {}", artifactKey, exception);
         }
     }
 
@@ -200,7 +243,21 @@ public class ResumeService {
         return originalFilename.substring(lastDot + 1).toLowerCase(Locale.ROOT);
     }
 
+    private boolean isPdf(Resume resume) {
+        return "pdf".equalsIgnoreCase(resume.getFileExt())
+                || "application/pdf".equalsIgnoreCase(resume.getContentType());
+    }
+
+    private boolean isDocx(Resume resume) {
+        return "docx".equalsIgnoreCase(resume.getFileExt())
+                || "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                        .equalsIgnoreCase(resume.getContentType());
+    }
+
     public record DownloadedResume(String fileName, String contentType, InputStream inputStream) {
+    }
+
+    public record ResumeFileStream(String fileName, String contentType, InputStream inputStream) {
     }
 
     private record ValidatedResumeFile(String originalFilename, String extension, String contentType, long size) {

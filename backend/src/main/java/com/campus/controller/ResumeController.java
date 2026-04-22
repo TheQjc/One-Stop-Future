@@ -61,6 +61,18 @@ public class ResumeController {
                 .body(new InputStreamResource(download.inputStream()));
     }
 
+    @GetMapping("/{id}/preview")
+    public ResponseEntity<InputStreamResource> preview(@PathVariable Long id, Authentication authentication) {
+        ResumeService.ResumeFileStream preview = resumeService.preview(authentication.getName(), id);
+        return ResponseEntity.ok()
+                .contentType(resolveMediaType(preview.contentType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.inline()
+                        .filename(preview.fileName(), StandardCharsets.UTF_8)
+                        .build()
+                        .toString())
+                .body(new InputStreamResource(preview.inputStream()));
+    }
+
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id, Authentication authentication) {
         resumeService.delete(authentication.getName(), id);
