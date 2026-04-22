@@ -38,7 +38,7 @@ test("shows assessment-required empty state when latest result is absent", async
   await flushPromises();
 
   expect(getDecisionTimeline).not.toHaveBeenCalled();
-  expect(wrapper.text()).toContain("Complete the assessment first");
+  expect(wrapper.text()).toContain("请先完成方向测评");
   expect(wrapper.find('[data-test="timeline-empty"]').exists()).toBe(true);
 });
 
@@ -84,15 +84,15 @@ test("latest result defaults active track and loads timeline; switching track re
   await flushPromises();
 
   expect(getDecisionTimeline).toHaveBeenCalledWith({ track: "EXAM" });
+  expect(wrapper.text()).toContain("成长时间线");
   expect(wrapper.text()).toContain("EXAM_P0");
   expect(wrapper.text()).toContain("2026-06-01");
-  expect(wrapper.text()).toContain("10 days");
+  expect(wrapper.text()).toContain("剩余 10 天");
 
   const tabs = wrapper.findAll("button.track-tab");
-  await tabs.find((btn) => btn.text() === "Career").trigger("click");
+  await tabs.find((btn) => btn.text() === "就业").trigger("click");
   await flushPromises();
 
   expect(getDecisionTimeline).toHaveBeenLastCalledWith({ track: "CAREER" });
   expect(wrapper.text()).toContain("CAREER_P0");
 });
-

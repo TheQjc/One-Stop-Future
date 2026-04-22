@@ -77,10 +77,10 @@ test("guest sees public analytics sections and a login prompt for personal insig
   await flushPromises();
 
   expect(getAnalyticsSummary).toHaveBeenCalledWith({ period: "30D" });
-  expect(wrapper.text()).toContain("Decision Mix");
-  expect(wrapper.text()).toContain("Log in to unlock your personal path analysis");
-  expect(wrapper.text()).toContain("Published Posts");
-  expect(wrapper.text()).toContain("Participant base: 2");
+  expect(wrapper.text()).toContain("方向分布");
+  expect(wrapper.text()).toContain("登录后查看你的个人路径分析");
+  expect(wrapper.text()).toContain("已发布帖子");
+  expect(wrapper.text()).toContain("参与人数基数：2");
   expect(wrapper.html()).toContain('data-to="/login"');
 });
 
@@ -110,7 +110,7 @@ test("renders an explicit empty-trend note when the selected period has no activ
   const wrapper = mountView();
   await flushPromises();
 
-  expect(wrapper.text()).toContain("No public activity was recorded for this period yet.");
+  expect(wrapper.text()).toContain("当前周期还没有记录到公开活跃数据");
 });
 
 test("ready personal status renders snapshot, history, and next actions", async () => {
@@ -137,9 +137,9 @@ test("ready personal status renders snapshot, history, and next actions", async 
   await flushPromises();
 
   expect(wrapper.find('[data-test="personal-ready"]').exists()).toBe(true);
-  expect(wrapper.text()).toContain("Recommended: EXAM");
+  expect(wrapper.text()).toContain("推荐方向：考研");
   expect(wrapper.text()).toContain("2026-04-18");
-  expect(wrapper.text()).toContain("Recent sessions");
+  expect(wrapper.text()).toContain("最近记录");
   expect(wrapper.html()).toContain('data-to="/timeline"');
 });
 
@@ -172,6 +172,6 @@ test("error personal status shows personalMessage while keeping public analytics
 
   expect(wrapper.find('[data-test="personal-error"]').exists()).toBe(true);
   expect(wrapper.text()).toContain("Personal analytics temporarily unavailable.");
-  expect(wrapper.text()).toContain("Decision Mix");
-  expect(wrapper.text()).toContain("Published Posts");
+  expect(wrapper.text()).toContain("方向分布");
+  expect(wrapper.text()).toContain("已发布帖子");
 });

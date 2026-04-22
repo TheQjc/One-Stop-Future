@@ -67,6 +67,9 @@ test("enforces 2-4 school selection and renders compare result highlight", async
   const wrapper = mountView();
   await flushPromises();
 
+  expect(wrapper.text()).toContain("院校对比");
+  expect(wrapper.text()).toContain("候选院校");
+
   const submit = wrapper.find('[data-test="compare-submit"]');
   expect(submit.attributes("disabled")).toBeDefined();
 
@@ -82,11 +85,11 @@ test("enforces 2-4 school selection and renders compare result highlight", async
   await cards[2].trigger("click");
   await cards[3].trigger("click");
   await flushPromises();
-  expect(wrapper.text()).not.toContain("Select at most 4 schools.");
+  expect(wrapper.text()).not.toContain("最多选择 4 所学校。");
 
   await cards[4].trigger("click");
   await flushPromises();
-  expect(wrapper.text()).toContain("Select at most 4 schools.");
+  expect(wrapper.text()).toContain("最多选择 4 所学校。");
 
   await wrapper.find('[data-test="compare-submit"]').trigger("click");
   await flushPromises();
@@ -131,4 +134,5 @@ test("renders an explicit empty-chart state when chartSeries is empty", async ()
 
   expect(wrapper.find('[data-test="chart-panel"]').exists()).toBe(true);
   expect(wrapper.find('[data-test="empty-chart"]').exists()).toBe(true);
+  expect(wrapper.text()).toContain("图表概览");
 });

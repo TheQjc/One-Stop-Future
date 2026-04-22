@@ -9,6 +9,19 @@ import {
 
 const router = useRouter();
 
+const trackLabelMap = {
+  CAREER: "就业",
+  EXAM: "考研",
+  ABROAD: "留学",
+};
+
+const actionLabelMap = {
+  TIMELINE: "查看时间线",
+  OPEN_TIMELINE: "查看时间线",
+  START_ASSESSMENT: "开始测评",
+  COMPARE_SCHOOLS: "对比院校",
+};
+
 const loading = reactive({
   questions: true,
   latest: true,
@@ -61,7 +74,7 @@ async function loadQuestions() {
   try {
     questionSet.value = await listDecisionQuestions();
   } catch (e) {
-    error.questions = e.message || "Decision questions failed to load. Please retry.";
+    error.questions = e.message || "测评题目加载失败，请重试。";
   } finally {
     loading.questions = false;
   }
@@ -74,7 +87,7 @@ async function loadLatest() {
   try {
     latest.value = await getLatestDecisionResult();
   } catch (e) {
-    error.latest = e.message || "Latest assessment result failed to load.";
+    error.latest = e.message || "最近测评结果加载失败。";
     latest.value = null;
   } finally {
     loading.latest = false;
@@ -105,7 +118,7 @@ async function submit() {
   try {
     result.value = await submitDecisionAnswers(buildSubmitPayload());
   } catch (e) {
-    error.submit = e.message || "Submission failed. Please try again.";
+    error.submit = e.message || "提交失败，请稍后重试。";
   } finally {
     loading.submit = false;
   }
@@ -118,6 +131,23 @@ function goTo(path) {
   router.push(path);
 }
 
+function displayTrack(track) {
+  return trackLabelMap[track] || track || "未确定";
+}
+
+function displayActionLabel(action) {
+  if (!action) {
+    return "查看下一步";
+  }
+
+  return actionLabelMap[action.code]
+    || (action.path === "/timeline" ? "查看时间线" : "")
+    || (action.path === "/assessment" ? "开始测评" : "")
+    || (action.path === "/schools/compare" ? "对比院校" : "")
+    || action.label
+    || "查看下一步";
+}
+
 onMounted(loadAll);
 </script>
 
@@ -125,26 +155,25 @@ onMounted(loadAll);
   <section class="page-stack">
     <article class="section-card assessment-hero">
       <div class="assessment-hero__copy">
-        <span class="section-eyebrow">Decision Desk</span>
-        <h1 class="hero-title" style="margin-top: 18px;">Assessment</h1>
+        <span class="section-eyebrow">决策支持</span>
+        <h1 class="hero-title" style="margin-top: 18px;">方向测评</h1>
         <hr class="editorial-rule" />
         <p class="hero-copy">
-          Answer each prompt once. The desk will convert your choices into a single recommended track,
-          plus a ranked score snapshot that you can carry into the timeline view.
+          逐题完成选择后，系统会给出当前更适合你的成长方向，并生成一份可带入时间线页继续查看的分数快照。
         </p>
       </div>
 
       <div class="assessment-hero__panel">
         <div class="panel-card assessment-hero__stat">
-          <span class="assessment-hero__label">Questions</span>
+          <span class="assessment-hero__label">题目数</span>
           <strong>{{ totalQuestions }}</strong>
         </div>
         <div class="panel-card assessment-hero__stat">
-          <span class="assessment-hero__label">Answered</span>
+          <span class="assessment-hero__label">已完成</span>
           <strong>{{ answeredCount }}/{{ totalQuestions }}</strong>
         </div>
         <button type="button" class="ghost-btn" :disabled="loading.submit" @click="resetForm">
-          Reset
+          重新填写
         </button>
       </div>
     </article>
@@ -152,9 +181,9 @@ onMounted(loadAll);
     <article v-if="showLatestBlock" class="section-card latest-block">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Latest Snapshot</span>
+          <span class="section-eyebrow">最近结果</span>
           <h2 class="page-title" style="margin-top: 16px;">
-            Recommended Track: {{ latest.recommendedTrack }}
+            推荐方向：{{ displayTrack(latest.recommendedTrack) }}
           </h2>
           <p v-if="latest.summaryText" class="page-subtitle" style="margin-top: 16px;">
             {{ latest.summaryText }}
@@ -162,9 +191,9 @@ onMounted(loadAll);
         </div>
       </div>
       <div class="action-row">
-        <RouterLink to="/timeline" class="app-link">Open Timeline</RouterLink>
+        <RouterLink to="/timeline" class="app-link">查看时间线</RouterLink>
         <button type="button" class="ghost-btn" @click="resetForm">
-          Start New Submission
+          重新开始
         </button>
       </div>
     </article>
@@ -172,23 +201,23 @@ onMounted(loadAll);
     <article class="section-card">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Question Set</span>
-          <h2 class="page-title" style="margin-top: 16px;">Select one option per question.</h2>
+          <span class="section-eyebrow">测评题目</span>
+          <h2 class="page-title" style="margin-top: 16px;">每题选择一个最符合你的选项。</h2>
           <p class="page-subtitle" style="margin-top: 16px;">
-            Submit stays locked until every active question has a recorded answer.
+            需要完成全部题目作答后，才可以提交测评。
           </p>
         </div>
       </div>
 
-      <div v-if="loading.questions" class="empty-state">Loading assessment questions...</div>
+      <div v-if="loading.questions" class="empty-state">正在加载测评题目...</div>
       <div v-else-if="error.questions" class="field-grid">
         <p class="field-error" role="alert">{{ error.questions }}</p>
         <button type="button" class="ghost-btn" @click="loadQuestions">
-          Retry
+          重试
         </button>
       </div>
       <div v-else-if="!questionSet.questions.length" class="empty-state">
-        No questions are configured yet. Please try again later.
+        暂未配置测评题目，请稍后再试。
       </div>
       <form v-else class="question-stack" @submit.prevent="submit">
         <fieldset
@@ -235,10 +264,10 @@ onMounted(loadAll);
             data-test="assessment-submit"
             :disabled="!isComplete || loading.submit"
           >
-            {{ loading.submit ? "Submitting..." : "Submit Assessment" }}
+            {{ loading.submit ? "提交中..." : "提交测评" }}
           </button>
           <span class="meta-copy">
-            {{ isComplete ? "Ready to submit." : "Select answers for every question to unlock submission." }}
+            {{ isComplete ? "可以提交了。" : "完成全部题目后即可提交。" }}
           </span>
         </div>
 
@@ -249,9 +278,9 @@ onMounted(loadAll);
     <article v-if="result?.hasResult" class="section-card result-card" data-test="assessment-result">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Result Desk</span>
+          <span class="section-eyebrow">测评结果</span>
           <h2 class="page-title" style="margin-top: 16px;">
-            Recommended Track: {{ result.recommendedTrack }}
+            推荐方向：{{ displayTrack(result.recommendedTrack) }}
           </h2>
           <p v-if="result.summaryText" class="page-subtitle" style="margin-top: 16px;">
             {{ result.summaryText }}
@@ -261,33 +290,33 @@ onMounted(loadAll);
 
       <div class="result-grid">
         <div class="panel-card result-panel">
-          <p class="result-panel__label">Scores</p>
+          <p class="result-panel__label">评分概览</p>
           <dl class="score-list" v-if="result.scores">
             <div class="score-row">
-              <dt>CAREER</dt>
+              <dt>就业</dt>
               <dd>{{ result.scores.career }}</dd>
             </div>
             <div class="score-row">
-              <dt>EXAM</dt>
+              <dt>考研</dt>
               <dd>{{ result.scores.exam }}</dd>
             </div>
             <div class="score-row">
-              <dt>ABROAD</dt>
+              <dt>留学</dt>
               <dd>{{ result.scores.abroad }}</dd>
             </div>
           </dl>
-          <p v-else class="muted-copy">Score snapshot unavailable.</p>
+          <p v-else class="muted-copy">暂未生成分数快照。</p>
         </div>
 
         <div class="panel-card result-panel">
-          <p class="result-panel__label">Ranking</p>
+          <p class="result-panel__label">方向排序</p>
           <ol class="ranking-list" v-if="result.ranking?.length">
             <li v-for="item in result.ranking" :key="item.track">
-              <span class="ranking-track">{{ item.track }}</span>
+              <span class="ranking-track">{{ displayTrack(item.track) }}</span>
               <span class="ranking-score">{{ item.score }}</span>
             </li>
           </ol>
-          <p v-else class="muted-copy">Ranking unavailable.</p>
+          <p v-else class="muted-copy">暂未生成排序结果。</p>
         </div>
       </div>
 
@@ -299,22 +328,22 @@ onMounted(loadAll);
           class="app-link"
           @click="goTo(action.path)"
         >
-          {{ action.label || "Next" }}
+          {{ displayActionLabel(action) }}
         </button>
-        <RouterLink to="/timeline" class="ghost-btn">Open Timeline</RouterLink>
+        <RouterLink to="/timeline" class="ghost-btn">查看时间线</RouterLink>
       </div>
     </article>
 
     <article v-if="error.latest" class="section-card">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Latest Snapshot</span>
-          <h2 class="page-title" style="margin-top: 16px;">Latest result unavailable</h2>
+          <span class="section-eyebrow">最近结果</span>
+          <h2 class="page-title" style="margin-top: 16px;">最近结果暂不可用</h2>
           <p class="page-subtitle" style="margin-top: 16px;">{{ error.latest }}</p>
         </div>
       </div>
       <button type="button" class="ghost-btn" :disabled="loading.latest" @click="loadLatest">
-        Retry latest lookup
+        重新获取最近结果
       </button>
     </article>
   </section>
@@ -521,4 +550,3 @@ onMounted(loadAll);
   }
 }
 </style>
-

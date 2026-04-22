@@ -89,6 +89,9 @@ test("loads decision questions and blocks submit until all answers are selected"
   const wrapper = mountView();
   await flushPromises();
 
+  expect(wrapper.text()).toContain("方向测评");
+  expect(wrapper.text()).toContain("每题选择一个最符合你的选项。");
+
   const submitButton = wrapper.find('[data-test="assessment-submit"]');
   expect(submitButton.attributes("disabled")).toBeDefined();
 
@@ -103,5 +106,6 @@ test("loads decision questions and blocks submit until all answers are selected"
 
   expect(submitDecisionAnswers).toHaveBeenCalledTimes(1);
   expect(wrapper.find('[data-test="assessment-result"]').exists()).toBe(true);
-  expect(wrapper.text()).toContain("Recommended Track: EXAM");
+  expect(wrapper.text()).toContain("推荐方向：考研");
+  expect(wrapper.text()).toContain("方向排序");
 });

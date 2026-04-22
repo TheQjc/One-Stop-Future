@@ -16,10 +16,15 @@ const activeTrack = ref("EXAM");
 const initialized = ref(false);
 
 const supportedTracks = [
-  { code: "CAREER", label: "Career" },
-  { code: "EXAM", label: "Exam" },
-  { code: "ABROAD", label: "Abroad" },
+  { code: "CAREER", label: "就业" },
+  { code: "EXAM", label: "考研" },
+  { code: "ABROAD", label: "留学" },
 ];
+
+const trackLabelMap = supportedTracks.reduce((map, item) => ({
+  ...map,
+  [item.code]: item.label,
+}), {});
 
 const explicitAnchorDate = computed(() => {
   const raw = route.query?.anchorDate;
@@ -54,7 +59,7 @@ async function loadLatest() {
       activeTrack.value = latest.value.recommendedTrack;
     }
   } catch (e) {
-    errorMessage.value = e.message || "Latest assessment lookup failed.";
+    errorMessage.value = e.message || "最近测评结果获取失败。";
     latest.value = null;
   } finally {
     loading.value.latest = false;
@@ -76,7 +81,7 @@ async function loadTimeline() {
       ...(explicitAnchorDate.value ? { anchorDate: explicitAnchorDate.value } : {}),
     });
   } catch (e) {
-    errorMessage.value = e.message || "Timeline failed to load. Please retry.";
+    errorMessage.value = e.message || "时间线加载失败，请重试。";
     timeline.value = null;
   } finally {
     loading.value.timeline = false;
@@ -88,6 +93,10 @@ function selectTrack(track) {
     return;
   }
   activeTrack.value = track;
+}
+
+function displayTrack(track) {
+  return trackLabelMap[track] || track || "未确定";
 }
 
 async function retry() {
@@ -118,40 +127,40 @@ onMounted(async () => {
   <section class="page-stack">
     <article class="section-card timeline-hero">
       <div class="timeline-hero__copy">
-        <span class="section-eyebrow">Decision Desk</span>
-        <h1 class="hero-title" style="margin-top: 18px;">Timeline</h1>
+        <span class="section-eyebrow">决策支持</span>
+        <h1 class="hero-title" style="margin-top: 18px;">成长时间线</h1>
         <hr class="editorial-rule" />
         <p class="hero-copy">
-          The timeline is anchored to your latest assessment session date, unless you provide an explicit anchor.
-          Track tabs switch the plan without the backend guessing your direction.
+          时间线会优先以你最近一次测评会话日期作为起点；如果你手动传入锚点日期，也会按这个日期生成计划。
+          切换方向只会切换对应计划，不会改动时间锚点。
         </p>
       </div>
 
       <div class="timeline-hero__panel">
         <div class="panel-card timeline-hero__stat">
-          <span class="timeline-hero__label">Anchor</span>
-          <strong>{{ timeline?.anchorDate || explicitAnchorDate || "Assessment" }}</strong>
+          <span class="timeline-hero__label">起始锚点</span>
+          <strong>{{ timeline?.anchorDate || explicitAnchorDate || "测评结果" }}</strong>
         </div>
         <div class="panel-card timeline-hero__stat">
-          <span class="timeline-hero__label">Active Track</span>
-          <strong>{{ activeTrack }}</strong>
+          <span class="timeline-hero__label">当前方向</span>
+          <strong>{{ displayTrack(activeTrack) }}</strong>
         </div>
-        <RouterLink to="/assessment" class="app-link">Open Assessment</RouterLink>
+        <RouterLink to="/assessment" class="app-link">前往方向测评</RouterLink>
       </div>
     </article>
 
     <article class="section-card">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Tracks</span>
-          <h2 class="page-title" style="margin-top: 16px;">Switch the track, keep the anchor stable.</h2>
+          <span class="section-eyebrow">方向切换</span>
+          <h2 class="page-title" style="margin-top: 16px;">切换方向时，时间锚点保持不变。</h2>
           <p class="page-subtitle" style="margin-top: 16px;">
-            Tabs stay interactive, but the desk will not fetch milestones until an anchor exists.
+            只有在存在锚点日期时，系统才会继续拉取对应方向的阶段节点。
           </p>
         </div>
       </div>
 
-      <div class="track-tabs" role="tablist" aria-label="Timeline track tabs">
+      <div class="track-tabs" role="tablist" aria-label="时间线方向切换">
         <button
           v-for="track in supportedTracks"
           :key="track.code"
@@ -166,28 +175,28 @@ onMounted(async () => {
         </button>
       </div>
 
-      <div v-if="loading.latest" class="empty-state">Loading latest assessment snapshot...</div>
+      <div v-if="loading.latest" class="empty-state">正在加载最近测评结果...</div>
       <div v-else-if="errorMessage" class="field-grid">
         <p class="field-error" role="alert">{{ errorMessage }}</p>
         <button type="button" class="ghost-btn" :disabled="loading.timeline || loading.latest" @click="retry">
-          Retry
+          重试
         </button>
       </div>
       <div v-else-if="assessmentRequired" class="empty-state assessment-required" data-test="timeline-empty">
-        <h3 class="assessment-required__title">Complete the assessment first</h3>
+        <h3 class="assessment-required__title">请先完成方向测评</h3>
         <p class="assessment-required__copy">
-          The timeline needs an anchor. Submit the assessment to generate a session date, then return here.
+          时间线需要一个起始锚点。先提交方向测评生成会话日期，再回来查看你的阶段计划。
         </p>
-        <RouterLink to="/assessment" class="app-btn">Go to Assessment</RouterLink>
+        <RouterLink to="/assessment" class="app-btn">前往方向测评</RouterLink>
       </div>
       <div v-else-if="canFetchTimeline && !timeline" class="empty-state">
-        Loading timeline milestones...
+        正在加载时间线节点...
       </div>
       <div v-else-if="loading.timeline" class="empty-state">
-        Loading timeline milestones...
+        正在加载时间线节点...
       </div>
       <div v-else-if="!timelineItems.length" class="empty-state">
-        No milestones have been configured for this track yet.
+        当前方向暂未配置时间线节点。
       </div>
       <div v-else class="milestone-grid" data-test="timeline-items">
         <article
@@ -202,7 +211,7 @@ onMounted(async () => {
             <span class="milestone-card__date">
               {{ item.targetDate }}
               <span class="milestone-card__days">
-                / {{ item.remainingDays }} days
+                / 剩余 {{ item.remainingDays }} 天
               </span>
             </span>
           </div>

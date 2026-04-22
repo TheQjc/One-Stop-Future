@@ -4,9 +4,14 @@ import { RouterLink } from "vue-router";
 import { compareDecisionSchools, listDecisionSchools } from "../api/decision.js";
 
 const supportedTracks = [
-  { code: "EXAM", label: "Exam" },
-  { code: "ABROAD", label: "Abroad" },
+  { code: "EXAM", label: "考研" },
+  { code: "ABROAD", label: "留学" },
 ];
+
+const trackLabelMap = supportedTracks.reduce((map, item) => ({
+  ...map,
+  [item.code]: item.label,
+}), {});
 
 const track = ref("EXAM");
 const keyword = ref("");
@@ -31,6 +36,10 @@ const canCompare = computed(() => selectedCount.value >= 2 && selectedCount.valu
 
 const chartSeries = computed(() => compareResult.value?.chartSeries ?? []);
 const hasChartSeries = computed(() => chartSeries.value.length > 0);
+
+function displayTrack(code) {
+  return trackLabelMap[code] || code || "未确定";
+}
 
 function clearCompareState() {
   compareResult.value = null;
@@ -60,7 +69,7 @@ function toggleSelected(id) {
   }
 
   if (next.length >= 4) {
-    error.limit = "Select at most 4 schools.";
+    error.limit = "最多选择 4 所学校。";
     return;
   }
 
@@ -81,7 +90,7 @@ async function loadSchools() {
     });
     candidates.value = response.schools || [];
   } catch (e) {
-    error.list = e.message || "School candidates failed to load. Please retry.";
+    error.list = e.message || "学校候选列表加载失败，请重试。";
   } finally {
     loading.list = false;
   }
@@ -99,7 +108,7 @@ async function submitCompare() {
   try {
     compareResult.value = await compareDecisionSchools({ schoolIds: selectedIds.value });
   } catch (e) {
-    error.compare = e.message || "Compare failed. Please retry.";
+    error.compare = e.message || "对比失败，请重试。";
   } finally {
     loading.compare = false;
   }
@@ -128,41 +137,40 @@ onMounted(loadSchools);
   <section class="page-stack">
     <article class="section-card compare-hero">
       <div class="compare-hero__copy">
-        <span class="section-eyebrow">Decision Desk</span>
-        <h1 class="hero-title" style="margin-top: 18px;">School Compare</h1>
+        <span class="section-eyebrow">决策支持</span>
+        <h1 class="hero-title" style="margin-top: 18px;">院校对比</h1>
         <hr class="editorial-rule" />
         <p class="hero-copy">
-          Pick 2 to 4 candidates, then render a deterministic comparison table plus a lightweight chart strip.
-          Missing values are shown explicitly so the desk stays honest.
+          选择 2 到 4 所候选院校后，系统会生成稳定的对比表和简明图表，缺失值也会明确展示，方便你真实判断。
         </p>
       </div>
 
       <div class="compare-hero__panel">
         <div class="panel-card compare-hero__stat">
-          <span class="compare-hero__label">Track</span>
-          <strong>{{ track }}</strong>
+          <span class="compare-hero__label">当前方向</span>
+          <strong>{{ displayTrack(track) }}</strong>
         </div>
         <div class="panel-card compare-hero__stat">
-          <span class="compare-hero__label">Selected</span>
+          <span class="compare-hero__label">已选学校</span>
           <strong>{{ selectedCount }}/4</strong>
         </div>
-        <RouterLink to="/timeline" class="ghost-btn">Back to Timeline</RouterLink>
+        <RouterLink to="/timeline" class="ghost-btn">返回时间线</RouterLink>
       </div>
     </article>
 
     <article class="section-card">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Candidates</span>
-          <h2 class="page-title" style="margin-top: 16px;">Search and select 2-4 schools.</h2>
+          <span class="section-eyebrow">候选院校</span>
+          <h2 class="page-title" style="margin-top: 16px;">搜索并选择 2 到 4 所学校。</h2>
           <p class="page-subtitle" style="margin-top: 16px;">
-            Track switching resets selection to avoid mixed-domain comparisons.
+            切换方向时会自动清空选择，避免跨领域混合对比。
           </p>
         </div>
       </div>
 
       <div class="compare-toolbar">
-        <div class="track-tabs" role="tablist" aria-label="School track tabs">
+        <div class="track-tabs" role="tablist" aria-label="院校对比方向切换">
           <button
             v-for="t in supportedTracks"
             :key="t.code"
@@ -183,25 +191,25 @@ onMounted(loadSchools);
             v-model="keyword"
             name="keyword"
             class="field-control"
-            placeholder="Search by name or region..."
+            placeholder="按学校名称或地区搜索..."
             :disabled="loading.list"
           />
           <button type="submit" class="ghost-btn" :disabled="loading.list">
-            {{ loading.list ? "Loading..." : "Search" }}
+            {{ loading.list ? "加载中..." : "搜索" }}
           </button>
           <button type="button" class="ghost-btn" :disabled="loading.list || loading.compare" @click="keyword = ''; loadSchools();">
-            Reset
+            重置
           </button>
         </form>
       </div>
 
-      <div v-if="loading.list" class="empty-state">Loading school candidates...</div>
+      <div v-if="loading.list" class="empty-state">正在加载候选院校...</div>
       <div v-else-if="error.list" class="field-grid">
         <p class="field-error" role="alert">{{ error.list }}</p>
-        <button type="button" class="ghost-btn" @click="loadSchools">Retry</button>
+        <button type="button" class="ghost-btn" @click="loadSchools">重试</button>
       </div>
       <div v-else-if="!candidates.length" class="empty-state">
-        No schools matched the current query. Reset and broaden the search.
+        当前条件下没有匹配学校，重置后再试试更宽泛的搜索。
       </div>
       <div v-else class="candidate-grid">
         <button
@@ -218,7 +226,7 @@ onMounted(loadSchools);
             <span class="candidate-card__tier">{{ school.tierLabel }}</span>
           </div>
           <p class="candidate-card__meta">
-            {{ school.region }} · {{ school.track }}
+            {{ school.region }} / {{ displayTrack(school.track) }}
           </p>
         </button>
       </div>
@@ -231,15 +239,15 @@ onMounted(loadSchools);
           :disabled="!canCompare"
           @click="submitCompare"
         >
-          {{ loading.compare ? "Comparing..." : "Compare Selected" }}
+          {{ loading.compare ? "对比中..." : "开始对比" }}
         </button>
         <button type="button" class="ghost-btn" :disabled="loading.compare" @click="resetSelection">
-          Clear Selection
+          清空选择
         </button>
         <span v-if="error.limit" class="field-error">{{ error.limit }}</span>
         <span v-else-if="error.compare" class="field-error">{{ error.compare }}</span>
         <span v-else class="meta-copy">
-          {{ selectedCount < 2 ? "Pick at least 2 schools to run the comparison." : "Ready to compare." }}
+          {{ selectedCount < 2 ? "至少选择 2 所学校后才能开始对比。" : "可以开始对比了。" }}
         </span>
       </div>
     </article>
@@ -247,8 +255,8 @@ onMounted(loadSchools);
     <article v-if="compareResult" class="section-card" data-test="compare-result">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Comparison</span>
-          <h2 class="page-title" style="margin-top: 16px;">Side-by-side table + charts.</h2>
+          <span class="section-eyebrow">对比结果</span>
+          <h2 class="page-title" style="margin-top: 16px;">并排表格与图表概览。</h2>
           <p v-if="compareResult.highlightSummary" class="page-subtitle" style="margin-top: 16px;" data-test="highlight">
             {{ compareResult.highlightSummary }}
           </p>
@@ -256,9 +264,9 @@ onMounted(loadSchools);
       </div>
 
       <div class="panel-card chart-panel" data-test="chart-panel">
-        <p class="chart-panel__label">Chart Strip</p>
+        <p class="chart-panel__label">图表概览</p>
         <div v-if="!hasChartSeries" class="empty-state chart-empty" data-test="empty-chart">
-          No chartable metrics are available for the selected schools yet.
+          所选学校暂时没有可生成图表的指标。
         </div>
         <div v-else class="chart-grid">
           <section
@@ -290,7 +298,7 @@ onMounted(loadSchools);
         <table class="app-table compare-table">
           <thead>
             <tr>
-              <th>Metric</th>
+              <th>指标</th>
               <th
                 v-for="school in compareResult.schools"
                 :key="school.schoolId"

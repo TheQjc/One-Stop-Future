@@ -4,41 +4,41 @@ import { RouterLink } from "vue-router";
 import { getAnalyticsSummary } from "../api/analytics.js";
 
 const supportedPeriods = [
-  { code: "7D", label: "Last 7 days" },
-  { code: "30D", label: "Last 30 days" },
+  { code: "7D", label: "近7天" },
+  { code: "30D", label: "近30天" },
 ];
 
 const trendDefinitions = [
   {
     key: "posts",
-    label: "Published Posts",
-    eyebrow: "Community",
+    label: "发布帖子",
+    eyebrow: "社区",
     tone: "posts",
   },
   {
     key: "jobs",
-    label: "Active Jobs",
-    eyebrow: "Career",
+    label: "活跃岗位",
+    eyebrow: "就业",
     tone: "jobs",
   },
   {
     key: "resources",
-    label: "Published Resources",
-    eyebrow: "Resources",
+    label: "公开资料",
+    eyebrow: "资料",
     tone: "resources",
   },
   {
     key: "assessments",
-    label: "Assessment Sessions",
-    eyebrow: "Decision",
+    label: "测评会话",
+    eyebrow: "决策",
     tone: "assessments",
   },
 ];
 
 const trackLabelMap = {
-  CAREER: "Career",
-  EXAM: "Exam",
-  ABROAD: "Abroad",
+  CAREER: "就业",
+  EXAM: "考研",
+  ABROAD: "留学",
 };
 
 const loading = ref(true);
@@ -65,24 +65,24 @@ const summary = ref({
 
 const overviewCards = computed(() => [
   {
-    label: "Published posts",
+    label: "已发布帖子",
     value: summary.value.publicOverview?.publishedPostCount ?? 0,
-    hint: "Public community notes now visible across the platform.",
+    hint: "当前公开展示的社区经验内容数量。",
   },
   {
-    label: "Active jobs",
+    label: "活跃岗位",
     value: summary.value.publicOverview?.activeJobCount ?? 0,
-    hint: "Current live roles under the public listing rules.",
+    hint: "目前仍在公开列表中的岗位数量。",
   },
   {
-    label: "Published resources",
+    label: "已发布资料",
     value: summary.value.publicOverview?.publishedResourceCount ?? 0,
-    hint: "Study and preparation resources in the public desk.",
+    hint: "当前公开可见的备考与申请资料数量。",
   },
   {
-    label: "Assessment sessions",
+    label: "测评会话",
     value: summary.value.publicOverview?.assessmentSessionCount ?? 0,
-    hint: "Saved decision sessions across all participants.",
+    hint: "所有参与者已保存的方向测评次数。",
   },
 ]);
 
@@ -128,7 +128,7 @@ const personalSnapshot = computed(() => summary.value.personalSnapshot || null);
 const personalHistory = computed(() => summary.value.personalHistory || []);
 const nextActions = computed(() => summary.value.nextActions || []);
 const selectedPeriodLabel = computed(() => (
-  supportedPeriods.find((item) => item.code === period.value)?.label || "Last 30 days"
+  supportedPeriods.find((item) => item.code === period.value)?.label || "近30天"
 ));
 
 function formatShortDate(value) {
@@ -142,8 +142,8 @@ function formatShortDate(value) {
     return value;
   }
 
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
+  return new Intl.DateTimeFormat("zh-CN", {
+    month: "numeric",
     day: "numeric",
   }).format(date);
 }
@@ -156,7 +156,7 @@ async function loadSummary(nextPeriod = period.value) {
   try {
     summary.value = await getAnalyticsSummary({ period: nextPeriod });
   } catch (error) {
-    errorMessage.value = error.message || "Analytics summary failed to load. Please retry.";
+    errorMessage.value = error.message || "分析概览加载失败，请重试。";
   } finally {
     loading.value = false;
   }
@@ -170,6 +170,28 @@ function switchPeriod(nextPeriod) {
   loadSummary(nextPeriod);
 }
 
+function displayTrack(track) {
+  return trackLabelMap[track] || track || "未确定";
+}
+
+function displayActionLabel(action) {
+  if (!action) {
+    return "查看详情";
+  }
+
+  if (action.code === "START_ASSESSMENT" || action.path === "/assessment") {
+    return "开始测评";
+  }
+  if (action.code === "OPEN_TIMELINE" || action.path === "/timeline") {
+    return "查看时间线";
+  }
+  if (action.code === "COMPARE_SCHOOLS" || action.path === "/schools/compare") {
+    return "对比院校";
+  }
+
+  return action.label || "查看详情";
+}
+
 onMounted(() => {
   loadSummary("30D");
 });
@@ -179,25 +201,24 @@ onMounted(() => {
   <section class="page-stack">
     <article class="section-card analytics-hero">
       <div class="analytics-hero__copy">
-        <span class="section-eyebrow">Decision Desk</span>
-        <h1 class="hero-title" style="margin-top: 18px;">Analytics</h1>
+        <span class="section-eyebrow">决策支持</span>
+        <h1 class="hero-title" style="margin-top: 18px;">数据看板</h1>
         <hr class="editorial-rule" />
         <p class="hero-copy">
-          A public reading of how the platform is moving right now: content supply, assessment
-          activity, and the current direction mix across career, exam, and abroad.
+          从公开内容供给、测评活跃度和三类方向分布，快速看清平台当前的整体动向。
         </p>
         <div class="action-row analytics-hero__actions">
-          <RouterLink to="/" class="ghost-btn">Back Home</RouterLink>
-          <RouterLink to="/assessment" class="app-link">Open Assessment</RouterLink>
+          <RouterLink to="/" class="ghost-btn">返回首页</RouterLink>
+          <RouterLink to="/assessment" class="app-link">前往方向测评</RouterLink>
         </div>
       </div>
 
       <div class="analytics-hero__panel">
-        <div v-if="loading" class="empty-state">Loading analytics summary...</div>
+        <div v-if="loading" class="empty-state">正在加载数据概览...</div>
         <div v-else-if="errorMessage" class="field-grid">
           <p class="field-error" role="alert">{{ errorMessage }}</p>
           <button type="button" class="ghost-btn" @click="loadSummary(period)">
-            Retry
+            重试
           </button>
         </div>
         <div v-else class="stats-grid analytics-overview-grid">
@@ -217,13 +238,13 @@ onMounted(() => {
     <article class="section-card">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Public Trends</span>
-          <h2 class="page-title" style="margin-top: 16px;">Platform activity over {{ selectedPeriodLabel.toLowerCase() }}.</h2>
+          <span class="section-eyebrow">平台趋势</span>
+          <h2 class="page-title" style="margin-top: 16px;">{{ selectedPeriodLabel }}的平台活跃情况。</h2>
           <p class="page-subtitle" style="margin-top: 16px;">
-            Period switching always refetches backend-owned analytics. The desk does not fake the filter in the client.
+            切换周期会重新请求后端统计，前端不会在本地伪造筛选结果。
           </p>
         </div>
-        <div class="period-switcher" role="tablist" aria-label="Analytics period tabs">
+        <div class="period-switcher" role="tablist" aria-label="分析周期切换">
           <button
             v-for="item in supportedPeriods"
             :key="item.code"
@@ -234,18 +255,18 @@ onMounted(() => {
             :aria-selected="period === item.code"
             @click="switchPeriod(item.code)"
           >
-            {{ item.code }}
+            {{ item.label }}
           </button>
         </div>
       </div>
 
-      <div v-if="loading" class="empty-state">Loading trend lines...</div>
+      <div v-if="loading" class="empty-state">正在加载趋势数据...</div>
       <div v-else-if="errorMessage" class="empty-state">
-        Trend data will reappear after the summary reloads.
+        分析概览恢复后，这里的趋势数据会同步显示。
       </div>
       <div v-else class="field-grid">
         <div v-if="!hasTrendActivity" class="empty-state analytics-empty">
-          No public activity was recorded for this period yet. Zero-filled buckets are still shown below.
+          当前周期还没有记录到公开活跃数据，下方仍会保留零值趋势桶。
         </div>
 
         <div class="trend-grid">
@@ -262,10 +283,10 @@ onMounted(() => {
               </div>
               <div class="trend-card__stat">
                 <strong>{{ card.total }}</strong>
-                <span>{{ card.activeDays }} active days</span>
+                <span>{{ card.activeDays }} 天有活跃</span>
               </div>
             </div>
-            <div class="trend-card__bars" :aria-label="`${card.label} spark bars`">
+            <div class="trend-card__bars" :aria-label="`${card.label}趋势柱状图`">
               <div
                 v-for="point in card.points"
                 :key="`${card.key}-${point.date}`"
@@ -284,15 +305,15 @@ onMounted(() => {
       <article class="section-card">
         <div class="section-header">
           <div>
-            <span class="section-eyebrow">Decision Mix</span>
-            <h2 class="page-title" style="margin-top: 16px;">Current recommendation mix across the latest saved sessions.</h2>
+            <span class="section-eyebrow">方向分布</span>
+            <h2 class="page-title" style="margin-top: 16px;">最近一次已保存测评结果的推荐分布。</h2>
             <p class="page-subtitle" style="margin-top: 16px;">
-              Each participant contributes only the latest saved assessment result, which keeps retakes from distorting the public board.
+              每位参与者只计入最近一次已保存结果，避免重复测评放大权重。
             </p>
           </div>
         </div>
 
-        <div v-if="loading" class="empty-state">Loading decision mix...</div>
+        <div v-if="loading" class="empty-state">正在加载方向分布...</div>
         <div v-else class="distribution-grid">
           <article
             v-for="track in distributionCards"
@@ -308,90 +329,89 @@ onMounted(() => {
               <span class="distribution-card__fill" :style="{ width: track.width }" />
             </div>
             <p class="meta-copy">
-              {{ track.count }} people in the latest-session mix
+              最近一次结果中有 {{ track.count }} 人
             </p>
           </article>
         </div>
 
         <p class="meta-copy analytics-participants">
-          Participant base: {{ summary.decisionDistribution?.participantCount ?? 0 }}
+          参与人数基数：{{ summary.decisionDistribution?.participantCount ?? 0 }}
         </p>
       </article>
 
       <article class="section-card">
         <div class="section-header">
           <div>
-            <span class="section-eyebrow">Personal Desk</span>
-            <h2 class="page-title" style="margin-top: 16px;">Your path analysis sits beside the public board.</h2>
+            <span class="section-eyebrow">我的分析</span>
+            <h2 class="page-title" style="margin-top: 16px;">你的个人路径分析会和公共看板一起展示。</h2>
             <p class="page-subtitle" style="margin-top: 16px;">
-              This panel stays guest-safe and turns into a personal desk once you log in and run the assessment.
+              未登录时这里会保持游客模式，登录并完成测评后才会展示你的个人结果。
             </p>
           </div>
         </div>
 
-        <div v-if="loading" class="empty-state">Loading personal desk...</div>
+        <div v-if="loading" class="empty-state">正在加载个人分析...</div>
         <div v-else-if="personalStatus === 'ANONYMOUS'" class="panel-card personal-card">
-          <p class="personal-card__eyebrow">Guest mode</p>
-          <h3 class="personal-card__title">Log in to unlock your personal path analysis.</h3>
+          <p class="personal-card__eyebrow">游客模式</p>
+          <h3 class="personal-card__title">登录后查看你的个人路径分析。</h3>
           <p class="meta-copy">
-            The public board remains open to everyone. Sign in when you want a personal recommendation, recent assessment history,
-            and guided next steps.
+            公开看板对所有人开放。登录后可查看你的个人推荐、最近测评记录和下一步建议。
           </p>
           <div class="action-row">
-            <RouterLink to="/login" class="app-btn">Log In</RouterLink>
-            <RouterLink to="/register" class="ghost-btn">Create Account</RouterLink>
+            <RouterLink to="/login" class="app-btn">登录</RouterLink>
+            <RouterLink to="/register" class="ghost-btn">注册</RouterLink>
           </div>
         </div>
         <div v-else-if="personalStatus === 'ERROR'" class="panel-card personal-card" data-test="personal-error">
-          <p class="personal-card__eyebrow">Personal desk</p>
-          <h3 class="personal-card__title">Personal analytics is temporarily unavailable.</h3>
+          <p class="personal-card__eyebrow">个人分析</p>
+          <h3 class="personal-card__title">个人分析暂时不可用。</h3>
           <p class="meta-copy">
-            {{ summary.personalMessage || "Personal analytics temporarily unavailable." }}
+            {{ summary.personalMessage || "个人分析暂时不可用。" }}
           </p>
           <p class="meta-copy">
-            Public analytics is still live above. You can retry later.
+            上方公开数据仍可正常查看，稍后可以再试。
           </p>
         </div>
         <div v-else-if="personalStatus === 'EMPTY'" class="panel-card personal-card" data-test="personal-empty">
-          <p class="personal-card__eyebrow">Personal desk</p>
-          <h3 class="personal-card__title">No assessment history yet.</h3>
+          <p class="personal-card__eyebrow">个人分析</p>
+          <h3 class="personal-card__title">还没有测评记录。</h3>
           <p class="meta-copy">
-            Run the assessment once to generate a recommendation snapshot and unlock your personal history here.
+            完成一次方向测评后，这里会展示你的推荐结果和历史记录。
           </p>
           <div class="action-row">
-            <RouterLink to="/assessment" class="app-btn">Start Assessment</RouterLink>
+            <RouterLink to="/assessment" class="app-btn">开始测评</RouterLink>
           </div>
         </div>
         <div v-else-if="personalStatus === 'READY'" class="personal-ready" data-test="personal-ready">
           <article class="panel-card personal-ready__snapshot">
-            <p class="personal-card__eyebrow">Latest snapshot</p>
+            <p class="personal-card__eyebrow">最近结果</p>
             <h3 class="personal-card__title">
-              Recommended: {{ personalSnapshot?.recommendedTrack || "—" }}
+              推荐方向：{{ displayTrack(personalSnapshot?.recommendedTrack) || "—" }}
             </h3>
             <p v-if="personalSnapshot?.summaryText" class="meta-copy">
               {{ personalSnapshot.summaryText }}
             </p>
             <p v-if="personalSnapshot?.sessionDate" class="meta-copy">
-              Session date: {{ personalSnapshot.sessionDate }}
+              测评日期：{{ personalSnapshot.sessionDate }}
             </p>
             <div v-if="personalSnapshot?.scores" class="personal-ready__scores">
               <div class="personal-ready__score">
-                <span>Career</span>
+                <span>就业</span>
                 <strong>{{ personalSnapshot.scores.career }}</strong>
               </div>
               <div class="personal-ready__score">
-                <span>Exam</span>
+                <span>考研</span>
                 <strong>{{ personalSnapshot.scores.exam }}</strong>
               </div>
               <div class="personal-ready__score">
-                <span>Abroad</span>
+                <span>留学</span>
                 <strong>{{ personalSnapshot.scores.abroad }}</strong>
               </div>
             </div>
           </article>
 
           <article class="panel-card personal-ready__actions" v-if="nextActions.length">
-            <p class="personal-card__eyebrow">Next actions</p>
+            <p class="personal-card__eyebrow">下一步建议</p>
             <div class="chip-row" style="margin-top: 12px;">
               <RouterLink
                 v-for="action in nextActions"
@@ -399,7 +419,7 @@ onMounted(() => {
                 :to="action.path"
                 class="app-link"
               >
-                {{ action.label }}
+                {{ displayActionLabel(action) }}
               </RouterLink>
             </div>
             <p v-if="nextActions[0]?.description" class="meta-copy" style="margin-top: 14px;">
@@ -408,14 +428,14 @@ onMounted(() => {
           </article>
 
           <article class="panel-card personal-ready__history" v-if="personalHistory.length">
-            <p class="personal-card__eyebrow">Recent sessions</p>
+            <p class="personal-card__eyebrow">最近记录</p>
             <div class="history-table" style="margin-top: 12px;">
               <div class="history-table__head">
-                <span>Date</span>
-                <span>Track</span>
-                <span>Career</span>
-                <span>Exam</span>
-                <span>Abroad</span>
+                <span>日期</span>
+                <span>方向</span>
+                <span>就业</span>
+                <span>考研</span>
+                <span>留学</span>
               </div>
               <div
                 v-for="item in personalHistory"
@@ -423,7 +443,7 @@ onMounted(() => {
                 class="history-table__row"
               >
                 <span>{{ item.sessionDate }}</span>
-                <span>{{ item.recommendedTrack }}</span>
+                <span>{{ displayTrack(item.recommendedTrack) }}</span>
                 <span>{{ item.careerScore }}</span>
                 <span>{{ item.examScore }}</span>
                 <span>{{ item.abroadScore }}</span>
@@ -432,7 +452,7 @@ onMounted(() => {
           </article>
         </div>
         <div v-else class="empty-state">
-          Personal analytics will populate here for authenticated viewers.
+          登录后的个人分析会显示在这里。
         </div>
       </article>
     </div>
