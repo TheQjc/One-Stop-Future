@@ -144,7 +144,7 @@ This plan explicitly does not implement:
 - Create: `backend/src/main/java/com/campus/preview/ApplicationSnapshotPreviewService.java`
 - Create: `backend/src/test/java/com/campus/preview/ApplicationSnapshotPreviewServiceTests.java`
 
-- [ ] **Step 1: Write the failing snapshot-preview-service tests**
+- [x] **Step 1: Write the failing snapshot-preview-service tests**
 
 Create `ApplicationSnapshotPreviewServiceTests` with focused coverage:
 
@@ -238,7 +238,7 @@ class ApplicationSnapshotPreviewServiceTests {
 }
 ```
 
-- [ ] **Step 2: Run the targeted snapshot-preview-service tests and verify failure**
+- [x] **Step 2: Run the targeted snapshot-preview-service tests and verify failure**
 
 Run:
 
@@ -249,7 +249,7 @@ mvn -q "-Dtest=ApplicationSnapshotPreviewServiceTests" test
 
 Expected: FAIL because `ApplicationSnapshotPreviewService` does not exist yet.
 
-- [ ] **Step 3: Implement the snapshot preview service**
+- [x] **Step 3: Implement the snapshot preview service**
 
 Create `ApplicationSnapshotPreviewService` in the preview package so it stays close to the existing preview stack:
 
@@ -328,7 +328,7 @@ Keep the helper methods small and parallel to `ResumePreviewService`:
 - `isPdf(...)` and `isDocx(...)` accept both file extension and content type
 - do not use `updatedAt` in the fingerprint
 
-- [ ] **Step 4: Re-run the targeted snapshot-preview-service tests and verify success**
+- [x] **Step 4: Re-run the targeted snapshot-preview-service tests and verify success**
 
 Run:
 
@@ -345,7 +345,7 @@ Expected: PASS with:
 - cache write on miss
 - unsupported types and conversion failures translated to clear business errors
 
-- [ ] **Step 5: Commit the snapshot-preview-service foundation**
+- [x] **Step 5: Commit the snapshot-preview-service foundation**
 
 ```bash
 git add backend/src/main/java/com/campus/preview/ApplicationSnapshotPreviewService.java backend/src/test/java/com/campus/preview/ApplicationSnapshotPreviewServiceTests.java
@@ -361,7 +361,7 @@ git commit -m "feat: add application snapshot preview service"
 - Modify: `backend/src/main/java/com/campus/mapper/JobApplicationMapper.java`
 - Modify: `backend/src/test/java/com/campus/controller/JobApplicationControllerTests.java`
 
-- [ ] **Step 1: Write the failing applicant-facing controller regressions**
+- [x] **Step 1: Write the failing applicant-facing controller regressions**
 
 Extend `JobApplicationControllerTests`:
 
@@ -447,7 +447,7 @@ void applicantCannotPreviewOrDownloadAnotherUsersSnapshot() throws Exception {
 }
 ```
 
-- [ ] **Step 2: Run the targeted applicant controller tests and verify failure**
+- [x] **Step 2: Run the targeted applicant controller tests and verify failure**
 
 Run:
 
@@ -458,7 +458,7 @@ mvn -q "-Dtest=JobApplicationControllerTests" test
 
 Expected: FAIL because the applicant snapshot preview/download endpoints and list preview metadata do not exist yet.
 
-- [ ] **Step 3: Implement the applicant-facing snapshot contract**
+- [x] **Step 3: Implement the applicant-facing snapshot contract**
 
 Update `MyJobApplicationListResponse`:
 
@@ -572,7 +572,7 @@ public ResponseEntity<InputStreamResource> previewResume(@PathVariable Long id, 
 }
 ```
 
-- [ ] **Step 4: Re-run the targeted applicant controller tests and verify success**
+- [x] **Step 4: Re-run the targeted applicant controller tests and verify success**
 
 Run:
 
@@ -590,7 +590,7 @@ Expected: PASS with:
 - applicant preview rejects unsupported `DOC`
 - ownership boundary enforced for both preview and download
 
-- [ ] **Step 5: Commit the applicant-facing backend contract**
+- [x] **Step 5: Commit the applicant-facing backend contract**
 
 ```bash
 git add backend/src/main/java/com/campus/controller/JobApplicationController.java backend/src/main/java/com/campus/service/JobApplicationService.java backend/src/main/java/com/campus/dto/MyJobApplicationListResponse.java backend/src/main/java/com/campus/mapper/JobApplicationMapper.java backend/src/test/java/com/campus/controller/JobApplicationControllerTests.java
@@ -606,7 +606,7 @@ git commit -m "feat: add applicant snapshot preview endpoints"
 - Modify: `backend/src/main/java/com/campus/mapper/JobApplicationMapper.java`
 - Modify: `backend/src/test/java/com/campus/controller/admin/AdminJobApplicationControllerTests.java`
 
-- [ ] **Step 1: Write the failing admin controller regressions**
+- [x] **Step 1: Write the failing admin controller regressions**
 
 Extend `AdminJobApplicationControllerTests`:
 
@@ -680,7 +680,7 @@ void adminDocSnapshotPreviewIsRejected() throws Exception {
 }
 ```
 
-- [ ] **Step 2: Run the targeted admin controller tests and verify failure**
+- [x] **Step 2: Run the targeted admin controller tests and verify failure**
 
 Run:
 
@@ -691,7 +691,7 @@ mvn -q "-Dtest=AdminJobApplicationControllerTests" test
 
 Expected: FAIL because the admin snapshot preview endpoint and admin preview metadata do not exist yet.
 
-- [ ] **Step 3: Implement the admin snapshot preview contract**
+- [x] **Step 3: Implement the admin snapshot preview contract**
 
 Update `AdminJobApplicationListResponse`:
 
@@ -787,7 +787,7 @@ public ResponseEntity<InputStreamResource> previewResume(@PathVariable Long id) 
 }
 ```
 
-- [ ] **Step 4: Re-run the targeted admin controller tests and verify success**
+- [x] **Step 4: Re-run the targeted admin controller tests and verify success**
 
 Run:
 
@@ -805,7 +805,7 @@ Expected: PASS with:
 - unsupported `DOC` preview rejected cleanly
 - existing admin download behavior still green
 
-- [ ] **Step 5: Commit the admin backend preview contract**
+- [x] **Step 5: Commit the admin backend preview contract**
 
 ```bash
 git add backend/src/main/java/com/campus/controller/admin/AdminJobApplicationController.java backend/src/main/java/com/campus/service/AdminJobApplicationService.java backend/src/main/java/com/campus/dto/AdminJobApplicationListResponse.java backend/src/main/java/com/campus/mapper/JobApplicationMapper.java backend/src/test/java/com/campus/controller/admin/AdminJobApplicationControllerTests.java
@@ -819,7 +819,7 @@ git commit -m "feat: add admin snapshot preview endpoint"
 - Modify: `frontend/src/views/ProfileApplicationsView.vue`
 - Modify: `frontend/src/views/ProfileApplicationsView.spec.js`
 
-- [ ] **Step 1: Write the failing applicant frontend regressions**
+- [x] **Step 1: Write the failing applicant frontend regressions**
 
 Extend `ProfileApplicationsView.spec.js`:
 
@@ -934,7 +934,7 @@ test("preview and download actions call the applicant snapshot helpers", async (
 });
 ```
 
-- [ ] **Step 2: Run the targeted applicant frontend tests and verify failure**
+- [x] **Step 2: Run the targeted applicant frontend tests and verify failure**
 
 Run:
 
@@ -945,7 +945,7 @@ npx vitest run src/views/ProfileApplicationsView.spec.js
 
 Expected: FAIL because the new applicant snapshot helpers and UI actions do not exist yet.
 
-- [ ] **Step 3: Implement the applicant frontend snapshot actions**
+- [x] **Step 3: Implement the applicant frontend snapshot actions**
 
 Update `frontend/src/api/applications.js`:
 
@@ -1021,7 +1021,7 @@ Recommended button block:
 </div>
 ```
 
-- [ ] **Step 4: Re-run the targeted applicant frontend tests and verify success**
+- [x] **Step 4: Re-run the targeted applicant frontend tests and verify success**
 
 Run:
 
@@ -1038,7 +1038,7 @@ Expected: PASS with:
 - download action calling `downloadMyApplicationResume(id)`
 - existing history rendering still green
 
-- [ ] **Step 5: Commit the applicant frontend snapshot actions**
+- [x] **Step 5: Commit the applicant frontend snapshot actions**
 
 ```bash
 git add frontend/src/api/applications.js frontend/src/views/ProfileApplicationsView.vue frontend/src/views/ProfileApplicationsView.spec.js
@@ -1052,7 +1052,7 @@ git commit -m "feat: add snapshot actions to profile applications"
 - Modify: `frontend/src/views/admin/AdminApplicationsView.vue`
 - Modify: `frontend/src/views/admin/AdminApplicationsView.spec.js`
 
-- [ ] **Step 1: Write the failing admin frontend regressions**
+- [x] **Step 1: Write the failing admin frontend regressions**
 
 Extend `AdminApplicationsView.spec.js`:
 
@@ -1155,7 +1155,7 @@ test("preview action calls the admin snapshot preview helper", async () => {
 });
 ```
 
-- [ ] **Step 2: Run the targeted admin frontend tests and verify failure**
+- [x] **Step 2: Run the targeted admin frontend tests and verify failure**
 
 Run:
 
@@ -1166,7 +1166,7 @@ npx vitest run src/views/admin/AdminApplicationsView.spec.js
 
 Expected: FAIL because the admin snapshot preview helper and preview button are not implemented yet.
 
-- [ ] **Step 3: Implement the admin frontend preview action**
+- [x] **Step 3: Implement the admin frontend preview action**
 
 Update `frontend/src/api/admin.js`:
 
@@ -1214,7 +1214,7 @@ Recommended button block:
 
 Render the same preview button in both the desktop table and the mobile card layout.
 
-- [ ] **Step 4: Re-run the targeted admin frontend tests and verify success**
+- [x] **Step 4: Re-run the targeted admin frontend tests and verify success**
 
 Run:
 
@@ -1230,7 +1230,7 @@ Expected: PASS with:
 - preview action calling `previewAdminApplicationResume(id)`
 - existing admin download flow remaining green
 
-- [ ] **Step 5: Commit the admin frontend preview action**
+- [x] **Step 5: Commit the admin frontend preview action**
 
 ```bash
 git add frontend/src/api/admin.js frontend/src/views/admin/AdminApplicationsView.vue frontend/src/views/admin/AdminApplicationsView.spec.js
@@ -1243,7 +1243,7 @@ git commit -m "feat: add snapshot preview to admin applications"
 - Modify: `README.md`
 - Modify: `docs/superpowers/specs/2026-04-22-study-career-platform-phase-aa-application-snapshot-online-preview-design.md`
 
-- [ ] **Step 1: Update the README**
+- [x] **Step 1: Update the README**
 
 Apply the following documentation changes:
 
@@ -1272,7 +1272,7 @@ Suggested wording:
 - `DOC` snapshots remain download-only on both surfaces in this phase
 ```
 
-- [ ] **Step 2: Add the Phase AA validation note to the spec**
+- [x] **Step 2: Add the Phase AA validation note to the spec**
 
 Add a validation note near the top of the Phase AA spec:
 
@@ -1280,7 +1280,7 @@ Add a validation note near the top of the Phase AA spec:
 > **Validation note:** This design was implemented and validated on 2026-04-22 using the approved execution record at `docs/superpowers/plans/2026-04-22-study-career-platform-phase-aa-application-snapshot-online-preview-implementation.md`. Local verification suites now present for this slice are `ApplicationSnapshotPreviewServiceTests`, `JobApplicationControllerTests`, `AdminJobApplicationControllerTests`, `ProfileApplicationsView.spec.js`, and `AdminApplicationsView.spec.js`.
 ```
 
-- [ ] **Step 3: Run the targeted verification suites**
+- [x] **Step 3: Run the targeted verification suites**
 
 Backend:
 
@@ -1306,7 +1306,7 @@ npx vitest run src/views/ProfileApplicationsView.spec.js src/views/admin/AdminAp
 
 Expected: PASS with the new applicant/admin preview button behavior and no regressions to download interactions.
 
-- [ ] **Step 4: Commit the rollout notes**
+- [x] **Step 4: Commit the rollout notes**
 
 ```bash
 git add README.md docs/superpowers/specs/2026-04-22-study-career-platform-phase-aa-application-snapshot-online-preview-design.md
@@ -1315,13 +1315,13 @@ git commit -m "docs: add phase aa snapshot preview rollout notes"
 
 ## Final Verification Checklist
 
-- [ ] `backend/src/test/java/com/campus/preview/ApplicationSnapshotPreviewServiceTests.java`
-- [ ] `backend/src/test/java/com/campus/controller/JobApplicationControllerTests.java`
-- [ ] `backend/src/test/java/com/campus/controller/admin/AdminJobApplicationControllerTests.java`
-- [ ] `backend/src/test/java/com/campus/preview/ResumePreviewServiceTests.java`
-- [ ] `backend/src/test/java/com/campus/config/ResourcePreviewStorageConfigurationTests.java`
-- [ ] `frontend/src/views/ProfileApplicationsView.spec.js`
-- [ ] `frontend/src/views/admin/AdminApplicationsView.spec.js`
+- [x] `backend/src/test/java/com/campus/preview/ApplicationSnapshotPreviewServiceTests.java`
+- [x] `backend/src/test/java/com/campus/controller/JobApplicationControllerTests.java`
+- [x] `backend/src/test/java/com/campus/controller/admin/AdminJobApplicationControllerTests.java`
+- [x] `backend/src/test/java/com/campus/preview/ResumePreviewServiceTests.java`
+- [x] `backend/src/test/java/com/campus/config/ResourcePreviewStorageConfigurationTests.java`
+- [x] `frontend/src/views/ProfileApplicationsView.spec.js`
+- [x] `frontend/src/views/admin/AdminApplicationsView.spec.js`
 
 ## Execution Notes
 

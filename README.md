@@ -604,12 +604,12 @@ Resource statuses:
 42. Log in as the admin `13800000000`, open `/admin/dashboard`, and confirm the page renders a read-only overview.
 43. From both the homepage admin entry and the main nav admin entry, confirm navigation lands on `/admin/dashboard`.
 44. From `/admin/dashboard`, confirm the handoff links route into the existing admin workbenches.
-45. Log in as `13800000001`, open `/profile/resumes`, and upload two resume files.
-46. Open `/jobs/1`, confirm `Source Link` is still present, and submit one in-platform application with a selected resume.
-47. Open `/profile/applications` and confirm the new record shows job title, company, city, status, submitted time, and the resume snapshot title.
-48. Delete the original live resume from `/profile/resumes`, return to `/profile/applications`, and confirm the application record still renders.
-49. Log in as admin `13800000000`, open `/admin/applications`, and confirm the record renders with applicant info and resume snapshot file name.
-50. Download the snapshot resume from `/admin/applications` and confirm the file is still available after the live resume deletion.
+45. Log in as `13800000001`, open `/profile/resumes`, and upload at least one `PDF` or `DOCX` resume.
+46. Open `/jobs/1`, confirm `Source Link` is still present, and submit one in-platform application with that previewable resume.
+47. Open `/profile/applications` and confirm the new record shows job title, company, city, status, submitted time, the resume snapshot title, plus both `Preview` and `Download`.
+48. Use `Preview` from `/profile/applications`, confirm the snapshot opens inline, then delete the original live resume from `/profile/resumes`, return to `/profile/applications`, and confirm the record still renders.
+49. Log in as admin `13800000000`, open `/admin/applications`, and confirm the same record renders with applicant info, resume snapshot file name, and both `Preview` and `Download Resume`.
+50. Use admin `Preview` or `Download Resume` from `/admin/applications` and confirm the snapshot is still available after the live resume deletion.
 51. Return to `/jobs/1` as the applicant and confirm the page still shows the applied state.
 52. Log in as admin `13800000000`, open `/admin/users`, and confirm the list shows total, active, banned, and verified counts.
 53. Ban the normal user `13800000001` from `/admin/users` and confirm the row status becomes `BANNED`.
