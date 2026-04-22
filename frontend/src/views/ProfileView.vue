@@ -33,14 +33,14 @@ const verificationLocked = computed(() => (
 
 const verificationHint = computed(() => {
   if (verificationStatus.value === "VERIFIED") {
-    return "Student verification is complete. No further action is required.";
+    return "学生认证已完成，无需重复提交。";
   }
 
   if (verificationStatus.value === "PENDING") {
-    return "Your verification request is under review. Results will return through notifications.";
+    return "你的认证申请正在审核中，结果会通过通知中心告知。";
   }
 
-  return "Submit your real name and student ID to enter the review queue.";
+  return "提交真实姓名和学号后即可进入审核队列。";
 });
 
 function syncForms() {
@@ -61,7 +61,7 @@ async function initialize() {
 
     syncForms();
   } catch (error) {
-    pageError.value = error.message || "Profile loading failed. Please try again.";
+    pageError.value = error.message || "个人中心加载失败，请稍后重试。";
   } finally {
     loading.value = false;
   }
@@ -72,7 +72,7 @@ async function submitProfile() {
   profileError.value = "";
 
   if (!profileForm.nickname.trim()) {
-    profileError.value = "Nickname is required.";
+    profileError.value = "请填写昵称。";
     return;
   }
 
@@ -83,9 +83,9 @@ async function submitProfile() {
     });
 
     syncForms();
-    profileMessage.value = "Profile updated.";
+    profileMessage.value = "资料已更新。";
   } catch (error) {
-    profileError.value = error.message || "Profile save failed. Please try again.";
+    profileError.value = error.message || "保存资料失败，请稍后重试。";
   }
 }
 
@@ -94,12 +94,12 @@ async function handleSubmitVerification() {
   verificationError.value = "";
 
   if (!verificationForm.realName.trim()) {
-    verificationError.value = "Real name is required.";
+    verificationError.value = "请填写真实姓名。";
     return;
   }
 
   if (!verificationForm.studentId.trim()) {
-    verificationError.value = "Student ID is required.";
+    verificationError.value = "请填写学号。";
     return;
   }
 
@@ -113,9 +113,9 @@ async function handleSubmitVerification() {
 
     userStore.mergeProfile(profile);
     syncForms();
-    verificationMessage.value = "Verification request submitted.";
+    verificationMessage.value = "认证申请已提交。";
   } catch (error) {
-    verificationError.value = error.message || "Verification submission failed. Please try again.";
+    verificationError.value = error.message || "认证提交失败，请稍后重试。";
   } finally {
     verificationSubmitting.value = false;
   }
@@ -129,41 +129,40 @@ onMounted(initialize);
     <article class="section-card">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Profile Desk</span>
-          <h1 class="page-title" style="margin-top: 16px;">Personal Center</h1>
+          <span class="section-eyebrow">个人成长工作台</span>
+          <h1 class="page-title" style="margin-top: 16px;">个人中心</h1>
           <p class="page-subtitle" style="margin-top: 16px;">
-            Manage identity details, review your saved records, and keep the student-verification
-            flow on one working surface.
+            在这里管理身份信息、查看个人记录，并继续处理学生认证相关事项。
           </p>
         </div>
         <RouterLink to="/notifications" class="app-link">
-          Open Notifications
+          查看通知
         </RouterLink>
       </div>
 
-      <div v-if="loading" class="empty-state">Preparing your profile desk...</div>
+      <div v-if="loading" class="empty-state">正在准备你的个人中心...</div>
       <div v-else-if="pageError" class="field-grid">
         <p class="field-error" role="alert">{{ pageError }}</p>
         <button type="button" class="ghost-btn" @click="initialize">
-          Retry
+          重新加载
         </button>
       </div>
       <div v-else class="identity-grid">
         <article class="panel-card identity-card">
-          <p class="identity-card__label">Phone</p>
+          <p class="identity-card__label">手机号</p>
           <strong>{{ userStore.profile?.phone || "--" }}</strong>
         </article>
         <article class="panel-card identity-card">
-          <p class="identity-card__label">Role</p>
+          <p class="identity-card__label">身份角色</p>
           <strong>{{ userStore.roleLabel }}</strong>
         </article>
         <article class="panel-card identity-card">
-          <p class="identity-card__label">Verification</p>
+          <p class="identity-card__label">认证状态</p>
           <VerificationStatusBadge :status="verificationStatus" />
         </article>
         <article class="panel-card identity-card">
-          <p class="identity-card__label">Student ID</p>
-          <strong>{{ userStore.profile?.studentId || "Not submitted" }}</strong>
+          <p class="identity-card__label">学号</p>
+          <strong>{{ userStore.profile?.studentId || "暂未提交" }}</strong>
         </article>
       </div>
     </article>
@@ -171,50 +170,49 @@ onMounted(initialize);
     <article class="section-card">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Workspace Links</span>
-          <h2 class="page-title" style="margin-top: 16px;">Return surfaces</h2>
+          <span class="section-eyebrow">常用入口</span>
+          <h2 class="page-title" style="margin-top: 16px;">回到常用功能</h2>
           <p class="page-subtitle" style="margin-top: 16px;">
-            Keep posting, collecting, and uploading reachable without jumping back through list
-            pages.
+            发帖、收藏、资料上传与申请记录都可以从这里直接进入。
           </p>
         </div>
       </div>
 
       <div class="quick-link-grid">
         <RouterLink to="/profile/posts" class="panel-card profile-link-card">
-          <span class="profile-link-card__eyebrow">My Posts</span>
-          <strong>Published Posts</strong>
-          <p class="meta-copy">Review community posts you have already published.</p>
+          <span class="profile-link-card__eyebrow">我的帖子</span>
+          <strong>已发布内容</strong>
+          <p class="meta-copy">查看你已经发布的社区内容和互动情况。</p>
         </RouterLink>
 
         <RouterLink to="/profile/favorites" class="panel-card profile-link-card">
-          <span class="profile-link-card__eyebrow">My Favorites</span>
-          <strong>Saved Board</strong>
-          <p class="meta-copy">Keep posts, jobs, and resources ready for the next revisit.</p>
+          <span class="profile-link-card__eyebrow">我的收藏</span>
+          <strong>收藏内容</strong>
+          <p class="meta-copy">把帖子、岗位和资料集中保留，方便下次继续查看。</p>
         </RouterLink>
 
         <RouterLink to="/profile/resources" class="panel-card profile-link-card">
-          <span class="profile-link-card__eyebrow">My Resources</span>
-          <strong>Resource Records</strong>
-          <p class="meta-copy">Track uploaded files, status changes, and rejection notes.</p>
+          <span class="profile-link-card__eyebrow">我的资料</span>
+          <strong>上传记录</strong>
+          <p class="meta-copy">跟进已上传文件的状态变化、处理结果和驳回说明。</p>
         </RouterLink>
 
         <RouterLink to="/profile/resumes" class="panel-card profile-link-card">
-          <span class="profile-link-card__eyebrow">My Resumes</span>
-          <strong>Resume Library</strong>
-          <p class="meta-copy">Keep multiple resume files ready for application.</p>
+          <span class="profile-link-card__eyebrow">我的简历</span>
+          <strong>简历库</strong>
+          <p class="meta-copy">为不同申请场景准备多份简历版本，随时调用。</p>
         </RouterLink>
 
         <RouterLink to="/profile/applications" class="panel-card profile-link-card">
-          <span class="profile-link-card__eyebrow">My Applications</span>
-          <strong>Application Records</strong>
-          <p class="meta-copy">Review where you have already applied and which resume was used.</p>
+          <span class="profile-link-card__eyebrow">我的申请</span>
+          <strong>申请记录</strong>
+          <p class="meta-copy">查看你投递过哪些岗位，以及使用了哪份简历。</p>
         </RouterLink>
 
         <RouterLink to="/community/create" class="panel-card profile-link-card">
-          <span class="profile-link-card__eyebrow">Write</span>
-          <strong>New Community Post</strong>
-          <p class="meta-copy">Jump straight into a new discussion without leaving the desk.</p>
+          <span class="profile-link-card__eyebrow">立即发帖</span>
+          <strong>发布社区内容</strong>
+          <p class="meta-copy">不离开个人中心，也能直接发起新的讨论。</p>
         </RouterLink>
       </div>
     </article>
@@ -223,46 +221,45 @@ onMounted(initialize);
       <article class="section-card">
         <div class="section-header">
           <div>
-            <span class="section-eyebrow">Basic Info</span>
-            <h2 class="page-title" style="margin-top: 16px;">Profile details</h2>
+            <span class="section-eyebrow">基本资料</span>
+            <h2 class="page-title" style="margin-top: 16px;">个人信息</h2>
           </div>
         </div>
 
         <form class="field-grid" @submit.prevent="submitProfile">
           <label class="field-label">
-            Nickname
+            昵称
             <input
               v-model.trim="profileForm.nickname"
               class="field-control"
               name="nickname"
               type="text"
               autocomplete="nickname"
-              placeholder="Enter a display name"
+              placeholder="输入你的显示昵称"
             />
           </label>
 
           <label class="field-label">
-            Real Name
+            真实姓名
             <input
               v-model.trim="profileForm.realName"
               class="field-control"
               name="realName"
               type="text"
               autocomplete="name"
-              placeholder="Optional before verification"
+              placeholder="认证前可暂不填写"
             />
           </label>
 
           <p class="field-hint">
-            Keep this section limited to the identity fields already supported by the current
-            backend slice.
+            当前仅支持编辑系统已接入的基础身份信息。
           </p>
           <p v-if="profileMessage" class="field-hint">{{ profileMessage }}</p>
           <p v-if="profileError" class="field-error" role="alert">{{ profileError }}</p>
 
           <div class="inline-form-actions">
             <button type="submit" class="app-btn">
-              Save Profile
+              保存资料
             </button>
           </div>
         </form>
@@ -271,21 +268,21 @@ onMounted(initialize);
       <article class="section-card">
         <div class="section-header">
           <div>
-            <span class="section-eyebrow">Student Verification</span>
-            <h2 class="page-title" style="margin-top: 16px;">Verification queue</h2>
+            <span class="section-eyebrow">学生认证</span>
+            <h2 class="page-title" style="margin-top: 16px;">认证申请</h2>
           </div>
         </div>
 
         <div class="verification-panel">
           <article class="panel-card">
-            <strong>Review Notice</strong>
+            <strong>审核说明</strong>
             <p class="meta-copy" style="margin-top: 12px;">
-              Teacher or admin reviewers handle the request after submission.
+              提交后将由老师或管理员进入审核流程。
             </p>
           </article>
 
           <article class="panel-card">
-            <strong>Current State</strong>
+            <strong>当前状态</strong>
             <p class="meta-copy" style="margin-top: 12px;">
               {{ verificationHint }}
             </p>
@@ -294,26 +291,26 @@ onMounted(initialize);
 
         <form class="field-grid" style="margin-top: 24px;" @submit.prevent="handleSubmitVerification">
           <label class="field-label">
-            Real Name
+            真实姓名
             <input
               v-model.trim="verificationForm.realName"
               class="field-control"
               name="verificationRealName"
               type="text"
               autocomplete="name"
-              placeholder="Enter your real name"
+              placeholder="输入你的真实姓名"
               :disabled="verificationLocked"
             />
           </label>
 
           <label class="field-label">
-            Student ID
+            学号
             <input
               v-model.trim="verificationForm.studentId"
               class="field-control"
               name="studentId"
               type="text"
-              placeholder="Enter your student ID"
+              placeholder="输入你的学号"
               :disabled="verificationLocked"
             />
           </label>
@@ -329,8 +326,8 @@ onMounted(initialize);
             >
               {{
                 verificationLocked
-                  ? (verificationStatus === "VERIFIED" ? "Verified" : "Under Review")
-                  : (verificationSubmitting ? "Submitting..." : "Submit Verification")
+                  ? (verificationStatus === "VERIFIED" ? "已认证" : "审核中")
+                  : (verificationSubmitting ? "提交中..." : "提交认证")
               }}
             </button>
           </div>

@@ -33,6 +33,11 @@ test("marks unread notifications as read and syncs unread count", async () => {
   const { wrapper, userStore } = mountView();
   await flushPromises();
 
+  expect(wrapper.text()).toContain("消息工作台");
+  expect(wrapper.text()).toContain("通知中心");
+  expect(wrapper.text()).toContain("未读通知");
+  expect(wrapper.text()).toContain("全部标记为已读");
+  expect(wrapper.text()).toContain("仅看未读");
   expect(wrapper.text()).toContain("\u6B22\u8FCE\u8FDB\u5165\u5E73\u53F0");
   expect(userStore.unreadCount).toBe(1);
 
@@ -62,6 +67,8 @@ test("renders the community reply label for reply notifications", async () => {
   const { wrapper } = mountView();
   await flushPromises();
 
+  expect(wrapper.text()).toContain("消息工作台");
+  expect(wrapper.text()).toContain("通知中心");
   expect(wrapper.text()).toContain("\u8BC4\u8BBA\u56DE\u590D");
   expect(wrapper.text()).toContain("Your comment received a reply");
   expect(wrapper.text()).toContain("VerifiedUser replied to your comment under \"Offer timeline notes\"");

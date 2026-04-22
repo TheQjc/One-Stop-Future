@@ -50,6 +50,11 @@ test("shows the my resources link and submits verification request", async () =>
 
   await flushPromises();
 
+  expect(wrapper.text()).toContain("个人中心");
+  expect(wrapper.text()).toContain("查看通知");
+  expect(wrapper.text()).toContain("认证申请");
+  expect(wrapper.text()).toContain("我的资料");
+  expect(wrapper.text()).toContain("上传记录");
   expect(wrapper.html()).toContain('data-to="/profile/resources"');
 
   await wrapper.find('input[name="verificationRealName"]').setValue("Student User");
@@ -57,6 +62,7 @@ test("shows the my resources link and submits verification request", async () =>
   await wrapper.findAll("form")[1].trigger("submit.prevent");
   await flushPromises();
 
+  expect(wrapper.text()).toContain("认证申请已提交。");
   expect(userStore.profile.verificationStatus).toBe("PENDING");
   expect(userStore.profile.studentId).toBe("20241234");
 });
@@ -88,6 +94,10 @@ test("profile desk exposes resumes and applications workspace links", async () =
   });
   await flushPromises();
 
+  expect(wrapper.text()).toContain("常用入口");
+  expect(wrapper.text()).toContain("我的简历");
+  expect(wrapper.text()).toContain("申请记录");
+  expect(wrapper.text()).toContain("保存资料");
   expect(wrapper.html()).toContain('data-to="/profile/resumes"');
   expect(wrapper.html()).toContain('data-to="/profile/applications"');
 });

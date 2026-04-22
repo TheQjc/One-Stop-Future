@@ -155,10 +155,10 @@ onMounted(loadNotifications);
     <article class="section-card">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Notification Center</span>
+          <span class="section-eyebrow">消息工作台</span>
           <h1 class="page-title" style="margin-top: 16px;">通知中心</h1>
           <p class="page-subtitle" style="margin-top: 16px;">
-            欢迎通知、认证结果与后续平台提醒都会回到这里，适合集中处理未读消息和审核反馈。
+            欢迎通知、认证结果和后续平台提醒都会回到这里，方便集中处理未读消息与审核反馈。
           </p>
         </div>
       </div>
@@ -194,7 +194,7 @@ onMounted(loadNotifications);
           :disabled="markingAll || notificationState.unreadCount === 0"
           @click="handleMarkAllRead"
         >
-          {{ markingAll ? "处理中..." : "全部标记为已读" }}
+          {{ markingAll ? "正在处理..." : "全部标记为已读" }}
         </button>
       </div>
 
@@ -235,7 +235,7 @@ onMounted(loadNotifications);
               :disabled="isProcessing(notification.id)"
               @click="handleMarkRead(notification)"
             >
-              {{ isProcessing(notification.id) ? "处理中..." : "标记已读" }}
+              {{ isProcessing(notification.id) ? "正在处理..." : "标记已读" }}
             </button>
           </div>
         </article>
