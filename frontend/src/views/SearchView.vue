@@ -9,15 +9,15 @@ const router = useRouter();
 const currentRoute = computed(() => router.currentRoute?.value || route);
 
 const TYPE_OPTIONS = [
-  { value: "ALL", label: "All" },
-  { value: "POST", label: "Posts" },
-  { value: "JOB", label: "Jobs" },
-  { value: "RESOURCE", label: "Resources" },
+  { value: "ALL", label: "全部" },
+  { value: "POST", label: "帖子" },
+  { value: "JOB", label: "岗位" },
+  { value: "RESOURCE", label: "资料" },
 ];
 
 const SORT_OPTIONS = [
-  { value: "RELEVANCE", label: "Relevance" },
-  { value: "LATEST", label: "Latest" },
+  { value: "RELEVANCE", label: "相关度" },
+  { value: "LATEST", label: "最新" },
 ];
 
 const searchInput = ref("");
@@ -58,18 +58,18 @@ const normalizedRouteState = computed(() => ({
 const isGuidedEmptyState = computed(() => !normalizedRouteState.value.q);
 
 const totalCards = computed(() => [
-  { label: "All", value: results.value.totals?.all ?? 0 },
-  { label: "Posts", value: results.value.totals?.post ?? 0 },
-  { label: "Jobs", value: results.value.totals?.job ?? 0 },
-  { label: "Resources", value: results.value.totals?.resource ?? 0 },
+  { label: "全部", value: results.value.totals?.all ?? 0 },
+  { label: "帖子", value: results.value.totals?.post ?? 0 },
+  { label: "岗位", value: results.value.totals?.job ?? 0 },
+  { label: "资料", value: results.value.totals?.resource ?? 0 },
 ]);
 
 const summaryLine = computed(() => {
   if (!results.value.query) {
-    return "Unified search keeps published posts, jobs, and resources on one page.";
+    return "站内搜索会把公开帖子、岗位和资料集中到同一个结果页。";
   }
 
-  return `Showing ${results.value.results.length} result${results.value.results.length === 1 ? "" : "s"} for "${results.value.query}".`;
+  return `当前共找到 ${results.value.totals?.all ?? results.value.results.length} 条与“${results.value.query}”相关的结果。`;
 });
 
 async function fetchResults() {
@@ -87,7 +87,7 @@ async function fetchResults() {
     const data = await getSearchResults(normalizedRouteState.value);
     results.value = data || createEmptyResults();
   } catch (error) {
-    errorMessage.value = error.message || "Search loading failed. Please try again.";
+    errorMessage.value = error.message || "搜索结果加载失败，请稍后重试。";
     results.value = createEmptyResults();
   } finally {
     loading.value = false;
@@ -158,33 +158,33 @@ watch(
   <section class="page-stack">
     <article class="section-card search-hero">
       <div class="search-hero__copy">
-        <span class="section-eyebrow">Unified Search</span>
-        <h1 class="hero-title" style="margin-top: 18px;">One query, three public desks, one shareable URL.</h1>
+        <span class="section-eyebrow">站内搜索</span>
+        <h1 class="hero-title" style="margin-top: 18px;">一个关键词，集中查看帖子、岗位和资料。</h1>
         <hr class="editorial-rule" />
         <p class="hero-copy">
-          Search reads from the URL first so refresh, back-forward navigation, and shared links all hold the same published result state.
+          搜索页会优先读取 URL 中的查询条件，刷新、前进后退和分享链接时都能保持同一组搜索结果。
         </p>
       </div>
 
       <form class="search-hero__form" data-test="search-form" @submit.prevent="submitSearch">
         <label class="field-label" for="unified-search-input">
-          Search Keyword
+          搜索关键词
           <input
             id="unified-search-input"
             v-model="searchInput"
             name="q"
             class="field-control search-hero__input"
             type="search"
-            placeholder="Search posts, jobs, and resources"
+            placeholder="搜索经验帖、岗位、院校、资料"
             autocomplete="off"
           />
         </label>
 
         <div class="inline-form-actions">
           <button type="submit" class="app-btn">
-            Search
+            搜索
           </button>
-          <span class="meta-copy">Current URL keeps `q`, `type`, and `sort` in sync.</span>
+          <span class="meta-copy">当前 URL 会同步保存 `q`、`type` 和 `sort`。</span>
         </div>
       </form>
     </article>
@@ -192,15 +192,15 @@ watch(
     <article class="section-card">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Search Controls</span>
-          <h2 class="page-title" style="margin-top: 16px;">Refine the same query without leaving the page.</h2>
-          <p class="page-subtitle" style="margin-top: 16px;">Switch content type and sort order directly from the URL-backed controls.</p>
+          <span class="section-eyebrow">搜索筛选</span>
+          <h2 class="page-title" style="margin-top: 16px;">不离开当前页面，继续缩小搜索范围</h2>
+          <p class="page-subtitle" style="margin-top: 16px;">按内容类型和排序方式切换，当前查询会继续保留在 URL 中。</p>
         </div>
       </div>
 
       <div class="search-toolbar">
         <div class="field-grid">
-          <span class="search-toolbar__label">Type</span>
+          <span class="search-toolbar__label">内容类型</span>
           <div class="chip-row">
             <button
               v-for="option in TYPE_OPTIONS"
@@ -216,7 +216,7 @@ watch(
         </div>
 
         <div class="field-grid">
-          <span class="search-toolbar__label">Sort</span>
+          <span class="search-toolbar__label">排序方式</span>
           <div class="chip-row">
             <button
               v-for="option in SORT_OPTIONS"
@@ -236,8 +236,8 @@ watch(
     <article class="section-card">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Search Totals</span>
-          <h2 class="page-title" style="margin-top: 16px;">Result snapshot</h2>
+          <span class="section-eyebrow">搜索概览</span>
+          <h2 class="page-title" style="margin-top: 16px;">结果快照</h2>
           <p class="page-subtitle" style="margin-top: 16px;">{{ summaryLine }}</p>
         </div>
       </div>
@@ -257,28 +257,28 @@ watch(
     <article class="section-card">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Published Matches</span>
-          <h2 class="page-title" style="margin-top: 16px;">Unified results</h2>
+          <span class="section-eyebrow">搜索结果</span>
+          <h2 class="page-title" style="margin-top: 16px;">相关内容</h2>
         </div>
       </div>
 
       <div v-if="isGuidedEmptyState" class="empty-state search-empty">
-        <strong>Start with a keyword</strong>
+        <strong>先输入关键词</strong>
         <p class="meta-copy">
-          Try a role, company, topic, city, or resource phrase. Search will stay idle until the query is non-blank.
+          可以先试试岗位、城市、院校、话题或资料名称。输入关键词后，页面才会开始整理搜索结果。
         </p>
       </div>
-      <div v-else-if="loading" class="empty-state">Loading unified search results...</div>
+      <div v-else-if="loading" class="empty-state">正在整理搜索结果...</div>
       <div v-else-if="errorMessage" class="field-grid">
         <p class="field-error" role="alert">{{ errorMessage }}</p>
         <button type="button" class="ghost-btn" @click="retrySearch">
-          Retry
+          重试
         </button>
       </div>
       <div v-else-if="!results.results.length" class="empty-state search-empty">
-        <strong>No published matches</strong>
+        <strong>暂未找到相关结果</strong>
         <p class="meta-copy">
-          Widen the keyword, switch back to All, or change the sort to check newer content first.
+          可以尝试扩大关键词、切换回“全部”，或改成“最新”优先查看近期内容。
         </p>
       </div>
       <div v-else class="search-results-grid">

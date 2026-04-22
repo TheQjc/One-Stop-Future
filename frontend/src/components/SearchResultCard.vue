@@ -10,9 +10,9 @@ const props = defineProps({
 });
 
 const typeLabels = {
-  POST: "Community",
-  JOB: "Job",
-  RESOURCE: "Resource",
+  POST: "社区",
+  JOB: "岗位",
+  RESOURCE: "资料",
 };
 
 const typeClasses = {
@@ -21,17 +21,17 @@ const typeClasses = {
   RESOURCE: "search-result-card__type--resource",
 };
 
-const localizedType = computed(() => typeLabels[props.item.type] || props.item.type || "Result");
+const localizedType = computed(() => typeLabels[props.item.type] || props.item.type || "结果");
 const typeClassName = computed(() => typeClasses[props.item.type] || "");
 
 function formatDate(value) {
   if (!value) {
-    return "Published date pending";
+    return "待发布";
   }
 
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
-    return "Published date pending";
+    return "待发布";
   }
 
   return new Intl.DateTimeFormat("zh-CN", {
@@ -51,12 +51,12 @@ function formatDate(value) {
 
     <div class="search-result-card__body">
       <h3 class="search-result-card__title">{{ item.title }}</h3>
-      <p class="search-result-card__summary">{{ item.summary || "No summary provided yet." }}</p>
+      <p class="search-result-card__summary">{{ item.summary || "暂未提供内容摘要" }}</p>
     </div>
 
     <div class="search-result-card__meta">
-      <span>{{ item.metaPrimary || "Unified Search" }}</span>
-      <span>{{ item.metaSecondary || "Published result" }}</span>
+      <span>{{ item.metaPrimary || "站内搜索" }}</span>
+      <span>{{ item.metaSecondary || "搜索结果" }}</span>
     </div>
   </RouterLink>
 </template>

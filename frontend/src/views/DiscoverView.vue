@@ -9,15 +9,15 @@ const router = useRouter();
 const currentRoute = computed(() => router.currentRoute?.value || route);
 
 const TAB_OPTIONS = [
-  { value: "ALL", label: "All" },
-  { value: "POST", label: "Posts" },
-  { value: "JOB", label: "Jobs" },
-  { value: "RESOURCE", label: "Resources" },
+  { value: "ALL", label: "全部" },
+  { value: "POST", label: "帖子" },
+  { value: "JOB", label: "岗位" },
+  { value: "RESOURCE", label: "资料" },
 ];
 
 const PERIOD_OPTIONS = [
-  { value: "WEEK", label: "This Week" },
-  { value: "ALL", label: "All Time" },
+  { value: "WEEK", label: "本周" },
+  { value: "ALL", label: "全部时段" },
 ];
 
 const loading = ref(false);
@@ -39,8 +39,8 @@ const normalizedRouteState = computed(() => ({
 }));
 
 const summaryLine = computed(() => {
-  const label = normalizedRouteState.value.period === "WEEK" ? "weekly board" : "all-time board";
-  return `${board.value.total} public item${board.value.total === 1 ? "" : "s"} currently sit on the ${label}.`;
+  const label = normalizedRouteState.value.period === "WEEK" ? "本周趋势榜" : "全部时段趋势榜";
+  return `当前共有 ${board.value.total} 条公开内容进入${label}。`;
 });
 
 async function fetchBoard() {
@@ -60,7 +60,7 @@ async function fetchBoard() {
       items: [],
     };
   } catch (error) {
-    errorMessage.value = error.message || "Discover loading failed. Please try again.";
+    errorMessage.value = error.message || "趋势内容加载失败，请稍后重试。";
     board.value = {
       tab: normalizedRouteState.value.tab,
       period: normalizedRouteState.value.period,
@@ -119,16 +119,16 @@ watch(
   <section class="page-stack">
     <article class="section-card discover-hero">
       <div class="discover-hero__copy">
-        <span class="section-eyebrow">Discover Board</span>
-        <h1 class="hero-title" style="margin-top: 18px;">Move from search mode to signal mode.</h1>
+        <span class="section-eyebrow">趋势</span>
+        <h1 class="hero-title" style="margin-top: 18px;">先看最近大家在关注什么，再决定下一步去哪里。</h1>
         <hr class="editorial-rule" />
         <p class="hero-copy">
-          Discover keeps public posts, jobs, and resources on one board so students can spot what is gaining momentum before they know the exact query.
+          趋势页把公开帖子、岗位和资料放到同一个榜单里，方便你先看清最近的关注方向，再决定是否继续深入查看。
         </p>
       </div>
 
       <div class="discover-hero__aside">
-        <p class="discover-hero__metric-label">Current board</p>
+        <p class="discover-hero__metric-label">当前趋势数</p>
         <strong class="discover-hero__metric-value">{{ board.total }}</strong>
         <p class="meta-copy">{{ summaryLine }}</p>
       </div>
@@ -137,17 +137,17 @@ watch(
     <article class="section-card">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Board Controls</span>
-          <h2 class="page-title" style="margin-top: 16px;">Switch period and desk without losing the URL.</h2>
+          <span class="section-eyebrow">趋势筛选</span>
+          <h2 class="page-title" style="margin-top: 16px;">按时间范围和内容类型切换趋势</h2>
           <p class="page-subtitle" style="margin-top: 16px;">
-            `/discover` keeps `tab` and `period` in sync with the route so refresh and share behave predictably.
+            当前页面会把 `tab` 和 `period` 保留在 URL 里，刷新、分享和返回时都能保持一致。
           </p>
         </div>
       </div>
 
       <div class="discover-toolbar">
         <div class="field-grid">
-          <span class="discover-toolbar__label">Period</span>
+          <span class="discover-toolbar__label">时间范围</span>
           <div class="chip-row">
             <button
               v-for="option in PERIOD_OPTIONS"
@@ -163,7 +163,7 @@ watch(
         </div>
 
         <div class="field-grid">
-          <span class="discover-toolbar__label">Desk</span>
+          <span class="discover-toolbar__label">内容类型</span>
           <div class="chip-row">
             <button
               v-for="option in TAB_OPTIONS"
@@ -183,21 +183,21 @@ watch(
     <article class="section-card">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Ranked Public Picks</span>
-          <h2 class="page-title" style="margin-top: 16px;">Discover results</h2>
+          <span class="section-eyebrow">公开趋势</span>
+          <h2 class="page-title" style="margin-top: 16px;">趋势结果</h2>
         </div>
       </div>
 
-      <div v-if="loading" class="empty-state">Loading discover board...</div>
+      <div v-if="loading" class="empty-state">正在整理趋势内容...</div>
       <div v-else-if="errorMessage" class="field-grid">
         <p class="field-error" role="alert">{{ errorMessage }}</p>
         <button type="button" class="ghost-btn" @click="retryDiscover">
-          Retry
+          重试
         </button>
       </div>
       <div v-else-if="!board.items.length" class="empty-state discover-empty">
-        <strong>Board waiting for momentum</strong>
-        <p class="meta-copy">No public items have entered this board yet.</p>
+        <strong>趋势内容还在整理中</strong>
+        <p class="meta-copy">当前筛选条件下还没有新的公开内容进入趋势榜。</p>
       </div>
       <div v-else class="discover-results-grid">
         <DiscoverItemCard

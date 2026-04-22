@@ -105,6 +105,9 @@ test("discover view defaults to all plus week and hits the api", async () => {
   const { wrapper } = await mountAt("/discover");
 
   expect(getDiscoverResults).toHaveBeenCalledWith({ tab: "ALL", period: "WEEK", limit: 20 });
+  expect(wrapper.text()).toContain("趋势");
+  expect(wrapper.text()).toContain("按时间范围和内容类型切换趋势");
+  expect(wrapper.text()).toContain("当前共有 1 条公开内容进入本周趋势榜。");
   expect(wrapper.text()).toContain("Hot resource");
   expect(wrapper.text()).toContain("Weekly resource lead");
 });
@@ -140,7 +143,10 @@ test("tab and period toggles sync the url-backed discover state", async () => {
   const { wrapper } = await mountAt("/discover?tab=ALL&period=WEEK");
 
   const buttons = wrapper.findAll("button.discover-chip");
-  await buttons.find((button) => button.text() === "Jobs").trigger("click");
+  expect(wrapper.text()).toContain("时间范围");
+  expect(wrapper.text()).toContain("内容类型");
+
+  await buttons.find((button) => button.text() === "岗位").trigger("click");
   await flushPromises();
 
   expect(routeState.value.query).toMatchObject({
@@ -153,7 +159,7 @@ test("tab and period toggles sync the url-backed discover state", async () => {
     limit: 20,
   });
 
-  await buttons.find((button) => button.text() === "All Time").trigger("click");
+  await buttons.find((button) => button.text() === "全部时段").trigger("click");
   await flushPromises();
 
   expect(routeState.value.query).toMatchObject({
@@ -177,7 +183,8 @@ test("discover view can render a graceful empty state", async () => {
 
   const { wrapper } = await mountAt("/discover?tab=POST&period=ALL");
 
-  expect(wrapper.text()).toContain("No public items have entered this board yet.");
+  expect(wrapper.text()).toContain("趋势内容还在整理中");
+  expect(wrapper.text()).toContain("当前筛选条件下还没有新的公开内容进入趋势榜。");
 });
 
 test("error state can retry the same discover query", async () => {
@@ -202,6 +209,7 @@ test("error state can retry the same discover query", async () => {
   const { wrapper } = await mountAt("/discover?tab=ALL&period=WEEK");
 
   expect(wrapper.text()).toContain("Discover temporarily unavailable");
+  expect(wrapper.find("button.ghost-btn").text()).toBe("重试");
 
   await wrapper.find("button.ghost-btn").trigger("click");
   await flushPromises();

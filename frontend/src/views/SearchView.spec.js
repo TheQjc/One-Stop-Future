@@ -108,15 +108,19 @@ test("route query drives api fetch and result rendering", async () => {
     type: "ALL",
     sort: "RELEVANCE",
   });
+  expect(wrapper.text()).toContain("站内搜索");
+  expect(wrapper.text()).toContain("结果快照");
+  expect(wrapper.text()).toContain('当前共找到 1 条与“resume”相关的结果。');
   expect(wrapper.text()).toContain("2026 Resume Template Pack");
-  expect(wrapper.text()).toContain('Showing 1 result for "resume".');
+  expect(wrapper.find('input[name="q"]').attributes("placeholder")).toBe("搜索经验帖、岗位、院校、资料");
 });
 
 test("blank query stays in guided empty state and does not hit the api", async () => {
   const { wrapper } = await mountAt("/search");
 
   expect(getSearchResults).not.toHaveBeenCalled();
-  expect(wrapper.text()).toContain("Start with a keyword");
+  expect(wrapper.text()).toContain("先输入关键词");
+  expect(wrapper.text()).toContain("输入关键词后，页面才会开始整理搜索结果。");
 });
 
 test("type and sort chips update the url-backed fetch state", async () => {
@@ -153,7 +157,10 @@ test("type and sort chips update the url-backed fetch state", async () => {
   const { wrapper } = await mountAt("/search?q=resume&type=ALL&sort=RELEVANCE");
 
   const buttons = wrapper.findAll("button.search-chip");
-  await buttons.find((button) => button.text() === "Jobs").trigger("click");
+  expect(wrapper.text()).toContain("内容类型");
+  expect(wrapper.text()).toContain("排序方式");
+
+  await buttons.find((button) => button.text() === "岗位").trigger("click");
   await flushPromises();
 
   expect(routerPush).toHaveBeenCalled();
@@ -169,7 +176,7 @@ test("type and sort chips update the url-backed fetch state", async () => {
     sort: "RELEVANCE",
   });
 
-  await buttons.find((button) => button.text() === "Latest").trigger("click");
+  await buttons.find((button) => button.text() === "最新").trigger("click");
   await flushPromises();
 
   expect(routeState.value.query).toMatchObject({
@@ -205,6 +212,7 @@ test("error state can retry the same route-backed query", async () => {
   const { wrapper } = await mountAt("/search?q=resume&type=ALL&sort=RELEVANCE");
 
   expect(wrapper.text()).toContain("Search temporarily unavailable");
+  expect(wrapper.find("button.ghost-btn").text()).toBe("重试");
 
   await wrapper.find("button.ghost-btn").trigger("click");
   await flushPromises();
