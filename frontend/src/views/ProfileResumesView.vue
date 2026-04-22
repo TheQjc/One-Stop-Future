@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from "vue";
-import { createResume, deleteResume, downloadResume, getMyResumes } from "../api/resumes.js";
+import { createResume, deleteResume, downloadResume, getMyResumes, previewResume } from "../api/resumes.js";
 
 const loading = ref(true);
 const errorMessage = ref("");
@@ -121,6 +121,20 @@ async function handleDownload(resume) {
   }
 }
 
+async function handlePreview(resume) {
+  actionMessage.value = "";
+  actionError.value = "";
+  actionLoadingId.value = `preview-${resume.id}`;
+
+  try {
+    await previewResume(resume.id);
+  } catch (error) {
+    actionError.value = error.message || "Resume preview failed. Please try again.";
+  } finally {
+    actionLoadingId.value = "";
+  }
+}
+
 async function handleDelete(resume) {
   actionMessage.value = "";
   actionError.value = "";
@@ -201,8 +215,8 @@ onMounted(loadResumes);
           </label>
 
           <p class="field-hint">
-            Supported in this phase: PDF, DOC, and DOCX. DOCX files download only and do not open
-            in preview.
+            Supported in this phase: PDF, DOC, and DOCX. PDF and DOCX files support online preview;
+            DOC remains download-only.
           </p>
           <p v-if="actionMessage" class="field-hint">{{ actionMessage }}</p>
           <p v-if="actionError" class="field-error" role="alert">{{ actionError }}</p>
@@ -253,6 +267,16 @@ onMounted(loadResumes);
             </div>
 
             <div class="inline-form-actions">
+              <button
+                v-if="resume.previewAvailable && resume.previewKind === 'FILE'"
+                :data-testid="`preview-resume-${resume.id}`"
+                type="button"
+                class="ghost-btn"
+                :disabled="actionLoadingId === `preview-${resume.id}`"
+                @click="handlePreview(resume)"
+              >
+                {{ actionLoadingId === `preview-${resume.id}` ? "Opening Preview..." : "Preview" }}
+              </button>
               <button
                 :data-testid="`download-resume-${resume.id}`"
                 type="button"

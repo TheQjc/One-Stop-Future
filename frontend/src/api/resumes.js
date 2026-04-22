@@ -36,6 +36,22 @@ export async function downloadResume(id) {
   return filename;
 }
 
+export async function previewResume(id) {
+  const response = await http.get(`/resumes/${id}/preview`, {
+    responseType: "blob",
+  });
+
+  const objectUrl = window.URL.createObjectURL(response.data);
+  const previewWindow = window.open(objectUrl, "_blank", "noopener");
+
+  if (!previewWindow) {
+    window.location.assign(objectUrl);
+  }
+
+  window.setTimeout(() => window.URL.revokeObjectURL(objectUrl), 60_000);
+  return objectUrl;
+}
+
 function extractFilename(contentDisposition = "") {
   const utf8Match = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i);
   if (utf8Match?.[1]) {
