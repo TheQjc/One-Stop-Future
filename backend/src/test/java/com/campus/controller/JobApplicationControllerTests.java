@@ -1,8 +1,12 @@
 package com.campus.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -14,15 +18,20 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
+
+import com.campus.preview.DocxPreviewGenerator;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -36,6 +45,14 @@ class JobApplicationControllerTests {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @MockBean
+    private DocxPreviewGenerator docxPreviewGenerator;
+
+    @BeforeEach
+    void stubDocxPreviewGenerator() throws IOException {
+        when(docxPreviewGenerator.generate(any())).thenReturn(samplePdfBytes());
+    }
 
     @AfterEach
     void cleanLocalStorage() throws IOException {
@@ -79,7 +96,78 @@ class JobApplicationControllerTests {
                 .andExpect(jsonPath("$.data.total").value(1))
                 .andExpect(jsonPath("$.data.applications[0].jobId").value(1))
                 .andExpect(jsonPath("$.data.applications[0].jobTitle").value("Java Backend Intern"))
-                .andExpect(jsonPath("$.data.applications[0].resumeTitleSnapshot").value("Intern Resume"));
+                .andExpect(jsonPath("$.data.applications[0].resumeTitleSnapshot").value("Intern Resume"))
+                .andExpect(jsonPath("$.data.applications[0].previewAvailable").value(true))
+                .andExpect(jsonPath("$.data.applications[0].previewKind").value("FILE"));
+    }
+
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
+    void applicantCanPreviewOwnPdfSnapshotInline() throws Exception {
+        long applicationId = insertApplication(1L, 2L, 9001L, "Intern Resume", "intern-resume.pdf", "application/pdf",
+                "seed/applications/intern-resume.pdf");
+        writeStoredFile("seed/applications/intern-resume.pdf", "%PDF-snapshot");
+
+        mockMvc.perform(get("/api/applications/{id}/resume/preview", applicationId))
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, containsString("inline")))
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, containsString("application/pdf")));
+    }
+
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
+    void applicantCanPreviewOwnDocxSnapshotAsPdf() throws Exception {
+        long applicationId = insertApplication(1L, 2L, 9001L, "Intern Resume", "intern-resume.docx",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "seed/applications/intern-resume.docx");
+        writeStoredFile("seed/applications/intern-resume.docx", "docx");
+
+        mockMvc.perform(get("/api/applications/{id}/resume/preview", applicationId))
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, containsString("inline")))
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, containsString("application/pdf")));
+    }
+
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
+    void applicantCanDownloadOwnDocSnapshot() throws Exception {
+        long applicationId = insertApplication(1L, 2L, 9001L, "Intern Resume", "intern-resume.doc", "application/msword",
+                "seed/applications/intern-resume.doc");
+        writeStoredFile("seed/applications/intern-resume.doc", "doc");
+
+        mockMvc.perform(get("/api/applications/{id}/resume/download", applicationId))
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, containsString("attachment")))
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, containsString("application/msword")));
+    }
+
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
+    void docSnapshotPreviewIsRejected() throws Exception {
+        long applicationId = insertApplication(1L, 2L, 9001L, "Intern Resume", "intern-resume.doc", "application/msword",
+                "seed/applications/intern-resume.doc");
+
+        mockMvc.perform(get("/api/applications/{id}/resume/preview", applicationId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.message").value("application resume preview only supports pdf or docx"));
+    }
+
+    @Test
+    @WithMockUser(username = "3", roles = "USER")
+    void applicantCannotPreviewOrDownloadAnotherUsersSnapshot() throws Exception {
+        long applicationId = insertApplication(1L, 2L, 9001L, "Intern Resume", "intern-resume.pdf", "application/pdf",
+                "seed/applications/intern-resume.pdf");
+
+        mockMvc.perform(get("/api/applications/{id}/resume/preview", applicationId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(404))
+                .andExpect(jsonPath("$.message").value("application not found"));
+
+        mockMvc.perform(get("/api/applications/{id}/resume/download", applicationId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(404))
+                .andExpect(jsonPath("$.message").value("application not found"));
     }
 
     @Test
@@ -210,6 +298,10 @@ class JobApplicationControllerTests {
         Path filePath = STORAGE_ROOT.resolve(storageKey);
         Files.createDirectories(filePath.getParent());
         Files.writeString(filePath, content, StandardCharsets.UTF_8);
+    }
+
+    private byte[] samplePdfBytes() {
+        return "%PDF-1.7\n".getBytes(StandardCharsets.US_ASCII);
     }
 
     private String extensionOf(String fileName) {

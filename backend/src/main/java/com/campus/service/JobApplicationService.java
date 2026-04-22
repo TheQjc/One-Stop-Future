@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.campus.common.BusinessException;
 import com.campus.common.JobApplicationStatus;
 import com.campus.common.JobPostingStatus;
+import com.campus.common.ResourcePreviewKind;
 import com.campus.dto.ApplyJobRequest;
 import com.campus.dto.JobApplicationRecordResponse;
 import com.campus.dto.MyJobApplicationListResponse;
@@ -22,6 +23,7 @@ import com.campus.entity.JobPosting;
 import com.campus.entity.User;
 import com.campus.mapper.JobApplicationMapper;
 import com.campus.mapper.JobPostingMapper;
+import com.campus.preview.ApplicationSnapshotPreviewService;
 import com.campus.storage.ResourceFileStorage;
 
 @Service
@@ -34,13 +36,16 @@ public class JobApplicationService {
     private final JobPostingMapper jobPostingMapper;
     private final UserService userService;
     private final ResourceFileStorage resourceFileStorage;
+    private final ApplicationSnapshotPreviewService applicationSnapshotPreviewService;
 
     public JobApplicationService(JobApplicationMapper jobApplicationMapper, JobPostingMapper jobPostingMapper,
-            UserService userService, ResourceFileStorage resourceFileStorage) {
+            UserService userService, ResourceFileStorage resourceFileStorage,
+            ApplicationSnapshotPreviewService applicationSnapshotPreviewService) {
         this.jobApplicationMapper = jobApplicationMapper;
         this.jobPostingMapper = jobPostingMapper;
         this.userService = userService;
         this.resourceFileStorage = resourceFileStorage;
+        this.applicationSnapshotPreviewService = applicationSnapshotPreviewService;
     }
 
     @Transactional
@@ -101,6 +106,19 @@ public class JobApplicationService {
                 applications);
     }
 
+    public DownloadedApplicationResume downloadSnapshot(String identity, Long applicationId) {
+        User applicant = userService.requireByIdentity(identity);
+        JobApplication application = requireOwnedApplication(applicant.getId(), applicationId);
+        return openSnapshot(application, "application resume snapshot unavailable");
+    }
+
+    public ApplicationSnapshotPreviewService.PreviewFile previewSnapshot(String identity, Long applicationId) {
+        User applicant = userService.requireByIdentity(identity);
+        JobApplication application = requireOwnedApplication(applicant.getId(), applicationId);
+        return applicationSnapshotPreviewService.preview(application,
+                () -> openSnapshotInputStream(application, "application resume preview unavailable"));
+    }
+
     private JobPosting requirePublishedJob(Long jobId) {
         JobPosting job = jobPostingMapper.selectById(jobId);
         if (job == null || !JobPostingStatus.PUBLISHED.name().equals(job.getStatus())) {
@@ -115,6 +133,14 @@ public class JobApplicationService {
             throw new BusinessException(404, "resume not found");
         }
         return resume;
+    }
+
+    private JobApplication requireOwnedApplication(Long userId, Long applicationId) {
+        JobApplication application = jobApplicationMapper.selectById(applicationId);
+        if (application == null || !userId.equals(application.getApplicantUserId())) {
+            throw new BusinessException(404, "application not found");
+        }
+        return application;
     }
 
     private String copyResumeSnapshot(JobApplicationMapper.ResumeSnapshotSource resume) {
@@ -151,6 +177,9 @@ public class JobApplicationService {
     }
 
     private MyJobApplicationListResponse.ApplicationItem toMyApplicationItem(JobApplicationMapper.MyApplicationRow row) {
+        ResourcePreviewKind previewKind = applicationSnapshotPreviewService.previewKindOf(
+                row.getResumeFileExtSnapshot(),
+                row.getResumeContentTypeSnapshot());
         return new MyJobApplicationListResponse.ApplicationItem(
                 row.getId(),
                 row.getJobId(),
@@ -160,6 +189,36 @@ public class JobApplicationService {
                 row.getStatus(),
                 row.getResumeTitleSnapshot(),
                 row.getResumeFileNameSnapshot(),
+                previewKind != ResourcePreviewKind.NONE,
+                previewKind,
                 row.getSubmittedAt());
+    }
+
+    private DownloadedApplicationResume openSnapshot(JobApplication application, String failureMessage) {
+        try {
+            if (!resourceFileStorage.exists(application.getResumeStorageKeySnapshot())) {
+                throw new BusinessException(500, failureMessage);
+            }
+            return new DownloadedApplicationResume(
+                    application.getResumeFileNameSnapshot(),
+                    application.getResumeContentTypeSnapshot(),
+                    resourceFileStorage.open(application.getResumeStorageKeySnapshot()));
+        } catch (IOException exception) {
+            throw new BusinessException(500, failureMessage);
+        }
+    }
+
+    private InputStream openSnapshotInputStream(JobApplication application, String failureMessage) {
+        try {
+            if (!resourceFileStorage.exists(application.getResumeStorageKeySnapshot())) {
+                throw new BusinessException(500, failureMessage);
+            }
+            return resourceFileStorage.open(application.getResumeStorageKeySnapshot());
+        } catch (IOException exception) {
+            throw new BusinessException(500, failureMessage);
+        }
+    }
+
+    public record DownloadedApplicationResume(String fileName, String contentType, InputStream inputStream) {
     }
 }
