@@ -1,5 +1,7 @@
 # Study Career Platform Phase X Preview Artifact Runtime Dual-Read Fallback Design
 
+> **Validation note:** This design was implemented and validated on 2026-04-22 using the approved execution record at `docs/superpowers/plans/2026-04-22-study-career-platform-phase-x-preview-artifact-runtime-dual-read-fallback-implementation.md`. Local verification suites now present for this slice are `SdkMinioObjectOperationsTests`, `HistoricalLocalResourcePreviewArtifactReaderTests`, `LocalResourcePreviewArtifactStorageTests`, `FallbackResourcePreviewArtifactStorageTests`, `ResourcePreviewServiceTests`, `ResourcePreviewStorageConfigurationTests`, `ResourceControllerPreviewFallbackTests`, `ResourceControllerTests`, and `MinioResourcePreviewArtifactStorageTests`.
+
 ## 1. Goal
 
 Phase X adds a narrow runtime compatibility slice for preview-artifact reads after a preview-storage cutover to MinIO.
