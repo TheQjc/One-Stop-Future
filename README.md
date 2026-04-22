@@ -325,6 +325,45 @@ Current Phase C + U + V scope:
 - local `DELETED` jobs are skipped and reported instead of being recreated automatically
 - neither CSV import nor third-party sync auto-publishes jobs in this phase
 
+## Admin Verification Review
+
+Admin backend endpoints:
+
+- `GET /api/admin/verifications/dashboard`
+- `GET /api/admin/verifications`
+- `POST /api/admin/verifications/{id}/review`
+
+Admin frontend route:
+
+- `/admin/verifications`
+
+Current Phase A scope:
+
+- admin-only verification dashboard surfaces pending and recently reviewed application counts
+- the existing `/admin/verifications` workbench lists submitted verification applications for review
+- admins can approve or reject one application at a time from the same workbench
+- approval upgrades the applicant to `VERIFIED`, while rejection returns the user to the unverified path
+- review outcomes generate user-facing notifications and keep the review loop closed inside the admin verification desk
+
+## Admin Community Moderation
+
+Admin backend endpoints:
+
+- `GET /api/admin/community/posts`
+- `POST /api/admin/community/posts/{id}/hide`
+- `POST /api/admin/community/posts/{id}/delete`
+
+Admin frontend route:
+
+- `/admin/community`
+
+Current Phase B scope:
+
+- admin-only community moderation stays inside the existing `/admin/community` workbench
+- admins can review submitted community posts from one moderation list
+- hiding a post removes it from public visibility without treating it as a hard delete in the UI contract
+- deleting a post is an explicit admin moderation action for content that should not remain available
+
 ## Community Hot Ranking
 
 Public backend endpoint:
@@ -739,6 +778,38 @@ mvn -q "-Dtest=AdminJobControllerTests,AdminJobImportControllerTests,AdminJobSyn
 ```bash
 cd frontend
 npx vitest run src/views/admin/AdminJobManageView.spec.js src/components/NavBar.spec.js
+```
+
+## Targeted Admin Verification Review Verification
+
+### Backend
+
+```bash
+cd backend
+mvn -q -Dtest=AdminVerificationControllerTests test
+```
+
+### Frontend
+
+```bash
+cd frontend
+npx vitest run src/views/admin/AdminVerificationReviewView.spec.js
+```
+
+## Targeted Admin Community Moderation Verification
+
+### Backend
+
+```bash
+cd backend
+mvn -q -Dtest=AdminCommunityControllerTests test
+```
+
+### Frontend
+
+```bash
+cd frontend
+npx vitest run src/views/admin/AdminCommunityManageView.spec.js
 ```
 
 ## Targeted Resource Preview Verification
