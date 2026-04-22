@@ -484,6 +484,24 @@ Current Phase B scope:
 - `/profile/posts` and `/profile/favorites` provide the signed-in user's authored-post and favorite-post views
 - the dedicated hot-ranking, experience-post, and threaded-reply refinements remain documented in the community sections below
 
+## Profile Posts And Favorites
+
+Backend endpoints:
+
+- `GET /api/community/posts/mine`
+- `GET /api/users/me/favorites?type=POST|JOB|RESOURCE`
+
+Frontend routes:
+
+- `/profile/posts`
+- `/profile/favorites`
+
+Current Phase B + C + D scope:
+
+- `/profile/posts` shows the signed-in user's authored community posts through the same community domain model used by the public feed
+- `/profile/favorites` switches across `POST`, `JOB`, and `RESOURCE` views while reusing one shared favorites endpoint
+- favorite lists stay read-only in this phase and reflect the same saved state used by community, jobs, and resources cards elsewhere in the app
+
 ## Community Hot Ranking
 
 Public backend endpoint:
@@ -994,6 +1012,22 @@ mvn -q -Dtest=CommunityControllerTests test
 ```bash
 cd frontend
 npx vitest run src/views/CommunityListView.spec.js src/views/CommunityCreateView.spec.js src/views/CommunityDetailView.spec.js src/views/ProfilePostsView.spec.js src/views/ProfileFavoritesView.spec.js
+```
+
+## Targeted Profile Posts And Favorites Verification
+
+### Backend
+
+```bash
+cd backend
+mvn -q "-Dtest=UserControllerTests,CommunityControllerTests" test
+```
+
+### Frontend
+
+```bash
+cd frontend
+npx vitest run src/views/ProfilePostsView.spec.js src/views/ProfileFavoritesView.spec.js src/views/ProfileView.spec.js
 ```
 
 ## Targeted Resource Preview Verification
