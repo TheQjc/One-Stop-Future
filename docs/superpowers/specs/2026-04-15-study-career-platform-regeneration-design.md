@@ -1,5 +1,7 @@
 # 校园一站式信息平台（就业 / 考研 / 出国留学）重建设计说明
 
+> **Validation note:** Historical umbrella regeneration spec kept as the decomposition and source-of-truth transition record. This cleanup pass did not treat it as a standalone execution target; delivery validation is recorded in the downstream phase specs, plans, and execution records generated from this umbrella design.
+
 ## 1. 文档目的
 
 本文档用于确认新版《[校园一站式信息平台_软件需求说明书](D:\work\One-Stop Future\docs\校园一站式信息平台_软件需求说明书.docx)》对应的文档重建策略，并把当前可进入实现规划的范围收敛到首个子项目 A。

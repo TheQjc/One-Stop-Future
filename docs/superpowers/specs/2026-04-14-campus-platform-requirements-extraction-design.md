@@ -1,5 +1,7 @@
 # 校园一站式信息平台需求识别与提炼设计
 
+> **Validation note:** Historical umbrella extraction spec kept for traceability only. It predates the regenerated study-career-platform baseline and was not re-validated as a standalone execution target in this cleanup pass; authoritative implementation validation now lives in the downstream regenerated specs, plans, and execution records.
+
 ## 1. 文档目的
 
 本设计文档用于定义“校园一站式信息平台”项目需求识别与提炼的输出方式、分类规则和验收标准，面向后续开发文档整理工作。
