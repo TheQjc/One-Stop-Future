@@ -195,6 +195,8 @@ npm run build
 Public / user:
 
 - `/`
+- `/login`
+- `/register`
 - `/search`
 - `/discover`
 - `/community`
