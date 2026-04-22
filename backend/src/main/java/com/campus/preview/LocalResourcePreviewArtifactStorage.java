@@ -1,8 +1,10 @@
 package com.campus.preview;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Objects;
@@ -30,7 +32,13 @@ public class LocalResourcePreviewArtifactStorage implements ResourcePreviewArtif
 
     @Override
     public InputStream open(String artifactKey) throws IOException {
-        return Files.newInputStream(pathResolver.resolve(artifactKey));
+        try {
+            return Files.newInputStream(pathResolver.resolve(artifactKey));
+        } catch (NoSuchFileException exception) {
+            FileNotFoundException notFound = new FileNotFoundException("local preview artifact not found");
+            notFound.initCause(exception);
+            throw notFound;
+        }
     }
 
     @Override
