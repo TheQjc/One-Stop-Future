@@ -210,7 +210,7 @@ All UI tasks in this plan must explicitly use these skills before shipping:
 - Create: `backend/src/main/java/com/campus/controller/ResumeController.java`
 - Create: `backend/src/test/java/com/campus/controller/ResumeControllerTests.java`
 
-- [ ] **Step 1: Write the failing resume controller tests**
+- [x] **Step 1: Write the failing resume controller tests**
 
 Create `ResumeControllerTests.java` using the same integration style as `ResourceControllerTests.java`:
 
@@ -344,7 +344,7 @@ void resumeUploadRejectsFilesAboveConfiguredMultipartLimit() throws Exception {
 }
 ```
 
-- [ ] **Step 2: Run the targeted resume backend tests and verify failure**
+- [x] **Step 2: Run the targeted resume backend tests and verify failure**
 
 Run:
 
@@ -355,7 +355,7 @@ mvn -q "-Dtest=ResumeControllerTests" test
 
 Expected: FAIL because the resume table, entity, mapper, service, and controller do not exist yet.
 
-- [ ] **Step 3: Implement the resume table and backend library**
+- [x] **Step 3: Implement the resume table and backend library**
 
 Update `backend/src/main/resources/schema.sql` so it drops and creates `t_resume`:
 
@@ -533,7 +533,7 @@ public class ResumeController {
 }
 ```
 
-- [ ] **Step 4: Re-run the targeted resume backend tests**
+- [x] **Step 4: Re-run the targeted resume backend tests**
 
 Run:
 
@@ -544,7 +544,7 @@ mvn -q "-Dtest=ResumeControllerTests" test
 
 Expected: PASS with owner-only upload/list/download/delete and file-type validation.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/resources/schema.sql backend/src/main/java/com/campus/entity/Resume.java backend/src/main/java/com/campus/mapper/ResumeMapper.java backend/src/main/java/com/campus/dto/ResumeRecordResponse.java backend/src/main/java/com/campus/dto/ResumeListResponse.java backend/src/main/java/com/campus/service/ResumeService.java backend/src/main/java/com/campus/controller/ResumeController.java backend/src/test/java/com/campus/controller/ResumeControllerTests.java
@@ -573,7 +573,7 @@ git commit -m "feat: add user resume library backend"
 - Create: `backend/src/test/java/com/campus/controller/admin/AdminJobApplicationControllerTests.java`
 - Modify: `backend/src/test/java/com/campus/controller/JobControllerTests.java`
 
-- [ ] **Step 1: Write the failing application backend tests**
+- [x] **Step 1: Write the failing application backend tests**
 
 Create `JobApplicationControllerTests.java`:
 
@@ -782,7 +782,7 @@ void authenticatedUserSeesAppliedStateInJobDetail() throws Exception {
 }
 ```
 
-- [ ] **Step 2: Run the targeted application backend tests and verify failure**
+- [x] **Step 2: Run the targeted application backend tests and verify failure**
 
 Run:
 
@@ -793,7 +793,7 @@ mvn -q "-Dtest=JobApplicationControllerTests,AdminJobApplicationControllerTests,
 
 Expected: FAIL because the application table, DTOs, services, controllers, and job-detail applied-state fields do not exist yet.
 
-- [ ] **Step 3: Implement the application backend and job-detail enrichment**
+- [x] **Step 3: Implement the application backend and job-detail enrichment**
 
 Update `schema.sql` to add `t_job_application`:
 
@@ -1094,7 +1094,7 @@ public class AdminJobApplicationController {
 }
 ```
 
-- [ ] **Step 4: Re-run the targeted application backend tests**
+- [x] **Step 4: Re-run the targeted application backend tests**
 
 Run:
 
@@ -1105,7 +1105,7 @@ mvn -q "-Dtest=JobApplicationControllerTests,AdminJobApplicationControllerTests,
 
 Expected: PASS with duplicate-apply guard, non-published-job rejection, owner-only resume selection, snapshot download, and job-detail applied-state enrichment.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/resources/schema.sql backend/src/main/java/com/campus/common/JobApplicationStatus.java backend/src/main/java/com/campus/entity/JobApplication.java backend/src/main/java/com/campus/mapper/JobApplicationMapper.java backend/src/main/java/com/campus/dto/ApplyJobRequest.java backend/src/main/java/com/campus/dto/JobApplicationRecordResponse.java backend/src/main/java/com/campus/dto/MyJobApplicationListResponse.java backend/src/main/java/com/campus/dto/AdminJobApplicationListResponse.java backend/src/main/java/com/campus/service/JobApplicationService.java backend/src/main/java/com/campus/service/AdminJobApplicationService.java backend/src/main/java/com/campus/controller/JobApplicationController.java backend/src/main/java/com/campus/controller/admin/AdminJobApplicationController.java backend/src/main/java/com/campus/controller/JobController.java backend/src/main/java/com/campus/service/JobService.java backend/src/main/java/com/campus/dto/JobDetailResponse.java backend/src/test/java/com/campus/controller/JobApplicationControllerTests.java backend/src/test/java/com/campus/controller/admin/AdminJobApplicationControllerTests.java backend/src/test/java/com/campus/controller/JobControllerTests.java
@@ -1125,7 +1125,7 @@ git commit -m "feat: add in-platform job application backend"
 - Modify: `frontend/src/views/ProfileView.vue`
 - Modify: `frontend/src/views/ProfileView.spec.js`
 
-- [ ] **Step 1: Write the failing resume/profile frontend tests**
+- [x] **Step 1: Write the failing resume/profile frontend tests**
 
 Create `ProfileResumesView.spec.js`:
 
@@ -1264,7 +1264,7 @@ test("profile desk exposes resumes and applications workspace links", async () =
 });
 ```
 
-- [ ] **Step 2: Run the targeted user-side frontend tests and verify failure**
+- [x] **Step 2: Run the targeted user-side frontend tests and verify failure**
 
 Run:
 
@@ -1275,7 +1275,7 @@ npx vitest run src/views/ProfileResumesView.spec.js src/views/ProfileApplication
 
 Expected: FAIL because the new API adapters, routes, and views do not exist yet.
 
-- [ ] **Step 3: Implement the resume and applicant profile pages**
+- [x] **Step 3: Implement the resume and applicant profile pages**
 
 Before writing UI code, use `@frontend-design`, then review the finished surfaces with `@ui-ux-pro-max`.
 
@@ -1371,7 +1371,7 @@ Update `ProfileView.vue` workspace links with:
 </RouterLink>
 ```
 
-- [ ] **Step 4: Re-run the targeted user-side frontend tests**
+- [x] **Step 4: Re-run the targeted user-side frontend tests**
 
 Run:
 
@@ -1382,7 +1382,7 @@ npx vitest run src/views/ProfileResumesView.spec.js src/views/ProfileApplication
 
 Expected: PASS with working profile routes, upload/list/delete behavior, and applicant history rendering.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/api/resumes.js frontend/src/api/applications.js frontend/src/views/ProfileResumesView.vue frontend/src/views/ProfileResumesView.spec.js frontend/src/views/ProfileApplicationsView.vue frontend/src/views/ProfileApplicationsView.spec.js frontend/src/router/index.js frontend/src/views/ProfileView.vue frontend/src/views/ProfileView.spec.js
@@ -1402,7 +1402,7 @@ git commit -m "feat: add resume library and applicant history views"
 - Modify: `frontend/src/components/NavBar.vue`
 - Modify: `frontend/src/components/NavBar.spec.js`
 
-- [ ] **Step 1: Write the failing apply/admin frontend tests**
+- [x] **Step 1: Write the failing apply/admin frontend tests**
 
 Extend `JobDetailView.spec.js` so it mocks resume loading and apply:
 
@@ -1592,7 +1592,7 @@ test("navbar shows the admin applications link for admins", () => {
 });
 ```
 
-- [ ] **Step 2: Run the targeted apply/admin frontend tests and verify failure**
+- [x] **Step 2: Run the targeted apply/admin frontend tests and verify failure**
 
 Run:
 
@@ -1603,7 +1603,7 @@ npx vitest run src/views/JobDetailView.spec.js src/views/admin/AdminApplications
 
 Expected: FAIL because the apply API, resume selection UI, admin workbench view, and admin nav link do not exist yet.
 
-- [ ] **Step 3: Implement job-detail apply and the admin workbench**
+- [x] **Step 3: Implement job-detail apply and the admin workbench**
 
 Before writing UI code, use `@frontend-design`, then review the finished surfaces with `@ui-ux-pro-max`.
 
@@ -1686,7 +1686,7 @@ if (userStore.canReviewVerifications) {
 }
 ```
 
-- [ ] **Step 4: Re-run the targeted apply/admin frontend tests**
+- [x] **Step 4: Re-run the targeted apply/admin frontend tests**
 
 Run:
 
@@ -1697,7 +1697,7 @@ npx vitest run src/views/JobDetailView.spec.js src/views/admin/AdminApplications
 
 Expected: PASS with guest redirect, no-resume guidance, successful apply state, admin workbench rendering, and admin-only nav entry.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/views/admin/AdminApplicationsView.vue frontend/src/views/admin/AdminApplicationsView.spec.js frontend/src/api/jobs.js frontend/src/api/admin.js frontend/src/router/index.js frontend/src/views/JobDetailView.vue frontend/src/views/JobDetailView.spec.js frontend/src/components/NavBar.vue frontend/src/components/NavBar.spec.js
@@ -1709,7 +1709,7 @@ git commit -m "feat: add job application workbenches"
 **Files:**
 - Modify: `README.md`
 
-- [ ] **Step 1: Update README for Phase N**
+- [x] **Step 1: Update README for Phase N**
 
 Document all of the following:
 
@@ -1738,7 +1738,7 @@ Document all of the following:
 - manual smoke steps for upload/apply/delete-original/admin-read path
 - targeted verification section for Phase N
 
-- [ ] **Step 2: Run the targeted backend verification set**
+- [x] **Step 2: Run the targeted backend verification set**
 
 Run:
 
@@ -1749,7 +1749,7 @@ mvn -q "-Dtest=ResumeControllerTests,JobApplicationControllerTests,AdminJobAppli
 
 Expected: PASS.
 
-- [ ] **Step 3: Run the targeted frontend verification set**
+- [x] **Step 3: Run the targeted frontend verification set**
 
 Run:
 
@@ -1760,7 +1760,7 @@ npx vitest run src/views/ProfileResumesView.spec.js src/views/ProfileApplication
 
 Expected: PASS.
 
-- [ ] **Step 4: Run full regression and build**
+- [x] **Step 4: Run full regression and build**
 
 Run:
 
@@ -1777,7 +1777,7 @@ npm run build
 
 Expected: PASS across the full backend and frontend suites.
 
-- [ ] **Step 5: Manual smoke and commit**
+- [x] **Step 5: Manual smoke and commit**
 
 Manual smoke:
 

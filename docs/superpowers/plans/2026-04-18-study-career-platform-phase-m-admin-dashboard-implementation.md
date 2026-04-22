@@ -169,7 +169,7 @@ All UI tasks in this plan must explicitly use these skills before shipping:
 - Create: `backend/src/main/java/com/campus/controller/admin/AdminDashboardController.java`
 - Create: `backend/src/test/java/com/campus/controller/admin/AdminDashboardControllerTests.java`
 
-- [ ] **Step 1: Write the failing admin dashboard controller tests**
+- [x] **Step 1: Write the failing admin dashboard controller tests**
 
 Create `AdminDashboardControllerTests` using the same integration style as the existing admin controller tests:
 
@@ -271,7 +271,7 @@ void adminDashboardSummaryCapsEachRecentListAtFiveItems() throws Exception {
 }
 ```
 
-- [ ] **Step 2: Run the targeted backend dashboard tests and verify failure**
+- [x] **Step 2: Run the targeted backend dashboard tests and verify failure**
 
 Run:
 
@@ -282,7 +282,7 @@ mvn -q "-Dtest=AdminDashboardControllerTests" test
 
 Expected: FAIL because the dashboard DTO, mapper, service, and controller do not exist yet.
 
-- [ ] **Step 3: Implement the minimal backend dashboard slice**
+- [x] **Step 3: Implement the minimal backend dashboard slice**
 
 Create `AdminDashboardSummaryResponse` with one section per domain. Reuse the existing admin item field sets exactly so the dashboard contract stays aligned with the current admin workbenches:
 
@@ -423,7 +423,7 @@ public class AdminDashboardController {
 }
 ```
 
-- [ ] **Step 4: Re-run the targeted backend dashboard tests**
+- [x] **Step 4: Re-run the targeted backend dashboard tests**
 
 Run:
 
@@ -434,7 +434,7 @@ mvn -q "-Dtest=AdminDashboardControllerTests" test
 
 Expected: PASS with admin-only access, correct counts, deterministic ordering, and empty recent-list structure.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/java/com/campus/dto/AdminDashboardSummaryResponse.java backend/src/main/java/com/campus/mapper/AdminDashboardReadMapper.java backend/src/main/java/com/campus/service/AdminDashboardService.java backend/src/main/java/com/campus/controller/admin/AdminDashboardController.java backend/src/test/java/com/campus/controller/admin/AdminDashboardControllerTests.java
@@ -448,7 +448,7 @@ git commit -m "feat: add admin dashboard summary endpoint"
 - Modify: `backend/src/test/java/com/campus/service/HomeServiceTests.java`
 - Modify: `backend/src/test/java/com/campus/controller/HomeControllerTests.java`
 
-- [ ] **Step 1: Write the failing admin home-entry tests**
+- [x] **Step 1: Write the failing admin home-entry tests**
 
 Extend `HomeServiceTests` with an admin-entry assertion:
 
@@ -500,7 +500,7 @@ void adminSummaryIncludesAdminDashboardEntry() throws Exception {
 }
 ```
 
-- [ ] **Step 2: Run the targeted backend home tests and verify failure**
+- [x] **Step 2: Run the targeted backend home tests and verify failure**
 
 Run:
 
@@ -511,7 +511,7 @@ mvn -q "-Dtest=HomeServiceTests,HomeControllerTests" test
 
 Expected: FAIL because the `admin-dashboard` home entry does not exist yet.
 
-- [ ] **Step 3: Implement backend home-entry activation**
+- [x] **Step 3: Implement backend home-entry activation**
 
 Update `HomeService.buildEntries(User user)` so admins receive the new live dashboard entry before the existing admin verification entry:
 
@@ -534,7 +534,7 @@ if ("ADMIN".equals(user.getRole())) {
 
 Keep guest and normal-user entry behavior unchanged.
 
-- [ ] **Step 4: Re-run the targeted backend home tests**
+- [x] **Step 4: Re-run the targeted backend home tests**
 
 Run:
 
@@ -545,7 +545,7 @@ mvn -q "-Dtest=HomeServiceTests,HomeControllerTests" test
 
 Expected: PASS with the new `admin-dashboard` entry and no regression to existing admin verification entry behavior.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/java/com/campus/service/HomeService.java backend/src/test/java/com/campus/service/HomeServiceTests.java backend/src/test/java/com/campus/controller/HomeControllerTests.java
@@ -560,7 +560,7 @@ git commit -m "feat: add admin dashboard home entry"
 - Modify: `frontend/src/api/admin.js`
 - Modify: `frontend/src/router/index.js`
 
-- [ ] **Step 1: Write the failing admin dashboard view tests**
+- [x] **Step 1: Write the failing admin dashboard view tests**
 
 Create `AdminDashboardView.spec.js` with mocked admin API behavior:
 
@@ -697,7 +697,7 @@ test("shows a page-level retry when summary loading fails", async () => {
 });
 ```
 
-- [ ] **Step 2: Run the targeted frontend dashboard tests and verify failure**
+- [x] **Step 2: Run the targeted frontend dashboard tests and verify failure**
 
 Run:
 
@@ -708,7 +708,7 @@ npm run test -- src/views/admin/AdminDashboardView.spec.js
 
 Expected: FAIL because the dashboard view, route, and API adapter do not exist yet.
 
-- [ ] **Step 3: Implement the frontend dashboard route and success state**
+- [x] **Step 3: Implement the frontend dashboard route and success state**
 
 Before writing UI code, use `@frontend-design`, then review the finished surface with `@ui-ux-pro-max`.
 
@@ -746,7 +746,7 @@ Implement `AdminDashboardView.vue` so it:
   - `/admin/resources`
 - uses existing layout primitives such as `section-card`, `panel-card`, `dashboard-grid`, `empty-state`, and `app-link`
 
-- [ ] **Step 4: Re-run the targeted frontend dashboard tests**
+- [x] **Step 4: Re-run the targeted frontend dashboard tests**
 
 Run:
 
@@ -757,7 +757,7 @@ npm run test -- src/views/admin/AdminDashboardView.spec.js
 
 Expected: PASS with dashboard loading, page-level retry, and four working CTA links.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/views/admin/AdminDashboardView.vue frontend/src/views/admin/AdminDashboardView.spec.js frontend/src/api/admin.js frontend/src/router/index.js
@@ -774,7 +774,7 @@ git commit -m "feat: add admin dashboard view"
 - Modify: `frontend/src/components/NavBar.vue`
 - Modify: `frontend/src/components/NavBar.spec.js`
 
-- [ ] **Step 1: Write the failing home, nav, and empty-state tests**
+- [x] **Step 1: Write the failing home, nav, and empty-state tests**
 
 Extend `AdminDashboardView.spec.js`:
 
@@ -857,7 +857,7 @@ test("navbar shows the admin dashboard link for admins", () => {
 });
 ```
 
-- [ ] **Step 2: Run the targeted home, nav, and empty-state tests and verify failure**
+- [x] **Step 2: Run the targeted home, nav, and empty-state tests and verify failure**
 
 Run:
 
@@ -868,7 +868,7 @@ npm run test -- src/views/admin/AdminDashboardView.spec.js src/views/HomeView.sp
 
 Expected: FAIL because the home card, nav link, and section empty-state copy are not implemented yet.
 
-- [ ] **Step 3: Implement admin entry activation and section empty states**
+- [x] **Step 3: Implement admin entry activation and section empty states**
 
 Update `AdminDashboardView.vue` so each section:
 
@@ -889,7 +889,7 @@ Update `NavBar.vue`:
 - add `{ to: "/admin/dashboard", label: "Admin Dashboard" }` for admins
 - keep existing admin nav items intact
 
-- [ ] **Step 4: Re-run the targeted home, nav, and empty-state tests**
+- [x] **Step 4: Re-run the targeted home, nav, and empty-state tests**
 
 Run:
 
@@ -900,7 +900,7 @@ npm run test -- src/views/admin/AdminDashboardView.spec.js src/views/HomeView.sp
 
 Expected: PASS with stable empty states, a live home dashboard entry, and an admin-only nav link.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/views/admin/AdminDashboardView.vue frontend/src/views/admin/AdminDashboardView.spec.js frontend/src/views/HomeView.vue frontend/src/views/HomeView.spec.js frontend/src/components/NavBar.vue frontend/src/components/NavBar.spec.js
@@ -912,7 +912,7 @@ git commit -m "feat: activate admin dashboard entry points"
 **Files:**
 - Modify: `README.md`
 
-- [ ] **Step 1: Update README for Phase M admin dashboard**
+- [x] **Step 1: Update README for Phase M admin dashboard**
 
 Document:
 
@@ -927,7 +927,7 @@ Document:
   - open `/admin/dashboard`
   - verify home and nav entry points
 
-- [ ] **Step 2: Run the targeted backend verification set**
+- [x] **Step 2: Run the targeted backend verification set**
 
 Run:
 
@@ -938,7 +938,7 @@ mvn -q "-Dtest=AdminDashboardControllerTests,HomeServiceTests,HomeControllerTest
 
 Expected: PASS.
 
-- [ ] **Step 3: Run the targeted frontend verification set**
+- [x] **Step 3: Run the targeted frontend verification set**
 
 Run:
 
@@ -949,7 +949,7 @@ npm run test -- src/views/admin/AdminDashboardView.spec.js src/views/HomeView.sp
 
 Expected: PASS.
 
-- [ ] **Step 4: Run full regression and build**
+- [x] **Step 4: Run full regression and build**
 
 Run:
 
@@ -966,7 +966,7 @@ npm run build
 
 Expected: PASS across the full backend and frontend suites.
 
-- [ ] **Step 5: Manual smoke and commit**
+- [x] **Step 5: Manual smoke and commit**
 
 Manual smoke:
 

@@ -154,7 +154,7 @@ All UI tasks in this plan must explicitly use these skills before shipping:
 - Create: `backend/src/test/java/com/campus/controller/AnalyticsControllerTests.java`
 - Modify: `backend/src/main/java/com/campus/config/SecurityConfig.java`
 
-- [ ] **Step 1: Write the failing public-summary tests**
+- [x] **Step 1: Write the failing public-summary tests**
 
 Create `AnalyticsControllerTests` with `@SpringBootTest`, `@AutoConfigureMockMvc`, and `@Sql("/schema.sql", "/data.sql")` coverage:
 
@@ -193,7 +193,7 @@ void summaryReturnsZeroFilledTrendSeriesAndExplicitTrackMix() {
 }
 ```
 
-- [ ] **Step 2: Run the targeted analytics backend tests and verify failure**
+- [x] **Step 2: Run the targeted analytics backend tests and verify failure**
 
 Run:
 
@@ -204,7 +204,7 @@ mvn -q "-Dtest=AnalyticsServiceTests,AnalyticsControllerTests" test
 
 Expected: FAIL because the analytics DTO, mapper, service, controller, and public security rule do not exist yet.
 
-- [ ] **Step 3: Implement the minimal public analytics slice**
+- [x] **Step 3: Implement the minimal public analytics slice**
 
 Create `AnalyticsSummaryResponse` with nested public-only sections already shaped for the frontend:
 
@@ -270,7 +270,7 @@ Implement the minimal backend contract:
   - `personalHistory=[]`
   - `nextActions=[]`
 
-- [ ] **Step 4: Re-run the targeted analytics backend tests**
+- [x] **Step 4: Re-run the targeted analytics backend tests**
 
 Run:
 
@@ -281,7 +281,7 @@ mvn -q "-Dtest=AnalyticsServiceTests,AnalyticsControllerTests" test
 
 Expected: PASS with public access, deterministic trend length, explicit track mix, and business-error period validation.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/java/com/campus/dto/AnalyticsSummaryResponse.java backend/src/main/java/com/campus/dto/AnalyticsTrendRow.java backend/src/main/java/com/campus/dto/AnalyticsDistributionRow.java backend/src/main/java/com/campus/mapper/AnalyticsReadMapper.java backend/src/main/java/com/campus/service/AnalyticsService.java backend/src/main/java/com/campus/controller/AnalyticsController.java backend/src/main/java/com/campus/config/SecurityConfig.java backend/src/test/java/com/campus/service/AnalyticsServiceTests.java backend/src/test/java/com/campus/controller/AnalyticsControllerTests.java
@@ -300,7 +300,7 @@ git commit -m "feat: add public analytics summary endpoint"
 - Modify: `backend/src/test/java/com/campus/service/HomeServiceTests.java`
 - Modify: `backend/src/test/java/com/campus/controller/HomeControllerTests.java`
 
-- [ ] **Step 1: Write the failing authenticated analytics and home-entry tests**
+- [x] **Step 1: Write the failing authenticated analytics and home-entry tests**
 
 Extend `AnalyticsControllerTests`:
 
@@ -366,7 +366,7 @@ assertThat(analytics.enabled()).isTrue();
 assertThat(analytics.path()).isEqualTo("/analytics");
 ```
 
-- [ ] **Step 2: Run the targeted authenticated analytics and home tests and verify failure**
+- [x] **Step 2: Run the targeted authenticated analytics and home tests and verify failure**
 
 Run:
 
@@ -377,7 +377,7 @@ mvn -q "-Dtest=AnalyticsServiceTests,AnalyticsControllerTests,HomeServiceTests,H
 
 Expected: FAIL because personal analytics shaping and live home analytics entry behavior are not implemented yet.
 
-- [ ] **Step 3: Implement personal analytics and home-entry activation**
+- [x] **Step 3: Implement personal analytics and home-entry activation**
 
 Extend `AnalyticsSummaryResponse` with personal sections:
 
@@ -426,7 +426,7 @@ Update `HomeService`:
 - authenticated summary keeps analytics enabled
 - analytics no longer carries `COMING_SOON`
 
-- [ ] **Step 4: Re-run the targeted authenticated analytics and home tests**
+- [x] **Step 4: Re-run the targeted authenticated analytics and home tests**
 
 Run:
 
@@ -437,7 +437,7 @@ mvn -q "-Dtest=AnalyticsServiceTests,AnalyticsControllerTests,HomeServiceTests,H
 
 Expected: PASS with authenticated personal analytics, clean no-history behavior, and live home analytics entry state.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/java/com/campus/dto/AnalyticsSummaryResponse.java backend/src/main/java/com/campus/service/AnalyticsService.java backend/src/main/java/com/campus/controller/AnalyticsController.java backend/src/main/java/com/campus/service/HomeService.java backend/src/test/java/com/campus/service/AnalyticsServiceTests.java backend/src/test/java/com/campus/controller/AnalyticsControllerTests.java backend/src/test/java/com/campus/service/HomeServiceTests.java backend/src/test/java/com/campus/controller/HomeControllerTests.java
@@ -452,7 +452,7 @@ git commit -m "feat: add personal analytics summary and activate home entry"
 - Create: `frontend/src/views/AnalyticsView.spec.js`
 - Modify: `frontend/src/router/index.js`
 
-- [ ] **Step 1: Write the failing public analytics view tests**
+- [x] **Step 1: Write the failing public analytics view tests**
 
 Create `AnalyticsView.spec.js` to cover route and guest rendering:
 
@@ -506,7 +506,7 @@ await wrapper.find('[data-test="period-7D"]').trigger("click");
 expect(getAnalyticsSummary).toHaveBeenLastCalledWith({ period: "7D" });
 ```
 
-- [ ] **Step 2: Run the targeted analytics frontend tests and verify failure**
+- [x] **Step 2: Run the targeted analytics frontend tests and verify failure**
 
 Run:
 
@@ -517,7 +517,7 @@ npm run test -- src/views/AnalyticsView.spec.js
 
 Expected: FAIL because the analytics API adapter, route, and view do not exist yet.
 
-- [ ] **Step 3: Implement the public analytics route and guest view**
+- [x] **Step 3: Implement the public analytics route and guest view**
 
 Before writing UI code, use `@frontend-design` to preserve the current editorial desk tone, then use `@ui-ux-pro-max` to review hierarchy and mobile layout.
 
@@ -550,7 +550,7 @@ Implement `AnalyticsView.vue` so the public slice:
 - renders a guest-safe personal panel from `personalStatus="ANONYMOUS"`
 - uses existing `section-card`, `panel-card`, `dashboard-grid`, and `empty-state` patterns
 
-- [ ] **Step 4: Re-run the targeted analytics frontend tests**
+- [x] **Step 4: Re-run the targeted analytics frontend tests**
 
 Run:
 
@@ -561,7 +561,7 @@ npm run test -- src/views/AnalyticsView.spec.js
 
 Expected: PASS with a public route, public analytics rendering, and period-switch refetch behavior.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/api/analytics.js frontend/src/views/AnalyticsView.vue frontend/src/views/AnalyticsView.spec.js frontend/src/router/index.js
@@ -576,7 +576,7 @@ git commit -m "feat: add public analytics view"
 - Modify: `frontend/src/views/HomeView.vue`
 - Modify: `frontend/src/views/HomeView.spec.js`
 
-- [ ] **Step 1: Write the failing personal analytics and home-entry frontend tests**
+- [x] **Step 1: Write the failing personal analytics and home-entry frontend tests**
 
 Extend `AnalyticsView.spec.js` with authenticated cases:
 
@@ -663,7 +663,7 @@ and assert the link is rendered:
 expect(wrapper.html()).toContain('data-to="/analytics"');
 ```
 
-- [ ] **Step 2: Run the targeted personal analytics and home frontend tests and verify failure**
+- [x] **Step 2: Run the targeted personal analytics and home frontend tests and verify failure**
 
 Run:
 
@@ -674,7 +674,7 @@ npm run test -- src/views/AnalyticsView.spec.js src/views/HomeView.spec.js
 
 Expected: FAIL because the personal analytics panel and live home analytics copy are not implemented yet.
 
-- [ ] **Step 3: Implement personal analytics rendering and home activation**
+- [x] **Step 3: Implement personal analytics rendering and home activation**
 
 Update `AnalyticsView.vue` so it:
 
@@ -693,7 +693,7 @@ Update `HomeView.vue` so:
 - analytics meta label no longer defaults to `COMING_SOON`
 - the surrounding copy positions analytics as the trend-and-path overview desk
 
-- [ ] **Step 4: Re-run the targeted personal analytics and home frontend tests**
+- [x] **Step 4: Re-run the targeted personal analytics and home frontend tests**
 
 Run:
 
@@ -704,7 +704,7 @@ npm run test -- src/views/AnalyticsView.spec.js src/views/HomeView.spec.js
 
 Expected: PASS with guest/public analytics, authenticated personal desk behavior, and a live home analytics entry.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/views/AnalyticsView.vue frontend/src/views/AnalyticsView.spec.js frontend/src/views/HomeView.vue frontend/src/views/HomeView.spec.js
@@ -716,7 +716,7 @@ git commit -m "feat: activate analytics entry and personal analytics panel"
 **Files:**
 - Modify: `README.md`
 
-- [ ] **Step 1: Update README for Phase L analytics**
+- [x] **Step 1: Update README for Phase L analytics**
 
 Document:
 
@@ -731,7 +731,7 @@ Document:
   - log in
   - confirm personal analytics or assessment CTA
 
-- [ ] **Step 2: Run the targeted backend verification set**
+- [x] **Step 2: Run the targeted backend verification set**
 
 Run:
 
@@ -742,7 +742,7 @@ mvn -q "-Dtest=AnalyticsServiceTests,AnalyticsControllerTests,HomeServiceTests,H
 
 Expected: PASS.
 
-- [ ] **Step 3: Run the targeted frontend verification set**
+- [x] **Step 3: Run the targeted frontend verification set**
 
 Run:
 
@@ -753,7 +753,7 @@ npm run test -- src/views/AnalyticsView.spec.js src/views/HomeView.spec.js
 
 Expected: PASS.
 
-- [ ] **Step 4: Run full regression and build**
+- [x] **Step 4: Run full regression and build**
 
 Run:
 
@@ -770,7 +770,7 @@ npm run build
 
 Expected: PASS across the full backend and frontend suites.
 
-- [ ] **Step 5: Manual smoke and commit**
+- [x] **Step 5: Manual smoke and commit**
 
 Manual smoke:
 

@@ -180,7 +180,7 @@ All UI tasks in this plan must explicitly use these skills before shipping:
 - Create: `backend/src/main/java/com/campus/controller/DecisionAssessmentController.java`
 - Create: `backend/src/test/java/com/campus/controller/DecisionAssessmentControllerTests.java`
 
-- [ ] **Step 1: Write the failing question-read controller tests**
+- [x] **Step 1: Write the failing question-read controller tests**
 
 Create `DecisionAssessmentControllerTests` with `@SpringBootTest`, `@AutoConfigureMockMvc`, and `@Sql("/schema.sql", "/data.sql")` coverage:
 
@@ -203,7 +203,7 @@ void questionsReturnOrderedQuestionSet() throws Exception {
 }
 ```
 
-- [ ] **Step 2: Run the targeted controller tests and verify failure**
+- [x] **Step 2: Run the targeted controller tests and verify failure**
 
 Run:
 
@@ -214,7 +214,7 @@ mvn -q "-Dtest=DecisionAssessmentControllerTests" test
 
 Expected: FAIL because the tables, seed rows, DTO, service, and controller do not exist yet.
 
-- [ ] **Step 3: Add the Phase K assessment schema, seed data, and read-only endpoint**
+- [x] **Step 3: Add the Phase K assessment schema, seed data, and read-only endpoint**
 
 Update `schema.sql` to add:
 
@@ -244,7 +244,7 @@ public record DecisionAssessmentQuestionResponse(List<QuestionItem> questions) {
 }
 ```
 
-- [ ] **Step 4: Re-run the targeted question tests**
+- [x] **Step 4: Re-run the targeted question tests**
 
 Run:
 
@@ -255,7 +255,7 @@ mvn -q "-Dtest=DecisionAssessmentControllerTests" test
 
 Expected: PASS with the ordered authenticated question contract.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/resources/schema.sql backend/src/main/resources/data.sql backend/src/main/java/com/campus/entity/DecisionAssessmentQuestion.java backend/src/main/java/com/campus/entity/DecisionAssessmentOption.java backend/src/main/java/com/campus/mapper/DecisionAssessmentQuestionMapper.java backend/src/main/java/com/campus/mapper/DecisionAssessmentOptionMapper.java backend/src/main/java/com/campus/dto/DecisionAssessmentQuestionResponse.java backend/src/main/java/com/campus/service/DecisionAssessmentService.java backend/src/main/java/com/campus/controller/DecisionAssessmentController.java backend/src/test/java/com/campus/controller/DecisionAssessmentControllerTests.java
@@ -275,7 +275,7 @@ git commit -m "feat: add decision assessment question contract"
 - Create: `backend/src/test/java/com/campus/service/DecisionAssessmentServiceTests.java`
 - Modify: `backend/src/test/java/com/campus/controller/DecisionAssessmentControllerTests.java`
 
-- [ ] **Step 1: Write the failing scoring and latest-result tests**
+- [x] **Step 1: Write the failing scoring and latest-result tests**
 
 Add service tests for deterministic scoring:
 
@@ -322,7 +322,7 @@ Also cover:
 - option-question mismatch -> body `code=400`
 - latest without session -> `hasResult=false`
 
-- [ ] **Step 2: Run the targeted assessment tests and verify failure**
+- [x] **Step 2: Run the targeted assessment tests and verify failure**
 
 Run:
 
@@ -333,7 +333,7 @@ mvn -q "-Dtest=DecisionAssessmentServiceTests,DecisionAssessmentControllerTests"
 
 Expected: FAIL because session persistence and submit/latest contracts are not implemented.
 
-- [ ] **Step 3: Implement assessment session persistence and scoring**
+- [x] **Step 3: Implement assessment session persistence and scoring**
 
 Add `t_decision_assessment_session` to `schema.sql`.
 
@@ -376,7 +376,7 @@ Validation rules to enforce in this task:
 - every `optionId` must belong to the specified `questionId`
 - unknown question or option IDs are rejected
 
-- [ ] **Step 4: Re-run the targeted assessment tests**
+- [x] **Step 4: Re-run the targeted assessment tests**
 
 Run:
 
@@ -387,7 +387,7 @@ mvn -q "-Dtest=DecisionAssessmentServiceTests,DecisionAssessmentControllerTests"
 
 Expected: PASS with deterministic scoring, persisted latest result, and stable validation behavior.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/resources/schema.sql backend/src/main/java/com/campus/entity/DecisionAssessmentSession.java backend/src/main/java/com/campus/mapper/DecisionAssessmentSessionMapper.java backend/src/main/java/com/campus/dto/DecisionAssessmentSubmissionRequest.java backend/src/main/java/com/campus/dto/DecisionAssessmentResultResponse.java backend/src/main/java/com/campus/service/DecisionAssessmentService.java backend/src/main/java/com/campus/controller/DecisionAssessmentController.java backend/src/test/java/com/campus/service/DecisionAssessmentServiceTests.java backend/src/test/java/com/campus/controller/DecisionAssessmentControllerTests.java
@@ -407,7 +407,7 @@ git commit -m "feat: add decision assessment scoring flow"
 - Create: `backend/src/test/java/com/campus/service/DecisionTimelineServiceTests.java`
 - Create: `backend/src/test/java/com/campus/controller/DecisionTimelineControllerTests.java`
 
-- [ ] **Step 1: Write the failing timeline tests**
+- [x] **Step 1: Write the failing timeline tests**
 
 Create service coverage for milestone projection:
 
@@ -443,7 +443,7 @@ Also cover:
 - invalid `track` -> body `code=400`
 - explicit `anchorDate` returns ordered milestones
 
-- [ ] **Step 2: Run the targeted timeline tests and verify failure**
+- [x] **Step 2: Run the targeted timeline tests and verify failure**
 
 Run:
 
@@ -454,7 +454,7 @@ mvn -q "-Dtest=DecisionTimelineServiceTests,DecisionTimelineControllerTests" tes
 
 Expected: FAIL because no milestone table, DTO, or projection service exists.
 
-- [ ] **Step 3: Implement the timeline milestone slice**
+- [x] **Step 3: Implement the timeline milestone slice**
 
 Add `t_decision_timeline_milestone` to `schema.sql` and seed ordered `CAREER`, `EXAM`, and `ABROAD` rows in `data.sql`.
 
@@ -493,7 +493,7 @@ Anchor rules:
 - otherwise use latest assessment session date for the current user
 - if neither exists, return `assessmentRequired=true` with empty items
 
-- [ ] **Step 4: Re-run the targeted timeline tests**
+- [x] **Step 4: Re-run the targeted timeline tests**
 
 Run:
 
@@ -504,7 +504,7 @@ mvn -q "-Dtest=DecisionTimelineServiceTests,DecisionTimelineControllerTests" tes
 
 Expected: PASS with stable anchor semantics and the assessment-required empty state.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/resources/schema.sql backend/src/main/resources/data.sql backend/src/main/java/com/campus/entity/DecisionTimelineMilestone.java backend/src/main/java/com/campus/mapper/DecisionTimelineMilestoneMapper.java backend/src/main/java/com/campus/dto/DecisionTimelineResponse.java backend/src/main/java/com/campus/service/DecisionTimelineService.java backend/src/main/java/com/campus/controller/DecisionTimelineController.java backend/src/test/java/com/campus/service/DecisionTimelineServiceTests.java backend/src/test/java/com/campus/controller/DecisionTimelineControllerTests.java
@@ -530,7 +530,7 @@ git commit -m "feat: add decision timeline endpoint"
 - Create: `backend/src/test/java/com/campus/service/DecisionSchoolServiceTests.java`
 - Create: `backend/src/test/java/com/campus/controller/DecisionSchoolControllerTests.java`
 
-- [ ] **Step 1: Write the failing school search and compare tests**
+- [x] **Step 1: Write the failing school search and compare tests**
 
 Controller coverage:
 
@@ -568,7 +568,7 @@ Service coverage should also verify:
 - invalid mixed-domain compare returns body `code=400`
 - `chartSeries` includes only `chartable=true` metrics
 
-- [ ] **Step 2: Run the targeted school tests and verify failure**
+- [x] **Step 2: Run the targeted school tests and verify failure**
 
 Run:
 
@@ -579,7 +579,7 @@ mvn -q "-Dtest=DecisionSchoolServiceTests,DecisionSchoolControllerTests" test
 
 Expected: FAIL because the school tables, DTOs, service, and controller do not exist.
 
-- [ ] **Step 3: Implement the public school slice**
+- [x] **Step 3: Implement the public school slice**
 
 Add to `schema.sql`:
 
@@ -624,7 +624,7 @@ The response should make ordering explicit:
 - `chartSeries` ordered by `metricOrder` and filtered to `chartable=true` metrics only
 - each table/chart cell includes explicit missing-value markers
 
-- [ ] **Step 4: Re-run the targeted school tests**
+- [x] **Step 4: Re-run the targeted school tests**
 
 Run:
 
@@ -635,7 +635,7 @@ mvn -q "-Dtest=DecisionSchoolServiceTests,DecisionSchoolControllerTests" test
 
 Expected: PASS with public list/compare contracts and deterministic output ordering.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/main/resources/schema.sql backend/src/main/resources/data.sql backend/src/main/java/com/campus/entity/DecisionSchoolProfile.java backend/src/main/java/com/campus/entity/DecisionSchoolMetricDefinition.java backend/src/main/java/com/campus/entity/DecisionSchoolMetric.java backend/src/main/java/com/campus/mapper/DecisionSchoolProfileMapper.java backend/src/main/java/com/campus/mapper/DecisionSchoolMetricDefinitionMapper.java backend/src/main/java/com/campus/mapper/DecisionSchoolMetricMapper.java backend/src/main/java/com/campus/dto/DecisionSchoolListResponse.java backend/src/main/java/com/campus/dto/DecisionSchoolCompareRequest.java backend/src/main/java/com/campus/dto/DecisionSchoolCompareResponse.java backend/src/main/java/com/campus/service/DecisionSchoolService.java backend/src/main/java/com/campus/controller/DecisionSchoolController.java backend/src/test/java/com/campus/service/DecisionSchoolServiceTests.java backend/src/test/java/com/campus/controller/DecisionSchoolControllerTests.java
@@ -652,7 +652,7 @@ git commit -m "feat: add decision school compare backend"
 - Create: `frontend/src/views/TimelineView.spec.js`
 - Modify: `frontend/src/router/index.js`
 
-- [ ] **Step 1: Write the failing assessment and timeline view tests**
+- [x] **Step 1: Write the failing assessment and timeline view tests**
 
 `AssessmentView.spec.js` should cover:
 
@@ -692,7 +692,7 @@ Also add route assertions:
 - `/assessment` requires auth
 - `/timeline` requires auth
 
-- [ ] **Step 2: Run the targeted frontend tests and verify failure**
+- [x] **Step 2: Run the targeted frontend tests and verify failure**
 
 Run:
 
@@ -703,7 +703,7 @@ npm run test -- src/views/AssessmentView.spec.js src/views/TimelineView.spec.js
 
 Expected: FAIL because the views, API adapter, and routes do not exist yet.
 
-- [ ] **Step 3: Implement the assessment and timeline views**
+- [x] **Step 3: Implement the assessment and timeline views**
 
 Create `frontend/src/api/decision.js` with:
 
@@ -738,7 +738,7 @@ Implement the pages so they:
 - only call the timeline API when a latest result or explicit anchor exists
 - show the assessment-required empty state when no anchor exists
 
-- [ ] **Step 4: Re-run the targeted frontend tests**
+- [x] **Step 4: Re-run the targeted frontend tests**
 
 Run:
 
@@ -749,7 +749,7 @@ npm run test -- src/views/AssessmentView.spec.js src/views/TimelineView.spec.js
 
 Expected: PASS with live routes, question flow, result rendering, and assessment-gated timeline behavior.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/api/decision.js frontend/src/views/AssessmentView.vue frontend/src/views/TimelineView.vue frontend/src/views/AssessmentView.spec.js frontend/src/views/TimelineView.spec.js frontend/src/router/index.js
@@ -769,7 +769,7 @@ git commit -m "feat: add decision assessment and timeline views"
 - Modify: `backend/src/test/java/com/campus/service/HomeServiceTests.java`
 - Modify: `backend/src/test/java/com/campus/controller/HomeControllerTests.java`
 
-- [ ] **Step 1: Write the failing school-compare and home-entry tests**
+- [x] **Step 1: Write the failing school-compare and home-entry tests**
 
 `SchoolCompareView.spec.js` should cover:
 
@@ -798,7 +798,7 @@ Extend backend home tests to assert:
 
 Extend `HomeView.spec.js` to assert the live assessment link is rendered for authenticated summaries.
 
-- [ ] **Step 2: Run the targeted backend and frontend tests and verify failure**
+- [x] **Step 2: Run the targeted backend and frontend tests and verify failure**
 
 Run:
 
@@ -814,7 +814,7 @@ npm run test -- src/views/SchoolCompareView.spec.js src/views/HomeView.spec.js
 
 Expected: FAIL because the home entry is still a placeholder and the school compare view does not exist.
 
-- [ ] **Step 3: Implement school compare UI and home-entry activation**
+- [x] **Step 3: Implement school compare UI and home-entry activation**
 
 Add the public route:
 
@@ -847,7 +847,7 @@ Update `HomeService` so:
 
 Update `HomeView.vue` copy so the decision-support entry reads as live while `analytics` stays clearly future-facing.
 
-- [ ] **Step 4: Re-run the targeted backend and frontend tests**
+- [x] **Step 4: Re-run the targeted backend and frontend tests**
 
 Run:
 
@@ -863,7 +863,7 @@ npm run test -- src/views/SchoolCompareView.spec.js src/views/HomeView.spec.js
 
 Expected: PASS with public school compare flow and live home entry activation.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add frontend/src/views/SchoolCompareView.vue frontend/src/views/SchoolCompareView.spec.js frontend/src/api/decision.js frontend/src/router/index.js frontend/src/views/HomeView.vue frontend/src/views/HomeView.spec.js backend/src/main/java/com/campus/service/HomeService.java backend/src/test/java/com/campus/service/HomeServiceTests.java backend/src/test/java/com/campus/controller/HomeControllerTests.java
@@ -875,7 +875,7 @@ git commit -m "feat: add school compare page and activate decision entry"
 **Files:**
 - Modify: `README.md`
 
-- [ ] **Step 1: Update README for Phase K decision support**
+- [x] **Step 1: Update README for Phase K decision support**
 
 Document:
 
@@ -888,7 +888,7 @@ Document:
   - compare schools
 - explicit note that `analytics` remains out of scope in this phase
 
-- [ ] **Step 2: Run the targeted backend verification set**
+- [x] **Step 2: Run the targeted backend verification set**
 
 Run:
 
@@ -899,7 +899,7 @@ mvn -q "-Dtest=DecisionAssessmentServiceTests,DecisionAssessmentControllerTests,
 
 Expected: PASS.
 
-- [ ] **Step 3: Run the targeted frontend verification set**
+- [x] **Step 3: Run the targeted frontend verification set**
 
 Run:
 
@@ -910,7 +910,7 @@ npm run test -- src/views/AssessmentView.spec.js src/views/TimelineView.spec.js 
 
 Expected: PASS.
 
-- [ ] **Step 4: Run full regression and build**
+- [x] **Step 4: Run full regression and build**
 
 Run:
 
@@ -927,7 +927,7 @@ npm run build
 
 Expected: PASS across the full backend and frontend suites.
 
-- [ ] **Step 5: Manual smoke and commit**
+- [x] **Step 5: Manual smoke and commit**
 
 Manual smoke:
 
