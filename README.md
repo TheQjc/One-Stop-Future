@@ -492,7 +492,7 @@ Authenticated user:
 - can create community posts
 - can comment / reply / like / favorite community posts
 - can favorite jobs
-- can manage their own resume library at `/profile/resumes`
+- can manage their own resume library at `/profile/resumes`, preview `PDF` / `DOCX` resumes inline, and download stored resume files
 - can apply to a published job once with one selected resume
 - can review their application history at `/profile/applications`, preview `PDF` / `DOCX` snapshot resumes inline, and download stored snapshot resumes
 - can complete the decision assessment and view the latest result
@@ -604,8 +604,8 @@ Resource statuses:
 42. Log in as the admin `13800000000`, open `/admin/dashboard`, and confirm the page renders a read-only overview.
 43. From both the homepage admin entry and the main nav admin entry, confirm navigation lands on `/admin/dashboard`.
 44. From `/admin/dashboard`, confirm the handoff links route into the existing admin workbenches.
-45. Log in as `13800000001`, open `/profile/resumes`, and upload at least one `PDF` or `DOCX` resume.
-46. Open `/jobs/1`, confirm `Source Link` is still present, and submit one in-platform application with that previewable resume.
+45. Log in as `13800000001`, open `/profile/resumes`, upload at least one `PDF` or `DOCX` resume, and confirm the row shows both `Preview` and `Download`.
+46. Use `Preview` from `/profile/resumes`, confirm the resume opens inline, then open `/jobs/1`, confirm `Source Link` is still present, and submit one in-platform application with that previewable resume.
 47. Open `/profile/applications` and confirm the new record shows job title, company, city, status, submitted time, the resume snapshot title, plus both `Preview` and `Download`.
 48. Use `Preview` from `/profile/applications`, confirm the snapshot opens inline, then delete the original live resume from `/profile/resumes`, return to `/profile/applications`, and confirm the record still renders.
 49. Log in as admin `13800000000`, open `/admin/applications`, and confirm the same record renders with applicant info, resume snapshot file name, and both `Preview` and `Download Resume`.

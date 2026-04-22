@@ -121,7 +121,7 @@ This plan explicitly does not implement:
 - Create: `backend/src/main/java/com/campus/preview/ResumePreviewService.java`
 - Create: `backend/src/test/java/com/campus/preview/ResumePreviewServiceTests.java`
 
-- [ ] **Step 1: Write the failing resume-preview-service tests**
+- [x] **Step 1: Write the failing resume-preview-service tests**
 
 Create `ResumePreviewServiceTests` with focused coverage:
 
@@ -197,7 +197,7 @@ class ResumePreviewServiceTests {
 }
 ```
 
-- [ ] **Step 2: Run the targeted preview-service tests and verify failure**
+- [x] **Step 2: Run the targeted preview-service tests and verify failure**
 
 Run:
 
@@ -208,7 +208,7 @@ mvn -q "-Dtest=ResumePreviewServiceTests" test
 
 Expected: FAIL because `ResumePreviewService` does not exist yet.
 
-- [ ] **Step 3: Implement the resume preview service**
+- [x] **Step 3: Implement the resume preview service**
 
 Create `ResumePreviewService` in the preview package so it stays close to the existing preview stack:
 
@@ -274,7 +274,7 @@ Keep the helper methods small and parallel to `ResourcePreviewService`:
 - `previewFileName(...)` converts `*.docx` to `*.pdf`
 - `isPdf(...)` and `isDocx(...)` accept both extension and content type
 
-- [ ] **Step 4: Re-run the targeted preview-service tests and verify success**
+- [x] **Step 4: Re-run the targeted preview-service tests and verify success**
 
 Run:
 
@@ -291,7 +291,7 @@ Expected: PASS with:
 - cache write on miss
 - conversion failures translated to `resume preview unavailable`
 
-- [ ] **Step 5: Commit the preview-service foundation**
+- [x] **Step 5: Commit the preview-service foundation**
 
 ```bash
 git add backend/src/main/java/com/campus/preview/ResumePreviewService.java backend/src/test/java/com/campus/preview/ResumePreviewServiceTests.java
@@ -306,7 +306,7 @@ git commit -m "feat: add resume preview service"
 - Modify: `backend/src/main/java/com/campus/dto/ResumeRecordResponse.java`
 - Modify: `backend/src/test/java/com/campus/controller/ResumeControllerTests.java`
 
-- [ ] **Step 1: Write the failing controller regressions**
+- [x] **Step 1: Write the failing controller regressions**
 
 Extend `ResumeControllerTests`:
 
@@ -438,7 +438,7 @@ void deletingDocxResumeDeletesGeneratedPreviewArtifact() throws Exception {
 
 Use the same fingerprint helper formula inline in the test or compute it from a small local helper so the expected artifact path stays deterministic.
 
-- [ ] **Step 2: Run the targeted resume controller tests and verify failure**
+- [x] **Step 2: Run the targeted resume controller tests and verify failure**
 
 Run:
 
@@ -449,7 +449,7 @@ mvn -q "-Dtest=ResumeControllerTests" test
 
 Expected: FAIL because the preview endpoint, preview metadata, and delete-time preview cleanup do not exist yet.
 
-- [ ] **Step 3: Implement the backend resume preview contract**
+- [x] **Step 3: Implement the backend resume preview contract**
 
 Update `ResumeRecordResponse`:
 
@@ -545,7 +545,7 @@ public ResponseEntity<InputStreamResource> preview(@PathVariable Long id, Authen
 }
 ```
 
-- [ ] **Step 4: Re-run the targeted resume controller tests and verify success**
+- [x] **Step 4: Re-run the targeted resume controller tests and verify success**
 
 Run:
 
@@ -563,7 +563,7 @@ Expected: PASS with:
 - owner-only access enforced
 - delete-time stale preview cleanup green
 
-- [ ] **Step 5: Commit the backend preview contract**
+- [x] **Step 5: Commit the backend preview contract**
 
 ```bash
 git add backend/src/main/java/com/campus/controller/ResumeController.java backend/src/main/java/com/campus/service/ResumeService.java backend/src/main/java/com/campus/dto/ResumeRecordResponse.java backend/src/test/java/com/campus/controller/ResumeControllerTests.java
@@ -577,7 +577,7 @@ git commit -m "feat: add owned resume preview endpoint"
 - Modify: `frontend/src/views/ProfileResumesView.vue`
 - Modify: `frontend/src/views/ProfileResumesView.spec.js`
 
-- [ ] **Step 1: Write the failing frontend preview regressions**
+- [x] **Step 1: Write the failing frontend preview regressions**
 
 Extend `ProfileResumesView.spec.js`:
 
@@ -642,7 +642,7 @@ test("pdf and docx resumes show preview while doc stays download-only", async ()
 
 3. Keep the current upload/download/delete regression and extend the mocked data with preview metadata so the component contract matches the new backend shape.
 
-- [ ] **Step 2: Run the targeted profile-resume frontend tests and verify failure**
+- [x] **Step 2: Run the targeted profile-resume frontend tests and verify failure**
 
 Run:
 
@@ -653,7 +653,7 @@ npx vitest run src/views/ProfileResumesView.spec.js
 
 Expected: FAIL because `previewResume(...)` and the preview button are not implemented yet.
 
-- [ ] **Step 3: Implement the frontend preview action**
+- [x] **Step 3: Implement the frontend preview action**
 
 Update `frontend/src/api/resumes.js` with the same blob-open pattern used by `previewResource(...)`:
 
@@ -699,7 +699,7 @@ Recommended button block:
 </button>
 ```
 
-- [ ] **Step 4: Re-run the targeted profile-resume frontend tests and verify success**
+- [x] **Step 4: Re-run the targeted profile-resume frontend tests and verify success**
 
 Run:
 
@@ -715,7 +715,7 @@ Expected: PASS with:
 - preview action calling `previewResume(id)`
 - upload/download/delete behavior remaining green
 
-- [ ] **Step 5: Commit the frontend preview action**
+- [x] **Step 5: Commit the frontend preview action**
 
 ```bash
 git add frontend/src/api/resumes.js frontend/src/views/ProfileResumesView.vue frontend/src/views/ProfileResumesView.spec.js
@@ -728,7 +728,7 @@ git commit -m "feat: add resume preview action to profile library"
 - Modify: `README.md`
 - Modify: `docs/superpowers/specs/2026-04-22-study-career-platform-phase-z-resume-online-preview-design.md`
 
-- [ ] **Step 1: Update the README**
+- [x] **Step 1: Update the README**
 
 Apply the following documentation changes:
 
@@ -752,7 +752,7 @@ Suggested wording:
 - application snapshot preview and admin-side resume preview are still out of scope
 ```
 
-- [ ] **Step 2: Add the Phase Z validation note to the spec**
+- [x] **Step 2: Add the Phase Z validation note to the spec**
 
 Add a validation note near the top of the Phase Z spec:
 
@@ -760,7 +760,7 @@ Add a validation note near the top of the Phase Z spec:
 > **Validation note:** This design was implemented and validated on 2026-04-22 using the approved execution record at `docs/superpowers/plans/2026-04-22-study-career-platform-phase-z-resume-online-preview-implementation.md`. Local verification suites now present for this slice are `ResumePreviewServiceTests`, `ResumeControllerTests`, `ResourcePreviewStorageConfigurationTests`, and `ProfileResumesView.spec.js`.
 ```
 
-- [ ] **Step 3: Run the targeted verification suites**
+- [x] **Step 3: Run the targeted verification suites**
 
 Backend:
 
@@ -785,7 +785,7 @@ npx vitest run src/views/ProfileResumesView.spec.js
 
 Expected: PASS with the new preview button behavior and no regressions to upload/download/delete interactions.
 
-- [ ] **Step 4: Commit the rollout notes**
+- [x] **Step 4: Commit the rollout notes**
 
 ```bash
 git add README.md docs/superpowers/specs/2026-04-22-study-career-platform-phase-z-resume-online-preview-design.md
@@ -794,11 +794,11 @@ git commit -m "docs: add phase z resume preview rollout notes"
 
 ## Final Verification Checklist
 
-- [ ] `backend/src/test/java/com/campus/preview/ResumePreviewServiceTests.java`
-- [ ] `backend/src/test/java/com/campus/controller/ResumeControllerTests.java`
-- [ ] `backend/src/test/java/com/campus/preview/ResourcePreviewServiceTests.java`
-- [ ] `backend/src/test/java/com/campus/config/ResourcePreviewStorageConfigurationTests.java`
-- [ ] `frontend/src/views/ProfileResumesView.spec.js`
+- [x] `backend/src/test/java/com/campus/preview/ResumePreviewServiceTests.java`
+- [x] `backend/src/test/java/com/campus/controller/ResumeControllerTests.java`
+- [x] `backend/src/test/java/com/campus/preview/ResourcePreviewServiceTests.java`
+- [x] `backend/src/test/java/com/campus/config/ResourcePreviewStorageConfigurationTests.java`
+- [x] `frontend/src/views/ProfileResumesView.spec.js`
 
 ## Execution Notes
 
