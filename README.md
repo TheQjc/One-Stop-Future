@@ -1,97 +1,96 @@
-# One-Stop Future
+# 一站式成长平台（One-Stop Future）
 
-Current repo status: `Phase A foundation + Phase B community + Phase C jobs + Phase D resource library first slice + Phase E unified search first slice + Phase F discover ranking first slice + Phase G resource lifecycle completion first slice + Phase H resource preview expansion first slice + Phase I MinIO raw resource storage first slice + Phase J historical local resource MinIO migration first slice + Phase K decision support first slice + Phase L decision analytics first slice + Phase M admin dashboard first slice + Phase N job application and resume workflow first slice + Phase O admin user status management first slice + Phase P community hot ranking first slice + Phase Q community experience post structure first slice + Phase R community threaded replies first slice + Phase S DOCX resource preview first slice + Phase T MinIO preview artifact storage first slice + Phase U admin batch job import first slice + Phase V third-party job sync first slice + Phase W historical preview artifact MinIO migration first slice + Phase X preview artifact runtime dual-read fallback first slice + Phase Y preview artifact cleanup first slice + Phase Z resume online preview first slice + Phase AA application snapshot online preview first slice`.
+当前仓库状态：`Phase A 基础能力 + Phase B 社区 + Phase C 岗位 + Phase D 资料库首个切片 + Phase E 统一搜索首个切片 + Phase F 趋势榜首个切片 + Phase G 资料生命周期完善首个切片 + Phase H 资料预览扩展首个切片 + Phase I MinIO 原始资料存储首个切片 + Phase J 历史本地资料 MinIO 迁移首个切片 + Phase K 决策支持首个切片 + Phase L 决策分析首个切片 + Phase M 管理端总览首个切片 + Phase N 岗位申请与简历流程首个切片 + Phase O 管理端用户状态管理首个切片 + Phase P 社区热榜首个切片 + Phase Q 经验贴结构化首个切片 + Phase R 社区分层回复首个切片 + Phase S DOCX 资料预览首个切片 + Phase T MinIO 预览产物存储首个切片 + Phase U 管理端岗位批量导入首个切片 + Phase V 第三方岗位同步首个切片 + Phase W 历史预览产物 MinIO 迁移首个切片 + Phase X 预览产物运行时双读兜底首个切片 + Phase Y 预览产物清理首个切片 + Phase Z 简历在线预览首个切片 + Phase AA 申请快照在线预览首个切片`。
 
-## Current Scope
+## 当前范围
 
-Implemented now:
+当前已实现：
 
-- phone-code register / login
-- account status control with banned-login enforcement
-- independent aggregation home
-- profile center and student verification apply flow
-- notification center
-- community list / detail / create / comment / reply / like / favorite
-- community hot ranking with `DAY / WEEK / ALL` boards inside `/community`
-- optional community experience-post structure in create / list / detail flows
-- one-level community threaded replies with reply notifications
-- my posts / my favorites
-- jobs list / detail / filters / source jump
-- job favorite / unfavorite
-- resume library upload / list / preview / download / delete
-- in-platform one-time job apply with resume snapshot
-- my applications history with snapshot preview / download actions
-- admin applications read-only workbench with snapshot preview / download
-- public resource list / detail / upload
-- resource preview / download / favorite / unfavorite
-- my resources / resource favorites / rejected edit-resubmit
-- admin verification review
-- admin community moderation
-- admin jobs create / edit / publish / offline / delete
-- admin batch job import from UTF-8 CSV on `/admin/jobs`, with imported rows created as `DRAFT` and whole-file rollback on validation failure
-- admin third-party job sync from one fixed HTTP JSON feed on `/admin/jobs`, with new rows created as `DRAFT`, existing non-`DELETED` rows updated by `sourceUrl`, and skipped / invalid items reported in the same sync summary
-- admin resource publish / reject / offline review workspace
-- MinIO-backed raw resource storage for non-`local` runtimes and independently selectable MinIO-backed preview artifact storage for newly generated `PPTX` / `DOCX` / `ZIP` preview artifacts
-- admin historical local-resource MinIO migration with dry-run and bounded batch execution
-- admin historical preview-artifact MinIO migration with dry-run and bounded batch execution
-- admin dashboard read-only summary overview with handoff to existing workbenches
-- admin user status workbench with ban / restore controls for non-admin accounts
-- unified search across published posts / jobs / resources
-- discover board across published posts / jobs / resources
-- homepage discover preview with weekly public picks
-- discover / homepage post ranking gives experience posts a small deterministic boost without changing community-feed ordering
-- authenticated decision assessment questions / submit / latest result
-- authenticated direction timeline with stable anchor-date fallback
-- public school candidate listing and 2-4 school comparison for `EXAM` / `ABROAD`
-- authenticated homepage assessment entry activation
-- public decision analytics desk at `/analytics` with `7D / 30D` overview, trend, and direction-mix views
-- authenticated personal decision analytics snapshot / history / next actions on the same `/analytics` page
-- homepage analytics entry activation for both guests and authenticated users
-- PDF inline preview for visible resources
-- PPTX inline preview via cached PDF conversion
-- DOCX inline preview via cached PDF conversion through configurable `soffice`
-- ZIP directory-tree preview for visible resources
+- 手机验证码注册 / 登录
+- 账号状态控制与封禁后禁止登录
+- 独立聚合首页
+- 个人中心与学生认证申请流程
+- 通知中心
+- 社区列表 / 详情 / 发布 / 评论 / 回复 / 点赞 / 收藏
+- `/community` 内的 `DAY / WEEK / ALL` 社区热榜
+- 在发帖、列表、详情流程里可选启用的经验贴结构
+- 社区一级分层回复与回复通知
+- 我的帖子 / 我的收藏
+- 岗位列表 / 详情 / 筛选 / 来源跳转
+- 岗位收藏 / 取消收藏
+- 简历库上传 / 列表 / 预览 / 下载 / 删除
+- 站内一次性岗位申请与简历快照
+- 我的申请历史，以及快照预览 / 下载
+- 管理端只读申请工作台，以及快照预览 / 下载
+- 公开资料列表 / 详情 / 上传
+- 资料预览 / 下载 / 收藏 / 取消收藏
+- 我的资料 / 资料收藏 / 驳回后编辑重提
+- 管理端认证审核
+- 管理端社区治理
+- 管理端岗位创建 / 编辑 / 发布 / 下线 / 删除
+- `/admin/jobs` 上基于 UTF-8 CSV 的管理端岗位批量导入；导入成功的记录以 `DRAFT` 创建，校验失败时整文件回滚
+- `/admin/jobs` 上基于固定 HTTP JSON 数据源的第三方岗位同步；新记录以 `DRAFT` 创建，已存在且非 `DELETED` 的记录按 `sourceUrl` 原地更新，跳过项和无效项在同步结果中统一汇总
+- 非 `local` 运行环境下使用 MinIO 存储原始资料，并支持为新生成的 `PPTX` / `DOCX` / `ZIP` 预览产物单独启用基于 MinIO 的存储
+- 管理端历史本地资料向 MinIO 迁移，支持 dry-run 和有界批处理
+- 管理端历史预览产物向 MinIO 迁移，支持 dry-run 和有界批处理
+- 管理端只读总览页，可跳转到现有工作台
+- 管理端用户状态工作台，可对非管理员账号执行封禁 / 恢复
+- 面向已发布帖子 / 岗位 / 资料的统一搜索
+- 面向已发布帖子 / 岗位 / 资料的趋势榜
+- 首页每周趋势预览
+- 趋势榜 / 首页趋势预览中，经验贴会获得一个稳定且较小的额外加分，但不会改变社区时间流排序
+- 登录用户可进行决策测评、提交结果并查看最近一次测评结果
+- 登录用户可查看带稳定锚点日期兜底的方向时间线
+- 面向 `EXAM` / `ABROAD` 的公开院校候选列表和 `2-4` 所院校对比
+- 首页中的测评入口已激活
+- `/analytics` 上的公开决策分析工作台，支持 `7D / 30D` 总览、趋势与方向占比
+- 登录用户在同一个 `/analytics` 页面中可查看个人决策快照、历史记录与下一步建议
+- 首页中的分析入口对游客和登录用户都已激活
+- 可见资料支持 PDF 内联预览
+- PPTX 通过缓存后的 PDF 转换结果进行内联预览
+- DOCX 通过可配置的 `soffice` 转换为缓存 PDF 后进行内联预览
+- ZIP 支持目录树内联预览
 
-Explicitly not implemented yet:
+当前明确未实现：
 
-- full admin operations dashboards, DAU / funnel metrics, or exportable analytics reports
-- version history, chunk upload, or resume rename / replace
+- 完整的管理后台运营看板、DAU / 漏斗指标、可导出分析报表
+- 版本历史、分片上传、简历重命名 / 替换
 
-## Project Structure
+## 项目结构
 
-- `backend/`: Spring Boot 3, Spring Security, MyBatis-Plus, JWT
-- `frontend/`: Vue 3, Pinia, Vue Router, Axios, Vite, Vitest
-- `docs/superpowers/`: requirements, specs, plans
-- `backend/.local-storage/resources/`: default local raw resource storage in the `local` profile
-- `backend/.local-storage/previews/`: default cached PPTX-to-PDF, DOCX-to-PDF, and ZIP preview artifacts in the `local` profile; non-`local` runtimes can instead write newly generated preview artifacts to MinIO through `RESOURCE_PREVIEW_TYPE=minio`
-  - current preview behavior invalidates preview cache by fingerprinting and writing a new artifact
-  - switching preview storage from local to MinIO does not automatically migrate historical local preview artifacts
-  - runtime reads can use `MinIO first -> local historical fallback` only when `RESOURCE_PREVIEW_READ_FALLBACK_LOCAL_ENABLED=true`
-  - admins can instead trigger historical preview-artifact MinIO migration through `POST /api/admin/resources/migrate-preview-artifacts-to-minio`
-  - stale derived preview artifacts are cleaned up best-effort after rejected-resource resubmission when the old logical preview key is known exactly
-  - passive resource interactions and admin status transitions no longer rotate preview artifact keys through unrelated `updatedAt` writes
-  - this phase still does not introduce recursive preview-root scanning or scheduled preview garbage collection
-  - to reset derived preview state during local development, stop the backend and delete `backend/.local-storage/previews/`
+- `backend/`: Spring Boot 3、Spring Security、MyBatis-Plus、JWT
+- `frontend/`: Vue 3、Pinia、Vue Router、Axios、Vite、Vitest
+- `docs/superpowers/`: 需求、规格与实施计划
+- `backend/.local-storage/resources/`: `local` profile 下默认的本地原始资料存储目录
+- `backend/.local-storage/previews/`: `local` profile 下默认的 PPTX 转 PDF、DOCX 转 PDF、ZIP 预览产物缓存目录；非 `local` 运行环境也可通过 `RESOURCE_PREVIEW_TYPE=minio` 将新生成的预览产物写入 MinIO
+  - 当前预览行为通过指纹失效并写入新产物来更新预览缓存
+  - 将预览存储从本地切换到 MinIO 不会自动迁移历史本地预览产物
+  - 仅当 `RESOURCE_PREVIEW_READ_FALLBACK_LOCAL_ENABLED=true` 时，运行时读取才支持 `MinIO 优先 -> 历史本地兜底`
+  - 管理员也可以通过 `POST /api/admin/resources/migrate-preview-artifacts-to-minio` 手动触发历史预览产物迁移
+  - 当能够精确识别旧的逻辑预览 key 时，被驳回资料重提后会尽力清理旧的派生预览产物
+  - 资料的被动交互和管理端状态流转不再因无关的 `updatedAt` 写入而轮换预览产物 key
+  - 当前阶段仍未引入递归扫描预览根目录或定时清理预览垃圾的机制
+  - 本地开发若要重置派生预览状态，请先停止后端，再删除 `backend/.local-storage/previews/`
 
-## Local Run
+## 本地运行
 
-### Backend
+### 后端
 
 ```bash
 cd backend
 mvn spring-boot:run "-Dspring-boot.run.profiles=local"
 ```
 
-Notes:
+说明：
 
-- local development must use the `local` profile
-- `local` uses embedded H2, seeded demo data, local filesystem resource storage, and local filesystem preview artifact storage
-- current defaults are relative paths; with `cd backend` they resolve to `backend/.local-storage/resources/` and `backend/.local-storage/previews/`
-- `application-local.yml` pins `RESOURCE_PREVIEW_TYPE=local`, so local development keeps preview artifacts on disk
-- resource-library `DOCX` preview requires LibreOffice `soffice` on `PATH`, or `RESOURCE_PREVIEW_DOCX_SOFFICE_COMMAND` pointing to the installed binary
-- local backend address: `http://127.0.0.1:8080`
+- 本地开发必须使用 `local` profile
+- `local` 使用内置 H2、种子数据、本地文件系统资料存储和本地文件系统预览产物存储
+- 当前默认路径均为相对路径；在 `cd backend` 后，它们会解析到 `backend/.local-storage/resources/` 和 `backend/.local-storage/previews/`
+- `application-local.yml` 固定了 `RESOURCE_PREVIEW_TYPE=local`，因此本地开发时预览产物仍保存在磁盘
+- 资料库里的 `DOCX` 预览依赖 LibreOffice `soffice` 在 `PATH` 中，或通过 `RESOURCE_PREVIEW_DOCX_SOFFICE_COMMAND` 指向实际安装路径
+- 本地后端地址：`http://127.0.0.1:8080`
 
-### Frontend
+### 前端
 
 ```bash
 cd frontend
@@ -99,37 +98,37 @@ npm install
 npm run dev -- --host 127.0.0.1
 ```
 
-Notes:
+说明：
 
-- frontend address is usually `http://127.0.0.1:5173`
-- if `5173` is occupied, Vite will select the next free port; use the actual port printed in the dev server log
-- Vite proxies `/api/**` to `http://127.0.0.1:8080`
-- current recommendation is local backend + local frontend, not Docker
+- 前端地址通常为 `http://127.0.0.1:5173`
+- 如果 `5173` 被占用，Vite 会自动选择下一个可用端口；请以开发服务器日志输出为准
+- Vite 会把 `/api/**` 代理到 `http://127.0.0.1:8080`
+- 当前推荐的开发方式仍然是本地后端 + 本地前端，而不是 Docker
 
-### Optional Docker Stack
+### 可选 Docker 运行栈
 
-If Docker and Docker Compose are available locally, an optional deployment scaffold is included:
+如果本地已安装 Docker 和 Docker Compose，仓库中也提供了一个可选的部署脚手架：
 
 ```bash
 docker compose up --build
 ```
 
-Notes:
+说明：
 
-- frontend is exposed on `http://127.0.0.1:5173`
-- MySQL is exposed on `127.0.0.1:3306`
-- MinIO API is exposed on `http://127.0.0.1:9000`
-- MinIO console is exposed on `http://127.0.0.1:9001`
-- backend is only exposed inside the Compose network and is reached through the frontend Nginx proxy
-- backend stores raw resource files in MinIO and keeps preview artifacts in the `backend-data` named volume
-- current `docker-compose.yml` does not set `RESOURCE_PREVIEW_TYPE=minio`, so this Compose scaffold still keeps preview artifacts local
-- current backend image does not install LibreOffice `soffice`, so DOCX preview generation is not container-ready by default
-- current recommendation for day-to-day development is still the local backend + local frontend flow above
-- switching an existing local-file database to MinIO is a manual admin-triggered backend migration flow in this phase, not an automatic runtime cutover
+- 前端暴露在 `http://127.0.0.1:5173`
+- MySQL 暴露在 `127.0.0.1:3306`
+- MinIO API 暴露在 `http://127.0.0.1:9000`
+- MinIO 控制台暴露在 `http://127.0.0.1:9001`
+- 后端只暴露在 Compose 网络内部，并通过前端 Nginx 代理访问
+- 后端会将原始资料文件存入 MinIO，并将预览产物保存在 `backend-data` 命名卷中
+- 当前 `docker-compose.yml` 还没有设置 `RESOURCE_PREVIEW_TYPE=minio`，因此这个 Compose 脚手架仍会把预览产物保存在本地卷中
+- 当前后端镜像没有安装 LibreOffice `soffice`，所以 DOCX 预览生成默认并不适合直接在容器里使用
+- 日常开发当前仍推荐使用前面的本地后端 + 本地前端方案
+- 若要把现有的本地文件数据库切换到 MinIO，这一阶段仍然是管理员手动触发的后端迁移流程，而不是运行时自动切换
 
-## Preview Artifact Storage
+## 预览产物存储
 
-Backend preview-artifact storage is configured independently from raw resource storage:
+后端的预览产物存储与原始资料存储是分开配置的：
 
 - `RESOURCE_PREVIEW_TYPE=local|minio`
 - `RESOURCE_PREVIEW_LOCAL_ROOT=.local-storage/previews`
@@ -137,62 +136,62 @@ Backend preview-artifact storage is configured independently from raw resource s
 - `RESOURCE_PREVIEW_READ_FALLBACK_LOCAL_ENABLED=false`
 - `RESOURCE_PREVIEW_DOCX_SOFFICE_COMMAND=soffice`
 
-Current behavior:
+当前行为：
 
-- `RESOURCE_PREVIEW_TYPE=local` keeps preview artifacts on the local filesystem
-- `RESOURCE_PREVIEW_TYPE=minio` requires `MINIO_ENABLED=true` and reuses the shared `MINIO_BUCKET`
-- preview-artifact storage selection is independent from `RESOURCE_STORAGE_TYPE`
-- only newly generated preview artifacts are written to MinIO after switching preview storage to `minio`
-- when `RESOURCE_PREVIEW_TYPE=minio` and `RESOURCE_PREVIEW_READ_FALLBACK_LOCAL_ENABLED=true`, runtime preview reads first check MinIO and then fall back to the existing local preview root for historical `PPTX`, `DOCX`, and `ZIP` artifacts
-- fallback hits remain read-only and do not automatically copy artifacts into MinIO
-- MinIO infrastructure failures are not masked by local fallback
-- admins can call `POST /api/admin/resources/migrate-preview-artifacts-to-minio` to dry-run or execute historical preview-artifact migration into MinIO
-- migration targets only the current logical `PPTX`, `DOCX`, or `ZIP` preview artifact for each eligible resource
-- successful migration keeps local source preview artifacts in place
-- stale derived preview artifacts are cleaned up best-effort after rejected-resource resubmission when the old logical preview key is known exactly
-- passive resource interactions and admin status transitions no longer rotate preview artifact keys through unrelated `updatedAt` writes
-- this phase still does not introduce recursive preview-root scanning or scheduled preview garbage collection
+- `RESOURCE_PREVIEW_TYPE=local` 会把预览产物保存在本地文件系统
+- `RESOURCE_PREVIEW_TYPE=minio` 需要 `MINIO_ENABLED=true`，并复用共享的 `MINIO_BUCKET`
+- 预览产物存储的选择与 `RESOURCE_STORAGE_TYPE` 相互独立
+- 切换到 `minio` 后，只有新生成的预览产物才会写入 MinIO
+- 当 `RESOURCE_PREVIEW_TYPE=minio` 且 `RESOURCE_PREVIEW_READ_FALLBACK_LOCAL_ENABLED=true` 时，运行时读取会先查 MinIO，再回退到现有本地预览目录中的历史 `PPTX`、`DOCX`、`ZIP` 产物
+- 本地兜底命中只读，不会自动把产物复制进 MinIO
+- MinIO 基础设施故障不会被本地兜底掩盖
+- 管理员可调用 `POST /api/admin/resources/migrate-preview-artifacts-to-minio` 对历史预览产物执行 dry-run 或实际迁移
+- 迁移只针对每个合格资料当前逻辑上的 `PPTX`、`DOCX` 或 `ZIP` 预览产物
+- 迁移成功后，本地源预览产物仍会保留
+- 当能够精确识别旧逻辑预览 key 时，被驳回资料重提后会尽力清理旧的派生预览产物
+- 资料的被动交互和管理端状态流转不再因无关的 `updatedAt` 写入而轮换预览产物 key
+- 当前阶段仍未引入递归扫描预览根目录或定时清理预览垃圾的机制
 
-## Local Demo Accounts
+## 本地演示账号
 
-When running the backend with the `local` profile, the seeded accounts are:
+当后端以 `local` profile 启动时，内置种子账号如下：
 
-- admin: `13800000000` (`PlatformAdmin`)
-- normal user: `13800000001` (`NormalUser`)
-- verified user: `13800000002` (`VerifiedUser`)
+- 管理员：`13800000000`（`平台管理员`）
+- 普通用户：`13800000001`（`普通同学`）
+- 已认证用户：`13800000002`（`认证同学`）
 
-Login uses phone-code authentication:
+登录使用手机验证码认证：
 
-- open `/login`
-- request a login code for the target phone number
-- in the local profile, the backend returns a debug code that can be used immediately
+- 打开 `/login`
+- 为目标手机号请求登录验证码
+- 在 `local` profile 下，后端会返回一个可立即使用的调试验证码
 
-## Test And Build
+## 测试与构建
 
-### Backend
+### 后端
 
 ```bash
 cd backend
 mvn -q test
 ```
 
-### Frontend Tests
+### 前端测试
 
 ```bash
 cd frontend
 npm run test
 ```
 
-### Frontend Build
+### 前端构建
 
 ```bash
 cd frontend
 npm run build
 ```
 
-## Key Routes
+## 关键路由
 
-Public / user:
+公开 / 用户侧：
 
 - `/`
 - `/login`
@@ -220,7 +219,7 @@ Public / user:
 - `/profile/resources`
 - `/notifications`
 
-Admin:
+管理端：
 
 - `/admin/dashboard`
 - `/admin/users`
@@ -230,9 +229,9 @@ Admin:
 - `/admin/jobs`
 - `/admin/resources`
 
-## Foundation Auth, Home, Profile, Notifications, And Verification
+## 基础认证、首页、个人中心、通知与认证
 
-Backend endpoints:
+后端接口：
 
 - `POST /api/auth/codes/send`
 - `POST /api/auth/register`
@@ -246,7 +245,7 @@ Backend endpoints:
 - `POST /api/notifications/{id}/read`
 - `POST /api/notifications/read-all`
 
-Frontend routes:
+前端路由：
 
 - `/`
 - `/login`
@@ -254,18 +253,18 @@ Frontend routes:
 - `/profile`
 - `/notifications`
 
-Current Phase A scope:
+当前 Phase A 范围：
 
-- guests can open the independent home page, request a phone code, and enter the auth flow from `/login` or `/register`
-- authenticated users receive the same home summary entry with identity state, unread counts, and next-step guidance
-- `/profile` exposes the current account profile and the verification-status view of the signed-in user
-- one user can submit one active verification application at a time through the first verification flow
-- `/notifications` supports list, single-read, and read-all behavior for welcome, verification, and later workflow notifications
-- the admin-side verification review loop stays on `/admin/verifications`; approval and rejection both flow back into user-visible status and notifications
+- 游客可以打开独立首页、请求手机验证码，并从 `/login` 或 `/register` 进入认证流程
+- 已登录用户会在同一个首页入口看到自己的身份态、未读数和下一步建议
+- `/profile` 展示当前账号资料以及当前登录用户的认证状态视图
+- 当前第一版认证流程下，一个用户同一时间只能提交一个有效认证申请
+- `/notifications` 支持欢迎通知、认证通知以及后续工作流通知的列表、单条已读和全部已读
+- 管理端的认证审核仍然在 `/admin/verifications` 中完成；无论通过还是驳回，结果都会回流到用户可见状态和通知中
 
-## Resource Library, Lifecycle, And Review
+## 资料库、生命周期与审核
 
-Backend endpoints:
+后端接口：
 
 - `GET /api/resources`
 - `GET /api/resources/mine`
@@ -282,7 +281,7 @@ Backend endpoints:
 - `POST /api/admin/resources/{id}/reject`
 - `POST /api/admin/resources/{id}/offline`
 
-Frontend routes:
+前端路由：
 
 - `/resources`
 - `/resources/upload`
@@ -291,38 +290,38 @@ Frontend routes:
 - `/profile/resources`
 - `/admin/resources`
 
-Current Phase D + G + H + S scope:
+当前 Phase D + G + H + S 范围：
 
-- public resources list and detail pages support keyword/category browsing, visible-detail viewing, and favorite / unfavorite behavior
-- authenticated users can upload resources, revisit them in `/profile/resources`, and resubmit rejected records through `/resources/:id/edit`
-- resource review stays inside `/admin/resources`, where admins can publish, reject, or offline submitted records
-- PDF preview is supported inline, while PPTX and DOCX preview flow through cached PDF conversion and ZIP preview uses a directory-tree response
-- raw-resource and preview-artifact MinIO migration details stay documented in the dedicated storage sections below
+- 公开资料列表和详情页支持关键词 / 分类浏览、可见资料详情查看，以及收藏 / 取消收藏
+- 已登录用户可以上传资料，在 `/profile/resources` 中查看自己的资料，并通过 `/resources/:id/edit` 对被驳回资料进行重提
+- 资料审核仍在 `/admin/resources` 中完成，管理员可以发布、驳回或下线资料
+- PDF 支持内联预览；PPTX 和 DOCX 通过缓存后的 PDF 转换结果预览；ZIP 通过目录树接口预览
+- 原始资料和预览产物的 MinIO 迁移细节见下方专门的存储章节
 
-## Jobs Browsing, Detail, And Favorites
+## 岗位浏览、详情与收藏
 
-Backend endpoints:
+后端接口：
 
 - `GET /api/jobs`
 - `GET /api/jobs/{id}`
 - `POST /api/jobs/{id}/favorite`
 - `DELETE /api/jobs/{id}/favorite`
 
-Frontend routes:
+前端路由：
 
 - `/jobs`
 - `/jobs/:id`
 
-Current Phase C scope:
+当前 Phase C 范围：
 
-- public jobs list supports keyword, city, job type, education requirement, and source-platform filtering
-- job detail keeps the public source link and reflects the signed-in user's current favorite state
-- authenticated users can favorite and unfavorite visible job cards without leaving the jobs list or detail context
-- in-platform apply, resume selection, and application history remain documented in the dedicated workflow section below
+- 公开岗位列表支持关键词、城市、岗位类型、学历要求和来源平台筛选
+- 岗位详情保留公开来源链接，并能反映当前登录用户的收藏状态
+- 已登录用户可以在不离开岗位列表或详情上下文的情况下收藏或取消收藏可见岗位
+- 站内申请、简历选择与申请历史见下方单独的工作流章节
 
-## Job Application And Resume Workflow
+## 岗位申请与简历流程
 
-Backend endpoints:
+后端接口：
 
 - `GET /api/resumes/mine`
 - `POST /api/resumes`
@@ -337,66 +336,66 @@ Backend endpoints:
 - `GET /api/admin/applications/{id}/resume/preview`
 - `GET /api/admin/applications/{id}/resume/download`
 
-Frontend routes:
+前端路由：
 
 - `/profile/resumes`
 - `/profile/applications`
 - `/admin/applications`
 
-Current Phase N + Phase AA scope:
+当前 Phase N + Phase AA 范围：
 
-- authenticated users can keep multiple resume files in `/profile/resumes`
-- supported resume formats are `PDF`, `DOC`, and `DOCX`
-- authenticated users can preview their own `PDF` and `DOCX` resumes from `/profile/resumes`
-- `DOC` resumes remain download-only in this phase
-- published job detail pages keep the external `Source Link` and also expose in-platform apply
-- one user can apply to the same job at most once
-- each application stores an immutable resume snapshot so deleting the live resume does not break historical download
-- `/profile/applications` is applicant-facing and read-only, and now supports snapshot preview for `PDF` / `DOCX` plus snapshot download for `PDF` / `DOCX` / `DOC`
-- `/admin/applications` is admin-only and read-only, and now supports snapshot preview for `PDF` / `DOCX` plus snapshot download for `PDF` / `DOCX` / `DOC`
-- application snapshot preview remains separate from live resume preview on `/profile/resumes`
-- `DOC` application snapshots remain download-only in this phase
+- 已登录用户可以在 `/profile/resumes` 中维护多份简历文件
+- 支持的简历格式为 `PDF`、`DOC`、`DOCX`
+- 已登录用户可以在 `/profile/resumes` 中预览自己的 `PDF` 和 `DOCX` 简历
+- `DOC` 简历在当前阶段仍仅支持下载
+- 已发布岗位详情页保留外部来源链接，同时支持站内申请
+- 同一用户对同一岗位最多只能申请一次
+- 每次申请都会保存一个不可变的简历快照，因此删除实时简历不会影响历史下载
+- `/profile/applications` 面向申请人且只读，支持 `PDF` / `DOCX` 快照预览，以及 `PDF` / `DOCX` / `DOC` 快照下载
+- `/admin/applications` 面向管理员且只读，支持 `PDF` / `DOCX` 快照预览，以及 `PDF` / `DOCX` / `DOC` 快照下载
+- 申请快照预览与 `/profile/resumes` 中的实时简历预览是分开的
+- 当前阶段中，`DOC` 申请快照仍仅支持下载
 
-## Admin Dashboard
+## 管理端总览
 
-Admin backend endpoint:
+管理端后端接口：
 
 - `GET /api/admin/dashboard/summary`
 
-Admin frontend route:
+管理端前端路由：
 
 - `/admin/dashboard`
 
-Current admin-dashboard scope:
+当前管理端总览范围：
 
-- admin-only access boundary on both the backend summary endpoint and frontend route
-- read-only overview for key admin work areas; no inline moderation or editing actions on the dashboard itself
-- summary covers verification, community, jobs, and resources with counts, recent items, and handoff entry points
-- dashboard cards hand off to the existing admin workbenches for verification review, community moderation, job management, and resource review
-- local verification path: log in as admin, open `/admin/dashboard`, and verify both the homepage entry and main nav entry open the same dashboard route
+- 后端汇总接口和前端路由都仅允许管理员访问
+- 总览页只读，用于汇总关键管理工作区，不在总览页内直接执行审核或编辑操作
+- 汇总内容覆盖认证、社区、岗位和资料，提供数量、近期记录和跳转入口
+- 总览卡片会把管理员导向现有工作台，如认证审核、社区治理、岗位管理和资料审核
+- 本地验证路径：以管理员身份登录后打开 `/admin/dashboard`，确认首页管理员入口和主导航管理员入口都能进入同一总览路由
 
-## Admin User Status Management
+## 管理端用户状态管理
 
-Admin backend endpoints:
+管理端后端接口：
 
 - `GET /api/admin/users`
 - `POST /api/admin/users/{id}/ban`
 - `POST /api/admin/users/{id}/unban`
 
-Admin frontend route:
+管理端前端路由：
 
 - `/admin/users`
 
-Current Phase O scope:
+当前 Phase O 范围：
 
-- admin-only user-status workbench with account totals and current status rows
-- admin accounts stay visible but protected from status changes in this phase
-- non-admin accounts can be banned and restored from the same admin surface
-- banned users are blocked at login and also rejected on authenticated business APIs until restored
+- 提供仅管理员可访问的用户状态工作台，展示账号总数与当前状态明细
+- 管理员账号仍然可见，但在当前阶段不允许被修改状态
+- 非管理员账号可以在同一界面中被封禁和恢复
+- 被封禁用户在登录时会被拦截，在已认证业务接口上也会持续被拒绝，直到恢复
 
-## Admin Job Management, Import, And Sync
+## 管理端岗位管理、导入与同步
 
-Admin backend endpoints:
+管理端后端接口：
 
 - `GET /api/admin/jobs`
 - `POST /api/admin/jobs`
@@ -407,62 +406,62 @@ Admin backend endpoints:
 - `POST /api/admin/jobs/import`
 - `POST /api/admin/jobs/sync`
 
-Admin frontend route:
+管理端前端路由：
 
 - `/admin/jobs`
 
-Current Phase C + U + V scope:
+当前 Phase C + U + V 范围：
 
-- admin-only jobs workbench keeps the existing create / edit / publish / offline / delete lifecycle in one place
-- CSV batch import accepts one `UTF-8` file through the existing `/admin/jobs` page and creates valid imported rows as `DRAFT`
-- CSV import is all-or-nothing in this phase; validation failure rolls back the whole file instead of partially importing rows
-- third-party sync pulls one fixed server-side HTTP JSON feed from the same `/admin/jobs` workbench with no separate admin route
-- newly synced jobs are created as `DRAFT`, while existing non-`DELETED` rows update in place by `sourceUrl`
-- local `DELETED` jobs are skipped and reported instead of being recreated automatically
-- neither CSV import nor third-party sync auto-publishes jobs in this phase
+- 管理端岗位工作台把创建 / 编辑 / 发布 / 下线 / 删除全生命周期集中在一个界面中
+- CSV 批量导入通过现有 `/admin/jobs` 页面上传一个 `UTF-8` 文件，并把合法行创建为 `DRAFT`
+- 当前阶段的 CSV 导入是全有或全无：只要校验失败，就回滚整个文件，不做部分导入
+- 第三方同步在同一个 `/admin/jobs` 工作台中拉取一个固定的服务端 HTTP JSON 数据源，不额外增加管理端路由
+- 新同步到的岗位会以 `DRAFT` 创建；已存在且非 `DELETED` 的记录按 `sourceUrl` 原地更新
+- 本地已经标记为 `DELETED` 的岗位会被跳过并记录到结果中，而不会被自动重新创建
+- 无论是 CSV 导入还是第三方同步，在当前阶段都不会自动发布岗位
 
-## Admin Verification Review
+## 管理端认证审核
 
-Admin backend endpoints:
+管理端后端接口：
 
 - `GET /api/admin/verifications/dashboard`
 - `GET /api/admin/verifications`
 - `POST /api/admin/verifications/{id}/review`
 
-Admin frontend route:
+管理端前端路由：
 
 - `/admin/verifications`
 
-Current Phase A scope:
+当前 Phase A 范围：
 
-- admin-only verification dashboard surfaces pending and recently reviewed application counts
-- the existing `/admin/verifications` workbench lists submitted verification applications for review
-- admins can approve or reject one application at a time from the same workbench
-- approval upgrades the applicant to `VERIFIED`, while rejection returns the user to the unverified path
-- review outcomes generate user-facing notifications and keep the review loop closed inside the admin verification desk
+- 管理员专用认证总览会展示待审核与近期已审核申请数量
+- 现有的 `/admin/verifications` 工作台会列出已提交的认证申请供审核
+- 管理员可以在同一个工作台中逐条通过或驳回申请
+- 审核通过会把申请人升级为 `VERIFIED`；驳回则把用户退回未认证路径
+- 审核结果会生成面向用户的通知，并让整个审核闭环留在管理端认证工作台中
 
-## Admin Community Moderation
+## 管理端社区治理
 
-Admin backend endpoints:
+管理端后端接口：
 
 - `GET /api/admin/community/posts`
 - `POST /api/admin/community/posts/{id}/hide`
 - `POST /api/admin/community/posts/{id}/delete`
 
-Admin frontend route:
+管理端前端路由：
 
 - `/admin/community`
 
-Current Phase B scope:
+当前 Phase B 范围：
 
-- admin-only community moderation stays inside the existing `/admin/community` workbench
-- admins can review submitted community posts from one moderation list
-- hiding a post removes it from public visibility without treating it as a hard delete in the UI contract
-- deleting a post is an explicit admin moderation action for content that should not remain available
+- 社区治理仍保留在现有 `/admin/community` 工作台中，仅管理员可访问
+- 管理员可以在同一个治理列表中审核社区帖子
+- 隐藏帖子会让它从公开视图中消失，但不会在 UI 合约上被视作硬删除
+- 删除帖子是显式的管理端治理操作，用于处理不应继续保留的内容
 
-## Community Feed And Interaction
+## 社区流与互动
 
-Backend endpoints:
+后端接口：
 
 - `GET /api/community/posts`
 - `GET /api/community/posts/mine`
@@ -475,7 +474,7 @@ Backend endpoints:
 - `POST /api/community/posts/{id}/favorite`
 - `DELETE /api/community/posts/{id}/favorite`
 
-Frontend routes:
+前端路由：
 
 - `/community`
 - `/community/create`
@@ -483,188 +482,188 @@ Frontend routes:
 - `/profile/posts`
 - `/profile/favorites`
 
-Current Phase B scope:
+当前 Phase B 范围：
 
-- the public community feed supports list and detail browsing for published posts
-- authenticated users can create posts, publish top-level comments, like posts, and favorite posts
-- `/profile/posts` and `/profile/favorites` provide the signed-in user's authored-post and favorite-post views
-- the dedicated hot-ranking, experience-post, and threaded-reply refinements remain documented in the community sections below
+- 公开社区流支持已发布帖子的列表与详情浏览
+- 已登录用户可以发帖、发布顶层评论、点赞帖子和收藏帖子
+- `/profile/posts` 和 `/profile/favorites` 提供当前登录用户的发帖视图和收藏视图
+- 热榜、经验贴和分层回复等增强能力在下方社区专属章节中单独说明
 
-## Profile Posts And Favorites
+## 个人帖子与收藏
 
-Backend endpoints:
+后端接口：
 
 - `GET /api/community/posts/mine`
 - `GET /api/users/me/favorites?type=POST|JOB|RESOURCE`
 
-Frontend routes:
+前端路由：
 
 - `/profile/posts`
 - `/profile/favorites`
 
-Current Phase B + C + D scope:
+当前 Phase B + C + D 范围：
 
-- `/profile/posts` shows the signed-in user's authored community posts through the same community domain model used by the public feed
-- `/profile/favorites` switches across `POST`, `JOB`, and `RESOURCE` views while reusing one shared favorites endpoint
-- favorite lists stay read-only in this phase and reflect the same saved state used by community, jobs, and resources cards elsewhere in the app
+- `/profile/posts` 通过与公开社区流相同的领域模型展示当前登录用户发表的社区帖子
+- `/profile/favorites` 可在 `POST`、`JOB`、`RESOURCE` 三种视图之间切换，并复用同一个收藏接口
+- 当前阶段的收藏列表保持只读，并与社区、岗位、资料卡片上的收藏状态一致
 
-## Community Hot Ranking
+## 社区热榜
 
-Public backend endpoint:
+公开后端接口：
 
 - `GET /api/community/hot`
 
-Frontend route:
+前端路由：
 
 - `/community`
 
-Supported query params:
+支持的查询参数：
 
 - `period`
 - `limit`
 
-Supported period values:
+支持的周期值：
 
 - `DAY`
 - `WEEK`
 - `ALL`
 
-Current Phase P scope:
+当前 Phase P 范围：
 
-- `/community` now includes a dedicated public hot-ranking block above the latest-post feed
-- hot ranking is community-only and does not reuse the discover page contract
-- only published posts participate in the board
-- `DAY` means posts published in the last rolling 24 hours, ranked by current cumulative heat
-- `WEEK` means posts published in the last rolling 7 days, ranked by current cumulative heat
-- `ALL` means all published history
-- current heat formula uses `likeCount * 3 + commentCount * 4 + favoriteCount * 5 + verifiedAuthorBonus + freshnessBonus`
-- there is no Redis cache, interaction-event delta ranking, or separate `/community/hot` page in this phase
+- `/community` 现在会在最新帖子流上方展示一个独立的公开热榜区块
+- 热榜仅属于社区域，不复用趋势页的接口契约
+- 只有已发布帖子会参与排行
+- `DAY` 表示最近滚动 24 小时内发布的帖子，按当前累计热度排序
+- `WEEK` 表示最近滚动 7 天内发布的帖子，按当前累计热度排序
+- `ALL` 表示全量已发布历史
+- 当前热度公式为 `likeCount * 3 + commentCount * 4 + favoriteCount * 5 + verifiedAuthorBonus + freshnessBonus`
+- 当前阶段不包含 Redis 缓存、交互事件增量排行，也不提供独立的 `/community/hot` 页面
 
-## Community Experience Posts
+## 社区经验贴
 
-Public backend endpoints:
+公开后端接口：
 
 - `GET /api/community/posts`
 - `GET /api/community/posts/{id}`
 
-Authenticated backend endpoint:
+登录后后端接口：
 
 - `POST /api/community/posts`
 
-Frontend routes:
+前端路由：
 
 - `/community`
 - `/community/create`
 - `/community/:id`
 
-Current Phase Q scope:
+当前 Phase Q 范围：
 
-- community posts can optionally set `experiencePost=true` plus `experienceTargetLabel`, `experienceOutcomeLabel`, `experienceTimelineSummary`, and `experienceActionSummary`
-- non-experience posts keep the same behavior and return `experience.enabled=false`
-- community list cards and detail pages render the structured experience summary when the flag is enabled
-- discover ranking and homepage discover preview give experience posts a small deterministic score bonus
-- the bonus does not change `/community` latest-feed ordering, `/community/hot`, or unified search ordering
+- 社区帖子可选开启 `experiencePost=true`，并携带 `experienceTargetLabel`、`experienceOutcomeLabel`、`experienceTimelineSummary`、`experienceActionSummary`
+- 非经验贴保持原有行为，并返回 `experience.enabled=false`
+- 当开关启用时，社区列表卡片和详情页会渲染结构化的经验贴摘要
+- 趋势榜和首页趋势预览会给经验贴一个小幅且稳定的分数加成
+- 该加成不会改变 `/community` 时间流、`/community/hot` 或统一搜索的排序
 
-## Community Threaded Replies
+## 社区分层回复
 
-Public backend endpoint:
+公开后端接口：
 
 - `GET /api/community/posts/{id}`
 
-Authenticated backend endpoints:
+登录后后端接口：
 
 - `POST /api/community/posts/{id}/comments`
 - `POST /api/community/comments/{id}/replies`
 
-Frontend routes:
+前端路由：
 
 - `/community/:id`
 - `/notifications`
 
-Current Phase R scope:
+当前 Phase R 范围：
 
-- first-level comments remain supported through the existing post comment endpoint
-- community post detail now returns top-level comments with nested `replies`
-- replies are limited to one additional level under a top-level comment
-- replying to a reply is rejected in this phase
-- replying to another user's top-level comment creates `COMMUNITY_REPLY_RECEIVED`
-- replying to your own top-level comment does not create a notification
-- the notification center maps the new reply notification type to a readable community-reply label
-- infinite-depth threads, reply editing, reply deletion, and comment-anchor deep links remain out of scope
+- 顶层评论仍通过现有帖子评论接口发布
+- 社区帖子详情现在会返回顶层评论及其嵌套 `replies`
+- 回复层级在当前阶段仅允许位于顶层评论下一层
+- 对回复继续回复会被拒绝
+- 回复他人的顶层评论会生成 `COMMUNITY_REPLY_RECEIVED`
+- 回复自己的顶层评论不会生成通知
+- 通知中心会把新的回复通知类型映射为可读的社区回复标签
+- 无限层级线程、回复编辑、回复删除以及评论锚点深链仍不在当前范围内
 
-## Unified Search
+## 统一搜索
 
-Public backend endpoint:
+公开后端接口：
 
 - `GET /api/search`
 
-Frontend route:
+前端路由：
 
 - `/search`
 
-Supported query params:
+支持的查询参数：
 
 - `q`
 - `type`
 - `sort`
 
-Supported search types:
+支持的搜索类型：
 
 - `ALL`
 - `POST`
 - `JOB`
 - `RESOURCE`
 
-Supported sort types:
+支持的排序方式：
 
 - `RELEVANCE`
 - `LATEST`
 
-Current search scope:
+当前搜索范围：
 
-- published community posts only
-- published jobs only
-- published resources only
-- guest-accessible public results only
+- 仅检索已发布社区帖子
+- 仅检索已发布岗位
+- 仅检索已发布资料
+- 仅返回游客可访问的公开结果
 
-## Discover Ranking
+## 趋势榜
 
-Public backend endpoint:
+公开后端接口：
 
 - `GET /api/discover`
 
-Frontend route:
+前端路由：
 
 - `/discover`
 
-Supported query params:
+支持的查询参数：
 
 - `tab`
 - `period`
 - `limit`
 
-Supported discover tabs:
+支持的趋势标签：
 
 - `ALL`
 - `POST`
 - `JOB`
 - `RESOURCE`
 
-Supported period values:
+支持的周期值：
 
 - `WEEK`
 - `ALL`
 
-Current discover scope:
+当前趋势范围：
 
-- ranks published community posts, published jobs, and published resources on one public board
-- `WEEK` covers the last 7 rolling days and sorts by current cumulative heat
-- `ALL` covers all published history
-- homepage includes a `discoverPreview` payload for the weekly board
+- 在一个公开榜单上对已发布社区帖子、已发布岗位和已发布资料统一排序
+- `WEEK` 覆盖最近滚动 7 天，并按当前累计热度排序
+- `ALL` 覆盖全部已发布历史
+- 首页包含 `discoverPreview` 负载，用于展示每周趋势预览
 
-## Decision Support And Analytics
+## 决策支持与分析
 
-Backend endpoints:
+后端接口：
 
 - `GET /api/decision/assessment/questions`
 - `POST /api/decision/assessment/submissions`
@@ -674,118 +673,118 @@ Backend endpoints:
 - `POST /api/decision/schools/compare`
 - `GET /api/analytics/summary?period=7D|30D`
 
-Frontend routes:
+前端路由：
 
 - `/assessment`
 - `/timeline`
 - `/schools/compare`
 - `/analytics`
 
-Current decision-support and analytics scope:
+当前决策支持与分析范围：
 
-- assessment is authenticated and backed by seeded backend-owned questions
-- submit persists the latest assessment result and returns deterministic scores / ranking / next actions
-- timeline is authenticated and uses explicit `anchorDate` first, otherwise the latest assessment session date
-- timeline returns `assessmentRequired=true` when neither explicit anchor nor latest result exists
-- school candidate list and compare are public read-only endpoints for `EXAM` and `ABROAD`
-- school compare enforces `2-4` schools, preserves accepted request order, and returns explicit missing-value markers
-- analytics is a public mixed desk at `/analytics`
-- guests can open `/analytics` and read public overview cards, trend cards, and direction mix
-- authenticated users get the same public board plus personal snapshot, recent history, and backend-provided next actions
-- analytics period switching is backend-owned and supports only `7D` and `30D`
-- homepage `assessment` entry is live for authenticated users and `LOGIN_REQUIRED` for guests
-- homepage `analytics` is live for guests and authenticated users
-- admin dashboard overview is admin-only and read-only
-- full admin operations dashboards remain out of scope in this phase
+- 测评仅对登录用户开放，问题由后端内置种子数据提供
+- 提交后会持久化最近一次测评结果，并返回稳定的分数、排序和下一步建议
+- 时间线仅对登录用户开放；优先使用显式 `anchorDate`，否则使用最近一次测评会话日期
+- 当既没有显式锚点也没有最近结果时，时间线返回 `assessmentRequired=true`
+- 院校候选列表与对比接口对 `EXAM` 和 `ABROAD` 公开只读
+- 院校对比强制要求 `2-4` 所学校，保留请求顺序，并对缺失值给出显式标记
+- `/analytics` 是公开可访问的混合分析工作台
+- 游客可以打开 `/analytics`，查看公开总览卡片、趋势卡片和方向占比
+- 已登录用户在同一个页面中还能看到个人快照、近期历史和后端给出的下一步建议
+- 分析周期由后端控制，目前仅支持 `7D` 与 `30D`
+- 首页中的 `assessment` 入口对登录用户直接可用，对游客显示 `LOGIN_REQUIRED`
+- 首页中的 `analytics` 对游客和登录用户都可用
+- 管理端总览只读且仅管理员可访问
+- 完整的管理端运营看板在当前阶段仍不在范围内
 
-## Historical Local Resource MinIO Migration
+## 历史本地资料 MinIO 迁移
 
-Admin backend endpoint:
+管理端后端接口：
 
 - `POST /api/admin/resources/migrate-to-minio`
 
-Current migration scope:
+当前迁移范围：
 
-- admin-triggered and backend-only; there is no frontend migration UI in this phase
-- supports dry-run and bounded batch execution for historical raw resource files
-- keeps the existing `storageKey` and leaves the original local files in place after successful upload
-- reads source files from `app.resource-storage.local-root`
-- requires `platform.integrations.minio.enabled=true` even when active raw resource storage is still local
-- environment-variable-based deployments supply that enablement through the existing mapping `MINIO_ENABLED=true`
-- this migration flow covers raw resource files only; preview artifacts use the separate admin endpoint `POST /api/admin/resources/migrate-preview-artifacts-to-minio`
+- 仅后端支持、仅管理员可触发；当前阶段没有前端迁移 UI
+- 支持历史原始资料文件的 dry-run 和有界批处理迁移
+- 迁移成功后保留原有 `storageKey`，并继续保留本地源文件
+- 迁移源文件读取自 `app.resource-storage.local-root`
+- 即使当前原始资料存储仍为本地，也要求 `platform.integrations.minio.enabled=true`
+- 在基于环境变量的部署方式中，这个启用项由现有映射 `MINIO_ENABLED=true` 提供
+- 该迁移流程只覆盖原始资料文件；预览产物请使用单独的管理端接口 `POST /api/admin/resources/migrate-preview-artifacts-to-minio`
 
-## Permissions
+## 权限
 
-Guest:
+游客：
 
-- can browse home, community, jobs, and published resources
-- can use unified search for published posts, jobs, and resources
-- can browse the public discover board
-- can open `/analytics` and read the public decision analytics board
-- can browse public school candidates and school comparison for `EXAM` / `ABROAD`
-- can preview published PDF resources inline
-- can preview published PPTX resources inline as converted PDF
-- can preview published DOCX resources inline as converted PDF
-- can preview published ZIP resources as directory trees
-- cannot create content, save favorites, or download resource files
+- 可以浏览首页、社区、岗位以及已发布资料
+- 可以对已发布帖子、岗位和资料使用统一搜索
+- 可以浏览公开趋势榜
+- 可以打开 `/analytics` 并查看公开决策分析看板
+- 可以浏览 `EXAM` / `ABROAD` 的公开院校候选与院校对比
+- 可以内联预览已发布 PDF 资料
+- 可以以内联转换 PDF 的方式预览已发布 PPTX 资料
+- 可以以内联转换 PDF 的方式预览已发布 DOCX 资料
+- 可以以目录树方式预览已发布 ZIP 资料
+- 不能发布内容、保存收藏或下载资料文件
 
-Authenticated user:
+已登录用户：
 
-- can create community posts
-- can comment / reply / like / favorite community posts
-- can favorite jobs
-- can manage their own resume library at `/profile/resumes`, preview `PDF` / `DOCX` resumes inline, and download stored resume files
-- can apply to a published job once with one selected resume
-- can review their application history at `/profile/applications`, preview `PDF` / `DOCX` snapshot resumes inline, and download stored snapshot resumes
-- can complete the decision assessment and view the latest result
-- can open `/analytics` and view personal snapshot / history / next actions when available
-- can open the direction timeline after assessment
-- can upload resources
-- can preview published PDFs, visible PPTX resources, visible DOCX resources, and visible ZIP directory trees
-- can favorite, unfavorite, and download published resources
-- can edit and resubmit their own rejected resources from `/resources/:id/edit`
-- can view profile favorites for `POST`, `JOB`, and `RESOURCE`
-- can view `/profile/resources` with lifecycle actions
+- 可以发布社区帖子
+- 可以评论 / 回复 / 点赞 / 收藏社区帖子
+- 可以收藏岗位
+- 可以在 `/profile/resumes` 管理自己的简历库，内联预览 `PDF` / `DOCX` 简历，并下载已保存简历文件
+- 可以选择一份简历对已发布岗位发起一次申请
+- 可以在 `/profile/applications` 查看自己的申请历史，内联预览 `PDF` / `DOCX` 快照简历，并下载已保存的快照简历
+- 可以完成决策测评并查看最近一次结果
+- 可以在 `/analytics` 查看个人快照 / 历史 / 下一步建议（若可用）
+- 可以在完成测评后打开方向时间线
+- 可以上传资料
+- 可以预览已发布 PDF、可见 PPTX、可见 DOCX 以及可见 ZIP 目录树
+- 可以收藏、取消收藏和下载已发布资料
+- 可以从 `/resources/:id/edit` 编辑并重提自己被驳回的资料
+- 可以在个人中心查看 `POST`、`JOB`、`RESOURCE` 三类收藏
+- 可以在 `/profile/resources` 中查看资料及其生命周期操作
 
-Admin:
+管理员：
 
-- can open `/admin/dashboard` for a read-only overview and use it to enter existing admin workbenches
-- can open `/admin/applications` and preview `PDF` / `DOCX` application snapshot resumes inline, or download snapshot resumes
-- can review verification applications
-- can moderate community posts
-- can maintain job cards, import UTF-8 CSV jobs, and trigger fixed-feed job sync from `/admin/jobs`
-- can review resources through publish / reject / offline actions
-- can preview PDF, PPTX, and DOCX resources inline and ZIP contents from the admin resource board
+- 可以打开 `/admin/dashboard` 查看只读总览，并由此进入现有管理工作台
+- 可以打开 `/admin/applications` 内联预览 `PDF` / `DOCX` 申请快照简历，或下载申请快照简历
+- 可以审核认证申请
+- 可以治理社区帖子
+- 可以在 `/admin/jobs` 中维护岗位卡片、导入 UTF-8 CSV 岗位、触发固定数据源岗位同步
+- 可以通过发布 / 驳回 / 下线操作审核资料
+- 可以在管理端资料看板中内联预览 PDF、PPTX、DOCX 资料以及 ZIP 内容
 
-## Current Data Shapes
+## 当前枚举与数据形状
 
-Favorite target types:
+收藏目标类型：
 
 - `POST`
 - `JOB`
 - `RESOURCE`
 
-Job statuses:
+岗位状态：
 
 - `DRAFT`
 - `PUBLISHED`
 - `OFFLINE`
 - `DELETED`
 
-Job types:
+岗位类型：
 
 - `INTERNSHIP`
 - `FULL_TIME`
 - `CAMPUS`
 
-Education requirements:
+学历要求：
 
 - `ANY`
 - `BACHELOR`
 - `MASTER`
 - `DOCTOR`
 
-Resource categories:
+资料分类：
 
 - `EXAM_PAPER`
 - `LANGUAGE_TEST`
@@ -793,353 +792,353 @@ Resource categories:
 - `INTERVIEW_EXPERIENCE`
 - `OTHER`
 
-Resource statuses:
+资料状态：
 
 - `PENDING`
 - `PUBLISHED`
 - `REJECTED`
 - `OFFLINE`
 
-## Manual Smoke Checklist
+## 手工冒烟检查清单
 
-1. Start backend with `mvn spring-boot:run "-Dspring-boot.run.profiles=local"`.
-2. Start frontend with `npm run dev -- --host 127.0.0.1`.
-3. As guest, open `/community` and confirm the hot board renders above the latest-post feed.
-4. As guest, switch the community hot board across `DAY`, `WEEK`, and `ALL`.
-5. As a signed-in user, open a community detail page, publish a top-level comment, and confirm it appears in the comment list.
-6. As a different signed-in user, reply to that top-level comment and confirm the reply renders nested under the correct comment.
-7. Confirm replying to a reply is not available in the UI and is rejected by the backend contract in this phase.
-8. Open `/notifications` as the replied-to user and confirm the new reply notification appears with the community-reply label.
-9. As guest, open `/jobs` and `/resources`.
-10. As guest, open a published PDF `/resources/:id` and confirm `Preview` works without login.
-11. As guest, open a published PPTX `/resources/:id` and confirm `Preview` opens converted PDF output without login.
-12. As guest, open a published ZIP `/resources/:id` and confirm `Preview Contents` loads a directory tree inline.
-13. As guest, open a published DOCX `/resources/:id` and confirm `Preview` opens converted PDF output without login.
-14. As guest, confirm the download action is still blocked by login.
-15. Log in as the normal user `13800000001` and upload a resource from `/resources/upload`.
-16. Open `/profile/resources` and confirm the new file appears as `PENDING`.
-17. Log in as the admin `13800000000` and open `/admin/resources`.
-18. Reject a pending resource with a clear review note.
-19. Log back in as the owner, open `/profile/resources`, click `Edit And Resubmit`, revise metadata, and submit without replacing the file.
-20. Repeat the resubmission flow with a PDF replacement file and confirm the record returns to `PENDING`.
-21. Repeat the resubmission flow with a PPTX or DOCX replacement file and confirm the next preview opens regenerated PDF output instead of stale cached content.
-22. As the owner, preview an unpublished visible PDF, PPTX, or DOCX from `/profile/resources` or `/resources/:id`.
-23. As admin, confirm preview is shown for visible PDF / PPTX / DOCX rows and `Preview Contents` is shown for ZIP rows in `/admin/resources`.
-24. Publish the pending resource and confirm it appears in the public `/resources` list.
-25. Favorite and download a published resource as a normal user.
-26. Open `/profile/favorites` and switch between `POST`, `JOB`, and `RESOURCE`.
-27. Use the homepage search box or `/search` to search `resume`.
-28. Switch `ALL / POST / JOB / RESOURCE` and `RELEVANCE / LATEST`.
-29. Refresh `/search` and confirm the search state stays in the URL.
-30. Open `/discover` as a guest and confirm the page loads a ranked public board.
-31. Switch discover `ALL / POST / JOB / RESOURCE` and `WEEK / ALL`.
-32. Refresh `/discover?tab=JOB&period=ALL` and confirm the state stays in the URL.
-33. Return to `/` and confirm the homepage discover preview shows items or a graceful empty state.
-34. Log in as `13800000001`, open `/assessment`, answer all questions, and submit one result.
-35. Confirm the result renders a recommended track plus links into `/timeline` and `/schools/compare`.
-36. Open `/timeline` and confirm it defaults to the recommended track and renders milestone cards.
-37. Switch `/timeline` among `CAREER`, `EXAM`, and `ABROAD` and confirm the milestone list reloads.
-38. Open `/schools/compare` as either guest or authenticated user, select `2-4` schools, and confirm compare table + chart region render.
-39. As guest, open `/analytics` and confirm public overview, trend cards, and decision mix render.
-40. Log in as `13800000001`, open `/analytics`, and confirm either the personal snapshot/history or the assessment CTA renders.
-41. Return to `/` and confirm both `assessment` and `analytics` entries are live.
-42. Log in as the admin `13800000000`, open `/admin/dashboard`, and confirm the page renders a read-only overview.
-43. From both the homepage admin entry and the main nav admin entry, confirm navigation lands on `/admin/dashboard`.
-44. From `/admin/dashboard`, confirm the handoff links route into the existing admin workbenches.
-45. Log in as `13800000001`, open `/profile/resumes`, upload at least one `PDF` or `DOCX` resume, and confirm the row shows both `Preview` and `Download`.
-46. Use `Preview` from `/profile/resumes`, confirm the resume opens inline, then open `/jobs/1`, confirm `Source Link` is still present, and submit one in-platform application with that previewable resume.
-47. Open `/profile/applications` and confirm the new record shows job title, company, city, status, submitted time, the resume snapshot title, plus both `Preview` and `Download`.
-48. Use `Preview` from `/profile/applications`, confirm the snapshot opens inline, then delete the original live resume from `/profile/resumes`, return to `/profile/applications`, and confirm the record still renders.
-49. Log in as admin `13800000000`, open `/admin/applications`, and confirm the same record renders with applicant info, resume snapshot file name, and both `Preview` and `Download Resume`.
-50. Use admin `Preview` or `Download Resume` from `/admin/applications` and confirm the snapshot is still available after the live resume deletion.
-51. Return to `/jobs/1` as the applicant and confirm the page still shows the applied state.
-52. Log in as admin `13800000000`, open `/admin/users`, and confirm the list shows total, active, banned, and verified counts.
-53. Ban the normal user `13800000001` from `/admin/users` and confirm the row status becomes `BANNED`.
-54. Try to open `/profile` or log in again as `13800000001` and confirm the app blocks the banned account with an explicit error.
-55. Restore `13800000001` from `/admin/users` and confirm the user can log in again.
+1. 使用 `mvn spring-boot:run "-Dspring-boot.run.profiles=local"` 启动后端。
+2. 使用 `npm run dev -- --host 127.0.0.1` 启动前端。
+3. 以游客身份打开 `/community`，确认热榜显示在最新帖子流上方。
+4. 以游客身份在社区热榜中切换 `DAY`、`WEEK`、`ALL`。
+5. 以任意已登录用户身份打开一个社区详情页，发布一条顶层评论，并确认评论出现在列表中。
+6. 使用另一个已登录用户回复这条顶层评论，并确认回复嵌套在正确的评论下方。
+7. 确认当前阶段 UI 中无法对回复继续回复，且后端契约也会拒绝这类请求。
+8. 以被回复的用户身份打开 `/notifications`，确认出现新的社区回复通知。
+9. 以游客身份打开 `/jobs` 和 `/resources`。
+10. 以游客身份打开一个已发布 PDF 资料 `/resources/:id`，确认无需登录即可预览。
+11. 以游客身份打开一个已发布 PPTX 资料 `/resources/:id`，确认无需登录即可看到转换后的 PDF 预览。
+12. 以游客身份打开一个已发布 ZIP 资料 `/resources/:id`，确认可以内联加载目录树。
+13. 以游客身份打开一个已发布 DOCX 资料 `/resources/:id`，确认无需登录即可看到转换后的 PDF 预览。
+14. 以游客身份确认下载操作仍然会被登录拦截。
+15. 使用普通用户 `13800000001` 登录，并从 `/resources/upload` 上传一个资料。
+16. 打开 `/profile/resources`，确认新文件显示为 `PENDING`。
+17. 使用管理员 `13800000000` 登录并打开 `/admin/resources`。
+18. 驳回一个待审核资料，并填写清晰的审核备注。
+19. 重新切回资料所有者，打开 `/profile/resources`，点击“编辑并重新提交”，修改元数据后在不替换文件的情况下提交。
+20. 使用 PDF 替换文件再走一遍重提流程，并确认记录重新回到 `PENDING`。
+21. 使用 PPTX 或 DOCX 替换文件再走一遍重提流程，并确认新的预览打开的是重新生成的 PDF，而不是旧缓存。
+22. 以资料所有者身份，在 `/profile/resources` 或 `/resources/:id` 中预览一个尚未公开但仍可见的 PDF、PPTX 或 DOCX。
+23. 以管理员身份确认 `/admin/resources` 中的可见 PDF / PPTX / DOCX 行显示预览入口，而 ZIP 行显示目录预览入口。
+24. 发布该待审核资料，并确认它出现在公开 `/resources` 列表中。
+25. 以普通用户身份收藏并下载一个已发布资料。
+26. 打开 `/profile/favorites`，在 `POST`、`JOB`、`RESOURCE` 之间切换。
+27. 使用首页搜索框或 `/search` 搜索 `resume`。
+28. 切换 `ALL / POST / JOB / RESOURCE` 以及 `RELEVANCE / LATEST`。
+29. 刷新 `/search`，确认搜索状态保留在 URL 中。
+30. 以游客身份打开 `/discover`，确认页面能加载公开排行看板。
+31. 在趋势页切换 `ALL / POST / JOB / RESOURCE` 和 `WEEK / ALL`。
+32. 刷新 `/discover?tab=JOB&period=ALL`，确认状态保留在 URL 中。
+33. 返回 `/`，确认首页趋势预览会展示条目，或在无条目时展示友好的空态。
+34. 使用 `13800000001` 登录，打开 `/assessment`，回答所有问题并提交一份结果。
+35. 确认结果页展示推荐方向，并附带跳转到 `/timeline` 和 `/schools/compare` 的链接。
+36. 打开 `/timeline`，确认默认定位到推荐方向并渲染里程碑卡片。
+37. 在 `/timeline` 中切换 `CAREER`、`EXAM`、`ABROAD`，确认里程碑列表会重新加载。
+38. 以游客或已登录用户身份打开 `/schools/compare`，选择 `2-4` 所学校，并确认对比表格和图表区域正常渲染。
+39. 以游客身份打开 `/analytics`，确认公开总览、趋势卡片和决策方向占比正常渲染。
+40. 使用 `13800000001` 登录后打开 `/analytics`，确认会显示个人快照 / 历史，或显示测评引导 CTA。
+41. 返回 `/`，确认 `assessment` 和 `analytics` 两个首页入口都可用。
+42. 使用管理员 `13800000000` 登录并打开 `/admin/dashboard`，确认页面展示只读总览。
+43. 分别从首页管理员入口和主导航管理员入口进入，确认最终都落在 `/admin/dashboard`。
+44. 从 `/admin/dashboard` 点击交接链接，确认能够进入现有管理工作台。
+45. 使用 `13800000001` 登录，打开 `/profile/resumes`，上传至少一份 `PDF` 或 `DOCX` 简历，并确认列表中同时显示预览和下载入口。
+46. 从 `/profile/resumes` 使用预览，确认简历可内联打开；然后打开 `/jobs/1`，确认外部来源链接仍在，并使用这份可预览简历提交一次站内申请。
+47. 打开 `/profile/applications`，确认新记录展示岗位标题、公司、城市、状态、提交时间、简历快照标题，以及预览和下载入口。
+48. 在 `/profile/applications` 中使用预览，确认快照可内联打开；然后删除 `/profile/resumes` 中的原始实时简历，再返回 `/profile/applications`，确认记录仍正常显示。
+49. 以管理员 `13800000000` 登录并打开 `/admin/applications`，确认同一条记录展示申请人信息、简历快照文件名，以及预览和下载简历入口。
+50. 在 `/admin/applications` 中使用预览或下载简历，确认即使实时简历被删除后，快照依旧可用。
+51. 以申请人身份返回 `/jobs/1`，确认页面仍显示已申请状态。
+52. 以管理员 `13800000000` 登录并打开 `/admin/users`，确认列表显示总数、活跃、封禁、已认证等计数。
+53. 在 `/admin/users` 中封禁普通用户 `13800000001`，确认该行状态变为 `BANNED`。
+54. 尝试以 `13800000001` 再次登录或打开 `/profile`，确认应用会明确阻止被封禁账号。
+55. 在 `/admin/users` 中恢复 `13800000001`，并确认该用户可以重新登录。
 
-## Targeted Community Hot Ranking Verification
+## 定向社区热榜验证
 
-### Backend
+### 后端
 
 ```bash
 cd backend
 mvn -q -Dtest=CommunityControllerTests test
 ```
 
-### Frontend
+### 前端
 
 ```bash
 cd frontend
 npx vitest run src/views/CommunityListView.spec.js
 ```
 
-## Targeted Community Experience Post Verification
+## 定向经验贴验证
 
-### Backend
+### 后端
 
 ```bash
 cd backend
 mvn -q "-Dtest=CommunityControllerTests,DiscoverControllerTests,HomeControllerTests" test
 ```
 
-### Frontend
+### 前端
 
 ```bash
 cd frontend
 npx vitest run src/views/CommunityCreateView.spec.js src/views/CommunityDetailView.spec.js src/views/CommunityListView.spec.js src/views/HomeView.spec.js src/views/DiscoverView.spec.js
 ```
 
-## Targeted Community Threaded Reply Verification
+## 定向社区分层回复验证
 
-### Backend
+### 后端
 
 ```bash
 cd backend
 mvn -q "-Dtest=CommunityControllerTests,NotificationControllerTests,HomeControllerTests" test
 ```
 
-### Frontend
+### 前端
 
 ```bash
 cd frontend
 npx vitest run src/views/CommunityDetailView.spec.js src/views/NotificationCenterView.spec.js src/views/HomeView.spec.js
 ```
 
-## Targeted Admin User Status Verification
+## 定向管理员用户状态验证
 
-### Backend
+### 后端
 
 ```bash
 cd backend
 mvn -q "-Dtest=AdminUserControllerTests,AuthControllerTests,UserControllerTests,HomeControllerTests,HomeServiceTests" test
 ```
 
-### Frontend
+### 前端
 
 ```bash
 cd frontend
 npx vitest run src/views/admin/AdminUsersView.spec.js src/components/NavBar.spec.js
 ```
 
-## Targeted Admin Dashboard Verification
+## 定向管理员总览验证
 
-### Backend
+### 后端
 
 ```bash
 cd backend
 mvn -q "-Dtest=AdminDashboardControllerTests,HomeServiceTests,HomeControllerTests" test
 ```
 
-### Frontend
+### 前端
 
 ```bash
 cd frontend
 npx vitest run src/views/admin/AdminDashboardView.spec.js src/views/HomeView.spec.js src/components/NavBar.spec.js
 ```
 
-## Targeted Admin Job Management Verification
+## 定向管理员岗位管理验证
 
-### Backend
+### 后端
 
 ```bash
 cd backend
 mvn -q "-Dtest=AdminJobControllerTests,AdminJobImportControllerTests,AdminJobSyncControllerTests,JobImportCsvParserTests,JobBatchImportServiceTests,ThirdPartyJobSyncServiceTests,JobControllerTests" test
 ```
 
-### Frontend
+### 前端
 
 ```bash
 cd frontend
 npx vitest run src/views/admin/AdminJobManageView.spec.js src/components/NavBar.spec.js
 ```
 
-## Targeted Admin Verification Review Verification
+## 定向管理员认证审核验证
 
-### Backend
+### 后端
 
 ```bash
 cd backend
 mvn -q -Dtest=AdminVerificationControllerTests test
 ```
 
-### Frontend
+### 前端
 
 ```bash
 cd frontend
 npx vitest run src/views/admin/AdminVerificationReviewView.spec.js
 ```
 
-## Targeted Admin Community Moderation Verification
+## 定向管理员社区治理验证
 
-### Backend
+### 后端
 
 ```bash
 cd backend
 mvn -q -Dtest=AdminCommunityControllerTests test
 ```
 
-### Frontend
+### 前端
 
 ```bash
 cd frontend
 npx vitest run src/views/admin/AdminCommunityManageView.spec.js
 ```
 
-## Targeted Foundation User Flow Verification
+## 定向基础用户流程验证
 
-### Backend
+### 后端
 
 ```bash
 cd backend
 mvn -q "-Dtest=AuthControllerTests,HomeControllerTests,UserControllerTests,VerificationControllerTests,NotificationControllerTests" test
 ```
 
-### Frontend
+### 前端
 
 ```bash
 cd frontend
 npx vitest run src/App.spec.js src/views/LoginView.spec.js src/views/HomeView.spec.js src/views/ProfileView.spec.js src/views/NotificationCenterView.spec.js
 ```
 
-## Targeted Resource Lifecycle Verification
+## 定向资源生命周期验证
 
-### Backend
+### 后端
 
 ```bash
 cd backend
 mvn -q "-Dtest=ResourceControllerTests,AdminResourceControllerTests" test
 ```
 
-### Frontend
+### 前端
 
 ```bash
 cd frontend
 npx vitest run src/views/ResourcesListView.spec.js src/views/ResourceUploadView.spec.js src/views/ResourceEditView.spec.js src/views/ResourceDetailView.spec.js src/views/ProfileResourcesView.spec.js src/views/admin/AdminResourceManageView.spec.js
 ```
 
-## Targeted Jobs Browsing Verification
+## 定向岗位浏览验证
 
-### Backend
+### 后端
 
 ```bash
 cd backend
 mvn -q -Dtest=JobControllerTests test
 ```
 
-### Frontend
+### 前端
 
 ```bash
 cd frontend
 npx vitest run src/views/JobsListView.spec.js src/views/JobDetailView.spec.js src/views/ProfileFavoritesView.spec.js
 ```
 
-## Targeted Community Feed Verification
+## 定向社区流验证
 
-### Backend
+### 后端
 
 ```bash
 cd backend
 mvn -q -Dtest=CommunityControllerTests test
 ```
 
-### Frontend
+### 前端
 
 ```bash
 cd frontend
 npx vitest run src/views/CommunityListView.spec.js src/views/CommunityCreateView.spec.js src/views/CommunityDetailView.spec.js src/views/ProfilePostsView.spec.js src/views/ProfileFavoritesView.spec.js
 ```
 
-## Targeted Profile Posts And Favorites Verification
+## 定向个人帖子与收藏验证
 
-### Backend
+### 后端
 
 ```bash
 cd backend
 mvn -q "-Dtest=UserControllerTests,CommunityControllerTests" test
 ```
 
-### Frontend
+### 前端
 
 ```bash
 cd frontend
 npx vitest run src/views/ProfilePostsView.spec.js src/views/ProfileFavoritesView.spec.js src/views/ProfileView.spec.js
 ```
 
-## Targeted Resource Preview Verification
+## 定向资源预览验证
 
-### Backend
+### 后端
 
 ```bash
 cd backend
 mvn -q "-Dtest=ResourceControllerTests,AdminResourceControllerTests,ResourcePreviewServiceTests,ApachePoiPptxPreviewGeneratorTests,SofficeDocxPreviewGeneratorTests" test
 ```
 
-### Frontend
+### 前端
 
 ```bash
 cd frontend
 npx vitest run src/components/ResourceZipPreviewPanel.spec.js src/views/ResourceDetailView.spec.js src/views/ProfileResourcesView.spec.js src/views/admin/AdminResourceManageView.spec.js
 ```
 
-## Targeted Unified Search Verification
+## 定向统一搜索验证
 
-### Backend
+### 后端
 
 ```bash
 cd backend
 mvn -q -Dtest=SearchControllerTests,DiscoverControllerTests,HomeControllerTests,HomeServiceTests test
 ```
 
-### Frontend
+### 前端
 
 ```bash
 cd frontend
 npx vitest run src/views/SearchView.spec.js src/views/DiscoverView.spec.js src/views/HomeView.spec.js src/components/NavBar.spec.js
 ```
 
-## Targeted Decision Support Verification
+## 定向决策支持验证
 
-### Backend
+### 后端
 
 ```bash
 cd backend
 mvn -q "-Dtest=DecisionAssessmentServiceTests,DecisionAssessmentControllerTests,DecisionTimelineServiceTests,DecisionTimelineControllerTests,DecisionSchoolServiceTests,DecisionSchoolControllerTests,HomeServiceTests,HomeControllerTests" test
 ```
 
-### Frontend
+### 前端
 
 ```bash
 cd frontend
 npx vitest run src/views/AssessmentView.spec.js src/views/TimelineView.spec.js src/views/SchoolCompareView.spec.js src/views/HomeView.spec.js
 ```
 
-## Targeted Decision Analytics Verification
+## 定向决策分析验证
 
-### Backend
+### 后端
 
 ```bash
 cd backend
 mvn -q "-Dtest=AnalyticsServiceTests,AnalyticsControllerTests,HomeServiceTests,HomeControllerTests" test
 ```
 
-### Frontend
+### 前端
 
 ```bash
 cd frontend
 npm run test -- src/views/AnalyticsView.spec.js src/views/HomeView.spec.js
 ```
 
-## Targeted Job Application And Resume Workflow Verification
+## 定向岗位申请与简历流程验证
 
-### Backend
+### 后端
 
 ```bash
 cd backend
 mvn -q "-Dtest=ResumeControllerTests,JobApplicationControllerTests,AdminJobApplicationControllerTests,JobControllerTests" test
 ```
 
-### Frontend
+### 前端
 
 ```bash
 cd frontend
