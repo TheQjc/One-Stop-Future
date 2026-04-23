@@ -94,7 +94,7 @@ test("edit view blocks when the resource is not editable by the current user", a
   const wrapper = mountView();
   await flushPromises();
 
-  expect(wrapper.text()).toContain("This resource cannot be edited");
+  expect(wrapper.text()).toContain("当前状态下，这条资源暂时不能编辑");
   expect(wrapper.find("form").exists()).toBe(false);
   expect(updateResource).not.toHaveBeenCalled();
 });

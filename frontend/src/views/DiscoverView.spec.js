@@ -90,14 +90,14 @@ test("discover view defaults to all plus week and hits the api", async () => {
       {
         id: 1,
         type: "RESOURCE",
-        title: "Hot resource",
-        summary: "A weekly resource leader.",
-        primaryMeta: "Career Desk",
-        secondaryMeta: "RESUME_TEMPLATE",
+        title: "热门资料",
+        summary: "本周关注度较高的一组资料。",
+        primaryMeta: "平台推荐",
+        secondaryMeta: "简历模板",
         path: "/resources/1",
         publishedAt: "2026-04-16T08:00:00",
         hotScore: 22,
-        hotLabel: "Weekly resource lead",
+        hotLabel: "本周资料热度",
       },
     ],
   });
@@ -108,8 +108,8 @@ test("discover view defaults to all plus week and hits the api", async () => {
   expect(wrapper.text()).toContain("趋势");
   expect(wrapper.text()).toContain("按时间范围和内容类型切换趋势");
   expect(wrapper.text()).toContain("当前共有 1 条公开内容进入本周趋势榜。");
-  expect(wrapper.text()).toContain("Hot resource");
-  expect(wrapper.text()).toContain("Weekly resource lead");
+  expect(wrapper.text()).toContain("热门资料");
+  expect(wrapper.text()).toContain("本周资料热度");
 });
 
 test("tab and period toggles sync the url-backed discover state", async () => {
@@ -119,8 +119,8 @@ test("tab and period toggles sync the url-backed discover state", async () => {
       period: "WEEK",
       total: 2,
       items: [
-        { id: 1, type: "RESOURCE", title: "Resource leader", path: "/resources/1", hotLabel: "Weekly resource lead" },
-        { id: 2, type: "JOB", title: "Job leader", path: "/jobs/2", hotLabel: "Weekly attention" },
+        { id: 1, type: "RESOURCE", title: "资料热榜", path: "/resources/1", hotLabel: "本周资料热度" },
+        { id: 2, type: "JOB", title: "岗位热榜", path: "/jobs/2", hotLabel: "本周关注" },
       ],
     })
     .mockResolvedValueOnce({
@@ -128,7 +128,7 @@ test("tab and period toggles sync the url-backed discover state", async () => {
       period: "WEEK",
       total: 1,
       items: [
-        { id: 2, type: "JOB", title: "Job leader", path: "/jobs/2", hotLabel: "Weekly attention" },
+        { id: 2, type: "JOB", title: "岗位热榜", path: "/jobs/2", hotLabel: "本周关注" },
       ],
     })
     .mockResolvedValueOnce({
@@ -136,7 +136,7 @@ test("tab and period toggles sync the url-backed discover state", async () => {
       period: "ALL",
       total: 1,
       items: [
-        { id: 2, type: "JOB", title: "Job leader", path: "/jobs/2", hotLabel: "Sustained attention" },
+        { id: 2, type: "JOB", title: "岗位热榜", path: "/jobs/2", hotLabel: "持续关注" },
       ],
     });
 
@@ -193,7 +193,7 @@ test("error state can retry the same discover query", async () => {
     callCount += 1;
 
     if (callCount === 1) {
-      throw new Error("Discover temporarily unavailable");
+      throw new Error("趋势内容暂时不可用");
     }
 
     return {
@@ -201,14 +201,14 @@ test("error state can retry the same discover query", async () => {
       period: "WEEK",
       total: 1,
       items: [
-        { id: 1, type: "RESOURCE", title: "Recovered board item", path: "/resources/1", hotLabel: "Weekly resource lead" },
+        { id: 1, type: "RESOURCE", title: "恢复后的趋势内容", path: "/resources/1", hotLabel: "本周资料热度" },
       ],
     };
   });
 
   const { wrapper } = await mountAt("/discover?tab=ALL&period=WEEK");
 
-  expect(wrapper.text()).toContain("Discover temporarily unavailable");
+  expect(wrapper.text()).toContain("趋势内容暂时不可用");
   expect(wrapper.find("button.ghost-btn").text()).toBe("重试");
 
   await wrapper.find("button.ghost-btn").trigger("click");
@@ -219,5 +219,5 @@ test("error state can retry the same discover query", async () => {
     period: "WEEK",
     limit: 20,
   });
-  expect(wrapper.text()).toContain("Recovered board item");
+  expect(wrapper.text()).toContain("恢复后的趋势内容");
 });

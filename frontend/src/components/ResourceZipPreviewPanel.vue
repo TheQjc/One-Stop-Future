@@ -7,7 +7,7 @@ const props = defineProps({
 
 function formatSize(value) {
   if (value == null) {
-    return "Directory";
+    return "文件夹";
   }
 
   const size = Number(value || 0);
@@ -28,20 +28,20 @@ function formatSize(value) {
   <article class="panel-card zip-preview-panel">
     <div class="zip-preview-panel__header">
       <div>
-        <span class="section-eyebrow">Archive Contents</span>
+        <span class="section-eyebrow">压缩包目录</span>
         <h3 class="zip-preview-panel__title">
-          {{ preview?.fileName || "ZIP Preview" }}
+          {{ preview?.fileName || "压缩包预览" }}
         </h3>
       </div>
       <span v-if="preview" class="status-badge pending">
-        {{ preview.entryCount }} entries
+        {{ preview.entryCount }} 项
       </span>
     </div>
 
-    <div v-if="loading" class="empty-state">Loading archive contents...</div>
+    <div v-if="loading" class="empty-state">正在加载压缩包目录...</div>
     <p v-else-if="errorMessage" class="field-error" role="alert">{{ errorMessage }}</p>
-    <div v-else-if="!preview" class="empty-state">Preview not loaded yet.</div>
-    <div v-else-if="!preview.entries?.length" class="empty-state">This archive is empty.</div>
+    <div v-else-if="!preview" class="empty-state">暂未加载预览内容。</div>
+    <div v-else-if="!preview.entries?.length" class="empty-state">这个压缩包里还没有文件。</div>
     <div v-else class="zip-preview-panel__list">
       <article
         v-for="entry in preview.entries"
@@ -50,7 +50,7 @@ function formatSize(value) {
       >
         <div class="zip-preview-panel__entry-main">
           <span class="status-badge" :class="entry.directory ? 'pending' : 'approved'">
-            {{ entry.directory ? "Dir" : "File" }}
+            {{ entry.directory ? "文件夹" : "文件" }}
           </span>
           <div>
             <strong class="zip-preview-panel__entry-name">{{ entry.name }}</strong>

@@ -24,14 +24,14 @@ vi.mock("../../api/resources.js", () => ({
 const pendingResource = {
   id: 41,
   title: "Pending archive",
-  uploaderNickname: "NormalUser",
+  uploaderNickname: "普通同学",
   status: "PENDING",
 };
 
 const publishedResource = {
   id: 41,
   title: "Pending archive",
-  uploaderNickname: "NormalUser",
+  uploaderNickname: "普通同学",
   status: "PUBLISHED",
 };
 
@@ -101,7 +101,7 @@ test("admin selected panel uses Preview for FILE resources", async () => {
       {
         id: 41,
         title: "Pending archive",
-        uploaderNickname: "NormalUser",
+        uploaderNickname: "普通同学",
         status: "PENDING",
         previewAvailable: true,
         previewKind: "FILE",
@@ -116,7 +116,7 @@ test("admin selected panel uses Preview for FILE resources", async () => {
   await wrapper.find(".select-action").trigger("click");
   await flushPromises();
 
-  expect(wrapper.text()).toContain("Preview");
+  expect(wrapper.text()).toContain("预览");
 
   await wrapper.find('[data-testid="selected-preview-action"]').trigger("click");
   await flushPromises();
@@ -131,7 +131,7 @@ test("admin selected panel shows Preview Contents for ZIP resources and renders 
       {
         id: 41,
         title: "Archive bundle",
-        uploaderNickname: "NormalUser",
+        uploaderNickname: "普通同学",
         status: "PENDING",
         previewAvailable: true,
         previewKind: "ZIP_TREE",
@@ -153,7 +153,7 @@ test("admin selected panel shows Preview Contents for ZIP resources and renders 
   await wrapper.find(".select-action").trigger("click");
   await flushPromises();
 
-  expect(wrapper.text()).toContain("Preview Contents");
+  expect(wrapper.text()).toContain("查看目录");
 
   await wrapper.find('[data-testid="selected-preview-action"]').trigger("click");
   await flushPromises();
@@ -169,7 +169,7 @@ test("docx resources use the generic FILE preview action in the selected panel",
       {
         id: 41,
         title: "Workbook",
-        uploaderNickname: "NormalUser",
+        uploaderNickname: "普通同学",
         status: "PENDING",
         fileName: "workbook.docx",
         previewAvailable: true,
@@ -186,8 +186,8 @@ test("docx resources use the generic FILE preview action in the selected panel",
   await flushPromises();
 
   expect(wrapper.find('[data-testid="selected-preview-action"]').exists()).toBe(true);
-  expect(wrapper.text()).toContain("Preview");
-  expect(wrapper.text()).not.toContain("Preview Contents");
+  expect(wrapper.text()).toContain("预览");
+  expect(wrapper.text()).not.toContain("查看目录");
 
   await wrapper.find('[data-testid="selected-preview-action"]').trigger("click");
   await flushPromises();

@@ -132,7 +132,7 @@ test("authenticated user with no resumes sees upload guidance before applying", 
   await wrapper.find('[data-testid="apply-toggle"]').trigger("click");
   await flushPromises();
 
-  expect(wrapper.text()).toContain("Upload a resume first");
+  expect(wrapper.text()).toContain("请先上传一份简历");
   expect(wrapper.html()).toContain('data-to="/profile/resumes"');
 });
 
@@ -152,7 +152,7 @@ test("authenticated user can apply with a selected resume and then sees applied 
   await flushPromises();
 
   expect(applyToJob).toHaveBeenCalledWith(11, { resumeId: 21 });
-  expect(wrapper.text()).toContain("Applied");
+  expect(wrapper.text()).toContain("已投递");
   expect(wrapper.html()).toContain('data-to="/profile/applications"');
 });
 
@@ -170,6 +170,6 @@ test("favorites a job for authenticated users", async () => {
   await flushPromises();
 
   expect(favoriteJob).toHaveBeenCalledWith(11);
-  expect(wrapper.text()).toContain("Remove From Favorites");
+  expect(wrapper.text()).toContain("取消收藏");
   expect(unfavoriteJob).not.toHaveBeenCalled();
 });

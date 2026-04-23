@@ -23,16 +23,16 @@ import HomeView from "./HomeView.vue";
 const guestSummary = {
   viewerType: "GUEST",
   identity: null,
-  roleLabel: "Guest",
+  roleLabel: "访客",
   verificationStatus: null,
   unreadNotificationCount: 0,
-  todos: ["Sign in to unlock profile, verification, and notifications."],
+  todos: ["登录后可解锁个人中心、认证和通知。"],
   entries: [
-    { code: "community", title: "Community", path: "/community", enabled: true, badge: null },
-    { code: "jobs", title: "Jobs", path: "/jobs", enabled: true, badge: null },
-    { code: "resources", title: "Resources", path: "/resources", enabled: true, badge: null },
-    { code: "assessment", title: "Assessment", path: "/assessment", enabled: false, badge: "LOGIN_REQUIRED" },
-    { code: "analytics", title: "Analytics", path: "/analytics", enabled: true, badge: null },
+    { code: "community", title: "社区", path: "/community", enabled: true, badge: null },
+    { code: "jobs", title: "岗位", path: "/jobs", enabled: true, badge: null },
+    { code: "resources", title: "资料", path: "/resources", enabled: true, badge: null },
+    { code: "assessment", title: "测评", path: "/assessment", enabled: false, badge: "LOGIN_REQUIRED" },
+    { code: "analytics", title: "分析", path: "/analytics", enabled: true, badge: null },
   ],
   latestNotifications: [],
   discoverPreview: {
@@ -41,10 +41,10 @@ const guestSummary = {
       {
         id: 11,
         type: "RESOURCE",
-        title: "Resume Pack",
-        summary: "A practical starter pack.",
-        primaryMeta: "Career Desk",
-        secondaryMeta: "RESUME_TEMPLATE",
+        title: "简历资料包",
+        summary: "适合快速起步的一组求职资料。",
+        primaryMeta: "平台推荐",
+        secondaryMeta: "简历模板",
         path: "/resources/11",
         publishedAt: "2026-04-16T08:00:00",
         hotScore: 12,
@@ -59,30 +59,30 @@ const authenticatedSummary = {
   identity: {
     userId: 2,
     phone: "13800000001",
-    nickname: "SignedInUser",
+    nickname: "普通同学",
     role: "USER",
     verificationStatus: "PENDING",
   },
-  roleLabel: "User",
+  roleLabel: "普通用户",
   verificationStatus: "PENDING",
   unreadNotificationCount: 3,
   todos: [
-    "Student verification is under review.",
-    "You have 3 unread notifications.",
+    "学生认证正在审核中。",
+    "你有 3 条未读通知。",
   ],
   entries: [
-    { code: "community", title: "Community", path: "/community", enabled: true, badge: null },
-    { code: "jobs", title: "Jobs", path: "/jobs", enabled: true, badge: null },
-    { code: "resources", title: "Resources", path: "/resources", enabled: true, badge: null },
-    { code: "assessment", title: "Assessment", path: "/assessment", enabled: true, badge: null },
-    { code: "analytics", title: "Analytics", path: "/analytics", enabled: true, badge: null },
+    { code: "community", title: "社区", path: "/community", enabled: true, badge: null },
+    { code: "jobs", title: "岗位", path: "/jobs", enabled: true, badge: null },
+    { code: "resources", title: "资料", path: "/resources", enabled: true, badge: null },
+    { code: "assessment", title: "测评", path: "/assessment", enabled: true, badge: null },
+    { code: "analytics", title: "分析", path: "/analytics", enabled: true, badge: null },
   ],
   latestNotifications: [
     {
       id: 1,
       type: "SYSTEM",
-      title: "Verification Update",
-      content: "Your verification request is under review.",
+      title: "认证进度更新",
+      content: "你的学生认证正在审核中。",
       read: false,
       createdAt: "2026-04-15T08:30:00",
     },
@@ -93,10 +93,10 @@ const authenticatedSummary = {
       {
         id: 21,
         type: "POST",
-        title: "Hiring Diary",
-        summary: "A verified post with weekly traction.",
-        primaryMeta: "SignedInUser",
-        secondaryMeta: "CAREER",
+        title: "秋招周记",
+        summary: "一篇本周热度较高的经验帖。",
+        primaryMeta: "普通同学",
+        secondaryMeta: "就业",
         path: "/community/21",
         publishedAt: "2026-04-16T09:30:00",
         hotScore: 18,
@@ -111,32 +111,32 @@ const adminSummary = {
   identity: {
     userId: 1,
     phone: "13800000000",
-    nickname: "AdminDesk",
+    nickname: "平台管理员",
     role: "ADMIN",
     verificationStatus: "VERIFIED",
   },
-  roleLabel: "Administrator",
+  roleLabel: "管理员",
   verificationStatus: "VERIFIED",
   unreadNotificationCount: 2,
   todos: [
-    "Review 2 pending verification applications.",
-    "You have 2 unread notifications.",
+    "还有 2 条待审核的认证申请。",
+    "你有 2 条未读通知。",
   ],
   entries: [
-    { code: "community", title: "Community", path: "/community", enabled: true, badge: null },
-    { code: "jobs", title: "Jobs", path: "/jobs", enabled: true, badge: null },
-    { code: "resources", title: "Resources", path: "/resources", enabled: true, badge: null },
-    { code: "assessment", title: "Assessment", path: "/assessment", enabled: true, badge: null },
-    { code: "analytics", title: "Analytics", path: "/analytics", enabled: true, badge: null },
-    { code: "admin-dashboard", title: "Admin Dashboard", path: "/admin/dashboard", enabled: true, badge: null },
-    { code: "admin-verifications", title: "Admin Verification Review", path: "/admin/verifications", enabled: true, badge: null },
+    { code: "community", title: "社区", path: "/community", enabled: true, badge: null },
+    { code: "jobs", title: "岗位", path: "/jobs", enabled: true, badge: null },
+    { code: "resources", title: "资料", path: "/resources", enabled: true, badge: null },
+    { code: "assessment", title: "测评", path: "/assessment", enabled: true, badge: null },
+    { code: "analytics", title: "分析", path: "/analytics", enabled: true, badge: null },
+    { code: "admin-dashboard", title: "运营总览", path: "/admin/dashboard", enabled: true, badge: null },
+    { code: "admin-verifications", title: "认证审核", path: "/admin/verifications", enabled: true, badge: null },
   ],
   latestNotifications: [
     {
       id: 7,
       type: "SYSTEM",
-      title: "Admin Daily Read",
-      content: "Dashboard queues are ready to review.",
+      title: "管理员日报",
+      content: "今日队列已准备好，适合集中处理。",
       read: false,
       createdAt: "2026-04-17T08:30:00",
     },
@@ -147,14 +147,14 @@ const adminSummary = {
       {
         id: 31,
         type: "POST",
-        title: "Desk Notes",
-        summary: "A moderation note with current traction.",
-        primaryMeta: "AdminDesk",
-        secondaryMeta: "CAREER",
+        title: "运营值班笔记",
+        summary: "一条当前仍有热度的运营观察。",
+        primaryMeta: "平台管理员",
+        secondaryMeta: "就业",
         path: "/community/31",
         publishedAt: "2026-04-17T09:30:00",
         hotScore: 9,
-        hotLabel: "Weekly signal",
+        hotLabel: "本周关注",
       },
     ],
   },
@@ -166,7 +166,7 @@ beforeEach(() => {
   push.mockReset();
 });
 
-function mountView(summary) {
+function mountView() {
   setActivePinia(createPinia());
 
   return mount(HomeView, {
@@ -184,7 +184,7 @@ function mountView(summary) {
 test("renders guest hero copy in approved Chinese wording with live resources links", async () => {
   getHomeSummary.mockResolvedValue(guestSummary);
 
-  const wrapper = mountView(guestSummary);
+  const wrapper = mountView();
   await flushPromises();
 
   expect(getHomeSummary).toHaveBeenCalledTimes(1);
@@ -203,7 +203,7 @@ test("renders guest hero copy in approved Chinese wording with live resources li
   expect(wrapper.html()).toContain('data-to="/resources"');
   expect(wrapper.html()).toContain('data-to="/jobs"');
   expect(wrapper.html()).toContain('data-to="/analytics"');
-  expect(wrapper.text()).toContain("Resume Pack");
+  expect(wrapper.text()).toContain("简历资料包");
   expect(wrapper.text()).toContain("资料");
   expect(wrapper.text()).toContain("热度 12");
   expect(wrapper.html()).toContain('data-to="/resources/11"');
@@ -220,7 +220,7 @@ test("hydrates authenticated summary into store and shows signed-in hero copy", 
     userId: 2,
     phone: "13800000001",
     username: "13800000001",
-    nickname: "BeforeHydrate",
+    nickname: "更新前昵称",
     role: "USER",
     verificationStatus: "UNVERIFIED",
     unreadNotificationCount: 0,
@@ -241,19 +241,19 @@ test("hydrates authenticated summary into store and shows signed-in hero copy", 
 
   await flushPromises();
 
-  expect(userStore.profile.nickname).toBe("SignedInUser");
+  expect(userStore.profile.nickname).toBe("普通同学");
   expect(userStore.unreadCount).toBe(3);
-  expect(wrapper.get('[data-test="home-hero-title"]').text()).toBe("你好，SignedInUser，今天先从这几件事开始");
+  expect(wrapper.get('[data-test="home-hero-title"]').text()).toBe("你好，普通同学，今天先从这几件事开始");
   expect(wrapper.get('[data-test="home-hero-copy"]').text()).toBe("认证进度、未读通知和常用入口都会集中在这里，帮你先处理当下，再继续规划下一步。");
-  expect(wrapper.get('[data-test="home-status-chip"]').text()).toBe("普通用户 / SignedInUser");
+  expect(wrapper.get('[data-test="home-status-chip"]').text()).toBe("普通用户 / 普通同学");
   expect(wrapper.get('[data-test="home-unread-chip"]').text()).toBe("3 条未读通知");
   expect(wrapper.get('[data-test="home-primary-cta"]').text()).toBe("进入个人中心");
   expect(wrapper.get('[data-test="home-secondary-cta"]').text()).toBe("查看通知");
   expect(wrapper.html()).toContain('data-to="/resources"');
   expect(wrapper.html()).toContain('data-to="/assessment"');
   expect(wrapper.html()).toContain('data-to="/analytics"');
-  expect(wrapper.text()).toContain("Verification Update");
-  expect(wrapper.text()).toContain("Hiring Diary");
+  expect(wrapper.text()).toContain("认证进度更新");
+  expect(wrapper.text()).toContain("秋招周记");
 });
 
 test("home keeps common entry section before growth directions", async () => {
@@ -279,12 +279,12 @@ test("home search submits into the unified search page", async () => {
   const wrapper = mountView();
   await flushPromises();
 
-  await wrapper.find('input[name="home-search"]').setValue("  resume  ");
+  await wrapper.find('input[name="home-search"]').setValue("  简历  ");
   await wrapper.find('[data-test="home-search-form"]').trigger("submit.prevent");
 
   expect(push).toHaveBeenCalledWith({
     name: "search",
-    query: { q: "resume", type: "ALL", sort: "RELEVANCE" },
+    query: { q: "简历", type: "ALL", sort: "RELEVANCE" },
   });
 });
 

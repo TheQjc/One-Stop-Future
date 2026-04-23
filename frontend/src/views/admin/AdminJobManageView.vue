@@ -37,7 +37,7 @@ const form = reactive({
   city: "",
   jobType: "INTERNSHIP",
   educationRequirement: "ANY",
-  sourcePlatform: "Official Site",
+  sourcePlatform: "官方渠道",
   sourceUrl: "",
   summary: "",
   content: "",
@@ -48,10 +48,10 @@ const statusCards = computed(() => {
   const jobs = summary.value.jobs || [];
 
   return [
-    { label: "All Jobs", value: jobs.length },
-    { label: "Draft", value: jobs.filter((item) => item.status === "DRAFT").length },
-    { label: "Published", value: jobs.filter((item) => item.status === "PUBLISHED").length },
-    { label: "Offline", value: jobs.filter((item) => item.status === "OFFLINE").length },
+    { label: "全部岗位", value: jobs.length },
+    { label: "草稿", value: jobs.filter((item) => item.status === "DRAFT").length },
+    { label: "已发布", value: jobs.filter((item) => item.status === "PUBLISHED").length },
+    { label: "已下线", value: jobs.filter((item) => item.status === "OFFLINE").length },
   ];
 });
 
@@ -66,7 +66,7 @@ function resetForm() {
   form.city = "";
   form.jobType = "INTERNSHIP";
   form.educationRequirement = "ANY";
-  form.sourcePlatform = "Official Site";
+  form.sourcePlatform = "官方渠道";
   form.sourceUrl = "";
   form.summary = "";
   form.content = "";
@@ -80,7 +80,7 @@ function applyJobToForm(job) {
   form.city = job.city || "";
   form.jobType = job.jobType || "INTERNSHIP";
   form.educationRequirement = job.educationRequirement || "ANY";
-  form.sourcePlatform = job.sourcePlatform || "Official Site";
+  form.sourcePlatform = job.sourcePlatform || "官方渠道";
   form.sourceUrl = job.sourceUrl || "";
   form.summary = job.summary || "";
   form.content = job.content || "";
@@ -98,13 +98,24 @@ function handleImportFileChange(event) {
   importFile.value = event.target.files?.[0] || null;
 }
 
+function statusLabel(status) {
+  const labels = {
+    DRAFT: "草稿",
+    PUBLISHED: "已发布",
+    OFFLINE: "已下线",
+    DELETED: "已删除",
+  };
+
+  return labels[status] || status || "处理中";
+}
+
 async function handleImportJobs() {
   importErrorMessage.value = "";
   importErrors.value = [];
   importSummary.value = null;
 
   if (!importFile.value) {
-    importErrorMessage.value = "Choose one CSV file first.";
+    importErrorMessage.value = "请先选择一个 CSV 文件。";
     return;
   }
 
@@ -117,7 +128,7 @@ async function handleImportJobs() {
     resetImportInput();
     await loadJobs();
   } catch (error) {
-    importErrorMessage.value = error.message || "Job import failed. Please try again.";
+    importErrorMessage.value = error.message || "岗位导入失败，请稍后重试。";
     importErrors.value = Array.isArray(error.data?.errors) ? error.data.errors : [];
   } finally {
     importLoading.value = false;
@@ -136,7 +147,7 @@ async function handleSyncJobs() {
     syncIssues.value = Array.isArray(result.issues) ? result.issues : [];
     await loadJobs();
   } catch (error) {
-    syncErrorMessage.value = error.message || "Job sync failed. Please try again.";
+    syncErrorMessage.value = error.message || "岗位同步失败，请稍后重试。";
   } finally {
     syncLoading.value = false;
   }
@@ -164,7 +175,7 @@ async function loadJobs() {
   try {
     summary.value = await getAdminJobs();
   } catch (error) {
-    errorMessage.value = error.message || "Jobs admin list loading failed. Please try again.";
+    errorMessage.value = error.message || "岗位管理列表加载失败，请稍后重试。";
   } finally {
     loading.value = false;
   }
@@ -180,11 +191,11 @@ async function handleSaveDraft() {
     const saved = selectedJobId.value
       ? await updateAdminJob(selectedJobId.value, payload)
       : await createAdminJob(payload);
-    actionMessage.value = selectedJobId.value ? "Draft updated." : "Draft created.";
+    actionMessage.value = selectedJobId.value ? "草稿已更新。" : "草稿已创建。";
     applyJobToForm(saved);
     await loadJobs();
   } catch (error) {
-    errorMessage.value = error.message || "Draft save failed. Please try again.";
+    errorMessage.value = error.message || "草稿保存失败，请稍后重试。";
   } finally {
     actionLoadingId.value = "";
   }
@@ -197,11 +208,11 @@ async function handlePublish(id) {
 
   try {
     const saved = await publishAdminJob(id);
-    actionMessage.value = "Job published.";
+    actionMessage.value = "岗位已发布。";
     applyJobToForm(saved);
     await loadJobs();
   } catch (error) {
-    errorMessage.value = error.message || "Publish failed. Please try again.";
+    errorMessage.value = error.message || "发布失败，请稍后重试。";
   } finally {
     actionLoadingId.value = "";
   }
@@ -214,11 +225,11 @@ async function handleOffline(id) {
 
   try {
     const saved = await offlineAdminJob(id);
-    actionMessage.value = "Job offlined.";
+    actionMessage.value = "岗位已下线。";
     applyJobToForm(saved);
     await loadJobs();
   } catch (error) {
-    errorMessage.value = error.message || "Offline failed. Please try again.";
+    errorMessage.value = error.message || "下线失败，请稍后重试。";
   } finally {
     actionLoadingId.value = "";
   }
@@ -231,13 +242,13 @@ async function handleDelete(id) {
 
   try {
     await deleteAdminJob(id);
-    actionMessage.value = "Job deleted.";
+    actionMessage.value = "岗位已删除。";
     if (selectedJobId.value === id) {
       resetForm();
     }
     await loadJobs();
   } catch (error) {
-    errorMessage.value = error.message || "Delete failed. Please try again.";
+    errorMessage.value = error.message || "删除失败，请稍后重试。";
   } finally {
     actionLoadingId.value = "";
   }
@@ -251,10 +262,10 @@ loadJobs();
     <article class="section-card">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Admin Jobs Desk</span>
-          <h1 class="page-title" style="margin-top: 16px;">Manage the jobs board from one working surface.</h1>
+          <span class="section-eyebrow">岗位管理</span>
+          <h1 class="page-title" style="margin-top: 16px;">在一个页面管理岗位看板</h1>
           <p class="page-subtitle" style="margin-top: 16px;">
-            Draft, edit, publish, offline, and delete job cards without leaving the same page.
+            在同一页内完成岗位草稿创建、编辑、发布、下线和删除。
           </p>
         </div>
       </div>
@@ -275,27 +286,27 @@ loadJobs();
       <article class="section-card">
         <div class="section-header">
           <div>
-            <span class="section-eyebrow">Sync</span>
-            <h2 class="page-title" style="margin-top: 16px;">Pull jobs from the configured partner feed</h2>
+            <span class="section-eyebrow">同步</span>
+            <h2 class="page-title" style="margin-top: 16px;">从配置好的合作源同步岗位</h2>
             <p class="page-subtitle" style="margin-top: 16px;">
-              The backend fetches one fixed HTTP JSON feed and creates new partner rows as drafts.
+              后端会读取固定 HTTP JSON 数据源，并把新的合作岗位记录创建为草稿。
             </p>
           </div>
         </div>
 
         <div class="field-grid">
           <p class="field-hint">
-            Sync updates existing non-deleted jobs by source URL, skips deleted matches, and reports invalid partner rows.
+            同步会按来源链接更新未删除岗位，跳过已删除匹配项，并输出无效数据行。
           </p>
           <p v-if="syncSummary" class="field-hint">
-            {{ syncSummary.sourceName }}: Created {{ syncSummary.createdCount }}, updated {{ syncSummary.updatedCount }},
-            skipped {{ syncSummary.skippedCount }}, invalid {{ syncSummary.invalidCount }}.
+            {{ syncSummary.sourceName }}：新增 {{ syncSummary.createdCount }}，更新 {{ syncSummary.updatedCount }}，
+            跳过 {{ syncSummary.skippedCount }}，无效 {{ syncSummary.invalidCount }}。
           </p>
           <p v-if="syncErrorMessage" class="field-error" role="alert">{{ syncErrorMessage }}</p>
 
           <ul v-if="syncIssues.length" class="import-error-list">
             <li v-for="item in syncIssues" :key="`${item.itemIndex}-${item.type}-${item.sourceUrl}`">
-              Item {{ item.itemIndex }} / {{ item.type }} / {{ item.sourceUrl || "no sourceUrl" }}: {{ item.message }}
+              第 {{ item.itemIndex }} 条 / {{ item.type }} / {{ item.sourceUrl || "无来源链接" }}：{{ item.message }}
             </li>
           </ul>
 
@@ -307,7 +318,7 @@ loadJobs();
               :disabled="syncLoading"
               @click="handleSyncJobs"
             >
-              {{ syncLoading ? "Syncing..." : "Sync Feed" }}
+              {{ syncLoading ? "同步中..." : "开始同步" }}
             </button>
           </div>
         </div>
@@ -316,17 +327,17 @@ loadJobs();
       <article class="section-card">
         <div class="section-header">
           <div>
-            <span class="section-eyebrow">Import</span>
-            <h2 class="page-title" style="margin-top: 16px;">Batch import job drafts</h2>
+            <span class="section-eyebrow">导入</span>
+            <h2 class="page-title" style="margin-top: 16px;">批量导入岗位草稿</h2>
             <p class="page-subtitle" style="margin-top: 16px;">
-              Upload one UTF-8 CSV file to create multiple job drafts in one pass.
+              上传一个 UTF-8 编码的 CSV 文件，一次性创建多条岗位草稿。
             </p>
           </div>
         </div>
 
         <form data-testid="job-import-form" class="field-grid" @submit.prevent="handleImportJobs">
           <label class="field-label">
-            CSV File
+            CSV 文件
             <input
               ref="importInputRef"
               class="field-control"
@@ -338,28 +349,28 @@ loadJobs();
           </label>
 
           <p class="field-hint">
-            Header order: title, companyName, city, jobType, educationRequirement, sourcePlatform,
-            sourceUrl, summary, content, deadlineAt.
+            表头顺序：title、companyName、city、jobType、educationRequirement、sourcePlatform、
+            sourceUrl、summary、content、deadlineAt。
           </p>
           <p class="field-hint">
-            Required: title, companyName, city, jobType, educationRequirement, sourcePlatform,
-            sourceUrl, summary. Optional: content, deadlineAt.
+            必填：title、companyName、city、jobType、educationRequirement、sourcePlatform、
+            sourceUrl、summary。可选：content、deadlineAt。
           </p>
           <p v-if="importSummary" class="field-hint">
-            Imported {{ importSummary.importedCount }} jobs as {{ importSummary.defaultStatus }} from
-            {{ importSummary.fileName }}.
+            已从 {{ importSummary.fileName }} 导入 {{ importSummary.importedCount }} 条岗位，默认状态为
+            {{ statusLabel(importSummary.defaultStatus) }}。
           </p>
           <p v-if="importErrorMessage" class="field-error" role="alert">{{ importErrorMessage }}</p>
 
           <ul v-if="importErrors.length" class="import-error-list">
             <li v-for="item in importErrors" :key="`${item.rowNumber}-${item.column}-${item.message}`">
-              Row {{ item.rowNumber }} / {{ item.column }}: {{ item.message }}
+              第 {{ item.rowNumber }} 行 / {{ item.column }}：{{ item.message }}
             </li>
           </ul>
 
           <div class="inline-form-actions">
             <button type="submit" class="app-btn" :disabled="importLoading">
-              {{ importLoading ? "Importing..." : "Import CSV" }}
+              {{ importLoading ? "导入中..." : "导入 CSV" }}
             </button>
           </div>
         </form>
@@ -368,70 +379,70 @@ loadJobs();
       <article class="section-card">
         <div class="section-header">
           <div>
-            <span class="section-eyebrow">Editor</span>
+            <span class="section-eyebrow">编辑器</span>
             <h2 class="page-title" style="margin-top: 16px;">
-              {{ editingJob ? "Edit Selected Job" : "Create New Draft" }}
+              {{ editingJob ? "编辑当前岗位" : "新建岗位草稿" }}
             </h2>
           </div>
         </div>
 
         <form class="field-grid" @submit.prevent="handleSaveDraft">
           <label class="field-label">
-            Title
+            标题
             <input v-model.trim="form.title" class="field-control" name="title" type="text" maxlength="120" />
           </label>
 
           <label class="field-label">
-            Company
+            公司
             <input v-model.trim="form.companyName" class="field-control" name="companyName" type="text" maxlength="80" />
           </label>
 
           <label class="field-label">
-            City
+            城市
             <input v-model.trim="form.city" class="field-control" name="city" type="text" maxlength="80" />
           </label>
 
           <label class="field-label">
-            Source URL
+            来源链接
             <input v-model.trim="form.sourceUrl" class="field-control" name="sourceUrl" type="url" maxlength="500" />
           </label>
 
           <label class="field-label">
-            Job Type
+            岗位类型
             <select v-model="form.jobType" class="field-select" name="jobType">
-              <option value="INTERNSHIP">Internship</option>
-              <option value="FULL_TIME">Full Time</option>
-              <option value="CAMPUS">Campus</option>
+              <option value="INTERNSHIP">实习</option>
+              <option value="FULL_TIME">全职</option>
+              <option value="CAMPUS">校招</option>
             </select>
           </label>
 
           <label class="field-label">
-            Education
+            学历要求
             <select v-model="form.educationRequirement" class="field-select" name="educationRequirement">
-              <option value="ANY">Any</option>
-              <option value="BACHELOR">Bachelor</option>
-              <option value="MASTER">Master</option>
-              <option value="DOCTOR">Doctor</option>
+              <option value="ANY">不限</option>
+              <option value="BACHELOR">本科</option>
+              <option value="MASTER">硕士</option>
+              <option value="DOCTOR">博士</option>
             </select>
           </label>
 
           <label class="field-label">
-            Source Platform
+            来源平台
             <input v-model.trim="form.sourcePlatform" class="field-control" name="sourcePlatform" type="text" maxlength="50" />
           </label>
 
           <label class="field-label">
-            Deadline
+            截止时间
             <input v-model="form.deadlineAt" class="field-control" name="deadlineAt" type="datetime-local" />
           </label>
 
           <label class="field-label">
-            Summary
+            摘要
             <textarea v-model.trim="form.summary" class="field-textarea" name="summary" maxlength="300" />
           </label>
 
           <label class="field-label">
-            Content
+            正文
             <textarea v-model.trim="form.content" class="field-textarea" name="content" maxlength="10000" />
           </label>
 
@@ -440,10 +451,10 @@ loadJobs();
 
           <div class="inline-form-actions">
             <button type="submit" class="app-btn" :disabled="Boolean(actionLoadingId)">
-              {{ selectedJobId ? "Save Draft" : "Create Draft" }}
+              {{ selectedJobId ? "保存草稿" : "创建草稿" }}
             </button>
             <button type="button" class="ghost-btn" :disabled="Boolean(actionLoadingId)" @click="resetForm">
-              Reset
+              重置
             </button>
             <button
               v-if="selectedJobId"
@@ -452,7 +463,7 @@ loadJobs();
               :disabled="Boolean(actionLoadingId)"
               @click="handlePublish(selectedJobId)"
             >
-              Publish Selected
+              发布当前岗位
             </button>
           </div>
         </form>
@@ -461,37 +472,37 @@ loadJobs();
       <article class="section-card">
         <div class="section-header">
           <div>
-            <span class="section-eyebrow">Board</span>
-            <h2 class="page-title" style="margin-top: 16px;">Current job cards</h2>
+            <span class="section-eyebrow">岗位列表</span>
+            <h2 class="page-title" style="margin-top: 16px;">当前岗位记录</h2>
           </div>
         </div>
 
-        <div v-if="loading" class="empty-state">Loading admin jobs...</div>
+        <div v-if="loading" class="empty-state">正在加载岗位列表...</div>
         <div v-else-if="errorMessage && !summary.jobs.length" class="field-grid">
           <p class="field-error" role="alert">{{ errorMessage }}</p>
           <button type="button" class="ghost-btn" @click="loadJobs">
-            Retry
+            重试
           </button>
         </div>
         <div v-else>
           <table class="app-table">
             <thead>
               <tr>
-                <th>Title</th>
-                <th>Company</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th>标题</th>
+                <th>公司</th>
+                <th>状态</th>
+                <th>操作</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="job in summary.jobs" :key="job.id">
                 <td>{{ job.title }}</td>
                 <td>{{ job.companyName }}</td>
-                <td>{{ job.status }}</td>
+                <td>{{ statusLabel(job.status) }}</td>
                 <td>
                   <div class="inline-form-actions">
                     <button type="button" class="ghost-btn" @click="applyJobToForm(job)">
-                      Edit
+                      编辑
                     </button>
                     <button
                       type="button"
@@ -499,7 +510,7 @@ loadJobs();
                       :disabled="job.status === 'PUBLISHED' || actionLoadingId === `publish-${job.id}`"
                       @click="handlePublish(job.id)"
                     >
-                      Publish
+                      发布
                     </button>
                     <button
                       type="button"
@@ -507,7 +518,7 @@ loadJobs();
                       :disabled="job.status !== 'PUBLISHED' || actionLoadingId === `offline-${job.id}`"
                       @click="handleOffline(job.id)"
                     >
-                      Offline
+                      下线
                     </button>
                     <button
                       type="button"
@@ -515,7 +526,7 @@ loadJobs();
                       :disabled="job.status === 'DELETED' || actionLoadingId === `delete-${job.id}`"
                       @click="handleDelete(job.id)"
                     >
-                      Delete
+                      删除
                     </button>
                   </div>
                 </td>
@@ -530,10 +541,10 @@ loadJobs();
               class="table-card"
             >
               <strong>{{ job.title }}</strong>
-              <p class="meta-copy">{{ job.companyName }} / {{ job.status }}</p>
+              <p class="meta-copy">{{ job.companyName }} / {{ statusLabel(job.status) }}</p>
               <div class="inline-form-actions" style="margin-top: 12px;">
                 <button type="button" class="ghost-btn" @click="applyJobToForm(job)">
-                  Edit
+                  编辑
                 </button>
                 <button
                   type="button"
@@ -541,7 +552,7 @@ loadJobs();
                   :disabled="job.status === 'PUBLISHED' || actionLoadingId === `publish-${job.id}`"
                   @click="handlePublish(job.id)"
                 >
-                  Publish
+                  发布
                 </button>
                 <button
                   type="button"
@@ -549,7 +560,7 @@ loadJobs();
                   :disabled="job.status !== 'PUBLISHED' || actionLoadingId === `offline-${job.id}`"
                   @click="handleOffline(job.id)"
                 >
-                  Offline
+                  下线
                 </button>
                 <button
                   type="button"
@@ -557,7 +568,7 @@ loadJobs();
                   :disabled="job.status === 'DELETED' || actionLoadingId === `delete-${job.id}`"
                   @click="handleDelete(job.id)"
                 >
-                  Delete
+                  删除
                 </button>
               </div>
             </article>

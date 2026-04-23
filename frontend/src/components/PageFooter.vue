@@ -2,14 +2,14 @@
   <footer class="site-footer">
     <div class="site-footer__inner">
       <div>
-        <p class="site-footer__title">One-Stop Future / Phase A</p>
+        <p class="site-footer__title">校园成长服务入口 | One-Stop Future</p>
         <p class="site-footer__copy">
           围绕就业、考研与留学决策搭建统一入口，当前阶段先完成首页聚合、手机号登录、个人中心、通知与认证审核骨架。
         </p>
       </div>
       <div class="site-footer__meta">
-        <span>Vue 3 + Pinia + Vue Router + Axios + Vite</span>
-        <span>Visual direction: editorial student decision desk</span>
+        <span>技术栈：Vue 3 + Pinia + Vue Router + Axios + Vite</span>
+        <span>视觉方向：编辑部式学生决策台</span>
       </div>
     </div>
   </footer>

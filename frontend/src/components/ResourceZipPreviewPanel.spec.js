@@ -8,14 +8,14 @@ test("shows loading, error, empty, and success states for zip previews", async (
       loading: true,
     },
   });
-  expect(loadingWrapper.text()).toContain("Loading archive contents...");
+  expect(loadingWrapper.text()).toContain("正在加载压缩包目录...");
 
   const errorWrapper = mount(ResourceZipPreviewPanel, {
     props: {
-      errorMessage: "Contents preview failed.",
+      errorMessage: "目录预览失败。",
     },
   });
-  expect(errorWrapper.text()).toContain("Contents preview failed.");
+  expect(errorWrapper.text()).toContain("目录预览失败。");
 
   const emptyWrapper = mount(ResourceZipPreviewPanel, {
     props: {
@@ -26,7 +26,7 @@ test("shows loading, error, empty, and success states for zip previews", async (
       },
     },
   });
-  expect(emptyWrapper.text()).toContain("This archive is empty.");
+  expect(emptyWrapper.text()).toContain("这个压缩包里还没有文件。");
 
   const successWrapper = mount(ResourceZipPreviewPanel, {
     props: {
@@ -42,5 +42,6 @@ test("shows loading, error, empty, and success states for zip previews", async (
   });
   expect(successWrapper.text()).toContain("notes.zip");
   expect(successWrapper.text()).toContain("backend/questions.md");
+  expect(successWrapper.text()).toContain("2 项");
   expect(successWrapper.text()).toContain("2 KB");
 });

@@ -19,18 +19,18 @@ const summary = ref({
 
 const tabConfig = {
   POST: {
-    label: "Posts",
-    emptyText: "You have not saved any community posts yet.",
+    label: "经验帖",
+    emptyText: "你还没有收藏任何社区帖子。",
     load: getMyPostFavorites,
   },
   JOB: {
-    label: "Jobs",
-    emptyText: "You have not saved any job cards yet.",
+    label: "岗位",
+    emptyText: "你还没有收藏任何岗位。",
     load: getMyJobFavorites,
   },
   RESOURCE: {
-    label: "Resources",
-    emptyText: "You have not saved any resource files yet.",
+    label: "资源",
+    emptyText: "你还没有收藏任何资源文件。",
     load: getMyResourceFavorites,
   },
 };
@@ -52,7 +52,7 @@ async function loadFavorites() {
   try {
     summary.value = await tabConfig[favoriteType.value].load();
   } catch (error) {
-    errorMessage.value = error.message || "Favorites loading failed. Please try again.";
+    errorMessage.value = error.message || "收藏内容加载失败，请稍后重试。";
   } finally {
     loading.value = false;
   }
@@ -68,11 +68,10 @@ onMounted(loadFavorites);
 <template>
   <section class="page-stack">
     <article class="section-card">
-      <span class="section-eyebrow">My Favorites</span>
-      <h1 class="page-title" style="margin-top: 16px;">Saved Board</h1>
+      <span class="section-eyebrow">我的收藏</span>
+      <h1 class="page-title" style="margin-top: 16px;">收藏总览</h1>
       <p class="page-subtitle" style="margin-top: 16px;">
-        Keep posts, jobs, and resource files on one return surface so the next decision does not
-        depend on remembering where you found them.
+        把帖子、岗位和资源放在同一个回看入口里，下一次继续决策时就不用再回忆它们最初出现在哪一页。
       </p>
     </article>
 
@@ -90,11 +89,11 @@ onMounted(loadFavorites);
         </button>
       </div>
 
-      <div v-if="loading" class="empty-state">Loading your saved board...</div>
+      <div v-if="loading" class="empty-state">正在加载你的收藏内容...</div>
       <div v-else-if="errorMessage" class="field-grid">
         <p class="field-error" role="alert">{{ errorMessage }}</p>
         <button type="button" class="ghost-btn" @click="loadFavorites">
-          Retry
+          重试
         </button>
       </div>
       <div v-else-if="!currentItems().length" class="empty-state">

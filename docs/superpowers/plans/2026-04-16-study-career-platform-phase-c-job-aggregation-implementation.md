@@ -491,7 +491,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run src/views/JobsListView.spec.js src/views/JobDetailView.spec.js
+npm run test -- src/views/JobsListView.spec.js src/views/JobDetailView.spec.js
 ```
 
 Expected: FAIL because the jobs pages and API client do not exist yet.
@@ -543,7 +543,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run src/views/JobsListView.spec.js src/views/JobDetailView.spec.js src/views/HomeView.spec.js
+npm run test -- src/views/JobsListView.spec.js src/views/JobDetailView.spec.js src/views/HomeView.spec.js
 ```
 
 Expected: PASS.
@@ -597,7 +597,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run src/views/ProfileFavoritesView.spec.js src/views/admin/AdminJobManageView.spec.js
+npm run test -- src/views/ProfileFavoritesView.spec.js src/views/admin/AdminJobManageView.spec.js
 ```
 
 Expected: FAIL because the jobs tab and admin jobs page do not exist yet.
@@ -633,7 +633,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run src/views/ProfileFavoritesView.spec.js src/views/admin/AdminJobManageView.spec.js
+npm run test -- src/views/ProfileFavoritesView.spec.js src/views/admin/AdminJobManageView.spec.js
 ```
 
 Expected: PASS.
@@ -680,7 +680,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run
+npm run test
 npm run build
 ```
 
@@ -729,7 +729,7 @@ After Task 6, run the full suite in this order:
 cd backend
 mvn -q test
 cd ../frontend
-npm run test -- --run
+npm run test
 npm run build
 ```
 

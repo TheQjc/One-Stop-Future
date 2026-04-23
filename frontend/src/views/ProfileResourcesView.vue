@@ -21,11 +21,11 @@ const statusCards = computed(() => {
   const resources = summary.value.resources || [];
 
   return [
-    { label: "All Records", value: resources.length },
-    { label: "Pending", value: resources.filter((item) => item.status === "PENDING").length },
-    { label: "Published", value: resources.filter((item) => item.status === "PUBLISHED").length },
+    { label: "全部记录", value: resources.length },
+    { label: "待审核", value: resources.filter((item) => item.status === "PENDING").length },
+    { label: "已发布", value: resources.filter((item) => item.status === "PUBLISHED").length },
     {
-      label: "Needs Attention",
+      label: "待处理",
       value: resources.filter((item) => ["REJECTED", "OFFLINE"].includes(item.status)).length,
     },
   ];
@@ -33,24 +33,24 @@ const statusCards = computed(() => {
 
 function formatCategory(category) {
   const labelMap = {
-    EXAM_PAPER: "Exam Paper",
-    LANGUAGE_TEST: "Language Test",
-    RESUME_TEMPLATE: "Resume Template",
-    INTERVIEW_EXPERIENCE: "Interview Notes",
-    OTHER: "Other",
+    EXAM_PAPER: "考试真题",
+    LANGUAGE_TEST: "语言考试",
+    RESUME_TEMPLATE: "简历模板",
+    INTERVIEW_EXPERIENCE: "面经资料",
+    OTHER: "其他",
   };
 
-  return labelMap[category] || category || "Resource";
+  return labelMap[category] || category || "资源";
 }
 
 function formatTime(value) {
   if (!value) {
-    return "Not published yet";
+    return "暂未发布";
   }
 
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
-    return "Not published yet";
+    return "暂未发布";
   }
 
   return new Intl.DateTimeFormat("zh-CN", {
@@ -64,7 +64,7 @@ function formatTime(value) {
 function formatSize(value) {
   const size = Number(value || 0);
   if (!size) {
-    return "Unknown size";
+    return "大小未知";
   }
   if (size >= 1024 * 1024) {
     return `${(size / (1024 * 1024)).toFixed(1)} MB`;
@@ -83,6 +83,17 @@ function statusClass(status) {
     return "rejected";
   }
   return "pending";
+}
+
+function statusLabel(status) {
+  const labels = {
+    PENDING: "待审核",
+    PUBLISHED: "已发布",
+    REJECTED: "已退回",
+    OFFLINE: "已下线",
+  };
+
+  return labels[status] || status || "处理中";
 }
 
 function previewKindOf(resource) {
@@ -108,7 +119,7 @@ async function loadResources() {
   try {
     summary.value = await getMyResources();
   } catch (error) {
-    errorMessage.value = error.message || "Resource records loading failed. Please try again.";
+    errorMessage.value = error.message || "资源记录加载失败，请稍后重试。";
   } finally {
     loading.value = false;
   }
@@ -129,27 +140,27 @@ async function handlePreview(resource) {
     if (kind === "ZIP_TREE") {
       zipPreviewData.value = await previewZipResource(resource.id);
       zipPreviewResourceId.value = resource.id;
-      actionMessage.value = `Contents loaded for ${resource.title}.`;
+      actionMessage.value = `已加载《${resource.title}》的目录内容。`;
       return;
     }
 
     zipPreviewResourceId.value = null;
     zipPreviewData.value = null;
     await previewResource(resource.id);
-    actionMessage.value = `Preview opened for ${resource.title}.`;
+    actionMessage.value = `已打开《${resource.title}》的预览。`;
   } catch (error) {
     if (kind === "ZIP_TREE") {
       zipPreviewResourceId.value = resource.id;
-      zipPreviewError.value = error.message || "Contents preview failed. Please try again.";
+      zipPreviewError.value = error.message || "目录预览失败，请稍后重试。";
     }
-    actionError.value = error.message || "Preview failed. Please try again.";
+    actionError.value = error.message || "预览失败，请稍后重试。";
   } finally {
     actionLoadingId.value = "";
   }
 }
 
 function previewLabel(resource) {
-  return previewKindOf(resource) === "ZIP_TREE" ? "Preview Contents" : "Preview";
+  return previewKindOf(resource) === "ZIP_TREE" ? "查看目录" : "预览";
 }
 
 function showZipPreview(resource) {
@@ -164,15 +175,14 @@ onMounted(loadResources);
     <article class="section-card">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">My Resources</span>
-          <h1 class="page-title" style="margin-top: 16px;">Resource records</h1>
+          <span class="section-eyebrow">我的资源</span>
+          <h1 class="page-title" style="margin-top: 16px;">资源记录</h1>
           <p class="page-subtitle" style="margin-top: 16px;">
-            This board is read-only on purpose. It keeps status, publish time, and rejection notes
-            visible without turning the first resource slice into an edit workflow.
+            这里先集中展示状态、发布时间和退回说明，方便你快速回看每条资源的进展，再决定是否需要修改重提。
           </p>
         </div>
         <RouterLink to="/resources/upload" class="app-btn">
-          Upload Resource
+          上传资源
         </RouterLink>
       </div>
 
@@ -189,15 +199,15 @@ onMounted(loadResources);
     </article>
 
     <article class="section-card">
-      <div v-if="loading" class="empty-state">Loading your resource records...</div>
+      <div v-if="loading" class="empty-state">正在加载你的资源记录...</div>
       <div v-else-if="errorMessage" class="field-grid">
         <p class="field-error" role="alert">{{ errorMessage }}</p>
         <button type="button" class="ghost-btn" @click="loadResources">
-          Retry
+          重试
         </button>
       </div>
       <div v-else-if="!summary.resources.length" class="empty-state">
-        You have not uploaded any resource files yet.
+        你还没有上传任何资源文件。
       </div>
       <div v-else class="resource-record-list">
         <p v-if="actionMessage" class="field-hint">{{ actionMessage }}</p>
@@ -210,24 +220,24 @@ onMounted(loadResources);
         >
           <div class="resource-record-card__header">
             <div>
-              <p class="resource-record-card__eyebrow">Resource #{{ resource.id }}</p>
+              <p class="resource-record-card__eyebrow">资源 #{{ resource.id }}</p>
               <h2 class="resource-record-card__title">{{ resource.title }}</h2>
             </div>
             <span class="status-badge" :class="statusClass(resource.status)">
-              {{ resource.status }}
+              {{ statusLabel(resource.status) }}
             </span>
           </div>
 
           <div class="resource-record-card__meta">
             <span>{{ formatCategory(resource.category) }}</span>
-            <span>{{ resource.fileName || "Archive file" }}</span>
+            <span>{{ resource.fileName || "资源文件" }}</span>
             <span>{{ formatSize(resource.fileSize) }}</span>
-            <span>Created {{ formatTime(resource.createdAt) }}</span>
-            <span>Published {{ formatTime(resource.publishedAt) }}</span>
+            <span>创建于 {{ formatTime(resource.createdAt) }}</span>
+            <span>发布于 {{ formatTime(resource.publishedAt) }}</span>
           </div>
 
           <p class="meta-copy">
-            {{ resource.summary || "No summary available for this record." }}
+            {{ resource.summary || "这条记录暂时没有摘要。" }}
           </p>
 
           <div
@@ -239,7 +249,7 @@ onMounted(loadResources);
               :to="`/resources/${resource.id}/edit`"
               class="app-link"
             >
-              Edit And Resubmit
+              编辑并重新提交
             </RouterLink>
             <button
               v-if="canPreview(resource)"
@@ -250,7 +260,7 @@ onMounted(loadResources);
               @click="handlePreview(resource)"
             >
               {{ actionLoadingId === `preview-${resource.id}`
-                ? (previewKindOf(resource) === "ZIP_TREE" ? "Loading Contents..." : "Opening Preview...")
+                ? (previewKindOf(resource) === "ZIP_TREE" ? "正在加载目录..." : "正在打开预览...")
                 : previewLabel(resource) }}
             </button>
           </div>
@@ -266,7 +276,7 @@ onMounted(loadResources);
             v-if="resource.rejectReason"
             class="panel-card resource-record-card__note"
           >
-            <strong>Review Note</strong>
+            <strong>审核说明</strong>
             <p class="meta-copy" style="margin-top: 12px;">{{ resource.rejectReason }}</p>
           </article>
         </article>

@@ -18,7 +18,7 @@ test("shows the my resources link and submits verification request", async () =>
     {
       id: 2,
       phone: "13800000001",
-      nickname: "NormalUser",
+      nickname: "普通同学",
       role: "USER",
       status: "ACTIVE",
       verificationStatus: "UNVERIFIED",
@@ -31,7 +31,7 @@ test("shows the my resources link and submits verification request", async () =>
     id: 2,
     userId: 2,
     phone: "13800000001",
-    nickname: "NormalUser",
+    nickname: "普通同学",
     role: "USER",
     verificationStatus: "UNVERIFIED",
     unreadNotificationCount: 1,
@@ -57,7 +57,7 @@ test("shows the my resources link and submits verification request", async () =>
   expect(wrapper.text()).toContain("上传记录");
   expect(wrapper.html()).toContain('data-to="/profile/resources"');
 
-  await wrapper.find('input[name="verificationRealName"]').setValue("Student User");
+  await wrapper.find('input[name="verificationRealName"]').setValue("张同学");
   await wrapper.find('input[name="studentId"]').setValue("20241234");
   await wrapper.findAll("form")[1].trigger("submit.prevent");
   await flushPromises();
@@ -76,7 +76,7 @@ test("profile desk exposes resumes and applications workspace links", async () =
     id: 2,
     userId: 2,
     phone: "13800000001",
-    nickname: "NormalUser",
+    nickname: "普通同学",
     role: "USER",
     verificationStatus: "UNVERIFIED",
     unreadNotificationCount: 1,

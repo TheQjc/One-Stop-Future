@@ -384,7 +384,7 @@ class AuthControllerTests {
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
-                    {"phone":"13800000001","verificationCode":"123456","nickname":"新用户"}
+                    {"phone":"13800000001","verificationCode":"123456","nickname":"鏂扮敤鎴?}
                 """))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.data.token").isNotEmpty());
@@ -516,7 +516,7 @@ class VerificationControllerTests {
         mockMvc.perform(post("/api/verifications")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
-                    {"realName":"张三","studentId":"20260001"}
+                    {"realName":"寮犱笁","studentId":"20260001"}
                 """))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.code").value(200));
@@ -663,7 +663,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run src/App.spec.js
+npm run test -- src/App.spec.js
 ```
 
 Expected: FAIL or become irrelevant because the shell still assumes notice-first navigation.
@@ -714,7 +714,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run src/App.spec.js
+npm run test -- src/App.spec.js
 ```
 
 Expected: PASS.
@@ -746,7 +746,7 @@ test("login view renders phone and verification code fields", () => {
   const wrapper = mount(LoginView);
   expect(wrapper.find('input[name="phone"]').exists()).toBe(true);
   expect(wrapper.find('input[name="verificationCode"]').exists()).toBe(true);
-  expect(wrapper.text()).toContain("获取验证码");
+  expect(wrapper.text()).toContain("鑾峰彇楠岃瘉鐮?);
 });
 ```
 
@@ -756,9 +756,9 @@ import HomeView from "./HomeView.vue";
 
 test("guest home renders module entries and auth guidance", () => {
   const wrapper = mount(HomeView);
-  expect(wrapper.text()).toContain("就业");
-  expect(wrapper.text()).toContain("考研");
-  expect(wrapper.text()).toContain("留学");
+  expect(wrapper.text()).toContain("灏变笟");
+  expect(wrapper.text()).toContain("鑰冪爺");
+  expect(wrapper.text()).toContain("鐣欏");
 });
 ```
 
@@ -768,7 +768,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run src/views/LoginView.spec.js src/views/HomeView.spec.js
+npm run test -- src/views/LoginView.spec.js src/views/HomeView.spec.js
 ```
 
 Expected: FAIL because views still use the old username/password and notice-first language.
@@ -798,7 +798,7 @@ export async function register(payload) {
 
 Home page requirements:
 
-- guest mode: strong hero, three path themes, login/register call to action, module cards, “即将开放” placeholders for non-Phase-A modules
+- guest mode: strong hero, three path themes, login/register call to action, module cards, 鈥滃嵆灏嗗紑鏀锯€?placeholders for non-Phase-A modules
 - logged-in mode: identity banner, unread count, todo card, module entry grid, latest notifications panel
 - admin mode: same home language, but with extra admin entry card
 
@@ -815,7 +815,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run src/views/LoginView.spec.js src/views/HomeView.spec.js
+npm run test -- src/views/LoginView.spec.js src/views/HomeView.spec.js
 ```
 
 Expected: PASS.
@@ -845,7 +845,7 @@ import ProfileView from "./ProfileView.vue";
 
 test("profile view renders verification application section", () => {
   const wrapper = mount(ProfileView);
-  expect(wrapper.text()).toContain("学号认证");
+  expect(wrapper.text()).toContain("瀛﹀彿璁よ瘉");
 });
 ```
 
@@ -855,7 +855,7 @@ import NotificationCenterView from "./NotificationCenterView.vue";
 
 test("notification center renders unread and read controls", () => {
   const wrapper = mount(NotificationCenterView);
-  expect(wrapper.text()).toContain("全部标记为已读");
+  expect(wrapper.text()).toContain("鍏ㄩ儴鏍囪涓哄凡璇?);
 });
 ```
 
@@ -865,7 +865,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run src/views/ProfileView.spec.js src/views/NotificationCenterView.spec.js
+npm run test -- src/views/ProfileView.spec.js src/views/NotificationCenterView.spec.js
 ```
 
 Expected: FAIL because profile still reflects the legacy account model and there is no notification center.
@@ -912,7 +912,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run src/views/ProfileView.spec.js src/views/NotificationCenterView.spec.js
+npm run test -- src/views/ProfileView.spec.js src/views/NotificationCenterView.spec.js
 ```
 
 Expected: PASS.
@@ -941,8 +941,8 @@ import AdminVerificationReviewView from "./AdminVerificationReviewView.vue";
 
 test("admin review page shows approve and reject actions", () => {
   const wrapper = mount(AdminVerificationReviewView);
-  expect(wrapper.text()).toContain("通过");
-  expect(wrapper.text()).toContain("驳回");
+  expect(wrapper.text()).toContain("閫氳繃");
+  expect(wrapper.text()).toContain("椹冲洖");
 });
 ```
 
@@ -952,7 +952,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run src/views/admin/AdminVerificationReviewView.spec.js
+npm run test -- src/views/admin/AdminVerificationReviewView.spec.js
 ```
 
 Expected: FAIL because the page and route do not exist.
@@ -989,7 +989,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run src/views/admin/AdminVerificationReviewView.spec.js
+npm run test -- src/views/admin/AdminVerificationReviewView.spec.js
 ```
 
 Expected: PASS.
@@ -1101,7 +1101,7 @@ Run:
 cd backend
 mvn test
 cd ../frontend
-npm run test -- --run
+npm run test
 npm run build
 cd ..
 docker compose config
@@ -1145,7 +1145,7 @@ After Task 8, run the full suite in this exact order:
 cd backend
 mvn test
 cd ../frontend
-npm run test -- --run
+npm run test
 npm run build
 cd ..
 docker compose config

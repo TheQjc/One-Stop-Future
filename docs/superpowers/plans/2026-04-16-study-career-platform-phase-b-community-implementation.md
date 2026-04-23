@@ -281,7 +281,7 @@ class CommunityControllerTests {
         mockMvc.perform(post("/api/community/posts")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
-                    {"tag":"CAREER","title":"Offer 复盘","content":"这里是正文"}
+                    {"tag":"CAREER","title":"Offer 澶嶇洏","content":"杩欓噷鏄鏂?}
                 """))
             .andExpect(status().isUnauthorized());
     }
@@ -455,10 +455,10 @@ import CommunityListView from "./CommunityListView.vue";
 
 test("community list shows fixed tag tabs", () => {
   const wrapper = mount(CommunityListView);
-  expect(wrapper.text()).toContain("就业");
-  expect(wrapper.text()).toContain("考研");
-  expect(wrapper.text()).toContain("留学");
-  expect(wrapper.text()).toContain("闲聊");
+  expect(wrapper.text()).toContain("灏变笟");
+  expect(wrapper.text()).toContain("鑰冪爺");
+  expect(wrapper.text()).toContain("鐣欏");
+  expect(wrapper.text()).toContain("闂茶亰");
 });
 ```
 
@@ -480,7 +480,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run src/views/CommunityListView.spec.js src/views/CommunityCreateView.spec.js
+npm run test -- src/views/CommunityListView.spec.js src/views/CommunityCreateView.spec.js
 ```
 
 Expected: FAIL because the views and routes do not exist yet.
@@ -514,7 +514,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run src/views/CommunityListView.spec.js src/views/CommunityCreateView.spec.js src/views/CommunityDetailView.spec.js
+npm run test -- src/views/CommunityListView.spec.js src/views/CommunityCreateView.spec.js src/views/CommunityDetailView.spec.js
 ```
 
 Expected: PASS.
@@ -548,8 +548,8 @@ test("profile view links to my posts and my favorites", () => {
   const wrapper = mount(ProfileView, {
     global: { stubs: ["RouterLink"] },
   });
-  expect(wrapper.text()).toContain("我的发布");
-  expect(wrapper.text()).toContain("我的收藏");
+  expect(wrapper.text()).toContain("鎴戠殑鍙戝竷");
+  expect(wrapper.text()).toContain("鎴戠殑鏀惰棌");
 });
 ```
 
@@ -559,8 +559,8 @@ import AdminCommunityManageView from "./AdminCommunityManageView.vue";
 
 test("admin community view shows hide and delete actions", () => {
   const wrapper = mount(AdminCommunityManageView);
-  expect(wrapper.text()).toContain("下架");
-  expect(wrapper.text()).toContain("删除");
+  expect(wrapper.text()).toContain("涓嬫灦");
+  expect(wrapper.text()).toContain("鍒犻櫎");
 });
 ```
 
@@ -570,7 +570,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run src/views/ProfilePostsView.spec.js src/views/ProfileFavoritesView.spec.js src/views/admin/AdminCommunityManageView.spec.js
+npm run test -- src/views/ProfilePostsView.spec.js src/views/ProfileFavoritesView.spec.js src/views/admin/AdminCommunityManageView.spec.js
 ```
 
 Expected: FAIL because the profile subpages and admin community page do not exist yet.
@@ -584,11 +584,11 @@ Before writing UI code:
 
 Required behavior:
 
-- profile page exposes entry links to `我的发布` and `我的收藏`
+- profile page exposes entry links to `鎴戠殑鍙戝竷` and `鎴戠殑鏀惰棌`
 - `ProfilePostsView` reads `/api/community/posts/mine`
 - `ProfileFavoritesView` reads `/api/users/me/favorites?type=POST`
 - admin page reads `/api/admin/community/posts`
-- admin page supports `下架` and `删除`
+- admin page supports `涓嬫灦` and `鍒犻櫎`
 - non-admins are blocked by route meta and backend role checks
 
 - [x] **Step 4: Re-run the profile/admin UI tests**
@@ -597,7 +597,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run src/views/ProfilePostsView.spec.js src/views/ProfileFavoritesView.spec.js src/views/admin/AdminCommunityManageView.spec.js
+npm run test -- src/views/ProfilePostsView.spec.js src/views/ProfileFavoritesView.spec.js src/views/admin/AdminCommunityManageView.spec.js
 ```
 
 Expected: PASS.
@@ -643,7 +643,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run
+npm run test
 npm run build
 ```
 
@@ -661,7 +661,7 @@ Validate in this order:
 3. Guest opens `/community` and `/community/:id`
 4. Login user creates a post
 5. Login user comments, likes, and favorites
-6. `我的发布` and `我的收藏` show the new data
+6. `鎴戠殑鍙戝竷` and `鎴戠殑鏀惰棌` show the new data
 7. Admin opens `/admin/community`, hides the post
 8. Guest or normal user can no longer open the hidden post
 
@@ -680,7 +680,7 @@ After Task 6, run the full suite in this order:
 cd backend
 mvn test
 cd ../frontend
-npm run test -- --run
+npm run test
 npm run build
 ```
 

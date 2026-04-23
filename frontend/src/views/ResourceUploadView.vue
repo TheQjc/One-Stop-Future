@@ -19,10 +19,10 @@ async function submitUpload(payload) {
 
   try {
     await createResourceUpload(payload);
-    formMessage.value = "Upload submitted. Redirecting to your resource records...";
+    formMessage.value = "资源已提交，正在返回我的资源记录...";
     router.push("/profile/resources");
   } catch (error) {
-    formError.value = error.message || "Upload failed. Please try again.";
+    formError.value = error.message || "上传失败，请稍后重试。";
   } finally {
     submitting.value = false;
   }
@@ -33,30 +33,29 @@ async function submitUpload(payload) {
   <section class="page-stack">
     <article class="section-card upload-hero">
       <div class="upload-hero__copy">
-        <span class="section-eyebrow">Archive Intake</span>
-        <h1 class="hero-title" style="margin-top: 18px;">Upload Resource</h1>
+        <span class="section-eyebrow">资源投稿</span>
+        <h1 class="hero-title" style="margin-top: 18px;">上传资源</h1>
         <hr class="editorial-rule" />
         <p class="hero-copy">
-          Submit the clean version first. This form is intentionally narrow so the review flow
-          can keep title, category, summary, and file quality aligned before anything is published.
+          先提交整理好的正式版本。这一页有意保持精简，方便审核流程优先核对标题、分类、摘要和文件质量。
         </p>
       </div>
 
       <div class="upload-hero__panel">
         <article class="panel-card">
-          <strong>Current Uploader</strong>
+          <strong>当前上传人</strong>
           <p class="meta-copy" style="margin-top: 12px;">
-            {{ userStore.profile?.nickname || "Signed-in user" }}
+            {{ userStore.profile?.nickname || "当前登录用户" }}
           </p>
         </article>
         <article class="panel-card">
-          <strong>Accepted Formats</strong>
+          <strong>支持格式</strong>
           <p class="meta-copy" style="margin-top: 12px;">
-            PDF, DOCX, PPTX, ZIP · Max 100MB
+            PDF、DOCX、PPTX、ZIP，单个文件不超过 100MB
           </p>
         </article>
         <RouterLink to="/resources" class="ghost-btn">
-          Back To Archive
+          返回资源列表
         </RouterLink>
       </div>
     </article>
@@ -68,7 +67,7 @@ async function submitUpload(payload) {
       :error-message="formError"
       :info-message="formMessage"
       cancel-to="/resources"
-      cancel-label="Cancel"
+      cancel-label="返回资源列表"
       @submit="submitUpload"
     />
   </section>

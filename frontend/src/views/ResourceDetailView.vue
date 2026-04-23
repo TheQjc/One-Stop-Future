@@ -26,11 +26,11 @@ const zipPreview = ref(null);
 const zipPreviewError = ref("");
 
 const categoryLabels = {
-  EXAM_PAPER: "Exam Paper",
-  LANGUAGE_TEST: "Language Test",
-  RESUME_TEMPLATE: "Resume Template",
-  INTERVIEW_EXPERIENCE: "Interview Notes",
-  OTHER: "Other",
+  EXAM_PAPER: "考试真题",
+  LANGUAGE_TEST: "语言考试",
+  RESUME_TEMPLATE: "简历模板",
+  INTERVIEW_EXPERIENCE: "面经资料",
+  OTHER: "其他",
 };
 
 const metaItems = computed(() => {
@@ -39,23 +39,23 @@ const metaItems = computed(() => {
   }
 
   return [
-    { label: "Category", value: categoryLabels[detail.value.category] || detail.value.category || "Archive" },
-    { label: "Uploader", value: detail.value.uploaderNickname || "Archive Desk" },
-    { label: "File Size", value: formatSize(detail.value.fileSize) },
-    { label: "Downloads", value: `${detail.value.downloadCount || 0}` },
-    { label: "Published", value: formatDate(detail.value.publishedAt) },
-    { label: "File", value: detail.value.fileName || "Archive File" },
+    { label: "分类", value: categoryLabels[detail.value.category] || detail.value.category || "资源" },
+    { label: "上传者", value: detail.value.uploaderNickname || "资源同学" },
+    { label: "文件大小", value: formatSize(detail.value.fileSize) },
+    { label: "下载次数", value: `${detail.value.downloadCount || 0}` },
+    { label: "发布时间", value: formatDate(detail.value.publishedAt) },
+    { label: "文件名", value: detail.value.fileName || "资源文件" },
   ];
 });
 
 function formatDate(value) {
   if (!value) {
-    return "Queued";
+    return "待发布";
   }
 
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
-    return "Queued";
+    return "待发布";
   }
 
   return new Intl.DateTimeFormat("zh-CN", {
@@ -70,7 +70,7 @@ function formatDate(value) {
 function formatSize(value) {
   const size = Number(value || 0);
   if (!size) {
-    return "Unknown Size";
+    return "大小未知";
   }
   if (size >= 1024 * 1024) {
     return `${(size / (1024 * 1024)).toFixed(1)} MB`;
@@ -98,7 +98,7 @@ async function loadDetail() {
   try {
     detail.value = await getResourceDetail(route.params.id);
   } catch (error) {
-    errorMessage.value = error.message || "Resource detail loading failed. Please try again.";
+    errorMessage.value = error.message || "资源详情加载失败，请稍后重试。";
   } finally {
     loading.value = false;
   }
@@ -134,7 +134,7 @@ async function handleToggleFavorite() {
       ? await unfavoriteResource(detail.value.id)
       : await favoriteResource(detail.value.id);
   } catch (error) {
-    actionError.value = error.message || "Collection action failed. Please try again.";
+    actionError.value = error.message || "收藏操作失败，请稍后重试。";
   } finally {
     actionLoading.value = "";
   }
@@ -151,10 +151,10 @@ async function handleDownload() {
 
   try {
     const fileName = await downloadResource(detail.value.id);
-    actionMessage.value = `Download started for ${fileName}.`;
+    actionMessage.value = `已开始下载 ${fileName}。`;
     detail.value = await getResourceDetail(route.params.id);
   } catch (error) {
-    actionError.value = error.message || "Download failed. Please try again.";
+    actionError.value = error.message || "下载失败，请稍后重试。";
   } finally {
     actionLoading.value = "";
   }
@@ -174,17 +174,17 @@ async function handlePreview() {
   try {
     if (kind === "ZIP_TREE") {
       zipPreview.value = await previewZipResource(detail.value.id);
-      actionMessage.value = "Contents loaded below.";
+      actionMessage.value = "目录已加载，可在下方查看。";
       return;
     }
 
     await previewResource(detail.value.id);
-    actionMessage.value = "Preview opened in a new tab.";
+    actionMessage.value = "已在新标签页打开预览。";
   } catch (error) {
     if (kind === "ZIP_TREE") {
-      zipPreviewError.value = error.message || "Contents preview failed. Please try again.";
+      zipPreviewError.value = error.message || "目录预览失败，请稍后重试。";
     } else {
-      actionError.value = error.message || "Preview failed. Please try again.";
+      actionError.value = error.message || "预览失败，请稍后重试。";
     }
   } finally {
     actionLoading.value = "";
@@ -192,7 +192,7 @@ async function handlePreview() {
 }
 
 const previewLabel = computed(() => (
-  previewKindOf(detail.value) === "ZIP_TREE" ? "Preview Contents" : "Preview"
+  previewKindOf(detail.value) === "ZIP_TREE" ? "查看目录" : "预览"
 ));
 
 const canPreview = computed(() => {
@@ -210,18 +210,18 @@ watch(() => route.params.id, () => {
 <template>
   <section class="page-stack">
     <article class="section-card">
-      <div v-if="loading" class="empty-state">Loading resource detail...</div>
+      <div v-if="loading" class="empty-state">正在加载资源详情...</div>
       <div v-else-if="errorMessage" class="field-grid">
         <p class="field-error" role="alert">{{ errorMessage }}</p>
         <button type="button" class="ghost-btn" @click="loadDetail">
-          Retry
+          重试
         </button>
       </div>
       <div v-else-if="detail" class="resource-detail">
         <div class="resource-detail__main">
           <div class="chip-row">
-            <span class="section-eyebrow">Archive Detail</span>
-            <span v-if="detail.favoritedByMe" class="status-badge approved">Saved</span>
+            <span class="section-eyebrow">资源详情</span>
+            <span v-if="detail.favoritedByMe" class="status-badge approved">已收藏</span>
           </div>
 
           <h1 class="hero-title" style="margin-top: 18px;">{{ detail.title }}</h1>
@@ -240,7 +240,7 @@ watch(() => route.params.id, () => {
           </div>
 
           <article class="panel-card">
-            <span class="section-eyebrow">Archive Note</span>
+            <span class="section-eyebrow">资料说明</span>
             <p class="resource-detail__body">{{ detail.description || detail.summary }}</p>
           </article>
 
@@ -254,7 +254,7 @@ watch(() => route.params.id, () => {
 
         <aside class="resource-detail__aside">
           <article class="panel-card">
-            <span class="section-eyebrow">Actions</span>
+            <span class="section-eyebrow">常用操作</span>
             <div class="field-grid" style="margin-top: 16px;">
               <button
                 data-testid="favorite-toggle"
@@ -263,7 +263,7 @@ watch(() => route.params.id, () => {
                 :disabled="actionLoading === 'favorite'"
                 @click="handleToggleFavorite"
               >
-                {{ detail.favoritedByMe ? "Remove From Collection" : "Save To Collection" }}
+                {{ detail.favoritedByMe ? "取消收藏" : "收藏资源" }}
               </button>
               <button
                 v-if="canPreview"
@@ -274,7 +274,7 @@ watch(() => route.params.id, () => {
                 @click="handlePreview"
               >
                 {{ actionLoading === "preview"
-                  ? (showZipPreview ? "Loading Contents..." : "Opening Preview...")
+                  ? (showZipPreview ? "正在加载目录..." : "正在打开预览...")
                   : previewLabel }}
               </button>
               <button
@@ -284,19 +284,18 @@ watch(() => route.params.id, () => {
                 :disabled="actionLoading === 'download'"
                 @click="handleDownload"
               >
-                {{ actionLoading === "download" ? "Preparing Download..." : "Download Resource" }}
+                {{ actionLoading === "download" ? "准备下载中..." : "下载资源" }}
               </button>
               <RouterLink to="/resources" class="ghost-btn">
-                Back To Archive
+                返回资源列表
               </RouterLink>
             </div>
           </article>
 
           <article class="panel-card">
-            <strong>Access Note</strong>
+            <strong>使用说明</strong>
             <p class="meta-copy" style="margin-top: 12px;">
-              Guests can read the archive card. Downloads and collection actions unlock after sign-in
-              so the system can track file usage and favorites consistently.
+              游客可以查看资源详情；下载和收藏需要登录后使用，系统会统一记录文件使用和收藏情况。
             </p>
           </article>
 

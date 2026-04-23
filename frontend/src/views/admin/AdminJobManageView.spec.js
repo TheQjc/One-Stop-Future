@@ -121,7 +121,7 @@ test("imports a csv file and reloads the board", async () => {
 
   expect(importAdminJobs).toHaveBeenCalledTimes(1);
   expect(getAdminJobs).toHaveBeenCalledTimes(2);
-  expect(wrapper.text()).toContain("Imported 1 jobs as DRAFT");
+  expect(wrapper.text()).toContain("已从 jobs.csv 导入 1 条岗位");
 });
 
 test("renders row-level import errors returned by the backend", async () => {
@@ -158,7 +158,7 @@ test("renders row-level import errors returned by the backend", async () => {
 
   expect(getAdminJobs).toHaveBeenCalledTimes(1);
   expect(wrapper.text()).toContain("job import validation failed");
-  expect(wrapper.text()).toContain("Row 2");
+  expect(wrapper.text()).toContain("第 2 行");
   expect(wrapper.text()).toContain("invalid job type");
 });
 
@@ -215,7 +215,7 @@ test("syncs the configured feed and reloads the board", async () => {
   expect(syncAdminJobs).toHaveBeenCalledTimes(1);
   expect(getAdminJobs).toHaveBeenCalledTimes(2);
   expect(wrapper.text()).toContain("Partner Feed");
-  expect(wrapper.text()).toContain("Created 1");
+  expect(wrapper.text()).toContain("新增 1");
   expect(wrapper.text()).toContain("job is deleted locally");
 });
 

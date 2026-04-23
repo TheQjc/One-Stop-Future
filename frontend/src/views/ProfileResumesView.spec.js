@@ -47,7 +47,7 @@ test("loads resumes and supports upload/download/delete actions", async () => {
   const wrapper = mount(ProfileResumesView);
   await flushPromises();
 
-  expect(wrapper.text()).toContain("You have not uploaded any resumes yet.");
+  expect(wrapper.text()).toContain("你还没有上传任何简历。");
 
   const file = new File(["resume"], "intern-resume.pdf", { type: "application/pdf" });
   await wrapper.find('input[name="title"]').setValue("Intern Resume");

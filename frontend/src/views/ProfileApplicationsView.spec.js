@@ -46,7 +46,7 @@ test("renders my application history", async () => {
   expect(wrapper.text()).toContain("Java Backend Intern");
   expect(wrapper.text()).toContain("Future Campus Tech");
   expect(wrapper.text()).toContain("Shenzhen");
-  expect(wrapper.text()).toContain("SUBMITTED");
+  expect(wrapper.text()).toContain("已提交");
   expect(wrapper.text()).toContain("Intern Resume");
   expect(wrapper.text()).toContain("2026-04-18");
   expect(wrapper.html()).toContain('data-to="/jobs/1"');

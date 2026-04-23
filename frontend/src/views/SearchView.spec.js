@@ -83,7 +83,7 @@ async function mountAt(path) {
 
 test("route query drives api fetch and result rendering", async () => {
   getSearchResults.mockResolvedValue({
-    query: "resume",
+    query: "简历",
     type: "ALL",
     sort: "RELEVANCE",
     totals: { all: 1, post: 0, job: 0, resource: 1 },
@@ -91,27 +91,27 @@ test("route query drives api fetch and result rendering", async () => {
       {
         id: 1,
         type: "RESOURCE",
-        title: "2026 Resume Template Pack",
-        summary: "A curated resource bundle.",
-        metaPrimary: "Career Desk",
-        metaSecondary: "Resume Template",
+        title: "2026 简历模板包",
+        summary: "一组整理好的常用模板。",
+        metaPrimary: "平台推荐",
+        metaSecondary: "简历模板",
         path: "/resources/1",
         publishedAt: "2026-04-15T08:00:00",
       },
     ],
   });
 
-  const { wrapper } = await mountAt("/search?q=resume&type=ALL&sort=RELEVANCE");
+  const { wrapper } = await mountAt("/search?q=简历&type=ALL&sort=RELEVANCE");
 
   expect(getSearchResults).toHaveBeenCalledWith({
-    q: "resume",
+    q: "简历",
     type: "ALL",
     sort: "RELEVANCE",
   });
   expect(wrapper.text()).toContain("站内搜索");
   expect(wrapper.text()).toContain("结果快照");
-  expect(wrapper.text()).toContain('当前共找到 1 条与“resume”相关的结果。');
-  expect(wrapper.text()).toContain("2026 Resume Template Pack");
+  expect(wrapper.text()).toContain("当前共找到 1 条与“简历”相关的结果。");
+  expect(wrapper.text()).toContain("2026 简历模板包");
   expect(wrapper.find('input[name="q"]').attributes("placeholder")).toBe("搜索经验帖、岗位、院校、资料");
 });
 
@@ -126,35 +126,35 @@ test("blank query stays in guided empty state and does not hit the api", async (
 test("type and sort chips update the url-backed fetch state", async () => {
   getSearchResults
     .mockResolvedValueOnce({
-      query: "resume",
+      query: "简历",
       type: "ALL",
       sort: "RELEVANCE",
       totals: { all: 2, post: 0, job: 1, resource: 1 },
       results: [
-        { id: 1, type: "RESOURCE", title: "Resource hit", path: "/resources/1" },
-        { id: 2, type: "JOB", title: "Job hit", path: "/jobs/2" },
+        { id: 1, type: "RESOURCE", title: "资料命中", path: "/resources/1" },
+        { id: 2, type: "JOB", title: "岗位命中", path: "/jobs/2" },
       ],
     })
     .mockResolvedValueOnce({
-      query: "resume",
+      query: "简历",
       type: "JOB",
       sort: "RELEVANCE",
       totals: { all: 2, post: 0, job: 1, resource: 1 },
       results: [
-        { id: 2, type: "JOB", title: "Job hit", path: "/jobs/2" },
+        { id: 2, type: "JOB", title: "岗位命中", path: "/jobs/2" },
       ],
     })
     .mockResolvedValueOnce({
-      query: "resume",
+      query: "简历",
       type: "JOB",
       sort: "LATEST",
       totals: { all: 2, post: 0, job: 1, resource: 1 },
       results: [
-        { id: 2, type: "JOB", title: "Job hit", path: "/jobs/2" },
+        { id: 2, type: "JOB", title: "岗位命中", path: "/jobs/2" },
       ],
     });
 
-  const { wrapper } = await mountAt("/search?q=resume&type=ALL&sort=RELEVANCE");
+  const { wrapper } = await mountAt("/search?q=简历&type=ALL&sort=RELEVANCE");
 
   const buttons = wrapper.findAll("button.search-chip");
   expect(wrapper.text()).toContain("内容类型");
@@ -166,12 +166,12 @@ test("type and sort chips update the url-backed fetch state", async () => {
   expect(routerPush).toHaveBeenCalled();
   expect(routerReplace).not.toHaveBeenCalled();
   expect(routeState.value.query).toMatchObject({
-    q: "resume",
+    q: "简历",
     type: "JOB",
     sort: "RELEVANCE",
   });
   expect(getSearchResults).toHaveBeenLastCalledWith({
-    q: "resume",
+    q: "简历",
     type: "JOB",
     sort: "RELEVANCE",
   });
@@ -180,12 +180,12 @@ test("type and sort chips update the url-backed fetch state", async () => {
   await flushPromises();
 
   expect(routeState.value.query).toMatchObject({
-    q: "resume",
+    q: "简历",
     type: "JOB",
     sort: "LATEST",
   });
   expect(getSearchResults).toHaveBeenLastCalledWith({
-    q: "resume",
+    q: "简历",
     type: "JOB",
     sort: "LATEST",
   });
@@ -197,21 +197,21 @@ test("error state can retry the same route-backed query", async () => {
     callCount += 1;
 
     if (callCount === 1) {
-      throw new Error("Search temporarily unavailable");
+      throw new Error("搜索服务暂时不可用");
     }
 
     return {
-      query: "resume",
+      query: "简历",
       type: "ALL",
       sort: "RELEVANCE",
       totals: { all: 1, post: 0, job: 0, resource: 1 },
-      results: [{ id: 1, type: "RESOURCE", title: "Recovered result", path: "/resources/1" }],
+      results: [{ id: 1, type: "RESOURCE", title: "恢复后的结果", path: "/resources/1" }],
     };
   });
 
-  const { wrapper } = await mountAt("/search?q=resume&type=ALL&sort=RELEVANCE");
+  const { wrapper } = await mountAt("/search?q=简历&type=ALL&sort=RELEVANCE");
 
-  expect(wrapper.text()).toContain("Search temporarily unavailable");
+  expect(wrapper.text()).toContain("搜索服务暂时不可用");
   expect(wrapper.find("button.ghost-btn").text()).toBe("重试");
 
   await wrapper.find("button.ghost-btn").trigger("click");
@@ -219,9 +219,9 @@ test("error state can retry the same route-backed query", async () => {
 
   expect(getSearchResults.mock.calls.length).toBeGreaterThanOrEqual(2);
   expect(getSearchResults).toHaveBeenLastCalledWith({
-    q: "resume",
+    q: "简历",
     type: "ALL",
     sort: "RELEVANCE",
   });
-  expect(wrapper.text()).toContain("Recovered result");
+  expect(wrapper.text()).toContain("恢复后的结果");
 });

@@ -17,7 +17,7 @@ function mountView() {
     id: 2,
     userId: 2,
     phone: "13800000001",
-    nickname: "NormalUser",
+    nickname: "普通同学",
     role: "USER",
     verificationStatus: "UNVERIFIED",
     unreadNotificationCount: 0,
@@ -56,8 +56,8 @@ test("renders the community reply label for reply notifications", async () => {
       id: 2001,
       userId: 2,
       type: "COMMUNITY_REPLY_RECEIVED",
-      title: "Your comment received a reply",
-      content: "VerifiedUser replied to your comment under \"Offer timeline notes\"",
+      title: "你的评论收到了回复",
+      content: "认证同学回复了你在《录用时间线笔记》下的评论",
       read: false,
       createdAt: "2026-04-21T10:00:00",
       readAt: null,
@@ -70,6 +70,6 @@ test("renders the community reply label for reply notifications", async () => {
   expect(wrapper.text()).toContain("消息工作台");
   expect(wrapper.text()).toContain("通知中心");
   expect(wrapper.text()).toContain("\u8BC4\u8BBA\u56DE\u590D");
-  expect(wrapper.text()).toContain("Your comment received a reply");
-  expect(wrapper.text()).toContain("VerifiedUser replied to your comment under \"Offer timeline notes\"");
+  expect(wrapper.text()).toContain("你的评论收到了回复");
+  expect(wrapper.text()).toContain("认证同学回复了你在《录用时间线笔记》下的评论");
 });

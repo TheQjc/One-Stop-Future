@@ -8,6 +8,12 @@
 
 **Tech Stack:** Vue 3, Vue Router 4, Pinia, Vitest, Vue Test Utils, Vite
 
+## Status
+
+- This implementation plan has been completed.
+- Final verification passed with `npm --prefix frontend test` and `npm --prefix frontend run build`.
+- Additional residual-copy cleanup and verification notes were recorded in `docs/superpowers/plans/2026-04-22-frontend-chinese-localization-followup-implementation.md`.
+
 ---
 
 ## File Map
@@ -119,17 +125,17 @@
 - [ ] **Step 1: Write the failing navigation-copy assertions**
 
 ```js
-expect(wrapper.text()).toContain("学生成长服务平台");
-expect(wrapper.text()).toContain("一站式成长平台");
-expect(wrapper.text()).toContain("首页");
-expect(wrapper.text()).toContain("趋势");
-expect(wrapper.text()).toContain("登录");
-expect(wrapper.text()).toContain("注册");
-expect(wrapper.text()).toContain("我的");
-expect(wrapper.text()).toContain("通知");
-expect(wrapper.text()).toContain("运营总览");
-expect(wrapper.text()).toContain("申请管理");
-expect(wrapper.text()).toContain("退出登录");
+expect(wrapper.text()).toContain("瀛︾敓鎴愰暱鏈嶅姟骞冲彴");
+expect(wrapper.text()).toContain("涓€绔欏紡鎴愰暱骞冲彴");
+expect(wrapper.text()).toContain("棣栭〉");
+expect(wrapper.text()).toContain("瓒嬪娍");
+expect(wrapper.text()).toContain("鐧诲綍");
+expect(wrapper.text()).toContain("娉ㄥ唽");
+expect(wrapper.text()).toContain("鎴戠殑");
+expect(wrapper.text()).toContain("閫氱煡");
+expect(wrapper.text()).toContain("杩愯惀鎬昏");
+expect(wrapper.text()).toContain("鐢宠绠＄悊");
+expect(wrapper.text()).toContain("閫€鍑虹櫥褰?);
 expect(wrapper.text()).not.toContain("Home");
 ```
 
@@ -142,16 +148,16 @@ Expected: FAIL because the rendered text still includes labels such as `Home`, `
 
 ```js
 const items = [
-  { to: "/", label: "首页" },
-  { to: "/community", label: "社区" },
-  { to: "/discover", label: "趋势" },
-  { to: "/search", label: "搜索" },
+  { to: "/", label: "棣栭〉" },
+  { to: "/community", label: "绀惧尯" },
+  { to: "/discover", label: "瓒嬪娍" },
+  { to: "/search", label: "鎼滅储" },
 ];
 ```
 
 ```vue
-<span class="site-brand__mark">学生成长服务平台</span>
-<strong>一站式成长平台</strong>
+<span class="site-brand__mark">瀛︾敓鎴愰暱鏈嶅姟骞冲彴</span>
+<strong>涓€绔欏紡鎴愰暱骞冲彴</strong>
 <small>One-Stop Future</small>
 ```
 
@@ -177,12 +183,12 @@ git commit -m "feat: localize navigation and brand copy"
 - [ ] **Step 1: Add failing homepage assertions for hero copy, CTA text, search labels, and module order**
 
 ```js
-expect(wrapper.text()).toContain("把就业、考研、留学放到一个首页里，先看方向，再做决定");
-expect(wrapper.text()).toContain("站内搜索");
-expect(wrapper.text()).toContain("登录查看个人待办");
-expect(wrapper.text()).toContain("今日概览");
-expect(wrapper.text()).toContain("常用入口");
-expect(wrapper.text().indexOf("常用入口")).toBeLessThan(wrapper.text().indexOf("成长方向"));
+expect(wrapper.text()).toContain("鎶婂氨涓氥€佽€冪爺銆佺暀瀛︽斁鍒颁竴涓椤甸噷锛屽厛鐪嬫柟鍚戯紝鍐嶅仛鍐冲畾");
+expect(wrapper.text()).toContain("绔欏唴鎼滅储");
+expect(wrapper.text()).toContain("鐧诲綍鏌ョ湅涓汉寰呭姙");
+expect(wrapper.text()).toContain("浠婃棩姒傝");
+expect(wrapper.text()).toContain("甯哥敤鍏ュ彛");
+expect(wrapper.text().indexOf("甯哥敤鍏ュ彛")).toBeLessThan(wrapper.text().indexOf("鎴愰暱鏂瑰悜"));
 ```
 
 - [ ] **Step 2: Run the homepage spec to verify it fails**
@@ -193,17 +199,17 @@ Expected: FAIL because the hero still renders English labels such as `Unified se
 - [ ] **Step 3: Update `HomeView.vue` to use the approved guest/authenticated hero copy, search wording, CTA labels, and module order**
 
 ```js
-const heroEyebrow = computed(() => (isGuest.value ? "学生成长服务平台" : "今日成长工作台"));
+const heroEyebrow = computed(() => (isGuest.value ? "瀛︾敓鎴愰暱鏈嶅姟骞冲彴" : "浠婃棩鎴愰暱宸ヤ綔鍙?));
 const heroTitle = computed(() => (
   isGuest.value
-    ? "把就业、考研、留学放到一个首页里，先看方向，再做决定"
-    : `你好，${viewerName.value}，今天先从这几件事开始`
+    ? "鎶婂氨涓氥€佽€冪爺銆佺暀瀛︽斁鍒颁竴涓椤甸噷锛屽厛鐪嬫柟鍚戯紝鍐嶅仛鍐冲畾"
+    : `浣犲ソ锛?{viewerName.value}锛屼粖澶╁厛浠庤繖鍑犱欢浜嬪紑濮媊
 ));
 ```
 
 ```vue
-<label class="hero-search__label" for="home-search">站内搜索</label>
-<button type="submit" class="app-btn hero-search__submit">搜索</button>
+<label class="hero-search__label" for="home-search">绔欏唴鎼滅储</label>
+<button type="submit" class="app-btn hero-search__submit">鎼滅储</button>
 ```
 
 - [ ] **Step 4: Re-run the homepage spec**
@@ -232,12 +238,12 @@ git commit -m "feat: localize homepage hero and layout order"
 - [ ] **Step 1: Add failing tests for Chinese homepage module labels, Chinese trend-card defaults, and removal of public desk numbering**
 
 ```js
-expect(wrapper.text()).toContain("本周趋势");
-expect(wrapper.text()).toContain("最新通知");
+expect(wrapper.text()).toContain("鏈懆瓒嬪娍");
+expect(wrapper.text()).toContain("鏈€鏂伴€氱煡");
 expect(wrapper.text()).not.toContain("Desk 00");
-expect(card.text()).toContain("本周推荐");
-expect(card.text()).toContain("热度 12");
-expect(card.text()).toContain("暂未提供内容摘要");
+expect(card.text()).toContain("鏈懆鎺ㄨ崘");
+expect(card.text()).toContain("鐑害 12");
+expect(card.text()).toContain("鏆傛湭鎻愪緵鍐呭鎽樿");
 ```
 
 - [ ] **Step 2: Run the homepage and trend-card specs to verify they fail**
@@ -248,10 +254,10 @@ Expected: FAIL because the homepage still renders `Quick Entry` / `Discover Prev
 - [ ] **Step 3: Update homepage module titles, entry-card presentation, and shared trend-card defaults**
 
 ```vue
-<span class="section-eyebrow">常用入口</span>
-<span class="section-eyebrow">成长方向</span>
-<span class="section-eyebrow">本周趋势</span>
-<span class="section-eyebrow">最新通知</span>
+<span class="section-eyebrow">甯哥敤鍏ュ彛</span>
+<span class="section-eyebrow">鎴愰暱鏂瑰悜</span>
+<span class="section-eyebrow">鏈懆瓒嬪娍</span>
+<span class="section-eyebrow">鏈€鏂伴€氱煡</span>
 ```
 
 ```vue
@@ -262,9 +268,9 @@ Expected: FAIL because the homepage still renders `Quick Entry` / `Discover Prev
 
 ```js
 const typeLabels = {
-  POST: "社区",
-  JOB: "岗位",
-  RESOURCE: "资料",
+  POST: "绀惧尯",
+  JOB: "宀椾綅",
+  RESOURCE: "璧勬枡",
 };
 ```
 
@@ -296,15 +302,15 @@ git commit -m "feat: localize homepage modules and trend card copy"
 - [ ] **Step 1: Add failing assertions for Chinese search/trend heroes, controls, summaries, and shared card fallback copy**
 
 ```js
-expect(discoverWrapper.text()).toContain("趋势");
-expect(discoverWrapper.text()).toContain("时间范围");
-expect(discoverWrapper.text()).toContain("查看全部趋势");
-expect(searchWrapper.text()).toContain("站内搜索");
-expect(searchWrapper.text()).toContain("搜索结果");
-expect(searchWrapper.text()).toContain("先输入关键词");
-expect(card.text()).toContain("社区");
-expect(card.text()).toContain("资料");
-expect(card.text()).toContain("暂未提供内容摘要");
+expect(discoverWrapper.text()).toContain("瓒嬪娍");
+expect(discoverWrapper.text()).toContain("鏃堕棿鑼冨洿");
+expect(discoverWrapper.text()).toContain("鏌ョ湅鍏ㄩ儴瓒嬪娍");
+expect(searchWrapper.text()).toContain("绔欏唴鎼滅储");
+expect(searchWrapper.text()).toContain("鎼滅储缁撴灉");
+expect(searchWrapper.text()).toContain("鍏堣緭鍏ュ叧閿瘝");
+expect(card.text()).toContain("绀惧尯");
+expect(card.text()).toContain("璧勬枡");
+expect(card.text()).toContain("鏆傛湭鎻愪緵鍐呭鎽樿");
 ```
 
 - [ ] **Step 2: Run the search/trend specs to verify they fail**
@@ -316,23 +322,23 @@ Expected: FAIL because these surfaces still render English hero text, chip label
 
 ```js
 const TAB_OPTIONS = [
-  { value: "ALL", label: "全部" },
-  { value: "POST", label: "帖子" },
-  { value: "JOB", label: "岗位" },
-  { value: "RESOURCE", label: "资料" },
+  { value: "ALL", label: "鍏ㄩ儴" },
+  { value: "POST", label: "甯栧瓙" },
+  { value: "JOB", label: "宀椾綅" },
+  { value: "RESOURCE", label: "璧勬枡" },
 ];
 ```
 
 ```js
 const SORT_OPTIONS = [
-  { value: "RELEVANCE", label: "相关度" },
-  { value: "LATEST", label: "最新" },
+  { value: "RELEVANCE", label: "鐩稿叧搴? },
+  { value: "LATEST", label: "鏈€鏂? },
 ];
 ```
 
 ```vue
-<span class="section-eyebrow">趋势</span>
-<span class="section-eyebrow">站内搜索</span>
+<span class="section-eyebrow">瓒嬪娍</span>
+<span class="section-eyebrow">绔欏唴鎼滅储</span>
 ```
 
 - [ ] **Step 4: Re-run the search/trend specs**
@@ -357,14 +363,14 @@ git commit -m "feat: localize search and trend pages"
 - Test: `frontend/src/views/CommunityListView.spec.js`
 - Test: `frontend/src/components/CommunityPostCard.spec.js`
 
-- [ ] **Step 1: Add failing tests for Chinese community hero/hot-board wording and the shared `经验贴` badge**
+- [ ] **Step 1: Add failing tests for Chinese community hero/hot-board wording and the shared `缁忛獙璐碻 badge**
 
 ```js
-expect(wrapper.text()).toContain("社区交流");
-expect(wrapper.text()).toContain("热门讨论");
-expect(wrapper.text()).toContain("登录后参与");
-expect(wrapper.text()).toContain("暂无帖子");
-expect(card.text()).toContain("经验贴");
+expect(wrapper.text()).toContain("绀惧尯浜ゆ祦");
+expect(wrapper.text()).toContain("鐑棬璁ㄨ");
+expect(wrapper.text()).toContain("鐧诲綍鍚庡弬涓?);
+expect(wrapper.text()).toContain("鏆傛棤甯栧瓙");
+expect(card.text()).toContain("缁忛獙璐?);
 expect(card.text()).not.toContain("Experience Post");
 ```
 
@@ -377,16 +383,16 @@ Expected: FAIL because the page and shared card still render English hero and ba
 
 ```js
 const TAG_OPTIONS = [
-  { value: "", label: "全部", eyebrow: "总览" },
-  { value: "CAREER", label: "就业", eyebrow: "方向" },
-  { value: "EXAM", label: "考研", eyebrow: "备考" },
-  { value: "ABROAD", label: "留学", eyebrow: "申请" },
-  { value: "CHAT", label: "闲聊", eyebrow: "交流" },
+  { value: "", label: "鍏ㄩ儴", eyebrow: "鎬昏" },
+  { value: "CAREER", label: "灏变笟", eyebrow: "鏂瑰悜" },
+  { value: "EXAM", label: "鑰冪爺", eyebrow: "澶囪€? },
+  { value: "ABROAD", label: "鐣欏", eyebrow: "鐢宠" },
+  { value: "CHAT", label: "闂茶亰", eyebrow: "浜ゆ祦" },
 ];
 ```
 
 ```vue
-<span v-if="experienceEnabled" class="community-post-card__experience-badge">经验贴</span>
+<span v-if="experienceEnabled" class="community-post-card__experience-badge">缁忛獙璐?/span>
 ```
 
 - [ ] **Step 4: Re-run the community specs**
@@ -414,10 +420,10 @@ git commit -m "feat: localize community surfaces"
 - [ ] **Step 1: Add failing assertions for Chinese personal-center headings, quick links, form actions, and notification-center title copy**
 
 ```js
-expect(profileWrapper.text()).toContain("个人中心");
-expect(profileWrapper.text()).toContain("我的帖子");
-expect(profileWrapper.text()).toContain("保存资料");
-expect(notificationWrapper.text()).toContain("通知中心");
+expect(profileWrapper.text()).toContain("涓汉涓績");
+expect(profileWrapper.text()).toContain("鎴戠殑甯栧瓙");
+expect(profileWrapper.text()).toContain("淇濆瓨璧勬枡");
+expect(notificationWrapper.text()).toContain("閫氱煡涓績");
 expect(notificationWrapper.text()).not.toContain("Notification Center");
 ```
 
@@ -429,13 +435,13 @@ Expected: FAIL because the profile view still renders English section names and 
 - [ ] **Step 3: Update `ProfileView.vue` and `NotificationCenterView.vue` with Chinese-first titles, quick-link labels, hints, and action text**
 
 ```vue
-<span class="section-eyebrow">个人中心</span>
-<RouterLink to="/notifications" class="app-link">查看通知</RouterLink>
+<span class="section-eyebrow">涓汉涓績</span>
+<RouterLink to="/notifications" class="app-link">鏌ョ湅閫氱煡</RouterLink>
 ```
 
 ```vue
-<span class="section-eyebrow">通知</span>
-<button type="button" class="ghost-btn">{{ markingAll ? "处理中..." : "全部标记为已读" }}</button>
+<span class="section-eyebrow">閫氱煡</span>
+<button type="button" class="ghost-btn">{{ markingAll ? "澶勭悊涓?.." : "鍏ㄩ儴鏍囪涓哄凡璇? }}</button>
 ```
 
 - [ ] **Step 4: Re-run the profile and notification specs**
@@ -467,12 +473,12 @@ git commit -m "feat: localize profile and notification copy"
 - [ ] **Step 1: Add failing assertions for Chinese page heroes, filter actions, CTA labels, and card fallback copy on jobs/resources pages**
 
 ```js
-expect(jobsWrapper.text()).toContain("岗位机会");
-expect(jobsWrapper.text()).toContain("筛选条件");
-expect(jobsWrapper.text()).toContain("应用筛选");
-expect(resourcesWrapper.text()).toContain("资料库");
-expect(resourcesWrapper.text()).toContain("上传资料");
-expect(resourcesWrapper.text()).toContain("暂无摘要");
+expect(jobsWrapper.text()).toContain("宀椾綅鏈轰細");
+expect(jobsWrapper.text()).toContain("绛涢€夋潯浠?);
+expect(jobsWrapper.text()).toContain("搴旂敤绛涢€?);
+expect(resourcesWrapper.text()).toContain("璧勬枡搴?);
+expect(resourcesWrapper.text()).toContain("涓婁紶璧勬枡");
+expect(resourcesWrapper.text()).toContain("鏆傛棤鎽樿");
 ```
 
 - [ ] **Step 2: Run the jobs/resources specs to verify they fail**
@@ -484,18 +490,18 @@ Expected: FAIL because the pages and shared components still render English hero
 
 ```js
 const cityOptions = [
-  { value: "", label: "全部城市" },
-  { value: "Shenzhen", label: "深圳" },
+  { value: "", label: "鍏ㄩ儴鍩庡競" },
+  { value: "Shenzhen", label: "娣卞湷" },
 ];
 ```
 
 ```vue
-<button type="submit" class="app-btn">{{ loading ? "加载中..." : "应用筛选" }}</button>
+<button type="submit" class="app-btn">{{ loading ? "鍔犺浇涓?.." : "搴旂敤绛涢€? }}</button>
 ```
 
 ```vue
-<span v-if="resource.favoritedByMe" class="status-badge approved">已收藏</span>
-<p class="resource-card__summary">{{ resource.summary || "暂无摘要" }}</p>
+<span v-if="resource.favoritedByMe" class="status-badge approved">宸叉敹钘?/span>
+<p class="resource-card__summary">{{ resource.summary || "鏆傛棤鎽樿" }}</p>
 ```
 
 - [ ] **Step 4: Re-run the jobs/resources specs**
@@ -523,11 +529,11 @@ git commit -m "feat: localize jobs and resources pages"
 - [ ] **Step 1: Add failing assertions for Chinese-first login/register titles, helper copy, CTA labels, and validation messages**
 
 ```js
-expect(loginWrapper.text()).toContain("手机号验证码登录");
-expect(loginWrapper.text()).toContain("获取验证码");
-expect(registerWrapper.text()).toContain("注册");
-expect(registerWrapper.text()).toContain("创建账号");
-expect(registerWrapper.text()).toContain("11 位手机号");
+expect(loginWrapper.text()).toContain("鎵嬫満鍙烽獙璇佺爜鐧诲綍");
+expect(loginWrapper.text()).toContain("鑾峰彇楠岃瘉鐮?);
+expect(registerWrapper.text()).toContain("娉ㄥ唽");
+expect(registerWrapper.text()).toContain("鍒涘缓璐﹀彿");
+expect(registerWrapper.text()).toContain("11 浣嶆墜鏈哄彿");
 ```
 
 - [ ] **Step 2: Run the auth specs to verify they fail or are missing**
@@ -538,15 +544,15 @@ Expected: FAIL because `RegisterView.spec.js` does not exist yet and the current
 - [ ] **Step 3: Update the auth views and add the missing register spec**
 
 ```vue
-<span class="section-eyebrow">登录</span>
-<span class="section-eyebrow">注册</span>
+<span class="section-eyebrow">鐧诲綍</span>
+<span class="section-eyebrow">娉ㄥ唽</span>
 ```
 
 ```js
 test("renders Chinese register flow copy", async () => {
   const wrapper = mount(RegisterView);
-  expect(wrapper.text()).toContain("注册");
-  expect(wrapper.text()).toContain("获取验证码");
+  expect(wrapper.text()).toContain("娉ㄥ唽");
+  expect(wrapper.text()).toContain("鑾峰彇楠岃瘉鐮?);
 });
 ```
 
@@ -581,11 +587,11 @@ git commit -m "feat: localize auth page copy"
 - [ ] **Step 1: Add failing assertions for Chinese page titles and action labels on assessment, timeline, analytics, and school-compare pages**
 
 ```js
-expect(assessmentWrapper.text()).toContain("测评");
-expect(timelineWrapper.text()).toContain("时间线");
-expect(analyticsWrapper.text()).toContain("路径分析");
-expect(compareWrapper.text()).toContain("院校对比");
-expect(compareWrapper.text()).toContain("返回时间线");
+expect(assessmentWrapper.text()).toContain("娴嬭瘎");
+expect(timelineWrapper.text()).toContain("鏃堕棿绾?);
+expect(analyticsWrapper.text()).toContain("璺緞鍒嗘瀽");
+expect(compareWrapper.text()).toContain("闄㈡牎瀵规瘮");
+expect(compareWrapper.text()).toContain("杩斿洖鏃堕棿绾?);
 ```
 
 - [ ] **Step 2: Run the secondary decision-support specs to verify they fail**
@@ -596,9 +602,9 @@ Expected: FAIL because these pages still render `Decision Desk`, `Back Home`, `O
 - [ ] **Step 3: Update the four decision-support views with Chinese-first page copy while preserving all workflow logic**
 
 ```vue
-<span class="section-eyebrow">成长决策</span>
-<RouterLink to="/timeline" class="app-link">查看时间线</RouterLink>
-<RouterLink to="/assessment" class="app-link">前往测评</RouterLink>
+<span class="section-eyebrow">鎴愰暱鍐崇瓥</span>
+<RouterLink to="/timeline" class="app-link">鏌ョ湅鏃堕棿绾?/RouterLink>
+<RouterLink to="/assessment" class="app-link">鍓嶅線娴嬭瘎</RouterLink>
 ```
 
 - [ ] **Step 4: Re-run the secondary decision-support specs**

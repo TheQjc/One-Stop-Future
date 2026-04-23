@@ -8,7 +8,7 @@ const demoUsers = [
   {
     id: 1,
     phone: "13800000000",
-    nickname: "PlatformAdmin",
+    nickname: "平台管理员",
     role: "ADMIN",
     status: "ACTIVE",
     verificationStatus: "UNVERIFIED",
@@ -16,7 +16,7 @@ const demoUsers = [
   {
     id: 2,
     phone: "13800000001",
-    nickname: "NormalUser",
+    nickname: "普通同学",
     role: "USER",
     status: "ACTIVE",
     verificationStatus: "UNVERIFIED",
@@ -24,7 +24,7 @@ const demoUsers = [
   {
     id: 3,
     phone: "13800000002",
-    nickname: "VerifiedUser",
+    nickname: "认证同学",
     role: "USER",
     status: "ACTIVE",
     verificationStatus: "VERIFIED",

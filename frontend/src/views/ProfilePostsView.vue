@@ -29,7 +29,7 @@ onMounted(loadPosts);
 <template>
   <section class="page-stack">
     <article class="section-card">
-      <span class="section-eyebrow">My Posts</span>
+      <span class="section-eyebrow">我的帖子</span>
       <h1 class="page-title" style="margin-top: 16px;">我的发布</h1>
       <p class="page-subtitle" style="margin-top: 16px;">
         这里汇总你已经发布的帖子，后续如果被管理员下架，也会在这里保留状态。

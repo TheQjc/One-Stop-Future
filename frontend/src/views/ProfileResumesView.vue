@@ -21,14 +21,14 @@ const form = reactive({
 
 const statCards = computed(() => [
   {
-    label: "Total Resumes",
+    label: "简历总数",
     value: summary.value.total || summary.value.resumes.length,
   },
 ]);
 
 function formatTime(value) {
   if (!value) {
-    return "Unknown time";
+    return "时间未知";
   }
 
   return String(value).replace("T", " ").slice(0, 16);
@@ -37,7 +37,7 @@ function formatTime(value) {
 function formatSize(value) {
   const size = Number(value || 0);
   if (!size) {
-    return "Unknown size";
+    return "大小未知";
   }
   if (size >= 1024 * 1024) {
     return `${(size / (1024 * 1024)).toFixed(1)} MB`;
@@ -55,7 +55,7 @@ async function loadResumes() {
   try {
     summary.value = await getMyResumes();
   } catch (error) {
-    errorMessage.value = error.message || "Resume library loading failed. Please try again.";
+    errorMessage.value = error.message || "简历库加载失败，请稍后重试。";
   } finally {
     loading.value = false;
   }
@@ -79,12 +79,12 @@ async function handleUpload() {
   actionError.value = "";
 
   if (!form.title.trim()) {
-    actionError.value = "Resume title is required.";
+    actionError.value = "请输入简历标题。";
     return;
   }
 
   if (!selectedFile.value) {
-    actionError.value = "Choose one resume file first.";
+    actionError.value = "请先选择一份简历文件。";
     return;
   }
 
@@ -96,11 +96,11 @@ async function handleUpload() {
 
   try {
     await createResume(formData);
-    actionMessage.value = "Resume uploaded.";
+    actionMessage.value = "简历已上传。";
     resetForm();
     await loadResumes();
   } catch (error) {
-    actionError.value = error.message || "Resume upload failed. Please try again.";
+    actionError.value = error.message || "简历上传失败，请稍后重试。";
   } finally {
     uploading.value = false;
   }
@@ -113,9 +113,9 @@ async function handleDownload(resume) {
 
   try {
     const fileName = await downloadResume(resume.id);
-    actionMessage.value = `Download started for ${fileName || resume.fileName || resume.title}.`;
+    actionMessage.value = `已开始下载 ${fileName || resume.fileName || resume.title}。`;
   } catch (error) {
-    actionError.value = error.message || "Resume download failed. Please try again.";
+    actionError.value = error.message || "简历下载失败，请稍后重试。";
   } finally {
     actionLoadingId.value = "";
   }
@@ -129,7 +129,7 @@ async function handlePreview(resume) {
   try {
     await previewResume(resume.id);
   } catch (error) {
-    actionError.value = error.message || "Resume preview failed. Please try again.";
+    actionError.value = error.message || "简历预览失败，请稍后重试。";
   } finally {
     actionLoadingId.value = "";
   }
@@ -142,10 +142,10 @@ async function handleDelete(resume) {
 
   try {
     await deleteResume(resume.id);
-    actionMessage.value = `Deleted ${resume.title}.`;
+    actionMessage.value = `已删除 ${resume.title}。`;
     await loadResumes();
   } catch (error) {
-    actionError.value = error.message || "Resume delete failed. Please try again.";
+    actionError.value = error.message || "简历删除失败，请稍后重试。";
   } finally {
     actionLoadingId.value = "";
   }
@@ -159,11 +159,10 @@ onMounted(loadResumes);
     <article class="section-card">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">My Resumes</span>
-          <h1 class="page-title" style="margin-top: 16px;">Resume library</h1>
+          <span class="section-eyebrow">我的简历</span>
+          <h1 class="page-title" style="margin-top: 16px;">简历库</h1>
           <p class="page-subtitle" style="margin-top: 16px;">
-            Keep multiple application files ready on one calm board. This phase supports upload,
-            download, and delete only.
+            把不同用途的投递简历集中放在这里，方便随时切换。当前阶段支持上传、预览、下载和删除。
           </p>
         </div>
       </div>
@@ -184,26 +183,26 @@ onMounted(loadResumes);
       <article class="section-card">
         <div class="section-header">
           <div>
-            <span class="section-eyebrow">Upload</span>
-            <h2 class="page-title" style="margin-top: 16px;">Add one resume file</h2>
+            <span class="section-eyebrow">上传简历</span>
+            <h2 class="page-title" style="margin-top: 16px;">新增一份简历</h2>
           </div>
         </div>
 
         <form class="field-grid" @submit.prevent="handleUpload">
           <label class="field-label">
-            Title
+            标题
             <input
               v-model.trim="form.title"
               class="field-control"
               name="title"
               type="text"
               maxlength="100"
-              placeholder="Intern Resume"
+              placeholder="例如：实习投递版简历"
             />
           </label>
 
           <label class="field-label">
-            File
+            文件
             <input
               ref="fileInputRef"
               class="field-control"
@@ -215,15 +214,14 @@ onMounted(loadResumes);
           </label>
 
           <p class="field-hint">
-            Supported in this phase: PDF, DOC, and DOCX. PDF and DOCX files support online preview;
-            DOC remains download-only.
+            当前支持 PDF、DOC、DOCX。PDF 和 DOCX 可在线预览，DOC 仅支持下载。
           </p>
           <p v-if="actionMessage" class="field-hint">{{ actionMessage }}</p>
           <p v-if="actionError" class="field-error" role="alert">{{ actionError }}</p>
 
           <div class="inline-form-actions">
             <button type="submit" class="app-btn" :disabled="uploading">
-              {{ uploading ? "Uploading..." : "Upload Resume" }}
+              {{ uploading ? "上传中..." : "上传简历" }}
             </button>
           </div>
         </form>
@@ -232,20 +230,20 @@ onMounted(loadResumes);
       <article class="section-card">
         <div class="section-header">
           <div>
-            <span class="section-eyebrow">Library</span>
-            <h2 class="page-title" style="margin-top: 16px;">Current files</h2>
+            <span class="section-eyebrow">文件列表</span>
+            <h2 class="page-title" style="margin-top: 16px;">已上传文件</h2>
           </div>
         </div>
 
-        <div v-if="loading" class="empty-state">Loading your resume library...</div>
+        <div v-if="loading" class="empty-state">正在加载你的简历库...</div>
         <div v-else-if="errorMessage" class="field-grid">
           <p class="field-error" role="alert">{{ errorMessage }}</p>
           <button type="button" class="ghost-btn" @click="loadResumes">
-            Retry
+            重试
           </button>
         </div>
         <div v-else-if="!summary.resumes.length" class="empty-state">
-          You have not uploaded any resumes yet.
+          你还没有上传任何简历。
         </div>
         <div v-else class="resume-record-list">
           <article
@@ -255,15 +253,15 @@ onMounted(loadResumes);
           >
             <div class="resume-record-card__header">
               <div>
-                <p class="resume-record-card__eyebrow">Resume #{{ resume.id }}</p>
+                <p class="resume-record-card__eyebrow">简历 #{{ resume.id }}</p>
                 <h2 class="resume-record-card__title">{{ resume.title }}</h2>
               </div>
             </div>
 
             <div class="resume-record-card__meta">
-              <span>{{ resume.fileName || "Resume file" }}</span>
+              <span>{{ resume.fileName || "简历文件" }}</span>
               <span>{{ formatSize(resume.fileSize) }}</span>
-              <span>Uploaded {{ formatTime(resume.createdAt) }}</span>
+              <span>上传于 {{ formatTime(resume.createdAt) }}</span>
             </div>
 
             <div class="inline-form-actions">
@@ -275,7 +273,7 @@ onMounted(loadResumes);
                 :disabled="actionLoadingId === `preview-${resume.id}`"
                 @click="handlePreview(resume)"
               >
-                {{ actionLoadingId === `preview-${resume.id}` ? "Opening Preview..." : "Preview" }}
+                {{ actionLoadingId === `preview-${resume.id}` ? "预览中..." : "预览" }}
               </button>
               <button
                 :data-testid="`download-resume-${resume.id}`"
@@ -284,7 +282,7 @@ onMounted(loadResumes);
                 :disabled="actionLoadingId === `download-${resume.id}`"
                 @click="handleDownload(resume)"
               >
-                {{ actionLoadingId === `download-${resume.id}` ? "Preparing Download..." : "Download" }}
+                {{ actionLoadingId === `download-${resume.id}` ? "准备下载中..." : "下载" }}
               </button>
               <button
                 :data-testid="`delete-resume-${resume.id}`"
@@ -293,7 +291,7 @@ onMounted(loadResumes);
                 :disabled="actionLoadingId === `delete-${resume.id}`"
                 @click="handleDelete(resume)"
               >
-                {{ actionLoadingId === `delete-${resume.id}` ? "Deleting..." : "Delete" }}
+                {{ actionLoadingId === `delete-${resume.id}` ? "删除中..." : "删除" }}
               </button>
             </div>
           </article>

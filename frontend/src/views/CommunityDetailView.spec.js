@@ -161,7 +161,7 @@ test("renders the structured experience summary block when available", async () 
   const wrapper = mountView();
   await flushPromises();
 
-  expect(wrapper.text()).toContain("Experience Summary");
+  expect(wrapper.text()).toContain("经验摘要");
   expect(wrapper.text()).toContain("Backend internship sprint");
   expect(wrapper.text()).toContain("Received 2 interview invitations");
   expect(wrapper.text()).toContain("Week 1 resume refresh, week 2 projects");
@@ -200,7 +200,7 @@ test("renders nested replies under the matching top-level comment", async () => 
   await flushPromises();
 
   expect(wrapper.text()).toContain("Top-level note");
-  expect(wrapper.text()).toContain("Reply to Alice");
+  expect(wrapper.text()).toContain("回复给 Alice");
   expect(wrapper.text()).toContain("Nested follow-up");
 });
 

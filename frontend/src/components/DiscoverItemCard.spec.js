@@ -26,6 +26,7 @@ test("localizes shared discover fallback copy into Chinese", () => {
   expect(wrapper.get(".discover-item-card__type").text()).toBe("社区");
   expect(wrapper.get(".discover-item-card__label").text()).toBe("本周推荐");
   expect(wrapper.get(".discover-item-card__summary").text()).toBe("暂未提供内容摘要");
+  expect(wrapper.get(".discover-item-card__meta").text()).toContain("平台推荐");
   expect(wrapper.text()).toContain("待发布");
   expect(wrapper.get(".discover-item-card__score").text()).toBe("热度 0");
 });

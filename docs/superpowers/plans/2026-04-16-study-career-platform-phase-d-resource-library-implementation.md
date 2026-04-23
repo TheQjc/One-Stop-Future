@@ -521,7 +521,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run src/views/ResourcesListView.spec.js src/views/ResourceDetailView.spec.js src/views/ResourceUploadView.spec.js
+npm run test -- src/views/ResourcesListView.spec.js src/views/ResourceDetailView.spec.js src/views/ResourceUploadView.spec.js
 ```
 
 Expected: FAIL because the routes, views, API client, and components do not exist yet.
@@ -573,7 +573,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run src/views/ResourcesListView.spec.js src/views/ResourceDetailView.spec.js src/views/ResourceUploadView.spec.js src/views/HomeView.spec.js
+npm run test -- src/views/ResourcesListView.spec.js src/views/ResourceDetailView.spec.js src/views/ResourceUploadView.spec.js src/views/HomeView.spec.js
 ```
 
 Expected: PASS.
@@ -633,7 +633,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run src/views/ProfileFavoritesView.spec.js src/views/ProfileResourcesView.spec.js src/views/admin/AdminResourceManageView.spec.js src/views/ProfileView.spec.js
+npm run test -- src/views/ProfileFavoritesView.spec.js src/views/ProfileResourcesView.spec.js src/views/admin/AdminResourceManageView.spec.js src/views/ProfileView.spec.js
 ```
 
 Expected: FAIL because the resource tab, my-resources page, profile shortcut, and admin review page do not exist yet.
@@ -675,7 +675,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run src/views/ProfileFavoritesView.spec.js src/views/ProfileResourcesView.spec.js src/views/admin/AdminResourceManageView.spec.js src/views/ProfileView.spec.js
+npm run test -- src/views/ProfileFavoritesView.spec.js src/views/ProfileResourcesView.spec.js src/views/admin/AdminResourceManageView.spec.js src/views/ProfileView.spec.js
 ```
 
 Expected: PASS.
@@ -724,7 +724,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run
+npm run test
 npm run build
 ```
 
@@ -776,7 +776,7 @@ After Task 6, run the full suite in this order:
 cd backend
 mvn -q test
 cd ../frontend
-npm run test -- --run
+npm run test
 npm run build
 ```
 

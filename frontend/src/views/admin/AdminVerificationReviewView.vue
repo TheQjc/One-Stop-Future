@@ -30,7 +30,6 @@ function formatTime(value) {
   }
 
   const date = new Date(value);
-
   if (Number.isNaN(date.getTime())) {
     return "刚刚";
   }
@@ -57,11 +56,9 @@ function statusClass(status) {
   if (status === "APPROVED") {
     return "approved";
   }
-
   if (status === "REJECTED") {
     return "rejected";
   }
-
   return "pending";
 }
 
@@ -139,10 +136,10 @@ onMounted(loadData);
     <article class="section-card">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Review Desk</span>
+          <span class="section-eyebrow">认证审核</span>
           <h1 class="page-title" style="margin-top: 16px;">认证审核台</h1>
           <p class="page-subtitle" style="margin-top: 16px;">
-            用一个集中视图处理待审核申请、查看今日处理量，并直接完成通过或驳回操作。
+            在一个集中视图里处理待审核申请、查看今日处理量，并直接完成通过或驳回操作。
           </p>
         </div>
       </div>
@@ -170,7 +167,7 @@ onMounted(loadData);
       <article class="section-card">
         <div class="section-header">
           <div>
-            <span class="section-eyebrow">Pending Preview</span>
+            <span class="section-eyebrow">待审预览</span>
             <h2 class="page-title" style="margin-top: 16px;">最新待审申请</h2>
           </div>
         </div>
@@ -198,7 +195,7 @@ onMounted(loadData);
       <article class="section-card">
         <div class="section-header">
           <div>
-            <span class="section-eyebrow">Review Rules</span>
+            <span class="section-eyebrow">审核说明</span>
             <h2 class="page-title" style="margin-top: 16px;">审核基线</h2>
           </div>
         </div>
@@ -207,13 +204,13 @@ onMounted(loadData);
           <article class="panel-card">
             <strong>通过时同步更新用户状态</strong>
             <p class="meta-copy" style="margin-top: 12px;">
-              审核通过后，申请人的认证状态会切换为已认证，并回写真实姓名和学号。
+              审核通过后，申请人的认证状态会切换为已认证，并写回真实姓名和学号。
             </p>
           </article>
           <article class="panel-card">
             <strong>驳回时必须给出原因</strong>
             <p class="meta-copy" style="margin-top: 12px;">
-              驳回会恢复用户到未认证状态，并把驳回说明发送到通知中心。
+              驳回会把用户恢复到未认证状态，同时把驳回说明发送到通知中心。
             </p>
           </article>
         </div>
@@ -223,7 +220,7 @@ onMounted(loadData);
     <article class="section-card">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Application Queue</span>
+          <span class="section-eyebrow">申请队列</span>
           <h2 class="page-title" style="margin-top: 16px;">申请列表</h2>
           <p class="page-subtitle" style="margin-top: 16px;">
             列表按提交时间倒序展示，待审核申请可以直接在卡片内完成处理。

@@ -39,7 +39,7 @@ test("loads and renders the current user's resources", async () => {
   expect(getMyResources).toHaveBeenCalledTimes(1);
   expect(wrapper.text()).toContain("Resume Template Pack");
   expect(wrapper.text()).toContain("Interview Notes");
-  expect(wrapper.text()).toContain("PENDING");
+  expect(wrapper.text()).toContain("待审核");
 });
 
 test("profile resources map preview labels from previewKind", async () => {
@@ -88,10 +88,10 @@ test("profile resources map preview labels from previewKind", async () => {
   });
   await flushPromises();
 
-  expect(wrapper.text()).toContain("Edit And Resubmit");
+  expect(wrapper.text()).toContain("编辑并重新提交");
   expect(wrapper.find('[data-to="/resources/3/edit"]').exists()).toBe(true);
-  expect(wrapper.text()).toContain("Preview");
-  expect(wrapper.text()).toContain("Preview Contents");
+  expect(wrapper.text()).toContain("预览");
+  expect(wrapper.text()).toContain("查看目录");
 
   await wrapper.find('[data-testid="preview-action-3"]').trigger("click");
   await flushPromises();
@@ -126,8 +126,8 @@ test("docx resources use the generic FILE preview action", async () => {
   await flushPromises();
 
   expect(wrapper.find('[data-testid="preview-action-5"]').exists()).toBe(true);
-  expect(wrapper.text()).toContain("Preview");
-  expect(wrapper.text()).not.toContain("Preview Contents");
+  expect(wrapper.text()).toContain("预览");
+  expect(wrapper.text()).not.toContain("查看目录");
 
   await wrapper.find('[data-testid="preview-action-5"]').trigger("click");
   await flushPromises();

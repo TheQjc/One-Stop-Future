@@ -10,7 +10,7 @@ const defaultApplications = [
   {
     id: 5001,
     userId: 2,
-    realName: "Normal User",
+    realName: "张同学",
     studentId: "20260009",
     status: "PENDING",
     rejectReason: null,
@@ -20,7 +20,7 @@ const defaultApplications = [
   {
     id: 5002,
     userId: 3,
-    realName: "Verified User",
+    realName: "李同学",
     studentId: "20260001",
     status: "APPROVED",
     rejectReason: null,

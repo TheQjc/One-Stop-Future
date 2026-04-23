@@ -24,16 +24,16 @@ const selectedResumeId = ref("");
 const detail = ref(null);
 
 const typeLabels = {
-  INTERNSHIP: "Internship",
-  FULL_TIME: "Full Time",
-  CAMPUS: "Campus",
+  INTERNSHIP: "实习",
+  FULL_TIME: "全职",
+  CAMPUS: "校招",
 };
 
 const educationLabels = {
-  ANY: "Any",
-  BACHELOR: "Bachelor",
-  MASTER: "Master",
-  DOCTOR: "Doctor",
+  ANY: "不限",
+  BACHELOR: "本科",
+  MASTER: "硕士",
+  DOCTOR: "博士",
 };
 
 const metaItems = computed(() => {
@@ -42,29 +42,29 @@ const metaItems = computed(() => {
   }
 
   return [
-    { label: "Company", value: detail.value.companyName || "TBD" },
-    { label: "City", value: detail.value.city || "TBD" },
-    { label: "Type", value: typeLabels[detail.value.jobType] || detail.value.jobType || "Role" },
+    { label: "公司", value: detail.value.companyName || "待补充" },
+    { label: "城市", value: detail.value.city || "待补充" },
+    { label: "类型", value: typeLabels[detail.value.jobType] || detail.value.jobType || "岗位" },
     {
-      label: "Education",
+      label: "学历要求",
       value:
         educationLabels[detail.value.educationRequirement]
         || detail.value.educationRequirement
-        || "Requirement",
+        || "以岗位要求为准",
     },
-    { label: "Source", value: detail.value.sourcePlatform || "TBD" },
-    { label: "Deadline", value: formatDate(detail.value.deadlineAt) },
+    { label: "来源渠道", value: detail.value.sourcePlatform || "待补充" },
+    { label: "截止时间", value: formatDate(detail.value.deadlineAt) },
   ];
 });
 
 const applyButtonLabel = computed(() => {
   if (detail.value?.appliedByMe) {
-    return "Applied";
+    return "已投递";
   }
   if (applySubmitting.value) {
-    return "Submitting...";
+    return "提交中...";
   }
-  return applyPanelOpen.value ? "Hide Apply Panel" : "Apply In Platform";
+  return applyPanelOpen.value ? "收起投递面板" : "站内投递";
 });
 
 function normalizeDetail(payload) {
@@ -78,12 +78,12 @@ function normalizeDetail(payload) {
 
 function formatDate(value) {
   if (!value) {
-    return "Open";
+    return "长期开放";
   }
 
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
-    return "Open";
+    return "长期开放";
   }
 
   return new Intl.DateTimeFormat("zh-CN", {
@@ -107,7 +107,7 @@ async function loadDetail() {
   try {
     detail.value = normalizeDetail(await getJobDetail(route.params.id));
   } catch (error) {
-    errorMessage.value = error.message || "Job detail loading failed. Please try again.";
+    errorMessage.value = error.message || "岗位详情加载失败，请稍后重试。";
   } finally {
     loading.value = false;
   }
@@ -150,7 +150,7 @@ async function ensureResumesLoaded(force = false) {
       selectedResumeId.value = String(resumes.value[0].id);
     }
   } catch (error) {
-    resumesError.value = error.message || "Resume library loading failed. Please try again.";
+    resumesError.value = error.message || "简历库加载失败，请稍后重试。";
   } finally {
     resumesLoading.value = false;
   }
@@ -175,7 +175,7 @@ async function handleToggleFavorite() {
       ...nextDetail,
     });
   } catch (error) {
-    actionError.value = error.message || "Save action failed. Please try again.";
+    actionError.value = error.message || "收藏操作失败，请稍后重试。";
   } finally {
     favoriteLoading.value = false;
   }
@@ -208,7 +208,7 @@ async function handleApplySubmit() {
   actionMessage.value = "";
 
   if (!selectedResumeId.value) {
-    actionError.value = "Select a resume first.";
+    actionError.value = "请先选择一份简历。";
     return;
   }
 
@@ -225,9 +225,9 @@ async function handleApplySubmit() {
       applicationId: response.id,
     });
     applyPanelOpen.value = false;
-    actionMessage.value = "Application submitted.";
+    actionMessage.value = "投递已提交。";
   } catch (error) {
-    actionError.value = error.message || "Application submission failed. Please try again.";
+    actionError.value = error.message || "投递提交失败，请稍后重试。";
   } finally {
     applySubmitting.value = false;
   }
@@ -245,19 +245,19 @@ watch(
 <template>
   <section class="page-stack">
     <article class="section-card">
-      <div v-if="loading" class="empty-state">Loading job detail...</div>
+      <div v-if="loading" class="empty-state">正在加载岗位详情...</div>
       <div v-else-if="errorMessage" class="field-grid">
         <p class="field-error" role="alert">{{ errorMessage }}</p>
         <button type="button" class="ghost-btn" @click="loadDetail">
-          Retry
+          重试
         </button>
       </div>
       <div v-else-if="detail" class="job-detail">
         <div class="job-detail__main">
           <div class="chip-row">
-            <span class="section-eyebrow">Opportunity Card</span>
-            <span v-if="detail.favoritedByMe" class="status-badge approved">Saved</span>
-            <span v-if="detail.appliedByMe" class="status-badge approved">Applied</span>
+            <span class="section-eyebrow">岗位详情</span>
+            <span v-if="detail.favoritedByMe" class="status-badge approved">已收藏</span>
+            <span v-if="detail.appliedByMe" class="status-badge approved">已投递</span>
           </div>
 
           <h1 class="hero-title" style="margin-top: 18px;">{{ detail.title }}</h1>
@@ -276,14 +276,14 @@ watch(
           </div>
 
           <article class="panel-card">
-            <span class="section-eyebrow">Expanded Note</span>
+            <span class="section-eyebrow">岗位说明</span>
             <p class="job-detail__body">{{ detail.content || detail.summary }}</p>
           </article>
         </div>
 
         <aside class="job-detail__aside">
           <article class="panel-card">
-            <span class="section-eyebrow">Actions</span>
+            <span class="section-eyebrow">常用操作</span>
             <div class="field-grid" style="margin-top: 16px;">
               <button
                 data-testid="apply-toggle"
@@ -301,7 +301,7 @@ watch(
                 target="_blank"
                 rel="noreferrer"
               >
-                Source Link
+                查看原链接
               </a>
               <button
                 data-testid="favorite-toggle"
@@ -310,37 +310,36 @@ watch(
                 :disabled="favoriteLoading"
                 @click="handleToggleFavorite"
               >
-                {{ detail.favoritedByMe ? "Remove From Favorites" : "Save This Job" }}
+                {{ detail.favoritedByMe ? "取消收藏" : "收藏岗位" }}
               </button>
               <RouterLink to="/jobs" class="ghost-btn">
-                Back To Jobs
+                返回岗位列表
               </RouterLink>
             </div>
           </article>
 
           <article v-if="applyPanelOpen && !detail.appliedByMe" class="panel-card apply-panel">
-            <strong>Apply In Platform</strong>
+            <strong>站内投递</strong>
 
             <div v-if="resumesLoading" class="empty-state apply-panel__state">
-              Loading your resume library...
+              正在加载你的简历库...
             </div>
             <div v-else-if="resumesError" class="field-grid">
               <p class="field-error" role="alert">{{ resumesError }}</p>
               <button type="button" class="ghost-btn" @click="ensureResumesLoaded(true)">
-                Retry Resume Load
+                重试加载简历
               </button>
             </div>
             <div v-else-if="!resumes.length" class="field-grid apply-panel__state">
               <p class="meta-copy">
-                Upload a resume first so the platform can store a stable snapshot for this
-                application.
+                请先上传一份简历，这样系统才能为这次投递保存稳定的快照记录。
               </p>
               <RouterLink to="/profile/resumes" class="app-link">
-                Open Resume Library
+                打开简历库
               </RouterLink>
             </div>
             <div v-else class="field-grid" style="margin-top: 16px;">
-              <p class="meta-copy">Choose one resume file for this application.</p>
+              <p class="meta-copy">请选择一份简历用于本次投递。</p>
 
               <label
                 v-for="resume in resumes"
@@ -355,7 +354,7 @@ watch(
                 />
                 <span class="apply-option__copy">
                   <strong>{{ resume.title }}</strong>
-                  <small>{{ resume.fileName || "Resume file" }}</small>
+                  <small>{{ resume.fileName || "简历文件" }}</small>
                 </span>
               </label>
 
@@ -367,31 +366,29 @@ watch(
                   :disabled="applySubmitting"
                   @click="handleApplySubmit"
                 >
-                  {{ applySubmitting ? "Submitting..." : "Submit Application" }}
+                  {{ applySubmitting ? "提交中..." : "确认投递" }}
                 </button>
                 <RouterLink to="/profile/resumes" class="ghost-btn">
-                  Manage Resumes
+                  管理简历
                 </RouterLink>
               </div>
             </div>
           </article>
 
           <article v-if="detail.appliedByMe" class="panel-card apply-panel apply-panel--success">
-            <strong>Applied</strong>
+            <strong>已投递</strong>
             <p class="meta-copy" style="margin-top: 12px;">
-              This job already has your in-platform application on file. Review the record any
-              time from your application history.
+              这个岗位已经保存了你的站内投递记录，你可以随时在投递记录里查看对应快照和状态。
             </p>
             <RouterLink to="/profile/applications" class="app-link" style="margin-top: 16px;">
-              Open My Applications
+              查看我的投递
             </RouterLink>
           </article>
 
           <article class="panel-card">
-            <strong>Source Reminder</strong>
+            <strong>来源提醒</strong>
             <p class="meta-copy" style="margin-top: 12px;">
-              Keep the source listing for cross-checking details. The platform submission flow and
-              the original source link stay available side by side.
+              建议同时保留原始招聘页，方便核对岗位细节。站内投递和外部来源链接会并行保留，便于回看。
             </p>
           </article>
 

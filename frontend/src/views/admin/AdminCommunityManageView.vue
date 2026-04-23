@@ -17,10 +17,20 @@ const statusCards = computed(() => {
   return [
     { label: "全部帖子", value: posts.length },
     { label: "已发布", value: posts.filter((item) => item.status === "PUBLISHED").length },
-    { label: "已下架", value: posts.filter((item) => item.status === "HIDDEN").length },
+    { label: "已隐藏", value: posts.filter((item) => item.status === "HIDDEN").length },
     { label: "已删除", value: posts.filter((item) => item.status === "DELETED").length },
   ];
 });
+
+function statusLabel(status) {
+  const labels = {
+    PUBLISHED: "已发布",
+    HIDDEN: "已隐藏",
+    DELETED: "已删除",
+  };
+
+  return labels[status] || status || "处理中";
+}
 
 async function loadPosts() {
   loading.value = true;
@@ -41,10 +51,10 @@ async function handleHide(id) {
 
   try {
     await hideCommunityPost(id);
-    actionMessage.value = "帖子已下架。";
+    actionMessage.value = "帖子已隐藏。";
     await loadPosts();
   } catch (error) {
-    errorMessage.value = error.message || "下架失败，请稍后重试。";
+    errorMessage.value = error.message || "隐藏失败，请稍后重试。";
   } finally {
     actionLoadingId.value = "";
   }
@@ -73,10 +83,10 @@ onMounted(loadPosts);
     <article class="section-card">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Admin Community Desk</span>
-          <h1 class="page-title" style="margin-top: 16px;">社区治理台</h1>
+          <span class="section-eyebrow">社区治理</span>
+          <h1 class="page-title" style="margin-top: 16px;">社区内容管理台</h1>
           <p class="page-subtitle" style="margin-top: 16px;">
-            首期只保留下架和删除两种最小治理动作，不引入举报流和复杂审核台。
+            当前阶段保留下线和删除两类最小治理动作，先把状态透明化，再处理具体帖子。
           </p>
         </div>
       </div>
@@ -119,7 +129,7 @@ onMounted(loadPosts);
               <td>{{ post.title }}</td>
               <td>{{ post.tag }}</td>
               <td>{{ post.authorNickname }}</td>
-              <td>{{ post.status }}</td>
+              <td>{{ statusLabel(post.status) }}</td>
               <td>赞 {{ post.likeCount }} / 评 {{ post.commentCount }} / 藏 {{ post.favoriteCount }}</td>
               <td>
                 <div class="inline-form-actions">
@@ -129,7 +139,7 @@ onMounted(loadPosts);
                     :disabled="post.status !== 'PUBLISHED' || actionLoadingId === `hide-${post.id}`"
                     @click="handleHide(post.id)"
                   >
-                    下架
+                    {{ actionLoadingId === `hide-${post.id}` ? "处理中..." : "下线" }}
                   </button>
                   <button
                     type="button"
@@ -137,7 +147,7 @@ onMounted(loadPosts);
                     :disabled="post.status === 'DELETED' || actionLoadingId === `delete-${post.id}`"
                     @click="handleDelete(post.id)"
                   >
-                    删除
+                    {{ actionLoadingId === `delete-${post.id}` ? "处理中..." : "删除" }}
                   </button>
                 </div>
               </td>
@@ -153,7 +163,7 @@ onMounted(loadPosts);
           >
             <strong>{{ post.title }}</strong>
             <p class="meta-copy">标签 {{ post.tag }} · 作者 {{ post.authorNickname }}</p>
-            <p class="meta-copy">状态 {{ post.status }}</p>
+            <p class="meta-copy">状态 {{ statusLabel(post.status) }}</p>
             <p class="meta-copy">赞 {{ post.likeCount }} / 评 {{ post.commentCount }} / 藏 {{ post.favoriteCount }}</p>
             <div class="inline-form-actions" style="margin-top: 12px;">
               <button
@@ -162,7 +172,7 @@ onMounted(loadPosts);
                 :disabled="post.status !== 'PUBLISHED' || actionLoadingId === `hide-${post.id}`"
                 @click="handleHide(post.id)"
               >
-                下架
+                {{ actionLoadingId === `hide-${post.id}` ? "处理中..." : "下线" }}
               </button>
               <button
                 type="button"
@@ -170,7 +180,7 @@ onMounted(loadPosts);
                 :disabled="post.status === 'DELETED' || actionLoadingId === `delete-${post.id}`"
                 @click="handleDelete(post.id)"
               >
-                删除
+                {{ actionLoadingId === `delete-${post.id}` ? "处理中..." : "删除" }}
               </button>
             </div>
           </article>

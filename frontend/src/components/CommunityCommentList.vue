@@ -22,13 +22,13 @@ const emit = defineEmits(["toggle-reply", "update-reply", "submit-reply"]);
 
 function formatDate(value) {
   if (!value) {
-    return "Just now";
+    return "刚刚";
   }
 
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    return "Just now";
+    return "刚刚";
   }
 
   return new Intl.DateTimeFormat("zh-CN", {
@@ -54,7 +54,7 @@ function isReplySubmitting(commentId) {
 
 <template>
   <div v-if="!comments.length" class="empty-state">
-    No comments yet. Be the first to add one.
+    还没有评论，来留下第一条吧。
   </div>
 
   <div v-else class="community-comment-list">
@@ -64,7 +64,7 @@ function isReplySubmitting(commentId) {
       class="community-comment"
     >
       <div class="community-comment__topline">
-        <strong>{{ comment.authorNickname || "Anonymous" }}</strong>
+        <strong>{{ comment.authorNickname || "匿名同学" }}</strong>
         <span>{{ formatDate(comment.createdAt) }}</span>
       </div>
       <p class="community-comment__content">{{ comment.content }}</p>
@@ -76,7 +76,7 @@ function isReplySubmitting(commentId) {
           :data-reply-trigger="comment.id"
           @click="emit('toggle-reply', comment.id)"
         >
-          Reply
+          回复
         </button>
       </div>
 
@@ -87,12 +87,12 @@ function isReplySubmitting(commentId) {
         @submit.prevent="emit('submit-reply', comment.id)"
       >
         <label class="field-label">
-          Reply
+          回复
           <textarea
             class="field-textarea"
             :data-reply-field="comment.id"
             :value="replyDraft(comment.id)"
-            placeholder="Add a follow-up reply."
+            placeholder="补充你的想法或回应。"
             :disabled="isReplySubmitting(comment.id)"
             @input="emit('update-reply', { commentId: comment.id, value: $event.target.value })"
           />
@@ -105,7 +105,7 @@ function isReplySubmitting(commentId) {
             :data-reply-submit="comment.id"
             :disabled="isReplySubmitting(comment.id)"
           >
-            {{ isReplySubmitting(comment.id) ? "Replying..." : "Post Reply" }}
+            {{ isReplySubmitting(comment.id) ? "回复中..." : "提交回复" }}
           </button>
         </div>
       </form>
@@ -121,11 +121,11 @@ function isReplySubmitting(commentId) {
           class="community-reply"
         >
           <div class="community-comment__topline">
-            <strong>{{ reply.authorNickname || "Anonymous" }}</strong>
+            <strong>{{ reply.authorNickname || "匿名同学" }}</strong>
             <span>{{ formatDate(reply.createdAt) }}</span>
           </div>
           <p class="community-reply__meta">
-            Reply to {{ reply.replyToUserNickname || "Unknown" }}
+            回复给 {{ reply.replyToUserNickname || "对方同学" }}
           </p>
           <p class="community-comment__content">{{ reply.content }}</p>
         </article>

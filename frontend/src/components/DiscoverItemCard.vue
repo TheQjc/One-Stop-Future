@@ -55,7 +55,7 @@ function formatDate(value) {
     </div>
 
     <div class="discover-item-card__meta">
-      <span>{{ item.primaryMeta || "One-Stop Future" }}</span>
+      <span>{{ item.primaryMeta || "平台推荐" }}</span>
       <span>{{ item.secondaryMeta || formatDate(item.publishedAt) }}</span>
     </div>
 

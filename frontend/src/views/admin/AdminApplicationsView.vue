@@ -21,18 +21,28 @@ const summary = ref({
 });
 
 const statCards = [
-  { key: "total", label: "All Applications" },
-  { key: "submittedToday", label: "Submitted Today" },
-  { key: "uniqueApplicants", label: "Unique Applicants" },
-  { key: "uniqueJobs", label: "Unique Jobs" },
+  { key: "total", label: "全部申请" },
+  { key: "submittedToday", label: "今日提交" },
+  { key: "uniqueApplicants", label: "申请人数" },
+  { key: "uniqueJobs", label: "涉及岗位" },
 ];
 
 function formatTime(value) {
   if (!value) {
-    return "Unknown time";
+    return "时间未知";
   }
 
   return String(value).replace("T", " ").slice(0, 16);
+}
+
+function statusLabel(status) {
+  const labels = {
+    SUBMITTED: "已提交",
+    APPROVED: "已通过",
+    REJECTED: "未通过",
+  };
+
+  return labels[status] || status || "处理中";
 }
 
 async function loadApplications() {
@@ -42,7 +52,7 @@ async function loadApplications() {
   try {
     summary.value = await getAdminApplications();
   } catch (error) {
-    errorMessage.value = error.message || "Admin applications loading failed. Please try again.";
+    errorMessage.value = error.message || "管理端申请记录加载失败，请稍后重试。";
   } finally {
     loading.value = false;
   }
@@ -55,9 +65,9 @@ async function handleDownload(application) {
 
   try {
     const fileName = await downloadAdminApplicationResume(application.id);
-    actionMessage.value = `Download started for ${fileName || application.resumeFileNameSnapshot || `application-${application.id}`}.`;
+    actionMessage.value = `已开始下载 ${fileName || application.resumeFileNameSnapshot || `application-${application.id}` }。`;
   } catch (error) {
-    actionError.value = error.message || "Resume snapshot download failed. Please try again.";
+    actionError.value = error.message || "简历快照下载失败，请稍后重试。";
   } finally {
     actionLoadingId.value = "";
   }
@@ -71,7 +81,7 @@ async function handlePreview(application) {
   try {
     await previewAdminApplicationResume(application.id);
   } catch (error) {
-    actionError.value = error.message || "Resume snapshot preview failed. Please try again.";
+    actionError.value = error.message || "简历快照预览失败，请稍后重试。";
   } finally {
     actionLoadingId.value = "";
   }
@@ -83,14 +93,14 @@ onMounted(loadApplications);
 <template>
   <section class="page-stack">
     <article v-if="loading" class="section-card">
-      <div class="empty-state">Loading admin applications...</div>
+      <div class="empty-state">正在加载申请记录...</div>
     </article>
 
     <article v-else-if="errorMessage" class="section-card">
       <div class="field-grid">
         <p class="field-error" role="alert">{{ errorMessage }}</p>
         <button type="button" class="ghost-btn" @click="loadApplications">
-          Retry
+          重试
         </button>
       </div>
     </article>
@@ -99,11 +109,10 @@ onMounted(loadApplications);
       <article class="section-card">
         <div class="section-header">
           <div>
-            <span class="section-eyebrow">Admin Applications Desk</span>
-            <h1 class="page-title" style="margin-top: 16px;">Application workbench</h1>
+            <span class="section-eyebrow">申请记录</span>
+            <h1 class="page-title" style="margin-top: 16px;">站内申请工作台</h1>
             <p class="page-subtitle" style="margin-top: 16px;">
-              Read the latest application records, preview or download resume snapshots, and jump
-              back to the original job card. This board stays read-only in this phase.
+              这里集中查看最新申请记录、预览或下载简历快照，并回到对应岗位详情页核对上下文。
             </p>
           </div>
         </div>
@@ -127,19 +136,19 @@ onMounted(loadApplications);
 
       <article class="section-card">
         <div v-if="!summary.applications.length" class="empty-state">
-          No application records are available on the board yet.
+          当前还没有可查看的申请记录。
         </div>
         <div v-else>
           <table class="app-table">
             <thead>
               <tr>
-                <th>Application</th>
-                <th>Applicant</th>
-                <th>Job</th>
-                <th>Resume Snapshot</th>
-                <th>Submitted</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th>申请号</th>
+                <th>申请人</th>
+                <th>岗位</th>
+                <th>简历快照</th>
+                <th>提交时间</th>
+                <th>状态</th>
+                <th>操作</th>
               </tr>
             </thead>
             <tbody>
@@ -147,19 +156,19 @@ onMounted(loadApplications);
                 <td>#{{ application.id }}</td>
                 <td>
                   <div class="admin-applications-table__identity">
-                    <strong>{{ application.applicantNickname || "Unknown user" }}</strong>
-                    <span>User ID {{ application.applicantUserId }}</span>
+                    <strong>{{ application.applicantNickname || "未知用户" }}</strong>
+                    <span>用户 ID {{ application.applicantUserId }}</span>
                   </div>
                 </td>
                 <td>
                   <div class="admin-applications-table__job">
-                    <strong>{{ application.jobTitle || "Untitled job" }}</strong>
-                    <span>{{ application.companyName || "Unknown company" }}</span>
+                    <strong>{{ application.jobTitle || "未命名岗位" }}</strong>
+                    <span>{{ application.companyName || "未知公司" }}</span>
                   </div>
                 </td>
-                <td>{{ application.resumeFileNameSnapshot || "No snapshot file" }}</td>
+                <td>{{ application.resumeFileNameSnapshot || "未返回快照文件" }}</td>
                 <td>{{ formatTime(application.submittedAt) }}</td>
-                <td>{{ application.status }}</td>
+                <td>{{ statusLabel(application.status) }}</td>
                 <td>
                   <div class="inline-form-actions">
                     <button
@@ -170,7 +179,7 @@ onMounted(loadApplications);
                       :disabled="actionLoadingId === `preview-${application.id}`"
                       @click="handlePreview(application)"
                     >
-                      {{ actionLoadingId === `preview-${application.id}` ? "Opening Preview..." : "Preview" }}
+                      {{ actionLoadingId === `preview-${application.id}` ? "预览中..." : "预览" }}
                     </button>
                     <button
                       :data-testid="`download-application-resume-${application.id}`"
@@ -179,10 +188,10 @@ onMounted(loadApplications);
                       :disabled="actionLoadingId === `download-${application.id}`"
                       @click="handleDownload(application)"
                     >
-                      {{ actionLoadingId === `download-${application.id}` ? "Preparing..." : "Download Resume" }}
+                      {{ actionLoadingId === `download-${application.id}` ? "准备下载中..." : "下载简历" }}
                     </button>
                     <RouterLink :to="`/jobs/${application.jobId}`" class="app-link">
-                      Open Job
+                      查看岗位
                     </RouterLink>
                   </div>
                 </td>
@@ -198,19 +207,19 @@ onMounted(loadApplications);
             >
               <div class="admin-application-card__header">
                 <div>
-                  <p class="admin-application-card__eyebrow">Application #{{ application.id }}</p>
-                  <strong>{{ application.jobTitle || "Untitled job" }}</strong>
+                  <p class="admin-application-card__eyebrow">申请 #{{ application.id }}</p>
+                  <strong>{{ application.jobTitle || "未命名岗位" }}</strong>
                 </div>
-                <span class="status-badge pending">{{ application.status }}</span>
+                <span class="status-badge pending">{{ statusLabel(application.status) }}</span>
               </div>
 
               <p class="meta-copy">
-                {{ application.companyName || "Unknown company" }} / {{ application.applicantNickname || "Unknown user" }}
+                {{ application.companyName || "未知公司" }} / {{ application.applicantNickname || "未知用户" }}
               </p>
               <p class="meta-copy">
-                User ID {{ application.applicantUserId }} / {{ application.resumeFileNameSnapshot || "No snapshot file" }}
+                用户 ID {{ application.applicantUserId }} / {{ application.resumeFileNameSnapshot || "未返回快照文件" }}
               </p>
-              <p class="meta-copy">Submitted {{ formatTime(application.submittedAt) }}</p>
+              <p class="meta-copy">提交于 {{ formatTime(application.submittedAt) }}</p>
 
               <div class="inline-form-actions" style="margin-top: 12px;">
                 <button
@@ -221,7 +230,7 @@ onMounted(loadApplications);
                   :disabled="actionLoadingId === `preview-${application.id}`"
                   @click="handlePreview(application)"
                 >
-                  {{ actionLoadingId === `preview-${application.id}` ? "Opening Preview..." : "Preview" }}
+                  {{ actionLoadingId === `preview-${application.id}` ? "预览中..." : "预览" }}
                 </button>
                 <button
                   :data-testid="`download-application-resume-${application.id}`"
@@ -230,10 +239,10 @@ onMounted(loadApplications);
                   :disabled="actionLoadingId === `download-${application.id}`"
                   @click="handleDownload(application)"
                 >
-                  {{ actionLoadingId === `download-${application.id}` ? "Preparing..." : "Download Resume" }}
+                  {{ actionLoadingId === `download-${application.id}` ? "准备下载中..." : "下载简历" }}
                 </button>
                 <RouterLink :to="`/jobs/${application.jobId}`" class="app-link">
-                  Open Job
+                  查看岗位
                 </RouterLink>
               </div>
             </article>

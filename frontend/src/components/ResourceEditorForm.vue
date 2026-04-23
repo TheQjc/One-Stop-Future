@@ -38,7 +38,7 @@ const props = defineProps({
   },
   cancelLabel: {
     type: String,
-    default: "Cancel",
+    default: "取消",
   },
 });
 
@@ -54,35 +54,35 @@ const form = reactive({
 });
 
 const categoryOptions = [
-  { value: "", label: "Select Category" },
-  { value: "EXAM_PAPER", label: "Exam Paper" },
-  { value: "LANGUAGE_TEST", label: "Language Test" },
-  { value: "RESUME_TEMPLATE", label: "Resume Template" },
-  { value: "INTERVIEW_EXPERIENCE", label: "Interview Notes" },
-  { value: "OTHER", label: "Other" },
+  { value: "", label: "请选择分类" },
+  { value: "EXAM_PAPER", label: "考试真题" },
+  { value: "LANGUAGE_TEST", label: "语言考试" },
+  { value: "RESUME_TEMPLATE", label: "简历模板" },
+  { value: "INTERVIEW_EXPERIENCE", label: "面经资料" },
+  { value: "OTHER", label: "其他" },
 ];
 
 const modeCopy = computed(() => (
   props.mode === "edit"
     ? {
-      eyebrow: "Revision Form",
-      title: "Tighten the metadata, replace the file only if needed.",
-      submitLabel: "Submit Revision",
-      fileNote: "Leave the file field empty to keep the current archive file.",
-      emptyFileLabel: "Keep the current file on record.",
+      eyebrow: "修改表单",
+      title: "补齐元信息，只在确实需要时替换文件。",
+      submitLabel: "提交修改",
+      fileNote: "如果沿用原文件，可以把文件选择框留空。",
+      emptyFileLabel: "继续沿用当前文件。",
     }
     : {
-      eyebrow: "Submission Form",
-      title: "Package the file so review is fast.",
-      submitLabel: "Submit Upload",
-      fileNote: "Add one file package for the first review pass.",
-      emptyFileLabel: "No file selected yet.",
+      eyebrow: "投稿表单",
+      title: "把文件整理清楚，让审核更快完成。",
+      submitLabel: "提交资源",
+      fileNote: "请上传一份用于首轮审核的正式文件。",
+      emptyFileLabel: "还没有选择文件。",
     }
 ));
 
 const selectedFileLabel = computed(() => {
   if (form.file) {
-    return `${form.file.name} · ${formatSize(form.file.size)}`;
+    return `${form.file.name} / ${formatSize(form.file.size)}`;
   }
 
   if (props.currentFileLabel) {
@@ -125,19 +125,19 @@ function formatSize(value) {
 
 function validateForm() {
   if (!form.title.trim()) {
-    formError.value = "Title is required.";
+    formError.value = "请输入标题。";
     return false;
   }
   if (!form.category) {
-    formError.value = "Category is required.";
+    formError.value = "请选择分类。";
     return false;
   }
   if (!form.summary.trim()) {
-    formError.value = "Summary is required.";
+    formError.value = "请输入摘要。";
     return false;
   }
   if (props.mode !== "edit" && !form.file) {
-    formError.value = "File is required.";
+    formError.value = "请上传文件。";
     return false;
   }
   if (!form.file) {
@@ -146,12 +146,12 @@ function validateForm() {
 
   const extension = form.file.name.split(".").pop()?.toLowerCase() || "";
   if (!["pdf", "docx", "pptx", "zip"].includes(extension)) {
-    formError.value = "Only PDF, DOCX, PPTX, and ZIP files are supported.";
+    formError.value = "当前仅支持 PDF、DOCX、PPTX 和 ZIP 文件。";
     return false;
   }
 
   if (form.file.size > 100 * 1024 * 1024) {
-    formError.value = "File size must stay under 100MB.";
+    formError.value = "文件大小不能超过 100MB。";
     return false;
   }
 
@@ -190,18 +190,18 @@ function submitForm() {
     <form class="resource-editor-form" @submit.prevent="submitForm">
       <div class="resource-editor-form__fields">
         <label class="field-label">
-          Title
+          标题
           <input
             v-model="form.title"
             class="field-control"
             name="title"
             type="text"
-            placeholder="e.g. 2026 Resume Template Pack"
+            placeholder="例如：2026 秋招简历模板包"
           />
         </label>
 
         <label class="field-label">
-          Category
+          分类
           <select v-model="form.category" class="field-select" name="category">
             <option v-for="option in categoryOptions" :key="option.value" :value="option.value">
               {{ option.label }}
@@ -210,29 +210,29 @@ function submitForm() {
         </label>
 
         <label class="field-label">
-          Summary
+          摘要
           <textarea
             v-model="form.summary"
             class="field-textarea"
             name="summary"
             rows="4"
-            placeholder="Write the short archive summary readers should see in the list."
+            placeholder="写一段列表页可直接展示的简短摘要。"
           />
         </label>
 
         <label class="field-label">
-          Description
+          详细说明
           <textarea
             v-model="form.description"
             class="field-textarea"
             name="description"
             rows="6"
-            placeholder="Add context, usage notes, or preparation hints."
+            placeholder="补充背景、使用方式或准备建议。"
           />
         </label>
 
         <label class="field-label">
-          {{ mode === "edit" ? "Replace File (Optional)" : "File" }}
+          {{ mode === "edit" ? "替换文件（可选）" : "文件" }}
           <input
             class="field-control"
             type="file"
@@ -244,17 +244,17 @@ function submitForm() {
 
       <aside class="resource-editor-form__aside">
         <article class="panel-card resource-editor-note">
-          <strong>Current Selection</strong>
+          <strong>当前文件</strong>
           <p class="meta-copy" style="margin-top: 12px;">{{ selectedFileLabel }}</p>
         </article>
 
         <article class="panel-card resource-editor-note resource-editor-note--lined">
-          <strong>File Handling</strong>
+          <strong>文件说明</strong>
           <p class="meta-copy" style="margin-top: 12px;">
             {{ modeCopy.fileNote }}
           </p>
           <p class="meta-copy" style="margin-top: 12px;">
-            Accepted formats: PDF, DOCX, PPTX, ZIP · Max 100MB
+            支持格式：PDF、DOCX、PPTX、ZIP，单个文件不超过 100MB
           </p>
         </article>
       </aside>
@@ -266,7 +266,7 @@ function submitForm() {
 
       <div class="inline-form-actions">
         <button type="submit" class="app-btn" :disabled="submitting">
-          {{ submitting ? "Submitting..." : modeCopy.submitLabel }}
+          {{ submitting ? "提交中..." : modeCopy.submitLabel }}
         </button>
         <RouterLink :to="cancelTo" class="ghost-btn">
           {{ cancelLabel }}

@@ -526,7 +526,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run src/views/SearchView.spec.js
+npm run test -- src/views/SearchView.spec.js
 ```
 
 Expected: FAIL because the route, API client, search view, and result card do not exist yet.
@@ -602,7 +602,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run src/views/SearchView.spec.js
+npm run test -- src/views/SearchView.spec.js
 ```
 
 Expected: PASS.
@@ -695,7 +695,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run src/views/HomeView.spec.js src/components/NavBar.spec.js
+npm run test -- src/views/HomeView.spec.js src/components/NavBar.spec.js
 ```
 
 Expected: FAIL because the homepage search form and navbar search entry do not exist yet.
@@ -734,7 +734,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run src/views/HomeView.spec.js src/components/NavBar.spec.js
+npm run test -- src/views/HomeView.spec.js src/components/NavBar.spec.js
 ```
 
 Expected: PASS.
@@ -783,7 +783,7 @@ mvn -q -Dtest=SearchControllerTests test
 
 ```powershell
 cd frontend
-npm run test -- --run src/views/SearchView.spec.js src/views/HomeView.spec.js src/components/NavBar.spec.js
+npm run test -- src/views/SearchView.spec.js src/views/HomeView.spec.js src/components/NavBar.spec.js
 ```
 
 - [x] **Step 2: Run the backend verification set**
@@ -807,8 +807,8 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run src/views/SearchView.spec.js src/views/HomeView.spec.js src/components/NavBar.spec.js
-npm run test -- --run
+npm run test -- src/views/SearchView.spec.js src/views/HomeView.spec.js src/components/NavBar.spec.js
+npm run test
 npm run build
 ```
 
@@ -849,7 +849,7 @@ After Task 5, run the full suite in this order:
 cd backend
 mvn -q test
 cd ../frontend
-npm run test -- --run
+npm run test
 npm run build
 ```
 

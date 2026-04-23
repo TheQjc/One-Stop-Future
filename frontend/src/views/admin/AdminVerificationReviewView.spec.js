@@ -18,7 +18,7 @@ test("approves a pending verification application", async () => {
     {
       id: 1,
       phone: "13800000000",
-      nickname: "PlatformAdmin",
+      nickname: "平台管理员",
       role: "ADMIN",
       status: "ACTIVE",
       verificationStatus: "UNVERIFIED",
@@ -26,7 +26,7 @@ test("approves a pending verification application", async () => {
     {
       id: 2,
       phone: "13800000001",
-      nickname: "NormalUser",
+      nickname: "普通同学",
       role: "USER",
       status: "ACTIVE",
       verificationStatus: "PENDING",
@@ -34,7 +34,7 @@ test("approves a pending verification application", async () => {
     {
       id: 3,
       phone: "13800000002",
-      nickname: "VerifiedUser",
+      nickname: "认证同学",
       role: "USER",
       status: "ACTIVE",
       verificationStatus: "VERIFIED",
@@ -47,7 +47,7 @@ test("approves a pending verification application", async () => {
     id: 1,
     userId: 1,
     phone: "13800000000",
-    nickname: "PlatformAdmin",
+    nickname: "平台管理员",
     role: "ADMIN",
     verificationStatus: "UNVERIFIED",
   });
@@ -55,7 +55,7 @@ test("approves a pending verification application", async () => {
   const wrapper = mount(AdminVerificationReviewView);
   await flushPromises();
 
-  expect(wrapper.text()).toContain("NormalUser");
+  expect(wrapper.text()).toContain("普通同学");
   expect(wrapper.text()).toContain("待审核");
 
   const approveButton = wrapper.findAll("button").find((node) => node.text().includes("通过"));

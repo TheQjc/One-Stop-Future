@@ -22,11 +22,11 @@ const statCards = computed(() => {
 
   return [
     {
-      label: "All Applications",
+      label: "全部投递",
       value: summary.value.total || applications.length,
     },
     {
-      label: "Submitted",
+      label: "已提交",
       value: applications.filter((item) => item.status === "SUBMITTED").length,
     },
   ];
@@ -34,7 +34,7 @@ const statCards = computed(() => {
 
 function formatTime(value) {
   if (!value) {
-    return "Unknown time";
+    return "时间未知";
   }
 
   return String(value).replace("T", " ").slice(0, 16);
@@ -50,6 +50,17 @@ function statusClass(status) {
   return "pending";
 }
 
+function statusLabel(status) {
+  const labels = {
+    SUBMITTED: "已提交",
+    APPROVED: "已通过",
+    REJECTED: "未通过",
+    FAILED: "失败",
+  };
+
+  return labels[status] || status || "处理中";
+}
+
 async function loadApplications() {
   loading.value = true;
   errorMessage.value = "";
@@ -57,7 +68,7 @@ async function loadApplications() {
   try {
     summary.value = await getMyApplications();
   } catch (error) {
-    errorMessage.value = error.message || "Application history loading failed. Please try again.";
+    errorMessage.value = error.message || "投递记录加载失败，请稍后重试。";
   } finally {
     loading.value = false;
   }
@@ -71,7 +82,7 @@ async function handlePreview(application) {
   try {
     await previewMyApplicationResume(application.id);
   } catch (error) {
-    actionError.value = error.message || "Snapshot preview failed. Please try again.";
+    actionError.value = error.message || "简历快照预览失败，请稍后重试。";
   } finally {
     actionLoadingId.value = "";
   }
@@ -84,9 +95,9 @@ async function handleDownload(application) {
 
   try {
     const fileName = await downloadMyApplicationResume(application.id);
-    actionMessage.value = `Download started for ${fileName || application.resumeFileNameSnapshot || `application-${application.id}`}.`;
+    actionMessage.value = `已开始下载 ${fileName || application.resumeFileNameSnapshot || `application-${application.id}` }。`;
   } catch (error) {
-    actionError.value = error.message || "Snapshot download failed. Please try again.";
+    actionError.value = error.message || "简历快照下载失败，请稍后重试。";
   } finally {
     actionLoadingId.value = "";
   }
@@ -100,11 +111,10 @@ onMounted(loadApplications);
     <article class="section-card">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">My Applications</span>
-          <h1 class="page-title" style="margin-top: 16px;">Application records</h1>
+          <span class="section-eyebrow">我的申请</span>
+          <h1 class="page-title" style="margin-top: 16px;">投递记录</h1>
           <p class="page-subtitle" style="margin-top: 16px;">
-            Review submitted jobs, preview or download their stored resume snapshots, and jump back
-            to each job card.
+            在这里回看已经提交的岗位，预览或下载当时保存的简历快照，也能随时跳回对应岗位详情页。
           </p>
         </div>
       </div>
@@ -122,15 +132,15 @@ onMounted(loadApplications);
     </article>
 
     <article class="section-card">
-      <div v-if="loading" class="empty-state">Loading your application history...</div>
+      <div v-if="loading" class="empty-state">正在加载你的投递记录...</div>
       <div v-else-if="errorMessage" class="field-grid">
         <p class="field-error" role="alert">{{ errorMessage }}</p>
         <button type="button" class="ghost-btn" @click="loadApplications">
-          Retry
+          重试
         </button>
       </div>
       <div v-else-if="!summary.applications.length" class="empty-state">
-        You have not submitted any in-platform applications yet.
+        你还没有提交任何站内投递。
       </div>
       <div v-else class="application-record-list">
         <p v-if="actionMessage" class="field-hint">{{ actionMessage }}</p>
@@ -142,24 +152,24 @@ onMounted(loadApplications);
         >
           <div class="application-record-card__header">
             <div>
-              <p class="application-record-card__eyebrow">Application #{{ application.id }}</p>
-              <h2 class="application-record-card__title">{{ application.jobTitle || "Untitled job" }}</h2>
+              <p class="application-record-card__eyebrow">申请 #{{ application.id }}</p>
+              <h2 class="application-record-card__title">{{ application.jobTitle || "未命名岗位" }}</h2>
             </div>
             <span class="status-badge" :class="statusClass(application.status)">
-              {{ application.status }}
+              {{ statusLabel(application.status) }}
             </span>
           </div>
 
           <div class="application-record-card__meta">
-            <span>{{ application.companyName || "Unknown company" }}</span>
-            <span>{{ application.city || "City not set" }}</span>
-            <span>Submitted {{ formatTime(application.submittedAt) }}</span>
+            <span>{{ application.companyName || "未知公司" }}</span>
+            <span>{{ application.city || "城市未填写" }}</span>
+            <span>投递于 {{ formatTime(application.submittedAt) }}</span>
           </div>
 
           <article class="panel-card application-record-card__snapshot">
-            <strong>{{ application.resumeTitleSnapshot || "Resume snapshot unavailable" }}</strong>
+            <strong>{{ application.resumeTitleSnapshot || "暂无简历快照" }}</strong>
             <p class="meta-copy" style="margin-top: 12px;">
-              {{ application.resumeFileNameSnapshot || "No snapshot file name returned." }}
+              {{ application.resumeFileNameSnapshot || "未返回快照文件名。" }}
             </p>
           </article>
 
@@ -172,7 +182,7 @@ onMounted(loadApplications);
               :disabled="actionLoadingId === `preview-${application.id}`"
               @click="handlePreview(application)"
             >
-              {{ actionLoadingId === `preview-${application.id}` ? "Opening Preview..." : "Preview" }}
+              {{ actionLoadingId === `preview-${application.id}` ? "预览中..." : "预览" }}
             </button>
             <button
               :data-testid="`download-application-resume-${application.id}`"
@@ -181,10 +191,10 @@ onMounted(loadApplications);
               :disabled="actionLoadingId === `download-${application.id}`"
               @click="handleDownload(application)"
             >
-              {{ actionLoadingId === `download-${application.id}` ? "Preparing Download..." : "Download" }}
+              {{ actionLoadingId === `download-${application.id}` ? "准备下载中..." : "下载" }}
             </button>
             <RouterLink :to="`/jobs/${application.jobId}`" class="app-link">
-              Open Job Detail
+              查看岗位详情
             </RouterLink>
           </div>
         </article>

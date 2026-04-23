@@ -31,11 +31,11 @@ const statusCards = computed(() => {
   const resources = summary.value.resources || [];
 
   return [
-    { label: "All Resources", value: resources.length },
-    { label: "Pending", value: resources.filter((item) => item.status === "PENDING").length },
-    { label: "Published", value: resources.filter((item) => item.status === "PUBLISHED").length },
+    { label: "全部资源", value: resources.length },
+    { label: "待审核", value: resources.filter((item) => item.status === "PENDING").length },
+    { label: "已发布", value: resources.filter((item) => item.status === "PUBLISHED").length },
     {
-      label: "Closed",
+      label: "已关闭",
       value: resources.filter((item) => ["REJECTED", "OFFLINE"].includes(item.status)).length,
     },
   ];
@@ -43,24 +43,24 @@ const statusCards = computed(() => {
 
 function formatCategory(category) {
   const labelMap = {
-    EXAM_PAPER: "Exam Paper",
-    LANGUAGE_TEST: "Language Test",
-    RESUME_TEMPLATE: "Resume Template",
-    INTERVIEW_EXPERIENCE: "Interview Notes",
-    OTHER: "Other",
+    EXAM_PAPER: "考试真题",
+    LANGUAGE_TEST: "语言考试",
+    RESUME_TEMPLATE: "简历模板",
+    INTERVIEW_EXPERIENCE: "面经资料",
+    OTHER: "其他",
   };
 
-  return labelMap[category] || category || "Resource";
+  return labelMap[category] || category || "资源";
 }
 
 function formatTime(value) {
   if (!value) {
-    return "Pending";
+    return "待处理";
   }
 
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
-    return "Pending";
+    return "待处理";
   }
 
   return new Intl.DateTimeFormat("zh-CN", {
@@ -79,6 +79,17 @@ function statusClass(status) {
     return "rejected";
   }
   return "pending";
+}
+
+function statusLabel(status) {
+  const labels = {
+    PENDING: "待审核",
+    PUBLISHED: "已发布",
+    REJECTED: "已驳回",
+    OFFLINE: "已下线",
+  };
+
+  return labels[status] || status || "处理中";
 }
 
 function previewKindOf(resource) {
@@ -101,7 +112,7 @@ async function loadResources() {
   try {
     summary.value = await getAdminResources();
   } catch (error) {
-    errorMessage.value = error.message || "Admin resources loading failed. Please try again.";
+    errorMessage.value = error.message || "资源审核列表加载失败，请稍后重试。";
   } finally {
     loading.value = false;
   }
@@ -133,10 +144,10 @@ async function handlePublish(id) {
 
   try {
     await publishAdminResource(id);
-    actionMessage.value = "Resource published.";
+    actionMessage.value = "资源已发布。";
     await loadResources();
   } catch (error) {
-    errorMessage.value = error.message || "Publish failed. Please try again.";
+    errorMessage.value = error.message || "发布失败，请稍后重试。";
   } finally {
     actionLoadingId.value = "";
   }
@@ -149,10 +160,10 @@ async function handleOffline(id) {
 
   try {
     await offlineAdminResource(id);
-    actionMessage.value = "Resource offlined.";
+    actionMessage.value = "资源已下线。";
     await loadResources();
   } catch (error) {
-    errorMessage.value = error.message || "Offline failed. Please try again.";
+    errorMessage.value = error.message || "下线失败，请稍后重试。";
   } finally {
     actionLoadingId.value = "";
   }
@@ -160,12 +171,12 @@ async function handleOffline(id) {
 
 async function handleReject() {
   if (!selectedResource.value) {
-    errorMessage.value = "Select a pending resource first.";
+    errorMessage.value = "请先选择一条待审核资源。";
     return;
   }
 
   if (!rejectReason.value.trim()) {
-    errorMessage.value = "Reject reason is required.";
+    errorMessage.value = "请填写驳回原因。";
     return;
   }
 
@@ -177,10 +188,10 @@ async function handleReject() {
     await rejectAdminResource(selectedResource.value.id, {
       reason: rejectReason.value.trim(),
     });
-    actionMessage.value = "Resource rejected.";
+    actionMessage.value = "资源已驳回。";
     await loadResources();
   } catch (error) {
-    errorMessage.value = error.message || "Reject failed. Please try again.";
+    errorMessage.value = error.message || "驳回失败，请稍后重试。";
   } finally {
     actionLoadingId.value = "";
   }
@@ -204,27 +215,27 @@ async function handlePreview(id) {
       rejectReason.value = resource.rejectReason || "";
       zipPreviewData.value = await previewZipResource(id);
       zipPreviewResourceId.value = id;
-      actionMessage.value = `Contents loaded for ${resource?.title || `resource #${id}`}.`;
+      actionMessage.value = `已加载《${resource?.title || `资源 #${id}` }》的目录内容。`;
       return;
     }
 
     zipPreviewData.value = null;
     zipPreviewResourceId.value = null;
     await previewResource(id);
-    actionMessage.value = `Preview opened for ${resource?.title || `resource #${id}`}.`;
+    actionMessage.value = `已打开《${resource?.title || `资源 #${id}` }》的预览。`;
   } catch (error) {
     if (kind === "ZIP_TREE") {
       zipPreviewResourceId.value = id;
-      zipPreviewError.value = error.message || "Contents preview failed. Please try again.";
+      zipPreviewError.value = error.message || "目录预览失败，请稍后重试。";
     }
-    errorMessage.value = error.message || "Preview failed. Please try again.";
+    errorMessage.value = error.message || "预览失败，请稍后重试。";
   } finally {
     actionLoadingId.value = "";
   }
 }
 
 function previewLabel(resource) {
-  return previewKindOf(resource) === "ZIP_TREE" ? "Preview Contents" : "Preview";
+  return previewKindOf(resource) === "ZIP_TREE" ? "查看目录" : "预览";
 }
 
 const showSelectedZipPreview = computed(() => (
@@ -240,11 +251,10 @@ onMounted(loadResources);
     <article class="section-card">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Admin Resources Desk</span>
-          <h1 class="page-title" style="margin-top: 16px;">Review the resource shelf from one board.</h1>
+          <span class="section-eyebrow">资源审核</span>
+          <h1 class="page-title" style="margin-top: 16px;">在一个页面处理资源审核</h1>
           <p class="page-subtitle" style="margin-top: 16px;">
-            This workspace only covers review actions: select, publish, reject with reason, and
-            offline already-published files.
+            这个页面集中处理资源审核动作，包括选择记录、发布、填写原因驳回，以及下线已发布资源。
           </p>
         </div>
       </div>
@@ -270,46 +280,46 @@ onMounted(loadResources);
       <article class="section-card">
         <div class="section-header">
           <div>
-            <span class="section-eyebrow">Selected Record</span>
-            <h2 class="page-title" style="margin-top: 16px;">Review surface</h2>
+            <span class="section-eyebrow">当前选中</span>
+            <h2 class="page-title" style="margin-top: 16px;">审核面板</h2>
           </div>
         </div>
 
         <div v-if="!selectedResource" class="empty-state">
-          Pick a row from the queue to review or reject it from this panel.
+          从右侧列表选择一条资源后，就可以在这里审核、驳回或发布。
         </div>
         <div v-else class="field-grid">
           <article class="panel-card selected-resource-card">
             <div class="selected-resource-card__header">
               <div>
-                <p class="selected-resource-card__eyebrow">Resource #{{ selectedResource.id }}</p>
+                <p class="selected-resource-card__eyebrow">资源 #{{ selectedResource.id }}</p>
                 <h3 class="selected-resource-card__title">{{ selectedResource.title }}</h3>
               </div>
               <span class="status-badge" :class="statusClass(selectedResource.status)">
-                {{ selectedResource.status }}
+                {{ statusLabel(selectedResource.status) }}
               </span>
             </div>
 
             <div class="selected-resource-card__meta">
               <span>{{ formatCategory(selectedResource.category) }}</span>
-              <span>{{ selectedResource.uploaderNickname || "Unknown uploader" }}</span>
-              <span>{{ selectedResource.fileName || "Archive file" }}</span>
-              <span>Created {{ formatTime(selectedResource.createdAt) }}</span>
-              <span>Reviewed {{ formatTime(selectedResource.reviewedAt) }}</span>
+              <span>{{ selectedResource.uploaderNickname || "未知上传者" }}</span>
+              <span>{{ selectedResource.fileName || "资源文件" }}</span>
+              <span>创建于 {{ formatTime(selectedResource.createdAt) }}</span>
+              <span>审核于 {{ formatTime(selectedResource.reviewedAt) }}</span>
             </div>
 
             <p v-if="selectedResource.rejectReason" class="meta-copy">
-              Current review note: {{ selectedResource.rejectReason }}
+              当前审核说明：{{ selectedResource.rejectReason }}
             </p>
           </article>
 
           <label v-if="selectedResource.status === 'PENDING'" class="field-label">
-            Reject Reason
+            驳回原因
             <textarea
               v-model.trim="rejectReason"
               class="field-textarea"
               name="rejectReason"
-              placeholder="Explain what must change before this file can be published."
+              placeholder="请说明发布前还需要修改的内容。"
             />
           </label>
 
@@ -323,7 +333,7 @@ onMounted(loadResources);
               @click="handlePreview(selectedResource.id)"
             >
               {{ actionLoadingId === `preview-${selectedResource.id}`
-                ? (previewKindOf(selectedResource) === "ZIP_TREE" ? "Loading Contents..." : "Opening Preview...")
+                ? (previewKindOf(selectedResource) === "ZIP_TREE" ? "正在加载目录..." : "正在打开预览...")
                 : previewLabel(selectedResource) }}
             </button>
             <button
@@ -333,7 +343,7 @@ onMounted(loadResources);
               :disabled="Boolean(actionLoadingId)"
               @click="handlePublish(selectedResource.id)"
             >
-              {{ actionLoadingId === `publish-${selectedResource.id}` ? "Publishing..." : "Publish" }}
+              {{ actionLoadingId === `publish-${selectedResource.id}` ? "发布中..." : "发布" }}
             </button>
             <button
               v-if="selectedResource.status === 'PENDING'"
@@ -342,7 +352,7 @@ onMounted(loadResources);
               :disabled="Boolean(actionLoadingId)"
               @click="handleReject"
             >
-              {{ actionLoadingId === `reject-${selectedResource.id}` ? "Rejecting..." : "Reject" }}
+              {{ actionLoadingId === `reject-${selectedResource.id}` ? "驳回中..." : "驳回" }}
             </button>
             <button
               v-if="selectedResource.status === 'PUBLISHED'"
@@ -351,10 +361,10 @@ onMounted(loadResources);
               :disabled="Boolean(actionLoadingId)"
               @click="handleOffline(selectedResource.id)"
             >
-              {{ actionLoadingId === `offline-${selectedResource.id}` ? "Offlining..." : "Offline" }}
+              {{ actionLoadingId === `offline-${selectedResource.id}` ? "下线中..." : "下线" }}
             </button>
             <button type="button" class="ghost-btn" :disabled="Boolean(actionLoadingId)" @click="clearSelection">
-              Clear Selection
+              清空选择
             </button>
           </div>
 
@@ -370,30 +380,30 @@ onMounted(loadResources);
       <article class="section-card">
         <div class="section-header">
           <div>
-            <span class="section-eyebrow">Queue</span>
-            <h2 class="page-title" style="margin-top: 16px;">Current resource records</h2>
+            <span class="section-eyebrow">资源队列</span>
+            <h2 class="page-title" style="margin-top: 16px;">当前资源记录</h2>
           </div>
         </div>
 
-        <div v-if="loading" class="empty-state">Loading admin resources...</div>
+        <div v-if="loading" class="empty-state">正在加载资源审核列表...</div>
         <div v-else-if="errorMessage && !summary.resources.length" class="field-grid">
           <p class="field-error" role="alert">{{ errorMessage }}</p>
           <button type="button" class="ghost-btn" @click="loadResources">
-            Retry
+            重试
           </button>
         </div>
         <div v-else-if="!summary.resources.length" class="empty-state">
-          No resource records are available for review.
+          当前没有可审核的资源记录。
         </div>
         <div v-else>
           <table class="app-table">
             <thead>
               <tr>
-                <th>Title</th>
-                <th>Category</th>
-                <th>Uploader</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th>标题</th>
+                <th>分类</th>
+                <th>上传者</th>
+                <th>状态</th>
+                <th>操作</th>
               </tr>
             </thead>
             <tbody>
@@ -401,11 +411,11 @@ onMounted(loadResources);
                 <td>{{ resource.title }}</td>
                 <td>{{ formatCategory(resource.category) }}</td>
                 <td>{{ resource.uploaderNickname }}</td>
-                <td>{{ resource.status }}</td>
+                <td>{{ statusLabel(resource.status) }}</td>
                 <td>
                   <div class="inline-form-actions">
                     <button type="button" class="ghost-btn select-action" @click="selectResource(resource)">
-                      Select
+                      选择
                     </button>
                     <button
                       v-if="canPreview(resource)"
@@ -415,7 +425,7 @@ onMounted(loadResources);
                       @click="handlePreview(resource.id)"
                     >
                       {{ actionLoadingId === `preview-${resource.id}`
-                        ? (previewKindOf(resource) === "ZIP_TREE" ? "Loading Contents..." : "Opening Preview...")
+                        ? (previewKindOf(resource) === "ZIP_TREE" ? "正在加载目录..." : "正在打开预览...")
                         : previewLabel(resource) }}
                     </button>
                     <button
@@ -424,7 +434,7 @@ onMounted(loadResources);
                       :disabled="!['PENDING', 'OFFLINE'].includes(resource.status) || actionLoadingId === `publish-${resource.id}`"
                       @click="handlePublish(resource.id)"
                     >
-                      Publish
+                      发布
                     </button>
                     <button
                       type="button"
@@ -432,7 +442,7 @@ onMounted(loadResources);
                       :disabled="resource.status !== 'PUBLISHED' || actionLoadingId === `offline-${resource.id}`"
                       @click="handleOffline(resource.id)"
                     >
-                      Offline
+                      下线
                     </button>
                   </div>
                 </td>
@@ -448,10 +458,10 @@ onMounted(loadResources);
             >
               <strong>{{ resource.title }}</strong>
               <p class="meta-copy">{{ formatCategory(resource.category) }} / {{ resource.uploaderNickname }}</p>
-              <p class="meta-copy">Status {{ resource.status }} / Created {{ formatTime(resource.createdAt) }}</p>
+              <p class="meta-copy">状态 {{ statusLabel(resource.status) }} / 创建于 {{ formatTime(resource.createdAt) }}</p>
               <div class="inline-form-actions" style="margin-top: 12px;">
                 <button type="button" class="ghost-btn select-action" @click="selectResource(resource)">
-                  Select
+                  选择
                 </button>
                 <button
                   v-if="canPreview(resource)"
@@ -461,7 +471,7 @@ onMounted(loadResources);
                   @click="handlePreview(resource.id)"
                 >
                   {{ actionLoadingId === `preview-${resource.id}`
-                    ? (previewKindOf(resource) === "ZIP_TREE" ? "Loading Contents..." : "Opening Preview...")
+                    ? (previewKindOf(resource) === "ZIP_TREE" ? "正在加载目录..." : "正在打开预览...")
                     : previewLabel(resource) }}
                 </button>
                 <button
@@ -470,7 +480,7 @@ onMounted(loadResources);
                   :disabled="!['PENDING', 'OFFLINE'].includes(resource.status) || actionLoadingId === `publish-${resource.id}`"
                   @click="handlePublish(resource.id)"
                 >
-                  Publish
+                  发布
                 </button>
                 <button
                   type="button"
@@ -478,7 +488,7 @@ onMounted(loadResources);
                   :disabled="resource.status !== 'PUBLISHED' || actionLoadingId === `offline-${resource.id}`"
                   @click="handleOffline(resource.id)"
                 >
-                  Offline
+                  下线
                 </button>
               </div>
             </article>

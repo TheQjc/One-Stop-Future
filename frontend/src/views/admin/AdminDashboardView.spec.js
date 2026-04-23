@@ -143,11 +143,11 @@ test("page loads summary and renders four sections", async () => {
   await flushPromises();
 
   expect(getAdminDashboardSummary).toHaveBeenCalledTimes(1);
-  expect(wrapper.text()).toContain("Operations board");
-  expect(wrapper.text()).toContain("Verification queue");
-  expect(wrapper.text()).toContain("Community watch");
-  expect(wrapper.text()).toContain("Jobs board");
-  expect(wrapper.text()).toContain("Resources shelf");
+  expect(wrapper.text()).toContain("运营看板");
+  expect(wrapper.text()).toContain("认证队列");
+  expect(wrapper.text()).toContain("社区看板");
+  expect(wrapper.text()).toContain("岗位看板");
+  expect(wrapper.text()).toContain("资源看板");
   expect(wrapper.text()).toContain("Pending Student");
   expect(wrapper.text()).toContain("First community post");
   expect(wrapper.text()).toContain("Campus operations intern");
@@ -163,13 +163,13 @@ test("page-level retry reloads the summary after an initial failure", async () =
   await flushPromises();
 
   expect(wrapper.text()).toContain("Board loading failed.");
-  expect(wrapper.text()).not.toContain("Verification queue");
+  expect(wrapper.text()).not.toContain("认证队列");
 
   await wrapper.find("button.ghost-btn").trigger("click");
   await flushPromises();
 
   expect(getAdminDashboardSummary).toHaveBeenCalledTimes(2);
-  expect(wrapper.text()).toContain("Verification queue");
+  expect(wrapper.text()).toContain("认证队列");
   expect(wrapper.text()).toContain("Pending Student");
 });
 
@@ -195,15 +195,15 @@ test("empty recent lines keep metrics and desk links visible", async () => {
   const wrapper = mountView();
   await flushPromises();
 
-  expect(wrapper.text()).toContain("Pending");
-  expect(wrapper.text()).toContain("Reviewed Today");
-  expect(wrapper.text()).toContain("All Posts");
-  expect(wrapper.text()).toContain("All Jobs");
-  expect(wrapper.text()).toContain("All Records");
-  expect(wrapper.text()).toContain("No applications are waiting on the line.");
-  expect(wrapper.text()).toContain("No recent posts have reached the desk.");
-  expect(wrapper.text()).toContain("No draft or offline jobs are on the board.");
-  expect(wrapper.text()).toContain("No resources are waiting on the shelf.");
+  expect(wrapper.text()).toContain("待审核");
+  expect(wrapper.text()).toContain("今日已审");
+  expect(wrapper.text()).toContain("全部帖子");
+  expect(wrapper.text()).toContain("全部岗位");
+  expect(wrapper.text()).toContain("全部记录");
+  expect(wrapper.text()).toContain("当前没有待审核申请。");
+  expect(wrapper.text()).toContain("当前没有最近帖子需要展示。");
+  expect(wrapper.text()).toContain("当前没有草稿或待处理岗位。");
+  expect(wrapper.text()).toContain("当前没有待处理资源。");
 
   const linkTargets = wrapper.findAll("a[data-to]").map((node) => node.attributes("data-to"));
 

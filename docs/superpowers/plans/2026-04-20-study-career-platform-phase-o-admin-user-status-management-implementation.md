@@ -300,7 +300,7 @@ mvn test
 
 ```powershell
 cd frontend
-npm run test -- --run
+npm run test
 npm run build
 ```
 

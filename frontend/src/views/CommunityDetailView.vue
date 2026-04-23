@@ -29,14 +29,14 @@ const replyDrafts = reactive({});
 const detail = ref(null);
 
 const tagLabels = {
-  CAREER: "Career",
-  EXAM: "Exam",
-  ABROAD: "Abroad",
-  CHAT: "Chat",
+  CAREER: "求职",
+  EXAM: "升学",
+  ABROAD: "留学",
+  CHAT: "交流",
 };
 
 const localizedTag = computed(() => (
-  tagLabels[detail.value?.tag] || detail.value?.tag || "Uncategorized"
+  tagLabels[detail.value?.tag] || detail.value?.tag || "未分类"
 ));
 
 const experienceItems = computed(() => {
@@ -45,10 +45,10 @@ const experienceItems = computed(() => {
   }
 
   return [
-    { label: "Target", value: detail.value.experience.targetLabel },
-    { label: "Outcome", value: detail.value.experience.outcomeLabel },
-    { label: "Timeline", value: detail.value.experience.timelineSummary },
-    { label: "Action Notes", value: detail.value.experience.actionSummary },
+    { label: "目标方向", value: detail.value.experience.targetLabel },
+    { label: "阶段结果", value: detail.value.experience.outcomeLabel },
+    { label: "时间安排", value: detail.value.experience.timelineSummary },
+    { label: "行动笔记", value: detail.value.experience.actionSummary },
   ].filter((item) => item.value);
 });
 
@@ -59,7 +59,7 @@ async function loadDetail() {
   try {
     detail.value = await getCommunityPostDetail(route.params.id);
   } catch (error) {
-    errorMessage.value = error.message || "Post detail loading failed. Please try again.";
+    errorMessage.value = error.message || "帖子详情加载失败，请稍后重试。";
   } finally {
     loading.value = false;
   }
@@ -94,7 +94,7 @@ async function handleToggleLike() {
       ? await unlikeCommunityPost(detail.value.id)
       : await likeCommunityPost(detail.value.id);
   } catch (error) {
-    actionError.value = error.message || "Like action failed. Please try again.";
+    actionError.value = error.message || "点赞操作失败，请稍后重试。";
   } finally {
     actionLoading.value = "";
   }
@@ -113,7 +113,7 @@ async function handleToggleFavorite() {
       ? await unfavoriteCommunityPost(detail.value.id)
       : await favoriteCommunityPost(detail.value.id);
   } catch (error) {
-    actionError.value = error.message || "Favorite action failed. Please try again.";
+    actionError.value = error.message || "收藏操作失败，请稍后重试。";
   } finally {
     actionLoading.value = "";
   }
@@ -127,7 +127,7 @@ async function handleSubmitComment() {
   actionError.value = "";
 
   if (!commentForm.content.trim()) {
-    actionError.value = "Please enter a comment.";
+    actionError.value = "请输入评论内容。";
     return;
   }
 
@@ -139,7 +139,7 @@ async function handleSubmitComment() {
     });
     commentForm.content = "";
   } catch (error) {
-    actionError.value = error.message || "Comment submit failed. Please try again.";
+    actionError.value = error.message || "评论发布失败，请稍后重试。";
   } finally {
     actionLoading.value = "";
   }
@@ -174,7 +174,7 @@ async function handleSubmitReply(commentId) {
   const content = (replyDrafts[commentId] || "").trim();
 
   if (!content) {
-    actionError.value = "Please enter a reply.";
+    actionError.value = "请输入回复内容。";
     return;
   }
 
@@ -185,7 +185,7 @@ async function handleSubmitReply(commentId) {
     replyDrafts[commentId] = "";
     openReplyForms.value = openReplyForms.value.filter((id) => id !== commentId);
   } catch (error) {
-    actionError.value = error.message || "Reply submit failed. Please try again.";
+    actionError.value = error.message || "回复发布失败，请稍后重试。";
   } finally {
     actionLoading.value = "";
   }
@@ -199,24 +199,24 @@ watch(() => route.params.id, () => {
 <template>
   <section class="page-stack">
     <article class="section-card">
-      <div v-if="loading" class="empty-state">Loading post detail...</div>
+      <div v-if="loading" class="empty-state">正在加载帖子详情...</div>
       <div v-else-if="errorMessage" class="field-grid">
         <p class="field-error" role="alert">{{ errorMessage }}</p>
         <button type="button" class="ghost-btn" @click="loadDetail">
-          Retry
+          重试
         </button>
       </div>
       <div v-else-if="detail" class="community-detail">
         <div class="community-detail__main">
           <div class="chip-row">
             <span class="section-eyebrow">{{ localizedTag }}</span>
-            <span class="status-badge approved">{{ detail.author?.nickname || "Anonymous" }}</span>
+            <span class="status-badge approved">{{ detail.author?.nickname || "匿名同学" }}</span>
           </div>
 
           <h1 class="hero-title" style="margin-top: 18px;">{{ detail.title }}</h1>
 
           <article v-if="experienceItems.length" class="panel-card experience-summary">
-            <span class="section-eyebrow">Experience Summary</span>
+            <span class="section-eyebrow">经验摘要</span>
             <div class="experience-summary__grid">
               <div
                 v-for="item in experienceItems"
@@ -233,16 +233,16 @@ watch(() => route.params.id, () => {
           <p class="community-detail__body">{{ detail.content }}</p>
 
           <div class="community-detail__meta">
-            <span>Published {{ new Date(detail.createdAt).toLocaleString("zh-CN") }}</span>
-            <span>Likes {{ detail.likeCount }}</span>
-            <span>Comments {{ detail.commentCount }}</span>
-            <span>Favorites {{ detail.favoriteCount }}</span>
+            <span>发布于 {{ new Date(detail.createdAt).toLocaleString("zh-CN") }}</span>
+            <span>赞 {{ detail.likeCount }}</span>
+            <span>评论 {{ detail.commentCount }}</span>
+            <span>收藏 {{ detail.favoriteCount }}</span>
           </div>
         </div>
 
         <aside class="community-detail__aside">
           <article class="panel-card">
-            <span class="section-eyebrow">Actions</span>
+            <span class="section-eyebrow">常用操作</span>
             <div class="field-grid" style="margin-top: 16px;">
               <button
                 type="button"
@@ -250,7 +250,7 @@ watch(() => route.params.id, () => {
                 :disabled="actionLoading === 'like'"
                 @click="handleToggleLike"
               >
-                {{ detail.likedByMe ? "Unlike" : "Like" }}
+                {{ detail.likedByMe ? "取消点赞" : "点赞" }}
               </button>
               <button
                 type="button"
@@ -258,18 +258,18 @@ watch(() => route.params.id, () => {
                 :disabled="actionLoading === 'favorite'"
                 @click="handleToggleFavorite"
               >
-                {{ detail.favoritedByMe ? "Remove Favorite" : "Add Favorite" }}
+                {{ detail.favoritedByMe ? "取消收藏" : "收藏帖子" }}
               </button>
               <RouterLink to="/community" class="ghost-btn">
-                Back to Community
+                返回社区
               </RouterLink>
             </div>
           </article>
 
           <article class="panel-card">
-            <strong>Participation</strong>
+            <strong>参与说明</strong>
             <p class="meta-copy" style="margin-top: 12px;">
-              Guests can read the discussion. Commenting, replying, liking, and favorites require login.
+              游客可以浏览讨论内容；评论、回复、点赞和收藏需要登录后才能使用。
             </p>
           </article>
         </aside>
@@ -279,19 +279,19 @@ watch(() => route.params.id, () => {
     <article class="section-card">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Comments</span>
-          <h2 class="page-title" style="margin-top: 16px;">Comments</h2>
+          <span class="section-eyebrow">评论区</span>
+          <h2 class="page-title" style="margin-top: 16px;">评论区</h2>
         </div>
       </div>
 
       <form class="field-grid community-detail__comment-form" @submit.prevent="handleSubmitComment">
         <label class="field-label">
-          Add a comment
+          发表评论
           <textarea
             v-model.trim="commentForm.content"
             class="field-textarea"
             name="comment"
-            placeholder="Share your experience, caution, or perspective."
+            placeholder="分享你的经验、提醒或补充观点。"
             :disabled="actionLoading === 'comment'"
           />
         </label>
@@ -304,7 +304,7 @@ watch(() => route.params.id, () => {
             class="app-btn"
             :disabled="actionLoading === 'comment'"
           >
-            {{ actionLoading === "comment" ? "Posting..." : "Post Comment" }}
+            {{ actionLoading === "comment" ? "发布中..." : "发布评论" }}
           </button>
           <button
             v-if="!userStore.isAuthenticated"
@@ -312,7 +312,7 @@ watch(() => route.params.id, () => {
             class="ghost-btn"
             @click="redirectToLogin"
           >
-            Log in to join
+            登录后参与
           </button>
         </div>
       </form>

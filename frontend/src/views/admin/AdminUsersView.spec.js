@@ -20,8 +20,8 @@ function buildSummary() {
       {
         id: 1,
         phone: "13800000000",
-        nickname: "PlatformAdmin",
-        realName: "Admin User",
+        nickname: "平台管理员",
+        realName: "管理员老师",
         role: "ADMIN",
         status: "ACTIVE",
         verificationStatus: "VERIFIED",
@@ -31,8 +31,8 @@ function buildSummary() {
       {
         id: 2,
         phone: "13800000001",
-        nickname: "NormalUser",
-        realName: "Normal User",
+        nickname: "普通同学",
+        realName: "张同学",
         role: "USER",
         status: "ACTIVE",
         verificationStatus: "UNVERIFIED",
@@ -42,8 +42,8 @@ function buildSummary() {
       {
         id: 3,
         phone: "13800000002",
-        nickname: "VerifiedUser",
-        realName: "Verified User",
+        nickname: "认证同学",
+        realName: "李同学",
         role: "USER",
         status: "BANNED",
         verificationStatus: "VERIFIED",
@@ -78,11 +78,11 @@ test("page loads summary and renders protected plus actionable rows", async () =
   await flushPromises();
 
   expect(getAdminUsers).toHaveBeenCalledTimes(1);
-  expect(wrapper.text()).toContain("User status workbench");
-  expect(wrapper.text()).toContain("PlatformAdmin");
-  expect(wrapper.text()).toContain("NormalUser");
-  expect(wrapper.text()).toContain("VerifiedUser");
-  expect(wrapper.text()).toContain("Protected");
+  expect(wrapper.text()).toContain("账号状态工作台");
+  expect(wrapper.text()).toContain("平台管理员");
+  expect(wrapper.text()).toContain("普通同学");
+  expect(wrapper.text()).toContain("认证同学");
+  expect(wrapper.text()).toContain("受保护");
   expect(wrapper.find('[data-testid="ban-user-2"]').exists()).toBe(true);
   expect(wrapper.find('[data-testid="unban-user-3"]').exists()).toBe(true);
 });
@@ -106,7 +106,7 @@ test("ban action calls the admin helper and reloads the desk", async () => {
 
   expect(banAdminUser).toHaveBeenCalledWith(2);
   expect(getAdminUsers).toHaveBeenCalledTimes(2);
-  expect(wrapper.text()).toContain("Account banned for NormalUser.");
+  expect(wrapper.text()).toContain("已封禁 普通同学。");
 });
 
 test("restore action calls the admin helper and reloads the desk", async () => {
@@ -128,5 +128,5 @@ test("restore action calls the admin helper and reloads the desk", async () => {
 
   expect(unbanAdminUser).toHaveBeenCalledWith(3);
   expect(getAdminUsers).toHaveBeenCalledTimes(2);
-  expect(wrapper.text()).toContain("Account restored for VerifiedUser.");
+  expect(wrapper.text()).toContain("已恢复 认证同学。");
 });

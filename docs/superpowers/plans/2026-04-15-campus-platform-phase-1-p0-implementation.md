@@ -7,7 +7,7 @@
 
 **Goal:** Build the first working slice of the campus platform using the approved stack, covering project scaffolding, authentication and user center, the independent home page, and the notice module.
 
-**Architecture:** This plan implements the `P0` scope only: shared platform infrastructure, user center, home aggregation, and notices. The codebase remains a Spring Boot 3 monolith plus a Vue 3 SPA, with MySQL-backed persistence and JWT-based auth; full `校园活动` implementation is intentionally deferred to later plans, while the home page keeps only current Phase A entries and directional aggregation content. All frontend-facing tasks must use `@frontend-design` to lock a deliberate visual direction before coding and `@ui-ux-pro-max` to validate UX, accessibility, and responsive behavior before closing the task.
+**Architecture:** This plan implements the `P0` scope only: shared platform infrastructure, user center, home aggregation, and notices. The codebase remains a Spring Boot 3 monolith plus a Vue 3 SPA, with MySQL-backed persistence and JWT-based auth; full `鏍″洯娲诲姩` implementation is intentionally deferred to later plans, while the home page keeps only current Phase A entries and directional aggregation content. All frontend-facing tasks must use `@frontend-design` to lock a deliberate visual direction before coding and `@ui-ux-pro-max` to validate UX, accessibility, and responsive behavior before closing the task.
 
 **Tech Stack:** Vue 3, Vue Router, Pinia, Element Plus, Axios, Vite, Vitest, Spring Boot 3, Spring Security, MyBatis-Plus, MySQL 8, JWT, Lombok, JUnit 5, MockMvc
 
@@ -24,7 +24,7 @@ This platform is too broad for one safe implementation plan. This plan covers on
 
 Follow-up plans should cover:
 
-- `校园活动` (`P2`)
+- `鏍″洯娲诲姩` (`P2`)
 
 ## Frontend Design Skill Baseline
 
@@ -339,7 +339,7 @@ test("renders the app shell", () => {
     },
   });
 
-  expect(wrapper.text()).toContain("校园一站式信息平台");
+  expect(wrapper.text()).toContain("鏍″洯涓€绔欏紡淇℃伅骞冲彴");
 });
 ```
 
@@ -349,7 +349,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run src/App.spec.js
+npm run test -- src/App.spec.js
 ```
 
 Expected: FAIL because the frontend package and components do not exist yet.
@@ -409,7 +409,7 @@ import PageFooter from "./components/PageFooter.vue";
 ```vue
 <!-- frontend/src/components/NavBar.vue -->
 <template>
-  <header class="nav-bar">校园一站式信息平台</header>
+  <header class="nav-bar">鏍″洯涓€绔欏紡淇℃伅骞冲彴</header>
 </template>
 ```
 
@@ -427,7 +427,7 @@ import PageFooter from "./components/PageFooter.vue";
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>校园一站式信息平台</title>
+    <title>鏍″洯涓€绔欏紡淇℃伅骞冲彴</title>
   </head>
   <body>
     <div id="app"></div>
@@ -530,7 +530,7 @@ config.global.stubs = {
   <form>
     <input name="username" />
     <input name="password" type="password" />
-    <button type="submit">登录</button>
+    <button type="submit">鐧诲綍</button>
   </form>
 </template>
 ```
@@ -539,7 +539,7 @@ config.global.stubs = {
 <!-- frontend/src/views/HomeView.vue -->
 <template>
   <section>
-    <h1>校园一站式信息平台</h1>
+    <h1>鏍″洯涓€绔欏紡淇℃伅骞冲彴</h1>
   </section>
 </template>
 ```
@@ -578,7 +578,7 @@ Run:
 ```powershell
 cd frontend
 npm install
-npm run test -- --run src/App.spec.js
+npm run test -- src/App.spec.js
 ```
 
 Expected: PASS.
@@ -682,9 +682,9 @@ CREATE TABLE t_notice (
 -- backend/src/main/resources/data.sql
 INSERT INTO t_user (username, password, real_name, role, email)
 VALUES
-  ('admin01', '{noop}secret123', '管理员账号', 2, 'admin@example.com'),
-  ('teacher01', '{noop}secret123', '教师账号', 1, 'teacher@example.com'),
-  ('student01', '{noop}secret123', '学生账号', 0, 'student@example.com');
+  ('admin01', '{noop}secret123', '绠＄悊鍛樿处鍙?, 2, 'admin@example.com'),
+  ('teacher01', '{noop}secret123', '鏁欏笀璐﹀彿', 1, 'teacher@example.com'),
+  ('student01', '{noop}secret123', '瀛︾敓璐﹀彿', 0, 'student@example.com');
 ```
 
 Implement `JwtUtil`, `SecurityConfig`, and `JwtAuthenticationFilter` so that:
@@ -1009,7 +1009,7 @@ import ProfileView from "./ProfileView.vue";
 
 test("renders profile form", () => {
   const wrapper = mount(ProfileView);
-  expect(wrapper.text()).toContain("个人信息");
+  expect(wrapper.text()).toContain("涓汉淇℃伅");
 });
 ```
 
@@ -1019,7 +1019,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run src/views/LoginView.spec.js src/views/ProfileView.spec.js
+npm run test -- src/views/LoginView.spec.js src/views/ProfileView.spec.js
 ```
 
 Expected: FAIL because the auth/user files do not exist or are incomplete.
@@ -1060,7 +1060,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run src/views/LoginView.spec.js src/views/ProfileView.spec.js
+npm run test -- src/views/LoginView.spec.js src/views/ProfileView.spec.js
 ```
 
 Expected: PASS.
@@ -1096,8 +1096,8 @@ import NoticeView from "./NoticeView.vue";
 
 test("renders notice filter and list", () => {
   const wrapper = mount(NoticeView);
-  expect(wrapper.text()).toContain("通知公告");
-  expect(wrapper.text()).toContain("分类");
+  expect(wrapper.text()).toContain("閫氱煡鍏憡");
+  expect(wrapper.text()).toContain("鍒嗙被");
 });
 ```
 
@@ -1107,7 +1107,7 @@ import NoticeManageView from "./NoticeManageView.vue";
 
 test("shows review actions for teacher/admin", () => {
   const wrapper = mount(NoticeManageView);
-  expect(wrapper.text()).toContain("审核");
+  expect(wrapper.text()).toContain("瀹℃牳");
 });
 ```
 
@@ -1117,7 +1117,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run src/views/NoticeView.spec.js src/views/admin/NoticeManageView.spec.js
+npm run test -- src/views/NoticeView.spec.js src/views/admin/NoticeManageView.spec.js
 ```
 
 Expected: FAIL because the notice pages do not exist yet.
@@ -1140,10 +1140,10 @@ Minimal home page requirement:
 ```vue
 <template>
   <section>
-    <h1>校园一站式信息平台</h1>
+    <h1>鏍″洯涓€绔欏紡淇℃伅骞冲彴</h1>
     <div class="quick-links">
-      <router-link to="/notices">通知公告</router-link>
-      <span>校园活动（Phase 2）</span>
+      <router-link to="/notices">閫氱煡鍏憡</router-link>
+      <span>鏍″洯娲诲姩锛圥hase 2锛?/span>
     </div>
   </section>
 </template>
@@ -1155,7 +1155,7 @@ Run:
 
 ```powershell
 cd frontend
-npm run test -- --run src/views/NoticeView.spec.js src/views/admin/NoticeManageView.spec.js
+npm run test -- src/views/NoticeView.spec.js src/views/admin/NoticeManageView.spec.js
 ```
 
 Expected: PASS.
@@ -1175,7 +1175,7 @@ After Task 7, run the full Phase 1 verification set:
 cd backend
 mvn test
 cd ../frontend
-npm run test -- --run
+npm run test
 npm run build
 ```
 

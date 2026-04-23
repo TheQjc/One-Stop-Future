@@ -23,7 +23,7 @@ const initialValue = computed(() => ({
 
 const currentFileLabel = computed(() => {
   if (!detail.value?.fileName) {
-    return "No archived file is attached yet.";
+    return "当前还没有关联文件。";
   }
 
   return `${detail.value.fileName} · ${formatSize(detail.value.fileSize)}`;
@@ -53,7 +53,7 @@ async function loadDetail() {
     detail.value = await getResourceDetail(route.params.id);
   } catch (error) {
     detail.value = null;
-    errorMessage.value = error.message || "Resource detail loading failed. Please try again.";
+    errorMessage.value = error.message || "资源详情加载失败，请稍后重试。";
   } finally {
     loading.value = false;
   }
@@ -66,10 +66,10 @@ async function handleSubmit(payload) {
 
   try {
     await updateResource(route.params.id, payload);
-    formMessage.value = "Revision submitted. Redirecting to your resource records...";
+    formMessage.value = "修改已提交，正在返回我的资源记录...";
     router.push("/profile/resources");
   } catch (error) {
-    formError.value = error.message || "Revision failed. Please try again.";
+    formError.value = error.message || "修改提交失败，请稍后重试。";
   } finally {
     submitting.value = false;
   }
@@ -82,62 +82,61 @@ watch(() => route.params.id, loadDetail, { immediate: true });
   <section class="page-stack">
     <article class="section-card edit-hero">
       <div class="edit-hero__copy">
-        <span class="section-eyebrow">Revision Intake</span>
-        <h1 class="hero-title" style="margin-top: 18px;">Edit And Resubmit</h1>
+        <span class="section-eyebrow">修改并重提</span>
+        <h1 class="hero-title" style="margin-top: 18px;">编辑并重新提交</h1>
         <hr class="editorial-rule" />
         <p class="hero-copy">
-          Tighten the metadata, keep the file if it is still usable, and send the record back into
-          review without creating a parallel archive entry.
+          优化元信息，如果原文件仍可用就继续沿用，再把这条记录送回审核，而不是额外新建一条资源记录。
         </p>
       </div>
 
       <div class="edit-hero__panel">
         <article class="panel-card">
-          <strong>Current Status</strong>
+          <strong>当前状态</strong>
           <p class="meta-copy" style="margin-top: 12px;">
-            {{ detail?.status || "Loading" }}
+            {{ detail?.status || "正在加载" }}
           </p>
         </article>
         <article class="panel-card edit-hero__note">
-          <strong>Review Note</strong>
+          <strong>审核说明</strong>
           <p class="meta-copy" style="margin-top: 12px;">
-            {{ detail?.rejectReason || "No review note available." }}
+            {{ detail?.rejectReason || "暂无审核说明。" }}
           </p>
         </article>
         <article class="panel-card">
-          <strong>Current File</strong>
+          <strong>当前文件</strong>
           <p class="meta-copy" style="margin-top: 12px;">
             {{ currentFileLabel }}
           </p>
         </article>
         <RouterLink to="/profile/resources" class="ghost-btn">
-          Back To My Records
+          返回我的记录
         </RouterLink>
       </div>
     </article>
 
     <article v-if="loading" class="section-card">
-      <div class="empty-state">Loading the rejected resource...</div>
+      <div class="empty-state">正在加载被退回的资源...</div>
     </article>
 
     <article v-else-if="errorMessage" class="section-card">
       <div class="field-grid">
         <p class="field-error" role="alert">{{ errorMessage }}</p>
         <button type="button" class="ghost-btn" @click="loadDetail">
-          Retry
+          重试
         </button>
       </div>
     </article>
 
     <article v-else-if="!detail?.editableByMe" class="section-card">
       <div class="field-grid">
-        <p class="field-error" role="alert">This resource cannot be edited in the current state.</p>
+        <p class="field-error" role="alert">当前状态下，这条资源暂时不能编辑。</p>
         <p class="meta-copy">
-          Only rejected records owned by you can be revised from this screen.
+          只有你本人被退回的资源，才能在这个页面继续修改并重新提交。
         </p>
         <div class="inline-form-actions">
           <RouterLink to="/profile/resources" class="ghost-btn">
-            Return To My Records
+            返回我的记录
           </RouterLink>
         </div>
       </div>
@@ -152,7 +151,7 @@ watch(() => route.params.id, loadDetail, { immediate: true });
       :error-message="formError"
       :info-message="formMessage"
       cancel-to="/profile/resources"
-      cancel-label="Back To My Records"
+      cancel-label="返回我的记录"
       @submit="handleSubmit"
     />
   </section>

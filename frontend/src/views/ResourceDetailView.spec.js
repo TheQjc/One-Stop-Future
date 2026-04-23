@@ -120,8 +120,8 @@ test("resource detail shows Preview for FILE resources and opens blob preview", 
   const wrapper = mountView();
   await flushPromises();
 
-  expect(wrapper.text()).toContain("Preview");
-  expect(wrapper.text()).not.toContain("Preview PDF");
+  expect(wrapper.text()).toContain("预览");
+  expect(wrapper.text()).not.toContain("查看目录");
 
   await wrapper.find('[data-testid="preview-action"]').trigger("click");
   await flushPromises();
@@ -148,7 +148,7 @@ test("resource detail shows Preview Contents for ZIP resources and loads the tre
   const wrapper = mountView();
   await flushPromises();
 
-  expect(wrapper.text()).toContain("Preview Contents");
+  expect(wrapper.text()).toContain("查看目录");
 
   await wrapper.find('[data-testid="preview-action"]').trigger("click");
   await flushPromises();
@@ -172,8 +172,8 @@ test("resource detail lets docx resources use the generic FILE preview flow", as
   await flushPromises();
 
   expect(wrapper.find('[data-testid="preview-action"]').exists()).toBe(true);
-  expect(wrapper.text()).toContain("Preview");
-  expect(wrapper.text()).not.toContain("Preview Contents");
+  expect(wrapper.text()).toContain("预览");
+  expect(wrapper.text()).not.toContain("查看目录");
 
   await wrapper.find('[data-testid="preview-action"]').trigger("click");
   await flushPromises();
@@ -195,7 +195,7 @@ test("favorites and downloads a resource for authenticated users", async () => {
   await flushPromises();
 
   expect(favoriteResource).toHaveBeenCalledWith(11);
-  expect(wrapper.text()).toContain("Remove From Collection");
+  expect(wrapper.text()).toContain("取消收藏");
 
   await wrapper.find('[data-testid="download-action"]').trigger("click");
   await flushPromises();

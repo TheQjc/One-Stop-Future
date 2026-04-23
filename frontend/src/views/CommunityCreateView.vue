@@ -68,12 +68,11 @@ async function handleSubmit() {
 <template>
   <section class="page-stack">
     <article class="section-card community-create-hero">
-      <span class="section-eyebrow">Write a Post</span>
-      <h1 class="hero-title" style="margin-top: 18px;">Write the main story first, then add structure where it helps.</h1>
+      <span class="section-eyebrow">发布帖子</span>
+      <h1 class="hero-title" style="margin-top: 18px;">先把核心经历讲清楚，再按需要补充结构化信息。</h1>
       <hr class="editorial-rule" />
       <p class="hero-copy">
-        Community posts can stay lightweight, or you can switch on the optional experience layer to summarize
-        target, outcome, timeline, and actionable notes for readers.
+        你可以先用轻量方式发帖；如果希望读者更快抓住重点，也可以开启经历摘要，把目标、结果、时间线和行动建议整理出来。
       </p>
     </article>
 
@@ -127,55 +126,55 @@ async function handleSubmit() {
               type="checkbox"
             />
             <div class="experience-panel__toggle-copy">
-              <strong>Add experience structure</strong>
-              <span class="meta-copy">Turn this on when you want the post to surface a quick summary card.</span>
+              <strong>添加经历结构</strong>
+              <span class="meta-copy">如果你希望帖子自动生成一张摘要卡片，可以打开这个选项。</span>
             </div>
           </label>
 
           <div v-if="form.experiencePost" class="field-grid experience-panel__fields">
             <label class="field-label">
-              Target
+              目标
               <input
                 v-model.trim="form.experienceTargetLabel"
                 class="field-control"
                 name="experience-target-label"
                 type="text"
                 maxlength="120"
-                placeholder="Backend internship sprint"
+                placeholder="例如：后端实习冲刺"
               />
             </label>
 
             <label class="field-label">
-              Outcome
+              结果
               <input
                 v-model.trim="form.experienceOutcomeLabel"
                 class="field-control"
                 name="experience-outcome-label"
                 type="text"
                 maxlength="120"
-                placeholder="Received 2 interview invitations"
+                placeholder="例如：拿到 2 个面试邀请"
               />
             </label>
 
             <label class="field-label">
-              Timeline
+              时间线
               <textarea
                 v-model.trim="form.experienceTimelineSummary"
                 class="field-textarea"
                 name="experience-timeline-summary"
                 maxlength="255"
-                placeholder="Week 1 resume refresh, week 2 projects, week 3 applications"
+                placeholder="例如：第 1 周改简历，第 2 周补项目，第 3 周集中投递"
               />
             </label>
 
             <label class="field-label">
-              Action notes
+              行动提醒
               <textarea
                 v-model.trim="form.experienceActionSummary"
                 class="field-textarea"
                 name="experience-action-summary"
                 maxlength="500"
-                placeholder="Refine one showcase project, then batch tailored applications."
+                placeholder="例如：先打磨一个代表项目，再批量投递更匹配的岗位。"
               />
             </label>
           </div>

@@ -40,17 +40,16 @@ const summary = ref(createEmptySummary());
 
 function formatTime(value) {
   if (!value) {
-    return "Just now";
+    return "刚刚";
   }
 
   const date = new Date(value);
-
   if (Number.isNaN(date.getTime())) {
-    return "Just now";
+    return "刚刚";
   }
 
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
+  return new Intl.DateTimeFormat("zh-CN", {
+    month: "numeric",
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
@@ -59,187 +58,180 @@ function formatTime(value) {
 
 function communityStatusLabel(status) {
   const labelMap = {
-    PUBLISHED: "Published",
-    HIDDEN: "Hidden",
-    DELETED: "Deleted",
+    PUBLISHED: "已发布",
+    HIDDEN: "已隐藏",
+    DELETED: "已删除",
   };
 
-  return labelMap[status] || status || "Open";
+  return labelMap[status] || status || "处理中";
 }
 
 function communityStatusTone(status) {
   if (status === "DELETED") {
     return "danger";
   }
-
   if (status === "HIDDEN") {
     return "quiet";
   }
-
   return "success";
 }
 
 function jobStatusLabel(status) {
   const labelMap = {
-    DRAFT: "Draft",
-    PUBLISHED: "Published",
-    OFFLINE: "Offline",
+    DRAFT: "草稿",
+    PUBLISHED: "已发布",
+    OFFLINE: "已下线",
   };
 
-  return labelMap[status] || status || "Open";
+  return labelMap[status] || status || "处理中";
 }
 
 function jobStatusTone(status) {
   if (status === "OFFLINE") {
     return "quiet";
   }
-
   if (status === "PUBLISHED") {
     return "success";
   }
-
   return "warm";
 }
 
 function resourceStatusLabel(status) {
   const labelMap = {
-    PENDING: "Pending",
-    PUBLISHED: "Published",
-    REJECTED: "Rejected",
-    OFFLINE: "Offline",
+    PENDING: "待审核",
+    PUBLISHED: "已发布",
+    REJECTED: "已驳回",
+    OFFLINE: "已下线",
   };
 
-  return labelMap[status] || status || "Open";
+  return labelMap[status] || status || "处理中";
 }
 
 function resourceStatusTone(status) {
   if (status === "PUBLISHED") {
     return "success";
   }
-
   if (status === "REJECTED") {
     return "danger";
   }
-
   if (status === "OFFLINE") {
     return "quiet";
   }
-
   return "warm";
 }
 
 const sections = computed(() => [
   {
     key: "verification",
-    eyebrow: "Verification Desk",
-    title: "Verification queue",
-    intro: "Keep the student-verification line moving from one quiet overview before opening the full review desk.",
+    eyebrow: "认证审核",
+    title: "认证队列",
+    intro: "先在总览里查看待审数量和今日处理量，再进入完整审核台处理具体申请。",
     statsClass: "admin-desk-card__stats--compact",
     stats: [
-      { label: "Pending", value: summary.value.verification.pendingCount },
-      { label: "Reviewed Today", value: summary.value.verification.reviewedToday },
+      { label: "待审核", value: summary.value.verification.pendingCount },
+      { label: "今日已审", value: summary.value.verification.reviewedToday },
     ],
     items: summary.value.verification.latestPendingApplications.map((item) => ({
       id: item.id,
-      eyebrow: `Application #${item.id}`,
-      title: item.applicantNickname || item.realName || "Unknown applicant",
+      eyebrow: `申请 #${item.id}`,
+      title: item.applicantNickname || item.realName || "未知申请人",
       meta: [
-        item.realName || "No real name filed",
-        item.studentId || "No student ID",
-        `Submitted ${formatTime(item.createdAt)}`,
+        item.realName || "未填写姓名",
+        item.studentId || "未填写学号",
+        `提交于 ${formatTime(item.createdAt)}`,
       ].join(" · "),
-      status: "Pending",
+      status: "待审核",
       tone: "warm",
     })),
-    emptyText: "No applications are waiting on the line.",
+    emptyText: "当前没有待审核申请。",
     ctaTo: "/admin/verifications",
-    ctaLabel: "Open verification desk",
+    ctaLabel: "进入认证审核台",
   },
   {
     key: "community",
-    eyebrow: "Community Desk",
-    title: "Community watch",
-    intro: "Read the current post mix, then move into the moderation surface only when a thread needs action.",
+    eyebrow: "社区治理",
+    title: "社区看板",
+    intro: "先看当前帖子状态分布，再按需要进入治理页处理具体内容。",
     statsClass: "admin-desk-card__stats--wide",
     stats: [
-      { label: "All Posts", value: summary.value.community.totalCount },
-      { label: "Published", value: summary.value.community.publishedCount },
-      { label: "Hidden", value: summary.value.community.hiddenCount },
-      { label: "Deleted", value: summary.value.community.deletedCount },
+      { label: "全部帖子", value: summary.value.community.totalCount },
+      { label: "已发布", value: summary.value.community.publishedCount },
+      { label: "已隐藏", value: summary.value.community.hiddenCount },
+      { label: "已删除", value: summary.value.community.deletedCount },
     ],
     items: summary.value.community.latestPosts.map((item) => ({
       id: item.id,
-      eyebrow: `Post #${item.id}`,
-      title: item.title || "Untitled post",
+      eyebrow: `帖子 #${item.id}`,
+      title: item.title || "未命名帖子",
       meta: [
-        item.authorNickname || "Unknown author",
-        item.tag || "General",
-        `${item.likeCount || 0} likes`,
-        `Filed ${formatTime(item.createdAt)}`,
+        item.authorNickname || "未知作者",
+        item.tag || "未分类",
+        `赞 ${item.likeCount || 0}`,
+        `提交于 ${formatTime(item.createdAt)}`,
       ].join(" · "),
       status: communityStatusLabel(item.status),
       tone: communityStatusTone(item.status),
     })),
-    emptyText: "No recent posts have reached the desk.",
+    emptyText: "当前没有最近帖子需要展示。",
     ctaTo: "/admin/community",
-    ctaLabel: "Open community desk",
+    ctaLabel: "进入社区治理页",
   },
   {
     key: "jobs",
-    eyebrow: "Jobs Desk",
-    title: "Jobs board",
-    intro: "Track how much of the jobs shelf is draft, live, or resting offline before entering the editor.",
+    eyebrow: "岗位管理",
+    title: "岗位看板",
+    intro: "先查看草稿、已发布和已下线岗位的分布，再进入编辑页处理具体记录。",
     statsClass: "admin-desk-card__stats--wide",
     stats: [
-      { label: "All Jobs", value: summary.value.jobs.totalCount },
-      { label: "Draft", value: summary.value.jobs.draftCount },
-      { label: "Published", value: summary.value.jobs.publishedCount },
-      { label: "Offline", value: summary.value.jobs.offlineCount },
+      { label: "全部岗位", value: summary.value.jobs.totalCount },
+      { label: "草稿", value: summary.value.jobs.draftCount },
+      { label: "已发布", value: summary.value.jobs.publishedCount },
+      { label: "已下线", value: summary.value.jobs.offlineCount },
     ],
     items: summary.value.jobs.latestActionableJobs.map((item) => ({
       id: item.id,
-      eyebrow: `Job #${item.id}`,
-      title: item.title || "Untitled job",
+      eyebrow: `岗位 #${item.id}`,
+      title: item.title || "未命名岗位",
       meta: [
-        item.companyName || "Unknown company",
-        item.city || "City not set",
-        item.sourcePlatform || "Source not set",
-        `Updated ${formatTime(item.updatedAt || item.publishedAt || item.deadlineAt)}`,
+        item.companyName || "未知公司",
+        item.city || "城市未填写",
+        item.sourcePlatform || "来源未填写",
+        `更新于 ${formatTime(item.updatedAt || item.publishedAt || item.deadlineAt)}`,
       ].join(" · "),
       status: jobStatusLabel(item.status),
       tone: jobStatusTone(item.status),
     })),
-    emptyText: "No draft or offline jobs are on the board.",
+    emptyText: "当前没有草稿或待处理岗位。",
     ctaTo: "/admin/jobs",
-    ctaLabel: "Open jobs desk",
+    ctaLabel: "进入岗位管理页",
   },
   {
     key: "resources",
-    eyebrow: "Resources Desk",
-    title: "Resources shelf",
-    intro: "Hold the pending resource line, published stock, and closed records on one readable board.",
+    eyebrow: "资源审核",
+    title: "资源看板",
+    intro: "把待审核、已发布和已关闭资源集中展示，便于快速进入具体审核流程。",
     statsClass: "admin-desk-card__stats--wide",
     stats: [
-      { label: "All Records", value: summary.value.resources.totalCount },
-      { label: "Pending", value: summary.value.resources.pendingCount },
-      { label: "Published", value: summary.value.resources.publishedCount },
-      { label: "Closed", value: summary.value.resources.closedCount },
+      { label: "全部记录", value: summary.value.resources.totalCount },
+      { label: "待审核", value: summary.value.resources.pendingCount },
+      { label: "已发布", value: summary.value.resources.publishedCount },
+      { label: "已关闭", value: summary.value.resources.closedCount },
     ],
     items: summary.value.resources.latestPendingResources.map((item) => ({
       id: item.id,
-      eyebrow: `Resource #${item.id}`,
-      title: item.title || "Untitled resource",
+      eyebrow: `资源 #${item.id}`,
+      title: item.title || "未命名资源",
       meta: [
-        item.uploaderNickname || "Unknown uploader",
-        item.fileName || "File pending",
-        `Filed ${formatTime(item.createdAt)}`,
+        item.uploaderNickname || "未知上传者",
+        item.fileName || "文件待补充",
+        `提交于 ${formatTime(item.createdAt)}`,
       ].join(" · "),
       status: resourceStatusLabel(item.status),
       tone: resourceStatusTone(item.status),
     })),
-    emptyText: "No resources are waiting on the shelf.",
+    emptyText: "当前没有待处理资源。",
     ctaTo: "/admin/resources",
-    ctaLabel: "Open resources desk",
+    ctaLabel: "进入资源审核页",
   },
 ]);
 
@@ -250,7 +242,7 @@ async function loadSummary() {
   try {
     summary.value = await getAdminDashboardSummary();
   } catch (error) {
-    pageError.value = error.message || "The operations board could not be loaded. Please try again.";
+    pageError.value = error.message || "管理总览加载失败，请稍后重试。";
   } finally {
     loading.value = false;
   }
@@ -263,17 +255,17 @@ onMounted(loadSummary);
   <section class="page-stack">
     <article v-if="loading" class="section-card">
       <div class="empty-state admin-dashboard__page-state">
-        Loading the operations board...
+        正在加载管理总览...
       </div>
     </article>
 
     <article v-else-if="pageError" class="section-card">
       <div class="section-header">
         <div>
-          <span class="section-eyebrow">Admin Desk</span>
-          <h1 class="page-title" style="margin-top: 16px;">Operations board</h1>
+          <span class="section-eyebrow">管理总览</span>
+          <h1 class="page-title" style="margin-top: 16px;">运营看板</h1>
           <p class="page-subtitle" style="margin-top: 16px;">
-            The overview did not arrive, so the board is holding on a single retry surface.
+            总览数据暂时未返回，请先在这里重试，再继续进入具体管理页面。
           </p>
         </div>
       </div>
@@ -281,7 +273,7 @@ onMounted(loadSummary);
       <div class="field-grid admin-dashboard__page-state">
         <p class="field-error" role="alert">{{ pageError }}</p>
         <button type="button" class="ghost-btn" @click="loadSummary">
-          Retry board
+          重试
         </button>
       </div>
     </article>
@@ -290,31 +282,28 @@ onMounted(loadSummary);
       <article class="section-card">
         <div class="section-header">
           <div>
-            <span class="section-eyebrow">Admin Desk</span>
-            <h1 class="page-title" style="margin-top: 16px;">Operations board</h1>
+            <span class="section-eyebrow">管理总览</span>
+            <h1 class="page-title" style="margin-top: 16px;">运营看板</h1>
             <p class="page-subtitle" style="margin-top: 16px;">
-              Read the active queues, note what has moved today, and step into the right desk only
-              when the board says it is time.
+              先看各条队列的状态和今日变化，再进入对应管理页处理具体事项。
             </p>
           </div>
         </div>
 
         <div class="dashboard-grid admin-dashboard__lead">
           <article class="panel-card admin-dashboard__lead-card">
-            <p class="admin-dashboard__lead-label">Morning read</p>
-            <strong>Four desks, one quiet surface.</strong>
+            <p class="admin-dashboard__lead-label">今日概览</p>
+            <strong>四类工作台，一页总览。</strong>
             <p class="meta-copy">
-              Verification, community, jobs, and resources stay readable here before deeper work
-              begins elsewhere.
+              认证、社区、岗位和资源会先在这里集中展示，再分流到各自管理页面。
             </p>
           </article>
 
           <article class="panel-card admin-dashboard__lead-card">
-            <p class="admin-dashboard__lead-label">Scope</p>
-            <strong>Overview only.</strong>
+            <p class="admin-dashboard__lead-label">边界说明</p>
+            <strong>这里只做总览，不直接改动数据。</strong>
             <p class="meta-copy">
-              This board is intentionally non-destructive. It points to the full desks instead of
-              placing mutation controls on the page.
+              这个页面只负责指向完整工作台，不在总览页直接放置破坏性操作按钮。
             </p>
           </article>
         </div>
@@ -349,7 +338,7 @@ onMounted(loadSummary);
 
           <div class="field-grid admin-desk-card__body">
             <div class="field-grid admin-desk-card__recent">
-              <h3 class="admin-desk-card__subhead">Recent line</h3>
+              <h3 class="admin-desk-card__subhead">最新动态</h3>
 
               <div
                 v-if="section.items.length === 0"
