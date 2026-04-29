@@ -3,6 +3,7 @@ import { computed, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { getSearchResults } from "../api/search.js";
 import SearchResultCard from "../components/SearchResultCard.vue";
+import HighlightText from "../components/HighlightText.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -13,6 +14,9 @@ const TYPE_OPTIONS = [
   { value: "POST", label: "帖子" },
   { value: "JOB", label: "岗位" },
   { value: "RESOURCE", label: "资料" },
+  { value: "RESUME", label: "简历" },
+  { value: "NOTIFICATION", label: "通知" },
+  { value: "APPLICATION", label: "投递" },
 ];
 
 const SORT_OPTIONS = [
@@ -27,7 +31,7 @@ const results = ref({
   query: "",
   type: "ALL",
   sort: "RELEVANCE",
-  totals: { all: 0, post: 0, job: 0, resource: 0 },
+  totals: { all: 0, post: 0, job: 0, resource: 0, resume: 0, notification: 0, application: 0 },
   results: [],
 });
 
@@ -36,7 +40,7 @@ function createEmptyResults(state = normalizedRouteState.value) {
     query: state.q || "",
     type: state.type || "ALL",
     sort: state.sort || "RELEVANCE",
-    totals: { all: 0, post: 0, job: 0, resource: 0 },
+    totals: { all: 0, post: 0, job: 0, resource: 0, resume: 0, notification: 0, application: 0 },
     results: [],
   };
 }
@@ -62,6 +66,9 @@ const totalCards = computed(() => [
   { label: "帖子", value: results.value.totals?.post ?? 0 },
   { label: "岗位", value: results.value.totals?.job ?? 0 },
   { label: "资料", value: results.value.totals?.resource ?? 0 },
+  { label: "简历", value: results.value.totals?.resume ?? 0 },
+  { label: "通知", value: results.value.totals?.notification ?? 0 },
+  { label: "投递", value: results.value.totals?.application ?? 0 },
 ]);
 
 const summaryLine = computed(() => {
@@ -363,6 +370,12 @@ watch(
 
 .search-stats {
   grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+@media (max-width: 1199px) {
+  .search-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .search-stats__card {
