@@ -11,6 +11,17 @@ spring:
     multipart:
       max-file-size: 100MB
       max-request-size: 100MB
+  data:
+    redis:
+      host: 114.132.220.42
+      port: 16379
+      password: Rd_8xY2kP!mQ
+      database: 0
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
 
 app:
   resource-storage:
@@ -28,6 +39,7 @@ platform:
   integrations:
     redis:
       enabled: false
+      ttl-seconds: 60
     elasticsearch:
       enabled: false
     minio:

@@ -18,6 +18,17 @@ spring:
       max-request-size: 100MB
   jackson:
     time-zone: Asia/Shanghai
+  data:
+    redis:
+      host: ${REDIS_HOST:114.132.220.42}
+      port: ${REDIS_PORT:16379}
+      password: ${REDIS_PASSWORD:Rd_8xY2kP!mQ}
+      database: ${REDIS_DATABASE:0}
+      lettuce:
+        pool:
+          max-active: ${REDIS_POOL_MAX_ACTIVE:8}
+          max-idle: ${REDIS_POOL_MAX_IDLE:8}
+          min-idle: ${REDIS_POOL_MIN_IDLE:0}
 
 mybatis-plus:
   configuration:
@@ -43,9 +54,7 @@ platform:
   integrations:
     redis:
       enabled: ${REDIS_ENABLED:false}
-      host: ${REDIS_HOST:127.0.0.1}
-      port: ${REDIS_PORT:6379}
-      database: ${REDIS_DATABASE:0}
+      ttl-seconds: ${REDIS_CACHE_TTL_SECONDS:60}
     elasticsearch:
       enabled: ${ES_ENABLED:false}
       uris: ${ES_URIS:http://127.0.0.1:9200}

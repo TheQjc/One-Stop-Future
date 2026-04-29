@@ -50,6 +50,20 @@ class ApplicationConfigSafetyTests {
     }
 
     @Test
+    void defaultApplicationConfigKeepsRedisDisabledButProvidesConnectionTemplate() {
+        Properties properties = loadYaml(Path.of("src", "main", "resources", "application.yml"));
+
+        assertThat(properties.getProperty("platform.integrations.redis.enabled"))
+                .isEqualTo("${REDIS_ENABLED:false}");
+        assertThat(properties.getProperty("platform.integrations.redis.ttl-seconds"))
+                .isEqualTo("${REDIS_CACHE_TTL_SECONDS:60}");
+        assertThat(properties.getProperty("spring.data.redis.host"))
+                .isEqualTo("${REDIS_HOST:114.132.220.42}");
+        assertThat(properties.getProperty("spring.data.redis.port"))
+                .isEqualTo("${REDIS_PORT:16379}");
+    }
+
+    @Test
     void localAndTestConfigsKeepJobSyncDisabledWithoutPinnedFeedUrl() {
         Properties localProperties = loadYaml(Path.of("src", "main", "resources", "application-local.yml"));
         Properties testProperties = loadYaml(Path.of("src", "test", "resources", "application.yml"));

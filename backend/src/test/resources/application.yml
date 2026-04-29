@@ -9,6 +9,12 @@ spring:
       mode: always
   jackson:
     time-zone: Asia/Shanghai
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      password:
+      database: 0
 
 mybatis-plus:
   configuration:
@@ -27,9 +33,7 @@ platform:
   integrations:
     redis:
       enabled: false
-      host: 127.0.0.1
-      port: 6379
-      database: 0
+      ttl-seconds: 60
     elasticsearch:
       enabled: false
       uris: http://127.0.0.1:9200

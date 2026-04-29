@@ -35,6 +35,7 @@ import com.campus.mapper.CommunityCommentMapper;
 import com.campus.mapper.CommunityPostLikeMapper;
 import com.campus.mapper.CommunityPostMapper;
 import com.campus.mapper.UserFavoriteMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 @Service
 public class CommunityService {
@@ -54,21 +55,30 @@ public class CommunityService {
     private final UserFavoriteMapper userFavoriteMapper;
     private final UserService userService;
     private final NotificationService notificationService;
+    private final PlatformCacheService cacheService;
 
     public CommunityService(CommunityPostMapper communityPostMapper, CommunityCommentMapper communityCommentMapper,
             CommunityPostLikeMapper communityPostLikeMapper, UserFavoriteMapper userFavoriteMapper,
-            UserService userService, NotificationService notificationService) {
+            UserService userService, NotificationService notificationService, PlatformCacheService cacheService) {
         this.communityPostMapper = communityPostMapper;
         this.communityCommentMapper = communityCommentMapper;
         this.communityPostLikeMapper = communityPostLikeMapper;
         this.userFavoriteMapper = userFavoriteMapper;
         this.userService = userService;
         this.notificationService = notificationService;
+        this.cacheService = cacheService;
     }
 
     public CommunityHotPostListResponse listHotPosts(String period, Integer limit) {
         CommunityHotPeriodType normalizedPeriod = normalizeHotPeriod(period);
         int normalizedLimit = normalizeHotLimit(limit);
+        String cacheKey = "campus:community:hot:%s:%d".formatted(normalizedPeriod.name(), normalizedLimit);
+        return cacheService.getOrLoad(cacheKey, new TypeReference<CommunityHotPostListResponse>() {
+        }, () -> listHotPostsFromSource(normalizedPeriod, normalizedLimit));
+    }
+
+    private CommunityHotPostListResponse listHotPostsFromSource(CommunityHotPeriodType normalizedPeriod,
+            int normalizedLimit) {
         List<CommunityHotPostListResponse.HotPostItem> filteredItems = communityPostMapper.selectList(
                 new LambdaQueryWrapper<CommunityPost>()
                         .eq(CommunityPost::getStatus, CommunityPostStatus.PUBLISHED.name()))

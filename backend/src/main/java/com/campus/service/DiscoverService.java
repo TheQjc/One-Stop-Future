@@ -18,6 +18,7 @@ import com.campus.entity.CommunityPost;
 import com.campus.entity.JobPosting;
 import com.campus.entity.ResourceItem;
 import com.campus.entity.User;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 @Service
 public class DiscoverService {
@@ -30,20 +31,29 @@ public class DiscoverService {
     private final JobService jobService;
     private final ResourceService resourceService;
     private final UserService userService;
+    private final PlatformCacheService cacheService;
 
     public DiscoverService(CommunityService communityService, JobService jobService, ResourceService resourceService,
-            UserService userService) {
+            UserService userService, PlatformCacheService cacheService) {
         this.communityService = communityService;
         this.jobService = jobService;
         this.resourceService = resourceService;
         this.userService = userService;
+        this.cacheService = cacheService;
     }
 
     public DiscoverResponse discover(String tab, String period, Integer limit) {
         DiscoverContentType normalizedTab = normalizeTab(tab);
         DiscoverPeriodType normalizedPeriod = normalizePeriod(period);
         int normalizedLimit = normalizeLimit(limit);
+        String cacheKey = "campus:discover:%s:%s:%d".formatted(
+                normalizedTab.name(), normalizedPeriod.name(), normalizedLimit);
+        return cacheService.getOrLoad(cacheKey, new TypeReference<DiscoverResponse>() {
+        }, () -> discoverFromSource(normalizedTab, normalizedPeriod, normalizedLimit));
+    }
 
+    private DiscoverResponse discoverFromSource(DiscoverContentType normalizedTab, DiscoverPeriodType normalizedPeriod,
+            int normalizedLimit) {
         List<DiscoverItemView> postItems = communityService.listPublishedDiscoverPosts().stream()
                 .filter(post -> matchesPeriod(post.getCreatedAt(), normalizedPeriod))
                 .map(post -> toPostItem(post, normalizedPeriod))

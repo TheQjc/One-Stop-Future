@@ -13,6 +13,7 @@ import com.campus.dto.HomeSummaryResponse;
 import com.campus.entity.User;
 import com.campus.entity.VerificationApplication;
 import com.campus.mapper.VerificationApplicationMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 @Service
 public class HomeService {
@@ -26,13 +27,16 @@ public class HomeService {
     private final NotificationService notificationService;
     private final VerificationApplicationMapper verificationApplicationMapper;
     private final DiscoverService discoverService;
+    private final PlatformCacheService cacheService;
 
     public HomeService(UserService userService, NotificationService notificationService,
-            VerificationApplicationMapper verificationApplicationMapper, DiscoverService discoverService) {
+            VerificationApplicationMapper verificationApplicationMapper, DiscoverService discoverService,
+            PlatformCacheService cacheService) {
         this.userService = userService;
         this.notificationService = notificationService;
         this.verificationApplicationMapper = verificationApplicationMapper;
         this.discoverService = discoverService;
+        this.cacheService = cacheService;
     }
 
     public HomeSummaryResponse getSummary(Authentication authentication) {
@@ -81,9 +85,12 @@ public class HomeService {
 
     private HomeSummaryResponse.DiscoverPreview loadDiscoverPreview() {
         try {
-            return new HomeSummaryResponse.DiscoverPreview(
-                    "WEEK",
-                    discoverService.previewForHome(HOME_DISCOVER_PREVIEW_LIMIT));
+            return cacheService.getOrLoad("campus:home:discover-preview:week:" + HOME_DISCOVER_PREVIEW_LIMIT,
+                    new TypeReference<HomeSummaryResponse.DiscoverPreview>() {
+                    },
+                    () -> new HomeSummaryResponse.DiscoverPreview(
+                            "WEEK",
+                            discoverService.previewForHome(HOME_DISCOVER_PREVIEW_LIMIT)));
         } catch (RuntimeException exception) {
             log.warn("Failed to load home discover preview", exception);
             return new HomeSummaryResponse.DiscoverPreview("WEEK", List.of());
