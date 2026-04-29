@@ -73,16 +73,20 @@ test("navbar keeps authenticated navigation while exposing discover, search, and
 
   const wrapper = mountNavBar();
   const text = wrapper.text();
+  const navHtml = wrapper.find("nav").html();
 
   expect(wrapper.html()).toContain('data-to="/discover"');
   expect(wrapper.html()).toContain('data-to="/search"');
   expect(wrapper.html()).toContain('data-to="/profile"');
   expect(wrapper.html()).toContain('data-to="/notifications"');
+  expect(navHtml).not.toContain('data-to="/profile"');
+  expect(wrapper.get(".site-user").attributes("data-to")).toBe("/profile");
   expect(wrapper.html()).toContain('data-to="/admin/dashboard"');
   expect(wrapper.html()).toContain('data-to="/admin/users"');
   expect(wrapper.html()).toContain('data-to="/admin/verifications"');
   expect(wrapper.html()).toContain('data-to="/admin/community"');
   expect(text).toContain("我的");
+  expect(text).toContain("Admin");
   expect(text).toContain("通知");
   expect(text).toContain("运营总览");
   expect(text).toContain("用户管理");
