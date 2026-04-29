@@ -192,7 +192,7 @@ test("renders guest hero copy in approved Chinese wording with live resources li
   expect(wrapper.get('[data-test="home-hero-copy"]').text()).toBe("公开内容、常用入口和成长方向会集中展示，先帮你看清选择，再进入具体模块。");
   expect(wrapper.get('[data-test="home-search-label"]').text()).toBe("站内搜索");
   expect(wrapper.get('input[name="home-search"]').attributes("placeholder")).toBe("搜索经验帖、岗位、院校、资料");
-  expect(wrapper.get(".hero-search__submit").text()).toBe("搜索");
+  expect(wrapper.get('button[type="submit"]').text()).toBe("搜索");
   expect(wrapper.get('[data-test="home-status-chip"]').text()).toBe("首页服务已开启");
   expect(wrapper.get('[data-test="home-primary-cta"]').text()).toBe("登录查看个人待办");
   expect(wrapper.get('[data-test="home-secondary-cta"]').text()).toBe("立即注册");
@@ -262,7 +262,7 @@ test("home keeps common entry section before growth directions", async () => {
   const wrapper = mountView();
   await flushPromises();
 
-  const orderedSections = wrapper.findAll('article.section-card[data-test]').map((node) => node.attributes("data-test"));
+  const orderedSections = wrapper.findAll('article[data-test^="home-section-"][data-test]').map((node) => node.attributes("data-test"));
 
   expect(orderedSections).toContain("home-section-entries");
   expect(orderedSections).toContain("home-section-tracks");
@@ -334,7 +334,7 @@ test("admin home shows the dashboard link before the existing admin destinations
   const wrapper = mountView();
   await flushPromises();
 
-  const linkTargets = wrapper.findAll(".service-grid a[data-to]").map((node) => node.attributes("data-to"));
+  const linkTargets = wrapper.findAll('[data-test="home-section-entries"] a[data-to]').map((node) => node.attributes("data-to"));
 
   expect(linkTargets).toEqual(expect.arrayContaining([
     "/admin/dashboard",
