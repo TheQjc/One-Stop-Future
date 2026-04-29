@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from "vue";
 import { RouterLink } from "vue-router";
+import HighlightText from "./HighlightText.vue";
 
 const props = defineProps({
   item: {
@@ -13,12 +14,18 @@ const typeLabels = {
   POST: "社区",
   JOB: "岗位",
   RESOURCE: "资料",
+  RESUME: "简历",
+  NOTIFICATION: "通知",
+  APPLICATION: "投递",
 };
 
 const typeClasses = {
   POST: "search-result-card__type--post",
   JOB: "search-result-card__type--job",
   RESOURCE: "search-result-card__type--resource",
+  RESUME: "search-result-card__type--resume",
+  NOTIFICATION: "search-result-card__type--notification",
+  APPLICATION: "search-result-card__type--application",
 };
 
 const localizedType = computed(() => typeLabels[props.item.type] || props.item.type || "结果");
@@ -50,8 +57,22 @@ function formatDate(value) {
     </div>
 
     <div class="search-result-card__body">
-      <h3 class="search-result-card__title">{{ item.title }}</h3>
-      <p class="search-result-card__summary">{{ item.summary || "暂未提供内容摘要" }}</p>
+      <h3 class="search-result-card__title">
+        <HighlightText
+          :html="item.highlightedTitle"
+          :text="item.title"
+          tag="span"
+          class-name="highlight-text"
+        />
+      </h3>
+      <p class="search-result-card__summary">
+        <HighlightText
+          :html="item.highlightedSummary"
+          :text="item.summary || '暂未提供内容摘要'"
+          tag="span"
+          class-name="highlight-text"
+        />
+      </p>
     </div>
 
     <div class="search-result-card__meta">
@@ -146,5 +167,30 @@ function formatDate(value) {
 
 .search-result-card__summary {
   line-height: 1.7;
+}
+
+:deep(.highlight-text),
+.search-result-card__title :deep(.search-highlight),
+.search-result-card__summary :deep(.search-highlight) {
+  background-color: var(--cp-highlight-bg);
+  color: var(--cp-highlight-color);
+  border-radius: var(--cp-highlight-radius);
+  padding: 0 2px;
+  font-style: normal;
+}
+
+.search-result-card__type--resume {
+  background: rgba(145, 98, 28, 0.12);
+  color: var(--cp-warning);
+}
+
+.search-result-card__type--notification {
+  background: rgba(76, 122, 116, 0.12);
+  color: var(--cp-teal-deep);
+}
+
+.search-result-card__type--application {
+  background: rgba(24, 38, 63, 0.08);
+  color: var(--cp-ink);
 }
 </style>

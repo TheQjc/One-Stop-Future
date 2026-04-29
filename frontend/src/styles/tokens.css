@@ -46,6 +46,9 @@
   --cp-text-3xl: clamp(36px, 6vw, 56px);
   --cp-touch-height: 44px;
   --cp-transition: 180ms ease;
+  --cp-highlight-bg: rgba(110, 207, 136, 0.507);
+  --cp-highlight-color: var(--cp-accent-deep);
+  --cp-highlight-radius: 3px;
 }
 
 @media (max-width: 767px) {
