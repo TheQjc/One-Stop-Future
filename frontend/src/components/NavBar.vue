@@ -158,21 +158,25 @@ async function handleLogout() {
 
 .site-header__actions {
   display: flex;
-  gap: var(--cp-gap-3);
+  gap: var(--cp-gap-2);
   align-items: center;
   justify-content: end;
+  min-width: 0;
 }
 
 .site-user {
   display: grid;
-  gap: 6px;
+  gap: 4px;
   justify-items: end;
+  min-width: 0;
 }
 
 .site-user__topline {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
+  justify-content: end;
+  max-width: 100%;
 }
 
 .site-user__role {
@@ -182,6 +186,15 @@ async function handleLogout() {
 
 .site-user__name {
   font-weight: 600;
+  max-width: 148px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.site-header__actions .ghost-btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 @media (max-width: 1023px) {

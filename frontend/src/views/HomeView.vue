@@ -145,7 +145,7 @@ function formatNotificationTime(value) {
   }).format(date);
 }
 
-const isGuest = computed(() => summary.value.viewerType === "GUEST");
+const isGuest = computed(() => !userStore.isAuthenticated && summary.value.viewerType === "GUEST");
 const canReviewVerifications = computed(() => {
   const currentRole = summary.value.identity?.role || userStore.profile?.role;
   return currentRole === "ADMIN";
@@ -415,36 +415,36 @@ onMounted(loadSummary);
 </script>
 
 <template>
-  <section class="page-stack">
-    <div class="hero-grid">
-      <article class="section-card hero-card">
-        <span class="section-eyebrow">{{ heroEyebrow }}</span>
-        <h1 class="hero-title" data-test="home-hero-title">{{ heroTitle }}</h1>
-        <hr class="editorial-rule" />
-        <p class="hero-copy" data-test="home-hero-copy">{{ heroCopy }}</p>
+  <section class="flex flex-col gap-8 p-4 md:p-8">
+    <div class="grid gap-8">
+      <article class="bg-white rounded-[32px] shadow-sm border border-[#ede2d0] p-8 md:p-12 hover:shadow-md transition-shadow relative overflow-hidden">
+        <span class="inline-flex px-3 py-1 rounded-full border border-[#c54f2d]/20 bg-[#c54f2d]/5 text-[#c54f2d] text-sm font-semibold tracking-wider mb-2">{{ heroEyebrow }}</span>
+        <h1 class="text-4xl md:text-6xl font-serif font-bold text-[#18263f] mb-6 mt-4" data-test="home-hero-title">{{ heroTitle }}</h1>
+        <hr class="w-16 border-t-2 border-[#c54f2d] my-6" />
+        <p class="text-lg text-[#50607b] mb-8 max-w-3xl" data-test="home-hero-copy">{{ heroCopy }}</p>
 
-        <form class="hero-search" data-test="home-search-form" @submit.prevent="submitSearch">
-          <label class="hero-search__label" for="home-search" data-test="home-search-label">
+        <form class="grid gap-3 mt-8" data-test="home-search-form" @submit.prevent="submitSearch">
+          <label class="text-[#50607b] text-sm font-semibold tracking-wider uppercase" for="home-search" data-test="home-search-label">
             站内搜索
           </label>
-          <div class="hero-search__controls">
+          <div class="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3 items-center">
             <input
               id="home-search"
               v-model="searchKeyword"
               name="home-search"
               type="search"
-              class="hero-search__input"
+              class="min-h-[52px] w-full px-5 border border-[#ede2d0] rounded-full bg-slate-50 text-[#18263f] focus:outline-none focus:ring-2 focus:ring-[#c54f2d]/50 focus:border-[#c54f2d] transition-all"
               placeholder="搜索经验帖、岗位、院校、资料"
               autocomplete="off"
             />
-            <button type="submit" class="app-btn hero-search__submit">
+            <button type="submit" class="bg-[#18263f] text-white rounded-full px-8 py-3 hover:bg-[#18263f]/90 font-medium transition-colors flex items-center justify-center min-h-[52px]">
               搜索
             </button>
           </div>
         </form>
 
-        <div class="chip-row" style="margin-top: 24px;">
-          <span class="status-badge approved" data-test="home-status-chip">
+        <div class="flex flex-wrap gap-3 mt-8" style="margin-top: 24px;">
+          <span class="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm font-medium" data-test="home-status-chip">
             {{ primaryStatusChip }}
           </span>
           <VerificationStatusBadge
@@ -453,74 +453,75 @@ onMounted(loadSummary);
           />
           <span
             v-if="!isGuest && summary.unreadNotificationCount > 0"
-            class="status-badge pending"
+            class="inline-flex items-center px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-sm font-medium"
             data-test="home-unread-chip"
           >
             {{ summary.unreadNotificationCount }} 条未读通知
           </span>
         </div>
 
-        <div class="action-row" style="margin-top: 28px;">
-          <RouterLink v-if="isGuest" to="/login" class="app-btn" data-test="home-primary-cta">
+        <div class="flex flex-wrap gap-4 mt-8" style="margin-top: 28px;">
+          <RouterLink v-if="isGuest" to="/login" class="bg-[#18263f] hover:bg-[#18263f]/90 text-white rounded-full px-6 py-3 font-medium transition-colors" data-test="home-primary-cta">
             登录查看个人待办
           </RouterLink>
-          <RouterLink v-if="isGuest" to="/register" class="ghost-btn" data-test="home-secondary-cta">
+          <RouterLink v-if="isGuest" to="/register" class="bg-white text-[#18263f] border border-[#18263f] rounded-full px-6 py-3 hover:bg-slate-50 font-medium transition-colors" data-test="home-secondary-cta">
             立即注册
           </RouterLink>
-          <RouterLink v-if="!isGuest" to="/profile" class="app-btn" data-test="home-primary-cta">
+          <RouterLink v-if="!isGuest" to="/profile" class="bg-[#18263f] hover:bg-[#18263f]/90 text-white rounded-full px-6 py-3 font-medium transition-colors" data-test="home-primary-cta">
             进入个人中心
           </RouterLink>
-          <RouterLink v-if="!isGuest" to="/notifications" class="ghost-btn" data-test="home-secondary-cta">
+          <RouterLink v-if="!isGuest" to="/notifications" class="bg-white text-[#18263f] border border-[#18263f] rounded-full px-6 py-3 hover:bg-slate-50 font-medium transition-colors" data-test="home-secondary-cta">
             查看通知
           </RouterLink>
-          <RouterLink v-if="canReviewVerifications" to="/admin/verifications" class="app-link">
+          <RouterLink v-if="canReviewVerifications" to="/admin/verifications" class="text-[#18263f] hover:text-[#18263f]/80 font-medium hover:underline inline-flex items-center">
             进入认证审核台
           </RouterLink>
         </div>
 
-        <div v-if="roadmapSignals.length" class="signal-row">
+        <div v-if="roadmapSignals.length" class="flex flex-wrap gap-3 mt-8">
           <span
             v-for="signal in roadmapSignals"
             :key="`${signal.label}-${signal.state}`"
-            class="signal-chip"
+            class="inline-flex items-center min-h-[34px] px-4 rounded-full border border-[#ede2d0] bg-slate-50 text-[#50607b] text-sm"
           >
             {{ signal.label }}：{{ signal.state }}
           </span>
         </div>
       </article>
 
-      <article class="section-card" data-test="home-section-snapshot">
-        <div class="section-header">
+      <article class="bg-white rounded-[32px] shadow-sm border border-[#ede2d0] p-6 md:p-8 hover:shadow-md transition-shadow" data-test="home-section-snapshot">
+        <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-4">
           <div>
-            <span class="section-eyebrow">今日概览</span>
-            <h2 class="page-title" style="margin-top: 16px;">先看清你现在的状态和待办</h2>
+            <span class="inline-flex px-3 py-1 rounded-full border border-[#c54f2d]/20 bg-[#c54f2d]/5 text-[#c54f2d] text-sm font-semibold tracking-wider mb-2">今日概览</span>
+            <h2 class="text-2xl md:text-3xl font-serif font-bold text-[#18263f] mt-4">先看清你现在的状态和待办</h2>
+            <hr class="w-16 border-t-2 border-[#c54f2d] my-6" />
           </div>
         </div>
 
-        <div v-if="loading" class="empty-state">正在整理首页聚合数据...</div>
+        <div v-if="loading" class="text-[#50607b] py-8 text-center bg-slate-50 rounded-2xl border border-dashed border-[#ede2d0]">正在整理首页聚合数据...</div>
 
-        <div v-else-if="errorMessage" class="field-grid">
-          <p class="field-error" role="alert">{{ errorMessage }}</p>
-          <button type="button" class="ghost-btn" @click="loadSummary">
+        <div v-else-if="errorMessage" class="grid gap-4">
+          <p class="text-red-600 bg-red-50 p-4 rounded-2xl border border-red-100" role="alert">{{ errorMessage }}</p>
+          <button type="button" class="bg-white text-[#18263f] border border-[#18263f] rounded-full px-6 py-3 hover:bg-slate-50 font-medium transition-colors" @click="loadSummary">
             重新加载
           </button>
         </div>
 
-        <div v-else class="snapshot-stack">
-          <div class="stats-grid">
+        <div v-else class="grid gap-6">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <article
               v-for="card in statCards"
               :key="card.label"
-              class="panel-card snapshot-card"
+              class="bg-slate-50 rounded-2xl p-6 flex flex-col justify-end min-h-[138px] border border-[#ede2d0]"
             >
-              <p class="snapshot-card__label">{{ card.label }}</p>
-              <strong class="snapshot-card__value">{{ card.value }}</strong>
+              <p class="text-[#50607b] text-sm mb-2">{{ card.label }}</p>
+              <strong class="text-3xl md:text-4xl font-bold text-[#18263f]">{{ card.value }}</strong>
             </article>
           </div>
 
-          <article class="panel-card">
-            <p class="snapshot-card__label">今日提醒</p>
-            <ul class="todo-list">
+          <article class="bg-slate-50 rounded-2xl p-6 border border-[#ede2d0]">
+            <p class="text-[#50607b] text-sm mb-2">今日提醒</p>
+            <ul class="list-disc pl-5 mt-4 space-y-2 text-[#50607b]">
               <li v-for="todo in translatedTodos" :key="todo">
                 {{ todo }}
               </li>
@@ -530,18 +531,19 @@ onMounted(loadSummary);
       </article>
     </div>
 
-    <article class="section-card" data-test="home-section-entries">
-      <div class="section-header">
+    <article class="bg-white rounded-[32px] shadow-sm border border-[#ede2d0] p-6 md:p-8 hover:shadow-md transition-shadow" data-test="home-section-entries">
+      <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-4">
         <div>
-          <span class="section-eyebrow">常用入口</span>
-          <h2 class="page-title" style="margin-top: 16px;">从首页直接进入当前最需要的入口</h2>
-          <p class="page-subtitle" style="margin-top: 16px;">
+          <span class="inline-flex px-3 py-1 rounded-full border border-[#c54f2d]/20 bg-[#c54f2d]/5 text-[#c54f2d] text-sm font-semibold tracking-wider mb-2">常用入口</span>
+          <h2 class="text-2xl md:text-3xl font-serif font-bold text-[#18263f] mt-4">从首页直接进入当前最需要的入口</h2>
+          <hr class="w-16 border-t-2 border-[#c54f2d] my-6" />
+          <p class="text-[#50607b] mt-2 max-w-3xl">
             先开放个人中心、通知中心和管理审核台，三条方向入口保留为后续阶段能力。
           </p>
         </div>
       </div>
 
-      <div class="service-grid">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
         <HomeEntryCard
           v-for="card in serviceCards"
           :key="card.code"
@@ -550,57 +552,59 @@ onMounted(loadSummary);
       </div>
     </article>
 
-    <article class="section-card" data-test="home-section-tracks">
-      <div class="section-header">
+    <article class="bg-white rounded-[32px] shadow-sm border border-[#ede2d0] p-6 md:p-8 hover:shadow-md transition-shadow" data-test="home-section-tracks">
+      <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-4">
         <div>
-          <span class="section-eyebrow">成长方向</span>
-          <h2 class="page-title" style="margin-top: 16px;">首页先讲方向，再进入模块</h2>
-          <p class="page-subtitle" style="margin-top: 16px;">
+          <span class="inline-flex px-3 py-1 rounded-full border border-[#c54f2d]/20 bg-[#c54f2d]/5 text-[#c54f2d] text-sm font-semibold tracking-wider mb-2">成长方向</span>
+          <h2 class="text-2xl md:text-3xl font-serif font-bold text-[#18263f] mt-4">首页先讲方向，再进入模块</h2>
+          <hr class="w-16 border-t-2 border-[#c54f2d] my-6" />
+          <p class="text-[#50607b] mt-2 max-w-3xl">
             就业、考研、留学三条主线在首页先做聚合说明，帮助学生先判断路径，再决定进入哪个具体功能。
           </p>
         </div>
       </div>
 
-      <div class="three-col-grid pathway-grid">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch mt-8">
         <article
           v-for="track in strategyTracks"
           :key="track.eyebrow"
-          class="track-card"
-          :class="`track-card--${track.tone}`"
+          class="flex flex-col gap-4 p-6 md:p-8 rounded-2xl border border-[#ede2d0] shadow-sm hover:shadow-md transition-shadow"
+          :class="{'bg-gradient-to-b from-orange-50 to-orange-100/50': track.tone === 'career', 'bg-gradient-to-b from-yellow-50 to-amber-50': track.tone === 'exam', 'bg-gradient-to-b from-teal-50 to-emerald-50': track.tone === 'abroad'}"
         >
-          <p class="track-card__eyebrow">{{ track.eyebrow }}</p>
-          <h3 class="track-card__title">{{ track.title }}</h3>
-          <p class="meta-copy">{{ track.description }}</p>
-          <ul class="track-card__list">
+          <p class="inline-flex px-3 py-1 rounded-full border border-[#c54f2d]/20 bg-[#c54f2d]/5 text-[#c54f2d] text-sm font-semibold tracking-wider self-start">{{ track.eyebrow }}</p>
+          <h3 class="text-2xl font-serif font-bold text-[#18263f] mt-2">{{ track.title }}</h3>
+          <p class="text-[#50607b] leading-relaxed">{{ track.description }}</p>
+          <ul class="list-disc pl-5 space-y-2 text-[#50607b] mt-auto">
             <li v-for="bullet in track.bullets" :key="bullet">
               {{ bullet }}
             </li>
           </ul>
-          <span class="track-card__badge">{{ track.badge }}</span>
+          <span class="inline-flex items-center min-h-[32px] px-4 rounded-full bg-[#18263f]/5 text-[#18263f] text-sm font-semibold mt-4 self-start">{{ track.badge }}</span>
         </article>
       </div>
     </article>
 
-    <article class="section-card" data-test="home-section-discover">
-      <div class="section-header">
+    <article class="bg-white rounded-[32px] shadow-sm border border-[#ede2d0] p-6 md:p-8 hover:shadow-md transition-shadow" data-test="home-section-discover">
+      <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-4">
         <div>
-          <span class="section-eyebrow">本周趋势</span>
-          <h2 class="page-title" style="margin-top: 16px;">看看这一周大家都在关注什么，再决定要不要深入查看</h2>
-          <p class="page-subtitle" style="margin-top: 16px;">
+          <span class="inline-flex px-3 py-1 rounded-full border border-[#c54f2d]/20 bg-[#c54f2d]/5 text-[#c54f2d] text-sm font-semibold tracking-wider mb-2">本周趋势</span>
+          <h2 class="text-2xl md:text-3xl font-serif font-bold text-[#18263f] mt-4">看看这一周大家都在关注什么，再决定要不要深入查看</h2>
+          <hr class="w-16 border-t-2 border-[#c54f2d] my-6" />
+          <p class="text-[#50607b] mt-2 max-w-3xl">
             首页先保留每周公开趋势，想看完整排序和更多内容，再进入趋势页。
           </p>
         </div>
-        <RouterLink :to="homeDiscoverLink" class="app-link discover-preview__cta" data-test="home-discover-cta">
+        <RouterLink :to="homeDiscoverLink" class="bg-white text-[#18263f] border border-[#18263f] rounded-full px-6 py-2 hover:bg-slate-50 font-medium transition-colors text-sm mb-4 md:mb-0" data-test="home-discover-cta">
           查看全部趋势
         </RouterLink>
       </div>
 
-      <div v-if="loading" class="empty-state">正在整理本周趋势...</div>
-      <div v-else-if="discoverPreview.items.length === 0" class="empty-state discover-preview__empty">
-        <strong>{{ discoverPreviewEmptyTitle }}</strong>
-        <p class="meta-copy">{{ discoverPreviewEmptyCopy }}</p>
+      <div v-if="loading" class="text-[#50607b] py-8 text-center bg-slate-50 rounded-2xl border border-dashed border-[#ede2d0] mt-4">正在整理本周趋势...</div>
+      <div v-else-if="discoverPreview.items.length === 0" class="empty-state discover-preview__empty mt-4">
+        <strong class="text-[#18263f] font-serif">{{ discoverPreviewEmptyTitle }}</strong>
+        <p class="text-[#50607b] leading-relaxed mt-2">{{ discoverPreviewEmptyCopy }}</p>
       </div>
-      <div v-else class="discover-preview-grid">
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
         <DiscoverItemCard
           v-for="item in discoverPreview.items"
           :key="`${item.type}-${item.id}`"
@@ -609,71 +613,73 @@ onMounted(loadSummary);
       </div>
     </article>
 
-    <div class="dashboard-grid">
-      <article class="section-card" data-test="home-section-notifications">
-        <div class="section-header">
+    <div class="grid md:grid-cols-2 gap-8 mt-8">
+      <article class="bg-white rounded-[32px] shadow-sm border border-[#ede2d0] p-6 md:p-8 hover:shadow-md transition-shadow" data-test="home-section-notifications">
+        <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-4">
           <div>
-            <span class="section-eyebrow">最新通知</span>
-            <h2 class="page-title" style="margin-top: 16px;">及时查看通知与审核反馈</h2>
+            <span class="inline-flex px-3 py-1 rounded-full border border-[#c54f2d]/20 bg-[#c54f2d]/5 text-[#c54f2d] text-sm font-semibold tracking-wider mb-2">最新通知</span>
+            <h2 class="text-2xl md:text-3xl font-serif font-bold text-[#18263f] mt-4">及时查看通知与审核反馈</h2>
+            <hr class="w-16 border-t-2 border-[#c54f2d] my-6" />
           </div>
           <RouterLink
             v-if="!isGuest"
             to="/notifications"
-            class="app-link"
+            class="bg-white text-[#18263f] border border-[#18263f] rounded-full px-6 py-2 hover:bg-slate-50 font-medium transition-colors text-sm mb-4 md:mb-0"
           >
             查看全部通知
           </RouterLink>
         </div>
 
-        <div v-if="loading" class="empty-state">正在同步最新通知...</div>
-        <div v-else-if="latestNotifications.length === 0" class="empty-state">
+        <div v-if="loading" class="text-[#50607b] py-8 text-center bg-slate-50 rounded-2xl border border-dashed border-[#ede2d0] mt-4">正在同步最新通知...</div>
+        <div v-else-if="latestNotifications.length === 0" class="text-[#50607b] py-8 text-center bg-slate-50 rounded-2xl border border-dashed border-[#ede2d0] mt-4">
           {{ isGuest ? "登录后可查看与你相关的通知和处理结果。" : "当前还没有新的通知。" }}
         </div>
-        <div v-else class="notification-list">
+        <div v-else class="grid gap-4 mt-8">
           <article
             v-for="item in latestNotifications"
             :key="item.id"
-            class="notification-item"
+            class="flex flex-col md:flex-row md:justify-between gap-4 p-5 md:p-6 rounded-2xl border border-[#ede2d0] bg-white/80 hover:bg-white transition-colors shadow-sm"
           >
-            <div class="notification-item__body">
-              <p class="notification-item__type">{{ item.type || "系统通知" }}</p>
-              <h3 class="notification-item__title">{{ item.title }}</h3>
-              <p class="meta-copy">{{ item.content }}</p>
+            <div class="grid gap-2">
+              <p class="text-[#50607b] text-sm">{{ item.type || "系统通知" }}</p>
+              <h3 class="text-xl font-serif font-bold text-[#18263f]">{{ item.title }}</h3>
+              <p class="text-[#50607b] leading-relaxed">{{ item.content }}</p>
             </div>
-            <div class="notification-item__aside">
+            <div class="flex md:flex-col justify-between md:justify-start items-center md:items-end gap-3 text-right">
               <span class="status-badge" :class="item.read ? 'approved' : 'pending'">
                 {{ item.read ? "已读" : "未读" }}
               </span>
-              <span class="notification-item__time">{{ formatNotificationTime(item.createdAt) }}</span>
+              <span class="text-[#50607b] text-sm">{{ formatNotificationTime(item.createdAt) }}</span>
             </div>
           </article>
         </div>
       </article>
 
-      <article class="section-card">
-        <div class="section-header">
+      <article class="bg-white rounded-[32px] shadow-sm border border-[#ede2d0] p-6 md:p-8 hover:shadow-md transition-shadow">
+        <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-4">
           <div>
-            <span class="section-eyebrow">首页说明</span>
-            <h2 class="page-title" style="margin-top: 16px;">为什么这样安排首页结构</h2>
+            <span class="inline-flex px-3 py-1 rounded-full border border-[#c54f2d]/20 bg-[#c54f2d]/5 text-[#c54f2d] text-sm font-semibold tracking-wider mb-2">首页说明</span>
+            <h2 class="text-2xl md:text-3xl font-serif font-bold text-[#18263f] mt-4">为什么这样安排首页结构</h2>
+            <hr class="w-16 border-t-2 border-[#c54f2d] my-6" />
           </div>
         </div>
 
-        <div class="field-grid">
-          <article class="panel-card">
-            <strong>先总览，再深挖</strong>
-            <p class="meta-copy">
+        <div class="grid gap-4 mt-8">
+          <article class="bg-slate-50 rounded-2xl p-6 border border-[#ede2d0]">
+            <strong class="text-[#18263f] font-serif block mb-2">先总览，再深挖</strong>
+            <p class="text-[#50607b] leading-relaxed">
               学生先在首页看清三条方向和当前待办，再进入具体模块，能显著降低入口分散造成的切换成本。
             </p>
           </article>
-          <article class="panel-card">
-            <strong>认证与通知形成闭环</strong>
-            <p class="meta-copy">
+          <article class="bg-slate-50 rounded-2xl p-6 border border-[#ede2d0]">
+            <strong class="text-[#18263f] font-serif block mb-2">认证与通知形成闭环</strong>
+            <p class="text-[#50607b] leading-relaxed">
               个人中心提交认证申请，教师与管理员统一审核，结果最终回流到通知中心，路径更清晰。
             </p>
           </article>
-          <article class="panel-card">
-            <strong>为后续方向功能留出位置</strong>
-            <p class="meta-copy">
+          <article class="bg-slate-50 rounded-2xl p-6 border border-[#ede2d0]">
+            <strong class="text-[#18263f] font-serif block mb-2">为后续方向功能留出位置</strong>
+            <p class="text-[#50607b] leading-relaxed">
               就业、考研、留学方向能力会继续向首页汇聚，当前先把结构和决策顺序固定下来。
             </p>
           </article>
@@ -683,271 +689,5 @@ onMounted(loadSummary);
   </section>
 </template>
 
-<style scoped>
-.hero-card {
-  position: relative;
-  overflow: hidden;
-}
 
-.hero-search {
-  display: grid;
-  gap: 10px;
-  margin-top: 28px;
-}
-
-.hero-search__label {
-  color: var(--cp-ink-soft);
-  font-size: var(--cp-text-sm);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.hero-search__controls {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 12px;
-  align-items: center;
-}
-
-.hero-search__input {
-  min-height: 52px;
-  width: 100%;
-  padding: 0 18px;
-  border: 1px solid rgba(24, 38, 63, 0.14);
-  border-radius: var(--cp-radius-pill);
-  background: rgba(255, 255, 255, 0.86);
-  color: var(--cp-ink);
-  font: inherit;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
-}
-
-.hero-search__input:focus {
-  outline: 2px solid rgba(197, 79, 45, 0.25);
-  outline-offset: 2px;
-  border-color: rgba(197, 79, 45, 0.4);
-}
-
-.hero-search__input::placeholder {
-  color: rgba(24, 38, 63, 0.52);
-}
-
-.hero-search__submit {
-  justify-content: center;
-}
-
-.signal-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--cp-gap-2);
-  margin-top: 28px;
-}
-
-.signal-chip {
-  display: inline-flex;
-  align-items: center;
-  min-height: 34px;
-  padding: 0 12px;
-  border-radius: var(--cp-radius-pill);
-  border: 1px solid rgba(24, 38, 63, 0.1);
-  background: rgba(255, 255, 255, 0.68);
-  color: var(--cp-ink-soft);
-  font-size: var(--cp-text-sm);
-}
-
-.snapshot-stack {
-  display: grid;
-  gap: var(--cp-gap-4);
-}
-
-.snapshot-card {
-  min-height: 138px;
-  display: grid;
-  gap: var(--cp-gap-2);
-  align-content: end;
-}
-
-.snapshot-card__label {
-  margin: 0;
-  color: var(--cp-ink-soft);
-  font-size: var(--cp-text-sm);
-}
-
-.snapshot-card__value {
-  font-size: clamp(24px, 4vw, 34px);
-  font-family: var(--cp-font-display);
-  line-height: 1.1;
-}
-
-.todo-list {
-  margin: 0;
-  padding-left: 18px;
-  display: grid;
-  gap: var(--cp-gap-3);
-  color: var(--cp-ink);
-}
-
-.pathway-grid {
-  align-items: stretch;
-}
-
-.track-card {
-  display: grid;
-  gap: var(--cp-gap-4);
-  padding: 24px;
-  border-radius: var(--cp-radius-md);
-  border: 1px solid rgba(24, 38, 63, 0.1);
-  box-shadow: var(--cp-shadow-soft);
-  min-height: 100%;
-}
-
-.track-card--career {
-  background:
-    linear-gradient(180deg, rgba(255, 248, 242, 0.96), rgba(255, 244, 235, 0.96)),
-    radial-gradient(circle at top right, rgba(197, 79, 45, 0.12), transparent 42%);
-}
-
-.track-card--exam {
-  background:
-    linear-gradient(180deg, rgba(255, 254, 249, 0.98), rgba(246, 239, 225, 0.96)),
-    radial-gradient(circle at top right, rgba(24, 38, 63, 0.08), transparent 42%);
-}
-
-.track-card--abroad {
-  background:
-    linear-gradient(180deg, rgba(247, 252, 250, 0.96), rgba(239, 247, 245, 0.96)),
-    radial-gradient(circle at top right, rgba(76, 122, 116, 0.14), transparent 42%);
-}
-
-.track-card__eyebrow {
-  margin: 0;
-  color: var(--cp-accent-deep);
-  font-size: var(--cp-text-sm);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.track-card__title {
-  margin: 0;
-  font-family: var(--cp-font-display);
-  font-size: 28px;
-  line-height: 1.14;
-}
-
-.track-card__list {
-  margin: 0;
-  padding-left: 18px;
-  display: grid;
-  gap: var(--cp-gap-2);
-  color: var(--cp-ink-soft);
-}
-
-.track-card__badge {
-  display: inline-flex;
-  align-items: center;
-  justify-self: start;
-  min-height: 32px;
-  padding: 0 12px;
-  border-radius: var(--cp-radius-pill);
-  background: rgba(24, 38, 63, 0.08);
-  color: var(--cp-ink);
-  font-size: var(--cp-text-sm);
-  font-weight: 600;
-}
-
-.service-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--cp-gap-4);
-}
-
-.discover-preview-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--cp-gap-4);
-}
-
-.discover-preview__cta {
-  align-self: start;
-}
-
-.discover-preview__empty {
-  display: grid;
-  gap: 8px;
-}
-
-.notification-list {
-  display: grid;
-  gap: var(--cp-gap-4);
-}
-
-.notification-item {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--cp-gap-4);
-  padding: 20px;
-  border-radius: var(--cp-radius-md);
-  border: 1px solid var(--cp-line);
-  background: rgba(255, 255, 255, 0.72);
-}
-
-.notification-item__body {
-  display: grid;
-  gap: 8px;
-}
-
-.notification-item__type,
-.notification-item__time {
-  margin: 0;
-  font-size: var(--cp-text-sm);
-  color: var(--cp-ink-soft);
-}
-
-.notification-item__title {
-  margin: 0;
-  font-size: 22px;
-  font-family: var(--cp-font-display);
-}
-
-.notification-item__aside {
-  display: grid;
-  justify-items: end;
-  align-content: start;
-  gap: 10px;
-  text-align: right;
-}
-
-@media (max-width: 1023px) {
-  .service-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .discover-preview-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 767px) {
-  .hero-search__controls {
-    grid-template-columns: 1fr;
-  }
-
-  .hero-search__submit {
-    width: 100%;
-  }
-
-  .service-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .notification-item {
-    flex-direction: column;
-  }
-
-  .notification-item__aside {
-    justify-items: start;
-    text-align: left;
-  }
-}
-</style>
 
