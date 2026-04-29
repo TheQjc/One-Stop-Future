@@ -197,6 +197,43 @@ public class ResourceService {
     }
 
     @Transactional
+    public ResourceDetailResponse createStoredResource(String identity, ResourceUploadMetadata metadata,
+            StoredResourceFile storedFile) {
+        User uploader = userService.requireByIdentity(identity);
+        if (metadata == null || storedFile == null) {
+            throw new BusinessException(400, "invalid request");
+        }
+        String normalizedTitle = requireText(metadata.title(), "title");
+        String normalizedCategory = normalizeRequiredCategory(metadata.category());
+        String normalizedSummary = requireText(metadata.summary(), "summary");
+        String normalizedDescription = normalizeOptional(metadata.description());
+        ValidatedFile validatedFile = validateStoredFile(storedFile);
+
+        ResourceItem resource = new ResourceItem();
+        resource.setTitle(normalizedTitle);
+        resource.setCategory(normalizedCategory);
+        resource.setSummary(normalizedSummary);
+        resource.setDescription(normalizedDescription);
+        resource.setStatus(ResourceStatus.PENDING.name());
+        resource.setUploaderId(uploader.getId());
+        resource.setReviewedBy(null);
+        resource.setRejectReason(null);
+        resource.setFileName(validatedFile.originalFilename());
+        resource.setFileExt(validatedFile.extension());
+        resource.setContentType(validatedFile.contentType());
+        resource.setFileSize(validatedFile.size());
+        resource.setStorageKey(requireText(storedFile.storageKey(), "storage key"));
+        resource.setDownloadCount(0);
+        resource.setFavoriteCount(0);
+        resource.setPublishedAt(null);
+        resource.setReviewedAt(null);
+        resource.setCreatedAt(LocalDateTime.now());
+        resource.setUpdatedAt(LocalDateTime.now());
+        resourceItemMapper.insert(resource);
+        return toResourceDetail(resource, uploader);
+    }
+
+    @Transactional
     public ResourceDetailResponse updateRejectedResource(String identity, Long resourceId, String title, String category,
             String summary, String description, MultipartFile file) {
         User viewer = userService.requireByIdentity(identity);
@@ -592,6 +629,29 @@ public class ResourceService {
         return new ValidatedFile(originalFilename.trim(), extension, contentType, file.getSize());
     }
 
+    private ValidatedFile validateStoredFile(StoredResourceFile storedFile) {
+        if (storedFile.size() <= 0) {
+            throw new BusinessException(400, "file is required");
+        }
+        if (storedFile.size() > MAX_FILE_SIZE_BYTES) {
+            throw new BusinessException(400, "file is too large");
+        }
+        String originalFilename = requireText(storedFile.originalFilename(), "file name");
+        String extension = extractExtension(originalFilename);
+        if (!ALLOWED_EXTENSIONS.contains(extension)) {
+            throw new BusinessException(400, "unsupported file type");
+        }
+        if (storedFile.extension() != null && !storedFile.extension().isBlank()
+                && !extension.equals(storedFile.extension().trim().toLowerCase(Locale.ROOT))) {
+            throw new BusinessException(400, "unsupported file type");
+        }
+        String contentType = storedFile.contentType();
+        if (contentType == null || contentType.isBlank()) {
+            contentType = "application/octet-stream";
+        }
+        return new ValidatedFile(originalFilename, extension, contentType, storedFile.size());
+    }
+
     private String extractExtension(String originalFilename) {
         int lastDot = originalFilename.lastIndexOf('.');
         if (lastDot < 0 || lastDot == originalFilename.length() - 1) {
@@ -612,6 +672,13 @@ public class ResourceService {
     }
 
     public record ResourceFileStream(String fileName, String contentType, InputStream inputStream) {
+    }
+
+    public record ResourceUploadMetadata(String title, String category, String summary, String description) {
+    }
+
+    public record StoredResourceFile(String originalFilename, String extension, String contentType, long size,
+            String storageKey) {
     }
 
     private record ValidatedFile(String originalFilename, String extension, String contentType, long size) {
