@@ -42,6 +42,10 @@ app:
   resource-storage:
     type: ${RESOURCE_STORAGE_TYPE:local}
     local-root: ${RESOURCE_STORAGE_LOCAL_ROOT:.local-storage/resources}
+  resource-upload:
+    chunk-root: ${RESOURCE_UPLOAD_CHUNK_ROOT:.local-storage/resource-upload-sessions}
+    default-chunk-size-bytes: ${RESOURCE_UPLOAD_DEFAULT_CHUNK_SIZE_BYTES:5242880}
+    max-chunk-size-bytes: ${RESOURCE_UPLOAD_MAX_CHUNK_SIZE_BYTES:10485760}
   resource-preview:
     type: ${RESOURCE_PREVIEW_TYPE:local}
     local-root: ${RESOURCE_PREVIEW_LOCAL_ROOT:.local-storage/previews}
