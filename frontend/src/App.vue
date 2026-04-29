@@ -1,4 +1,4 @@
-﻿<script setup>
+<script setup>
 import NavBar from "./components/NavBar.vue";
 import PageFooter from "./components/PageFooter.vue";
 </script>
@@ -11,11 +11,11 @@ import PageFooter from "./components/PageFooter.vue";
       aria-hidden="true" 
     />
     <div 
-      class="pointer-events-none fixed bottom-[12%] -left-[8%] w-[22rem] h-[22rem] rounded-full blur-[18px] opacity-70 bg-[radial-gradient(circle,rgba(139,92,246,0.15),transparent_72%)]" 
+      class="pointer-events-none fixed bottom-[12%] -left-[8%] w-[22rem] h-[22rem] rounded-full blur-[18px] opacity-70 bg-[radial-gradient(circle,rgba(76,122,116,0.18),transparent_72%)]" 
       aria-hidden="true" 
     />
     <div 
-      class="pointer-events-none fixed top-[8%] -right-[10%] w-[28rem] h-[28rem] rounded-full blur-[18px] opacity-70 bg-[radial-gradient(circle,rgba(244,63,94,0.12),transparent_70%)]" 
+      class="pointer-events-none fixed top-[8%] -right-[10%] w-[28rem] h-[28rem] rounded-full blur-[18px] opacity-70 bg-[radial-gradient(circle,rgba(197,79,45,0.12),transparent_70%)]" 
       aria-hidden="true" 
     />
     
@@ -32,5 +32,3 @@ import PageFooter from "./components/PageFooter.vue";
     <PageFooter class="relative z-10" />
   </div>
 </template>
-
-
