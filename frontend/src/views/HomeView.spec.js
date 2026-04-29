@@ -256,6 +256,43 @@ test("hydrates authenticated summary into store and shows signed-in hero copy", 
   expect(wrapper.text()).toContain("秋招周记");
 });
 
+test("keeps signed-in hero actions when a public home summary is returned for a local session", async () => {
+  setActivePinia(createPinia());
+  const userStore = useUserStore();
+
+  userStore.token = "demo-token";
+  userStore.profile = {
+    id: 2,
+    userId: 2,
+    phone: "13800000001",
+    username: "13800000001",
+    nickname: "Niudeyipi",
+    role: "USER",
+    verificationStatus: "PENDING",
+    unreadNotificationCount: 0,
+  };
+
+  getHomeSummary.mockResolvedValue(guestSummary);
+
+  const wrapper = mount(HomeView, {
+    global: {
+      stubs: {
+        RouterLink: {
+          props: ["to"],
+          template: "<a :data-to='typeof to === \"string\" ? to : JSON.stringify(to)'><slot /></a>",
+        },
+      },
+    },
+  });
+
+  await flushPromises();
+
+  expect(wrapper.get('[data-test="home-status-chip"]').text()).toContain("Niudeyipi");
+  expect(wrapper.get('[data-test="home-primary-cta"]').text()).toBe("进入个人中心");
+  expect(wrapper.get('[data-test="home-secondary-cta"]').text()).toBe("查看通知");
+  expect(wrapper.text()).not.toContain("登录查看个人待办");
+});
+
 test("home keeps common entry section before growth directions", async () => {
   getHomeSummary.mockResolvedValue(guestSummary);
 

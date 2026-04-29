@@ -145,7 +145,7 @@ function formatNotificationTime(value) {
   }).format(date);
 }
 
-const isGuest = computed(() => summary.value.viewerType === "GUEST");
+const isGuest = computed(() => !userStore.isAuthenticated && summary.value.viewerType === "GUEST");
 const canReviewVerifications = computed(() => {
   const currentRole = summary.value.identity?.role || userStore.profile?.role;
   return currentRole === "ADMIN";
