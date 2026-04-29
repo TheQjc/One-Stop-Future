@@ -1,5 +1,3 @@
-CREATE DATABASE IF NOT EXISTS one_stop_future;
-
 DROP TABLE IF EXISTS t_notice;
 DROP TABLE IF EXISTS t_decision_school_metric;
 DROP TABLE IF EXISTS t_decision_school_metric_definition;
