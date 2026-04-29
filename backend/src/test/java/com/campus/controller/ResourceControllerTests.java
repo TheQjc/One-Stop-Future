@@ -35,17 +35,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.http.HttpHeaders;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import com.campus.entity.ResourceItem;
 import com.campus.mapper.ResourceItemMapper;
 import com.campus.preview.DocxPreviewGenerator;
 import com.campus.preview.ResourcePreviewService;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -54,6 +58,7 @@ class ResourceControllerTests {
 
     private static final Path STORAGE_ROOT = Path.of(".local-storage", "resources");
     private static final Path PREVIEW_ROOT = Path.of(".local-storage", "previews");
+    private static final Path UPLOAD_SESSION_ROOT = Path.of(".local-storage", "resource-upload-sessions");
 
     @Autowired
     private MockMvc mockMvc;
@@ -67,6 +72,9 @@ class ResourceControllerTests {
     @Autowired
     private ResourcePreviewService resourcePreviewService;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @MockBean
     private DocxPreviewGenerator docxPreviewGenerator;
 
@@ -79,6 +87,7 @@ class ResourceControllerTests {
     void cleanLocalStorage() throws IOException {
         deleteTreeIfExists(STORAGE_ROOT);
         deleteTreeIfExists(PREVIEW_ROOT);
+        deleteTreeIfExists(UPLOAD_SESSION_ROOT);
     }
 
     @Test
@@ -386,6 +395,106 @@ class ResourceControllerTests {
                 "SELECT COUNT(*) FROM t_resource_item WHERE title = '2026 Resume Template' AND status = 'PENDING'",
                 Integer.class);
         assertThat(createdCount).isEqualTo(1);
+    }
+
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
+    void authenticatedUserCanResumeAndCompleteChunkedResourceUpload() throws Exception {
+        MvcResult initResult = mockMvc.perform(post("/api/resources/chunk-uploads")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "title": "Chunked Resume Template",
+                                  "category": "RESUME_TEMPLATE",
+                                  "summary": "Uploaded in resumable chunks",
+                                  "description": "Two chunk upload",
+                                  "fileName": "chunked-template.pdf",
+                                  "contentType": "application/pdf",
+                                  "fileSize": 10,
+                                  "chunkSize": 5
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.totalChunks").value(2))
+                .andExpect(jsonPath("$.data.uploadedChunks").isEmpty())
+                .andReturn();
+
+        JsonNode initJson = objectMapper.readTree(initResult.getResponse().getContentAsString());
+        String uploadId = initJson.path("data").path("uploadId").asText();
+
+        MockMultipartFile secondChunk = new MockMultipartFile(
+                "chunk", "chunk-1.part", "application/octet-stream", "World".getBytes(StandardCharsets.UTF_8));
+        mockMvc.perform(multipart("/api/resources/chunk-uploads/{uploadId}/chunks/{chunkIndex}", uploadId, 1)
+                        .file(secondChunk))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.uploadedChunks[0]").value(1))
+                .andExpect(jsonPath("$.data.uploadedBytes").value(5))
+                .andExpect(jsonPath("$.data.complete").value(false));
+
+        mockMvc.perform(get("/api/resources/chunk-uploads/{uploadId}", uploadId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.uploadedChunks[0]").value(1));
+
+        MockMultipartFile firstChunk = new MockMultipartFile(
+                "chunk", "chunk-0.part", "application/octet-stream", "Hello".getBytes(StandardCharsets.UTF_8));
+        mockMvc.perform(multipart("/api/resources/chunk-uploads/{uploadId}/chunks/{chunkIndex}", uploadId, 0)
+                        .file(firstChunk))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.uploadedChunks[0]").value(0))
+                .andExpect(jsonPath("$.data.uploadedChunks[1]").value(1))
+                .andExpect(jsonPath("$.data.complete").value(true));
+
+        mockMvc.perform(post("/api/resources/chunk-uploads/{uploadId}/complete", uploadId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.title").value("Chunked Resume Template"))
+                .andExpect(jsonPath("$.data.status").value("PENDING"))
+                .andExpect(jsonPath("$.data.fileName").value("chunked-template.pdf"))
+                .andExpect(jsonPath("$.data.fileSize").value(10));
+
+        String storageKey = jdbcTemplate.queryForObject(
+                "SELECT storage_key FROM t_resource_item WHERE title = 'Chunked Resume Template'", String.class);
+        assertThat(Files.readString(STORAGE_ROOT.resolve(storageKey))).isEqualTo("HelloWorld");
+        assertThat(Files.exists(UPLOAD_SESSION_ROOT.resolve(uploadId))).isFalse();
+    }
+
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
+    void incompleteChunkedUploadCannotBeCompleted() throws Exception {
+        MvcResult initResult = mockMvc.perform(post("/api/resources/chunk-uploads")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "title": "Incomplete Upload",
+                                  "category": "RESUME_TEMPLATE",
+                                  "summary": "Missing one chunk",
+                                  "fileName": "incomplete.pdf",
+                                  "contentType": "application/pdf",
+                                  "fileSize": 10,
+                                  "chunkSize": 5
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andReturn();
+
+        JsonNode initJson = objectMapper.readTree(initResult.getResponse().getContentAsString());
+        String uploadId = initJson.path("data").path("uploadId").asText();
+        MockMultipartFile firstChunk = new MockMultipartFile(
+                "chunk", "chunk-0.part", "application/octet-stream", "Hello".getBytes(StandardCharsets.UTF_8));
+        mockMvc.perform(multipart("/api/resources/chunk-uploads/{uploadId}/chunks/{chunkIndex}", uploadId, 0)
+                        .file(firstChunk))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200));
+
+        mockMvc.perform(post("/api/resources/chunk-uploads/{uploadId}/complete", uploadId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.message").value("resource chunks are incomplete"));
     }
 
     @Test

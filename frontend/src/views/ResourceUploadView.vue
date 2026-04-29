@@ -14,11 +14,13 @@ const formMessage = ref("");
 
 async function submitUpload(payload) {
   formError.value = "";
-  formMessage.value = "";
+  formMessage.value = "正在初始化分片上传...";
   submitting.value = true;
 
   try {
-    await createResourceUpload(payload);
+    await createResourceUpload(payload, {
+      onProgress: updateUploadProgress,
+    });
     formMessage.value = "资源已提交，正在返回我的资源记录...";
     router.push("/profile/resources");
   } catch (error) {
@@ -26,6 +28,20 @@ async function submitUpload(payload) {
   } finally {
     submitting.value = false;
   }
+}
+
+function updateUploadProgress(progress) {
+  if (progress.phase === "completing") {
+    formMessage.value = "分片已上传，正在合并资料...";
+    return;
+  }
+
+  if (progress.phase === "complete") {
+    formMessage.value = "资料已合并，正在提交审核...";
+    return;
+  }
+
+  formMessage.value = `正在上传分片 ${progress.percent}%（${progress.uploadedChunks}/${progress.totalChunks}）`;
 }
 </script>
 

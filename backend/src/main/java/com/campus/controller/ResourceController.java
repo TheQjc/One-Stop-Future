@@ -16,15 +16,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.campus.common.Result;
 import com.campus.dto.MyResourceListResponse;
+import com.campus.dto.ResourceChunkUploadInitRequest;
+import com.campus.dto.ResourceChunkUploadStatusResponse;
 import com.campus.dto.ResourceDetailResponse;
 import com.campus.dto.ResourceListResponse;
 import com.campus.dto.ResourceZipPreviewResponse;
+import com.campus.service.ResourceChunkUploadService;
 import com.campus.service.ResourceService;
 import com.campus.service.ResourceService.DownloadedResource;
 import com.campus.service.ResourceService.ResourceFileStream;
@@ -35,9 +39,11 @@ import com.campus.service.ResourceService.ResourceFileStream;
 public class ResourceController {
 
     private final ResourceService resourceService;
+    private final ResourceChunkUploadService resourceChunkUploadService;
 
-    public ResourceController(ResourceService resourceService) {
+    public ResourceController(ResourceService resourceService, ResourceChunkUploadService resourceChunkUploadService) {
         this.resourceService = resourceService;
+        this.resourceChunkUploadService = resourceChunkUploadService;
     }
 
     @GetMapping
@@ -51,6 +57,45 @@ public class ResourceController {
     @GetMapping("/mine")
     public Result<MyResourceListResponse> mine(Authentication authentication) {
         return Result.success(resourceService.listMyResources(authentication.getName()));
+    }
+
+    @PostMapping("/chunk-uploads")
+    public Result<ResourceChunkUploadStatusResponse> initiateChunkUpload(
+            @RequestBody ResourceChunkUploadInitRequest request,
+            Authentication authentication) {
+        return Result.success(resourceChunkUploadService.initiate(authentication.getName(), request));
+    }
+
+    @GetMapping("/chunk-uploads/{uploadId}")
+    public Result<ResourceChunkUploadStatusResponse> chunkUploadStatus(
+            @PathVariable String uploadId,
+            Authentication authentication) {
+        return Result.success(resourceChunkUploadService.status(authentication.getName(), uploadId));
+    }
+
+    @PostMapping("/chunk-uploads/{uploadId}/chunks/{chunkIndex}")
+    public Result<ResourceChunkUploadStatusResponse> uploadChunk(
+            @PathVariable String uploadId,
+            @PathVariable int chunkIndex,
+            @RequestParam("chunk") MultipartFile chunk,
+            Authentication authentication) {
+        return Result.success(resourceChunkUploadService.uploadChunk(authentication.getName(), uploadId, chunkIndex,
+                chunk));
+    }
+
+    @PostMapping("/chunk-uploads/{uploadId}/complete")
+    public Result<ResourceDetailResponse> completeChunkUpload(
+            @PathVariable String uploadId,
+            Authentication authentication) {
+        return Result.success(resourceChunkUploadService.complete(authentication.getName(), uploadId));
+    }
+
+    @DeleteMapping("/chunk-uploads/{uploadId}")
+    public Result<Void> abortChunkUpload(
+            @PathVariable String uploadId,
+            Authentication authentication) {
+        resourceChunkUploadService.abort(authentication.getName(), uploadId);
+        return Result.success();
     }
 
     @GetMapping("/{id}")

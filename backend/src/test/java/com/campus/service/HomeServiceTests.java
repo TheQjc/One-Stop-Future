@@ -7,7 +7,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.function.Supplier;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,6 +22,7 @@ import com.campus.dto.HomeSummaryResponse;
 import com.campus.entity.User;
 import com.campus.entity.VerificationApplication;
 import com.campus.mapper.VerificationApplicationMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 @ExtendWith(MockitoExtension.class)
 class HomeServiceTests {
@@ -36,8 +39,17 @@ class HomeServiceTests {
     @Mock
     private DiscoverService discoverService;
 
+    @Mock
+    private PlatformCacheService cacheService;
+
     @InjectMocks
     private HomeService homeService;
+
+    @BeforeEach
+    void usePassthroughCache() {
+        when(cacheService.getOrLoad(any(String.class), any(TypeReference.class), any(Supplier.class)))
+                .thenAnswer(invocation -> invocation.<Supplier<?>>getArgument(2).get());
+    }
 
     @Test
     void discoverPreviewFallsBackToEmptyListWhenDiscoverServiceFails() {

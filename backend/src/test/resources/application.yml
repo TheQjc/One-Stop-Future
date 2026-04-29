@@ -28,6 +28,10 @@ app:
   resource-storage:
     type: local
     local-root: .local-storage/resources
+  resource-upload:
+    chunk-root: .local-storage/resource-upload-sessions
+    default-chunk-size-bytes: 5242880
+    max-chunk-size-bytes: 10485760
 
 platform:
   integrations:
