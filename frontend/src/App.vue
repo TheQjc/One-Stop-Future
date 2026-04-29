@@ -4,7 +4,7 @@ import PageFooter from "./components/PageFooter.vue";
 </script>
 
 <template>
-  <div class="min-h-screen relative bg-slate-50 text-slate-900 overflow-x-hidden">
+  <div class="min-h-screen relative bg-[#f4ecde] text-[#18263f] overflow-x-hidden">
     <!-- Background Effects -->
     <div 
       class="pointer-events-none fixed inset-0 bg-[linear-gradient(rgba(24,38,63,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(24,38,63,0.03)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:linear-gradient(180deg,rgba(0,0,0,0.4),transparent_88%)]" 

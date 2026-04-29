@@ -417,14 +417,14 @@ onMounted(loadSummary);
 <template>
   <section class="flex flex-col gap-8 p-4 md:p-8">
     <div class="grid gap-8">
-      <article class="bg-white rounded-xl shadow-sm border border-slate-100 p-8 md:p-12 hover:shadow-md transition-shadow relative overflow-hidden">
-        <span class="text-indigo-600 text-sm font-semibold tracking-wider uppercase mb-2 block">{{ heroEyebrow }}</span>
-        <h1 class="text-4xl md:text-6xl font-bold text-slate-900 mb-6" data-test="home-hero-title">{{ heroTitle }}</h1>
-        <hr class="border-t border-slate-200 my-6" />
-        <p class="text-lg text-slate-600 mb-8 max-w-3xl" data-test="home-hero-copy">{{ heroCopy }}</p>
+      <article class="bg-white rounded-[32px] shadow-sm border border-[#ede2d0] p-8 md:p-12 hover:shadow-md transition-shadow relative overflow-hidden">
+        <span class="inline-flex px-3 py-1 rounded-full border border-[#c54f2d]/20 bg-[#c54f2d]/5 text-[#c54f2d] text-sm font-semibold tracking-wider mb-2">{{ heroEyebrow }}</span>
+        <h1 class="text-4xl md:text-6xl font-serif font-bold text-[#18263f] mb-6 mt-4" data-test="home-hero-title">{{ heroTitle }}</h1>
+        <hr class="w-16 border-t-2 border-[#c54f2d] my-6" />
+        <p class="text-lg text-[#50607b] mb-8 max-w-3xl" data-test="home-hero-copy">{{ heroCopy }}</p>
 
         <form class="grid gap-3 mt-8" data-test="home-search-form" @submit.prevent="submitSearch">
-          <label class="text-slate-500 text-sm font-semibold tracking-wider uppercase" for="home-search" data-test="home-search-label">
+          <label class="text-[#50607b] text-sm font-semibold tracking-wider uppercase" for="home-search" data-test="home-search-label">
             站内搜索
           </label>
           <div class="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3 items-center">
@@ -433,11 +433,11 @@ onMounted(loadSummary);
               v-model="searchKeyword"
               name="home-search"
               type="search"
-              class="min-h-[52px] w-full px-5 border border-slate-200 rounded-full bg-slate-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"
+              class="min-h-[52px] w-full px-5 border border-[#ede2d0] rounded-full bg-slate-50 text-[#18263f] focus:outline-none focus:ring-2 focus:ring-[#c54f2d]/50 focus:border-[#c54f2d] transition-all"
               placeholder="搜索经验帖、岗位、院校、资料"
               autocomplete="off"
             />
-            <button type="submit" class="bg-indigo-600 text-white rounded-full px-8 py-3 hover:bg-indigo-700 font-medium transition-colors flex items-center justify-center min-h-[52px]">
+            <button type="submit" class="bg-[#18263f] text-white rounded-full px-8 py-3 hover:bg-[#18263f]/90 font-medium transition-colors flex items-center justify-center min-h-[52px]">
               搜索
             </button>
           </div>
@@ -461,19 +461,19 @@ onMounted(loadSummary);
         </div>
 
         <div class="flex flex-wrap gap-4 mt-8" style="margin-top: 28px;">
-          <RouterLink v-if="isGuest" to="/login" class="bg-indigo-600 text-white rounded-lg px-6 py-3 hover:bg-indigo-700 font-medium transition-colors" data-test="home-primary-cta">
+          <RouterLink v-if="isGuest" to="/login" class="bg-[#18263f] hover:bg-[#18263f]/90 text-white rounded-full px-6 py-3 font-medium transition-colors" data-test="home-primary-cta">
             登录查看个人待办
           </RouterLink>
-          <RouterLink v-if="isGuest" to="/register" class="bg-white text-indigo-600 border border-indigo-600 rounded-lg px-6 py-3 hover:bg-indigo-50 font-medium transition-colors" data-test="home-secondary-cta">
+          <RouterLink v-if="isGuest" to="/register" class="bg-white text-[#18263f] border border-[#18263f] rounded-full px-6 py-3 hover:bg-slate-50 font-medium transition-colors" data-test="home-secondary-cta">
             立即注册
           </RouterLink>
-          <RouterLink v-if="!isGuest" to="/profile" class="bg-indigo-600 text-white rounded-lg px-6 py-3 hover:bg-indigo-700 font-medium transition-colors" data-test="home-primary-cta">
+          <RouterLink v-if="!isGuest" to="/profile" class="bg-[#18263f] hover:bg-[#18263f]/90 text-white rounded-full px-6 py-3 font-medium transition-colors" data-test="home-primary-cta">
             进入个人中心
           </RouterLink>
-          <RouterLink v-if="!isGuest" to="/notifications" class="bg-white text-indigo-600 border border-indigo-600 rounded-lg px-6 py-3 hover:bg-indigo-50 font-medium transition-colors" data-test="home-secondary-cta">
+          <RouterLink v-if="!isGuest" to="/notifications" class="bg-white text-[#18263f] border border-[#18263f] rounded-full px-6 py-3 hover:bg-slate-50 font-medium transition-colors" data-test="home-secondary-cta">
             查看通知
           </RouterLink>
-          <RouterLink v-if="canReviewVerifications" to="/admin/verifications" class="text-indigo-600 hover:text-indigo-700 font-medium hover:underline inline-flex items-center">
+          <RouterLink v-if="canReviewVerifications" to="/admin/verifications" class="text-[#18263f] hover:text-[#18263f]/80 font-medium hover:underline inline-flex items-center">
             进入认证审核台
           </RouterLink>
         </div>
@@ -482,26 +482,27 @@ onMounted(loadSummary);
           <span
             v-for="signal in roadmapSignals"
             :key="`${signal.label}-${signal.state}`"
-            class="inline-flex items-center min-h-[34px] px-4 rounded-full border border-slate-200 bg-slate-50 text-slate-600 text-sm"
+            class="inline-flex items-center min-h-[34px] px-4 rounded-full border border-[#ede2d0] bg-slate-50 text-[#50607b] text-sm"
           >
             {{ signal.label }}：{{ signal.state }}
           </span>
         </div>
       </article>
 
-      <article class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 md:p-8 hover:shadow-md transition-shadow" data-test="home-section-snapshot">
-        <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-8">
+      <article class="bg-white rounded-[32px] shadow-sm border border-[#ede2d0] p-6 md:p-8 hover:shadow-md transition-shadow" data-test="home-section-snapshot">
+        <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-4">
           <div>
-            <span class="text-indigo-600 text-sm font-semibold tracking-wider uppercase mb-2 block">今日概览</span>
-            <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mt-2" style="margin-top: 16px;">先看清你现在的状态和待办</h2>
+            <span class="inline-flex px-3 py-1 rounded-full border border-[#c54f2d]/20 bg-[#c54f2d]/5 text-[#c54f2d] text-sm font-semibold tracking-wider mb-2">今日概览</span>
+            <h2 class="text-2xl md:text-3xl font-serif font-bold text-[#18263f] mt-4">先看清你现在的状态和待办</h2>
+            <hr class="w-16 border-t-2 border-[#c54f2d] my-6" />
           </div>
         </div>
 
-        <div v-if="loading" class="text-slate-500 py-8 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200">正在整理首页聚合数据...</div>
+        <div v-if="loading" class="text-[#50607b] py-8 text-center bg-slate-50 rounded-2xl border border-dashed border-[#ede2d0]">正在整理首页聚合数据...</div>
 
         <div v-else-if="errorMessage" class="grid gap-4">
-          <p class="text-red-600 bg-red-50 p-4 rounded-lg border border-red-100" role="alert">{{ errorMessage }}</p>
-          <button type="button" class="bg-white text-indigo-600 border border-indigo-600 rounded-lg px-6 py-3 hover:bg-indigo-50 font-medium transition-colors" @click="loadSummary">
+          <p class="text-red-600 bg-red-50 p-4 rounded-2xl border border-red-100" role="alert">{{ errorMessage }}</p>
+          <button type="button" class="bg-white text-[#18263f] border border-[#18263f] rounded-full px-6 py-3 hover:bg-slate-50 font-medium transition-colors" @click="loadSummary">
             重新加载
           </button>
         </div>
@@ -511,16 +512,16 @@ onMounted(loadSummary);
             <article
               v-for="card in statCards"
               :key="card.label"
-              class="bg-slate-50 rounded-xl p-6 flex flex-col justify-end min-h-[138px] border border-slate-100"
+              class="bg-slate-50 rounded-2xl p-6 flex flex-col justify-end min-h-[138px] border border-[#ede2d0]"
             >
-              <p class="text-slate-500 text-sm mb-2">{{ card.label }}</p>
-              <strong class="text-3xl md:text-4xl font-bold text-slate-900">{{ card.value }}</strong>
+              <p class="text-[#50607b] text-sm mb-2">{{ card.label }}</p>
+              <strong class="text-3xl md:text-4xl font-bold text-[#18263f]">{{ card.value }}</strong>
             </article>
           </div>
 
-          <article class="bg-slate-50 rounded-xl p-6 border border-slate-100">
-            <p class="text-slate-500 text-sm mb-2">今日提醒</p>
-            <ul class="list-disc pl-5 mt-4 space-y-2 text-slate-700">
+          <article class="bg-slate-50 rounded-2xl p-6 border border-[#ede2d0]">
+            <p class="text-[#50607b] text-sm mb-2">今日提醒</p>
+            <ul class="list-disc pl-5 mt-4 space-y-2 text-[#50607b]">
               <li v-for="todo in translatedTodos" :key="todo">
                 {{ todo }}
               </li>
@@ -530,18 +531,19 @@ onMounted(loadSummary);
       </article>
     </div>
 
-    <article class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 md:p-8 hover:shadow-md transition-shadow" data-test="home-section-entries">
-      <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-8">
+    <article class="bg-white rounded-[32px] shadow-sm border border-[#ede2d0] p-6 md:p-8 hover:shadow-md transition-shadow" data-test="home-section-entries">
+      <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-4">
         <div>
-          <span class="text-indigo-600 text-sm font-semibold tracking-wider uppercase mb-2 block">常用入口</span>
-          <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mt-2" style="margin-top: 16px;">从首页直接进入当前最需要的入口</h2>
-          <p class="text-slate-600 mt-2 max-w-3xl" style="margin-top: 16px;">
+          <span class="inline-flex px-3 py-1 rounded-full border border-[#c54f2d]/20 bg-[#c54f2d]/5 text-[#c54f2d] text-sm font-semibold tracking-wider mb-2">常用入口</span>
+          <h2 class="text-2xl md:text-3xl font-serif font-bold text-[#18263f] mt-4">从首页直接进入当前最需要的入口</h2>
+          <hr class="w-16 border-t-2 border-[#c54f2d] my-6" />
+          <p class="text-[#50607b] mt-2 max-w-3xl">
             先开放个人中心、通知中心和管理审核台，三条方向入口保留为后续阶段能力。
           </p>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
         <HomeEntryCard
           v-for="card in serviceCards"
           :key="card.code"
@@ -550,57 +552,59 @@ onMounted(loadSummary);
       </div>
     </article>
 
-    <article class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 md:p-8 hover:shadow-md transition-shadow" data-test="home-section-tracks">
-      <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-8">
+    <article class="bg-white rounded-[32px] shadow-sm border border-[#ede2d0] p-6 md:p-8 hover:shadow-md transition-shadow" data-test="home-section-tracks">
+      <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-4">
         <div>
-          <span class="text-indigo-600 text-sm font-semibold tracking-wider uppercase mb-2 block">成长方向</span>
-          <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mt-2" style="margin-top: 16px;">首页先讲方向，再进入模块</h2>
-          <p class="text-slate-600 mt-2 max-w-3xl" style="margin-top: 16px;">
+          <span class="inline-flex px-3 py-1 rounded-full border border-[#c54f2d]/20 bg-[#c54f2d]/5 text-[#c54f2d] text-sm font-semibold tracking-wider mb-2">成长方向</span>
+          <h2 class="text-2xl md:text-3xl font-serif font-bold text-[#18263f] mt-4">首页先讲方向，再进入模块</h2>
+          <hr class="w-16 border-t-2 border-[#c54f2d] my-6" />
+          <p class="text-[#50607b] mt-2 max-w-3xl">
             就业、考研、留学三条主线在首页先做聚合说明，帮助学生先判断路径，再决定进入哪个具体功能。
           </p>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch mt-8">
         <article
           v-for="track in strategyTracks"
           :key="track.eyebrow"
-          class="flex flex-col gap-4 p-6 md:p-8 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow"
+          class="flex flex-col gap-4 p-6 md:p-8 rounded-2xl border border-[#ede2d0] shadow-sm hover:shadow-md transition-shadow"
           :class="{'bg-gradient-to-b from-orange-50 to-orange-100/50': track.tone === 'career', 'bg-gradient-to-b from-yellow-50 to-amber-50': track.tone === 'exam', 'bg-gradient-to-b from-teal-50 to-emerald-50': track.tone === 'abroad'}"
         >
-          <p class="text-indigo-600 text-sm font-semibold tracking-wider uppercase">{{ track.eyebrow }}</p>
-          <h3 class="text-2xl font-bold text-slate-900">{{ track.title }}</h3>
-          <p class="text-slate-600 leading-relaxed">{{ track.description }}</p>
-          <ul class="list-disc pl-5 space-y-2 text-slate-600 mt-auto">
+          <p class="inline-flex px-3 py-1 rounded-full border border-[#c54f2d]/20 bg-[#c54f2d]/5 text-[#c54f2d] text-sm font-semibold tracking-wider self-start">{{ track.eyebrow }}</p>
+          <h3 class="text-2xl font-serif font-bold text-[#18263f] mt-2">{{ track.title }}</h3>
+          <p class="text-[#50607b] leading-relaxed">{{ track.description }}</p>
+          <ul class="list-disc pl-5 space-y-2 text-[#50607b] mt-auto">
             <li v-for="bullet in track.bullets" :key="bullet">
               {{ bullet }}
             </li>
           </ul>
-          <span class="inline-flex items-center min-h-[32px] px-4 rounded-full bg-slate-900/5 text-slate-900 text-sm font-semibold mt-4 self-start">{{ track.badge }}</span>
+          <span class="inline-flex items-center min-h-[32px] px-4 rounded-full bg-[#18263f]/5 text-[#18263f] text-sm font-semibold mt-4 self-start">{{ track.badge }}</span>
         </article>
       </div>
     </article>
 
-    <article class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 md:p-8 hover:shadow-md transition-shadow" data-test="home-section-discover">
-      <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-8">
+    <article class="bg-white rounded-[32px] shadow-sm border border-[#ede2d0] p-6 md:p-8 hover:shadow-md transition-shadow" data-test="home-section-discover">
+      <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-4">
         <div>
-          <span class="text-indigo-600 text-sm font-semibold tracking-wider uppercase mb-2 block">本周趋势</span>
-          <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mt-2" style="margin-top: 16px;">看看这一周大家都在关注什么，再决定要不要深入查看</h2>
-          <p class="text-slate-600 mt-2 max-w-3xl" style="margin-top: 16px;">
+          <span class="inline-flex px-3 py-1 rounded-full border border-[#c54f2d]/20 bg-[#c54f2d]/5 text-[#c54f2d] text-sm font-semibold tracking-wider mb-2">本周趋势</span>
+          <h2 class="text-2xl md:text-3xl font-serif font-bold text-[#18263f] mt-4">看看这一周大家都在关注什么，再决定要不要深入查看</h2>
+          <hr class="w-16 border-t-2 border-[#c54f2d] my-6" />
+          <p class="text-[#50607b] mt-2 max-w-3xl">
             首页先保留每周公开趋势，想看完整排序和更多内容，再进入趋势页。
           </p>
         </div>
-        <RouterLink :to="homeDiscoverLink" class="app-link discover-preview__cta" data-test="home-discover-cta">
+        <RouterLink :to="homeDiscoverLink" class="bg-white text-[#18263f] border border-[#18263f] rounded-full px-6 py-2 hover:bg-slate-50 font-medium transition-colors text-sm mb-4 md:mb-0" data-test="home-discover-cta">
           查看全部趋势
         </RouterLink>
       </div>
 
-      <div v-if="loading" class="text-slate-500 py-8 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200">正在整理本周趋势...</div>
-      <div v-else-if="discoverPreview.items.length === 0" class="empty-state discover-preview__empty">
-        <strong>{{ discoverPreviewEmptyTitle }}</strong>
-        <p class="text-slate-600 leading-relaxed">{{ discoverPreviewEmptyCopy }}</p>
+      <div v-if="loading" class="text-[#50607b] py-8 text-center bg-slate-50 rounded-2xl border border-dashed border-[#ede2d0] mt-4">正在整理本周趋势...</div>
+      <div v-else-if="discoverPreview.items.length === 0" class="empty-state discover-preview__empty mt-4">
+        <strong class="text-[#18263f] font-serif">{{ discoverPreviewEmptyTitle }}</strong>
+        <p class="text-[#50607b] leading-relaxed mt-2">{{ discoverPreviewEmptyCopy }}</p>
       </div>
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
         <DiscoverItemCard
           v-for="item in discoverPreview.items"
           :key="`${item.type}-${item.id}`"
@@ -610,70 +614,72 @@ onMounted(loadSummary);
     </article>
 
     <div class="grid md:grid-cols-2 gap-8 mt-8">
-      <article class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 md:p-8 hover:shadow-md transition-shadow" data-test="home-section-notifications">
-        <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-8">
+      <article class="bg-white rounded-[32px] shadow-sm border border-[#ede2d0] p-6 md:p-8 hover:shadow-md transition-shadow" data-test="home-section-notifications">
+        <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-4">
           <div>
-            <span class="text-indigo-600 text-sm font-semibold tracking-wider uppercase mb-2 block">最新通知</span>
-            <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mt-2" style="margin-top: 16px;">及时查看通知与审核反馈</h2>
+            <span class="inline-flex px-3 py-1 rounded-full border border-[#c54f2d]/20 bg-[#c54f2d]/5 text-[#c54f2d] text-sm font-semibold tracking-wider mb-2">最新通知</span>
+            <h2 class="text-2xl md:text-3xl font-serif font-bold text-[#18263f] mt-4">及时查看通知与审核反馈</h2>
+            <hr class="w-16 border-t-2 border-[#c54f2d] my-6" />
           </div>
           <RouterLink
             v-if="!isGuest"
             to="/notifications"
-            class="text-indigo-600 hover:text-indigo-700 font-medium hover:underline inline-flex items-center"
+            class="bg-white text-[#18263f] border border-[#18263f] rounded-full px-6 py-2 hover:bg-slate-50 font-medium transition-colors text-sm mb-4 md:mb-0"
           >
             查看全部通知
           </RouterLink>
         </div>
 
-        <div v-if="loading" class="text-slate-500 py-8 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200">正在同步最新通知...</div>
-        <div v-else-if="latestNotifications.length === 0" class="text-slate-500 py-8 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200">
+        <div v-if="loading" class="text-[#50607b] py-8 text-center bg-slate-50 rounded-2xl border border-dashed border-[#ede2d0] mt-4">正在同步最新通知...</div>
+        <div v-else-if="latestNotifications.length === 0" class="text-[#50607b] py-8 text-center bg-slate-50 rounded-2xl border border-dashed border-[#ede2d0] mt-4">
           {{ isGuest ? "登录后可查看与你相关的通知和处理结果。" : "当前还没有新的通知。" }}
         </div>
-        <div v-else class="grid gap-4">
+        <div v-else class="grid gap-4 mt-8">
           <article
             v-for="item in latestNotifications"
             :key="item.id"
-            class="flex flex-col md:flex-row md:justify-between gap-4 p-5 md:p-6 rounded-xl border border-slate-200 bg-white/80 hover:bg-white transition-colors shadow-sm"
+            class="flex flex-col md:flex-row md:justify-between gap-4 p-5 md:p-6 rounded-2xl border border-[#ede2d0] bg-white/80 hover:bg-white transition-colors shadow-sm"
           >
             <div class="grid gap-2">
-              <p class="text-slate-500 text-sm">{{ item.type || "系统通知" }}</p>
-              <h3 class="text-xl font-bold text-slate-900">{{ item.title }}</h3>
-              <p class="text-slate-600 leading-relaxed">{{ item.content }}</p>
+              <p class="text-[#50607b] text-sm">{{ item.type || "系统通知" }}</p>
+              <h3 class="text-xl font-serif font-bold text-[#18263f]">{{ item.title }}</h3>
+              <p class="text-[#50607b] leading-relaxed">{{ item.content }}</p>
             </div>
             <div class="flex md:flex-col justify-between md:justify-start items-center md:items-end gap-3 text-right">
               <span class="status-badge" :class="item.read ? 'approved' : 'pending'">
                 {{ item.read ? "已读" : "未读" }}
               </span>
-              <span class="text-slate-500 text-sm">{{ formatNotificationTime(item.createdAt) }}</span>
+              <span class="text-[#50607b] text-sm">{{ formatNotificationTime(item.createdAt) }}</span>
             </div>
           </article>
         </div>
       </article>
 
-      <article class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 md:p-8 hover:shadow-md transition-shadow">
-        <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-8">
+      <article class="bg-white rounded-[32px] shadow-sm border border-[#ede2d0] p-6 md:p-8 hover:shadow-md transition-shadow">
+        <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-4">
           <div>
-            <span class="text-indigo-600 text-sm font-semibold tracking-wider uppercase mb-2 block">首页说明</span>
-            <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mt-2" style="margin-top: 16px;">为什么这样安排首页结构</h2>
+            <span class="inline-flex px-3 py-1 rounded-full border border-[#c54f2d]/20 bg-[#c54f2d]/5 text-[#c54f2d] text-sm font-semibold tracking-wider mb-2">首页说明</span>
+            <h2 class="text-2xl md:text-3xl font-serif font-bold text-[#18263f] mt-4">为什么这样安排首页结构</h2>
+            <hr class="w-16 border-t-2 border-[#c54f2d] my-6" />
           </div>
         </div>
 
-        <div class="grid gap-4">
-          <article class="bg-slate-50 rounded-xl p-6 border border-slate-100">
-            <strong>先总览，再深挖</strong>
-            <p class="text-slate-600 leading-relaxed">
+        <div class="grid gap-4 mt-8">
+          <article class="bg-slate-50 rounded-2xl p-6 border border-[#ede2d0]">
+            <strong class="text-[#18263f] font-serif block mb-2">先总览，再深挖</strong>
+            <p class="text-[#50607b] leading-relaxed">
               学生先在首页看清三条方向和当前待办，再进入具体模块，能显著降低入口分散造成的切换成本。
             </p>
           </article>
-          <article class="bg-slate-50 rounded-xl p-6 border border-slate-100">
-            <strong>认证与通知形成闭环</strong>
-            <p class="text-slate-600 leading-relaxed">
+          <article class="bg-slate-50 rounded-2xl p-6 border border-[#ede2d0]">
+            <strong class="text-[#18263f] font-serif block mb-2">认证与通知形成闭环</strong>
+            <p class="text-[#50607b] leading-relaxed">
               个人中心提交认证申请，教师与管理员统一审核，结果最终回流到通知中心，路径更清晰。
             </p>
           </article>
-          <article class="bg-slate-50 rounded-xl p-6 border border-slate-100">
-            <strong>为后续方向功能留出位置</strong>
-            <p class="text-slate-600 leading-relaxed">
+          <article class="bg-slate-50 rounded-2xl p-6 border border-[#ede2d0]">
+            <strong class="text-[#18263f] font-serif block mb-2">为后续方向功能留出位置</strong>
+            <p class="text-[#50607b] leading-relaxed">
               就业、考研、留学方向能力会继续向首页汇聚，当前先把结构和决策顺序固定下来。
             </p>
           </article>
