@@ -1,4 +1,4 @@
-<script setup>
+﻿<script setup>
 import { computed, onMounted, ref } from "vue";
 import { RouterLink, useRouter } from "vue-router";
 import { getHomeSummary } from "../api/home.js";
@@ -418,7 +418,7 @@ onMounted(loadSummary);
   <section class="flex flex-col gap-8 p-4 md:p-8">
     <div class="grid gap-8">
       <article class="bg-white rounded-xl shadow-sm border border-slate-100 p-8 md:p-12 hover:shadow-md transition-shadow relative overflow-hidden">
-        <span class="text-indigo-600 text-sm font-semibold tracking-wider uppercase mb-2 block">{{ heroEyebrow }}</span>
+        <span class="text-violet-600 text-sm font-semibold tracking-wider uppercase mb-2 block">{{ heroEyebrow }}</span>
         <h1 class="text-4xl md:text-6xl font-bold text-slate-900 mb-6" data-test="home-hero-title">{{ heroTitle }}</h1>
         <hr class="border-t border-slate-200 my-6" />
         <p class="text-lg text-slate-600 mb-8 max-w-3xl" data-test="home-hero-copy">{{ heroCopy }}</p>
@@ -433,11 +433,11 @@ onMounted(loadSummary);
               v-model="searchKeyword"
               name="home-search"
               type="search"
-              class="min-h-[52px] w-full px-5 border border-slate-200 rounded-full bg-slate-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"
+              class="min-h-[52px] w-full px-5 border border-slate-200 rounded-full bg-slate-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all"
               placeholder="搜索经验帖、岗位、院校、资料"
               autocomplete="off"
             />
-            <button type="submit" class="bg-indigo-600 text-white rounded-full px-8 py-3 hover:bg-indigo-700 font-medium transition-colors flex items-center justify-center min-h-[52px]">
+            <button type="submit" class="bg-violet-600 text-white rounded-full px-8 py-3 hover:bg-violet-700 font-medium transition-colors flex items-center justify-center min-h-[52px]">
               搜索
             </button>
           </div>
@@ -461,19 +461,19 @@ onMounted(loadSummary);
         </div>
 
         <div class="flex flex-wrap gap-4 mt-8" style="margin-top: 28px;">
-          <RouterLink v-if="isGuest" to="/login" class="bg-indigo-600 text-white rounded-lg px-6 py-3 hover:bg-indigo-700 font-medium transition-colors" data-test="home-primary-cta">
+          <RouterLink v-if="isGuest" to="/login" class="bg-violet-600 text-white rounded-lg px-6 py-3 hover:bg-violet-700 font-medium transition-colors" data-test="home-primary-cta">
             登录查看个人待办
           </RouterLink>
-          <RouterLink v-if="isGuest" to="/register" class="bg-white text-indigo-600 border border-indigo-600 rounded-lg px-6 py-3 hover:bg-indigo-50 font-medium transition-colors" data-test="home-secondary-cta">
+          <RouterLink v-if="isGuest" to="/register" class="bg-white text-violet-600 border border-violet-600 rounded-lg px-6 py-3 hover:bg-violet-50 font-medium transition-colors" data-test="home-secondary-cta">
             立即注册
           </RouterLink>
-          <RouterLink v-if="!isGuest" to="/profile" class="bg-indigo-600 text-white rounded-lg px-6 py-3 hover:bg-indigo-700 font-medium transition-colors" data-test="home-primary-cta">
+          <RouterLink v-if="!isGuest" to="/profile" class="bg-violet-600 text-white rounded-lg px-6 py-3 hover:bg-violet-700 font-medium transition-colors" data-test="home-primary-cta">
             进入个人中心
           </RouterLink>
-          <RouterLink v-if="!isGuest" to="/notifications" class="bg-white text-indigo-600 border border-indigo-600 rounded-lg px-6 py-3 hover:bg-indigo-50 font-medium transition-colors" data-test="home-secondary-cta">
+          <RouterLink v-if="!isGuest" to="/notifications" class="bg-white text-violet-600 border border-violet-600 rounded-lg px-6 py-3 hover:bg-violet-50 font-medium transition-colors" data-test="home-secondary-cta">
             查看通知
           </RouterLink>
-          <RouterLink v-if="canReviewVerifications" to="/admin/verifications" class="text-indigo-600 hover:text-indigo-700 font-medium hover:underline inline-flex items-center">
+          <RouterLink v-if="canReviewVerifications" to="/admin/verifications" class="text-violet-600 hover:text-violet-700 font-medium hover:underline inline-flex items-center">
             进入认证审核台
           </RouterLink>
         </div>
@@ -492,7 +492,7 @@ onMounted(loadSummary);
       <article class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 md:p-8 hover:shadow-md transition-shadow" data-test="home-section-snapshot">
         <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-8">
           <div>
-            <span class="text-indigo-600 text-sm font-semibold tracking-wider uppercase mb-2 block">今日概览</span>
+            <span class="text-violet-600 text-sm font-semibold tracking-wider uppercase mb-2 block">今日概览</span>
             <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mt-2" style="margin-top: 16px;">先看清你现在的状态和待办</h2>
           </div>
         </div>
@@ -501,7 +501,7 @@ onMounted(loadSummary);
 
         <div v-else-if="errorMessage" class="grid gap-4">
           <p class="text-red-600 bg-red-50 p-4 rounded-lg border border-red-100" role="alert">{{ errorMessage }}</p>
-          <button type="button" class="bg-white text-indigo-600 border border-indigo-600 rounded-lg px-6 py-3 hover:bg-indigo-50 font-medium transition-colors" @click="loadSummary">
+          <button type="button" class="bg-white text-violet-600 border border-violet-600 rounded-lg px-6 py-3 hover:bg-violet-50 font-medium transition-colors" @click="loadSummary">
             重新加载
           </button>
         </div>
@@ -533,7 +533,7 @@ onMounted(loadSummary);
     <article class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 md:p-8 hover:shadow-md transition-shadow" data-test="home-section-entries">
       <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-8">
         <div>
-          <span class="text-indigo-600 text-sm font-semibold tracking-wider uppercase mb-2 block">常用入口</span>
+          <span class="text-violet-600 text-sm font-semibold tracking-wider uppercase mb-2 block">常用入口</span>
           <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mt-2" style="margin-top: 16px;">从首页直接进入当前最需要的入口</h2>
           <p class="text-slate-600 mt-2 max-w-3xl" style="margin-top: 16px;">
             先开放个人中心、通知中心和管理审核台，三条方向入口保留为后续阶段能力。
@@ -553,7 +553,7 @@ onMounted(loadSummary);
     <article class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 md:p-8 hover:shadow-md transition-shadow" data-test="home-section-tracks">
       <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-8">
         <div>
-          <span class="text-indigo-600 text-sm font-semibold tracking-wider uppercase mb-2 block">成长方向</span>
+          <span class="text-amber-500 text-sm font-semibold tracking-wider uppercase mb-2 block">成长方向</span>
           <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mt-2" style="margin-top: 16px;">首页先讲方向，再进入模块</h2>
           <p class="text-slate-600 mt-2 max-w-3xl" style="margin-top: 16px;">
             就业、考研、留学三条主线在首页先做聚合说明，帮助学生先判断路径，再决定进入哪个具体功能。
@@ -568,7 +568,7 @@ onMounted(loadSummary);
           class="flex flex-col gap-4 p-6 md:p-8 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow"
           :class="{'bg-gradient-to-b from-orange-50 to-orange-100/50': track.tone === 'career', 'bg-gradient-to-b from-yellow-50 to-amber-50': track.tone === 'exam', 'bg-gradient-to-b from-teal-50 to-emerald-50': track.tone === 'abroad'}"
         >
-          <p class="text-indigo-600 text-sm font-semibold tracking-wider uppercase">{{ track.eyebrow }}</p>
+          <p class="text-violet-600 text-sm font-semibold tracking-wider uppercase">{{ track.eyebrow }}</p>
           <h3 class="text-2xl font-bold text-slate-900">{{ track.title }}</h3>
           <p class="text-slate-600 leading-relaxed">{{ track.description }}</p>
           <ul class="list-disc pl-5 space-y-2 text-slate-600 mt-auto">
@@ -584,7 +584,7 @@ onMounted(loadSummary);
     <article class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 md:p-8 hover:shadow-md transition-shadow" data-test="home-section-discover">
       <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-8">
         <div>
-          <span class="text-indigo-600 text-sm font-semibold tracking-wider uppercase mb-2 block">本周趋势</span>
+          <span class="text-rose-500 text-sm font-semibold tracking-wider uppercase mb-2 block">本周趋势</span>
           <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mt-2" style="margin-top: 16px;">看看这一周大家都在关注什么，再决定要不要深入查看</h2>
           <p class="text-slate-600 mt-2 max-w-3xl" style="margin-top: 16px;">
             首页先保留每周公开趋势，想看完整排序和更多内容，再进入趋势页。
@@ -613,13 +613,13 @@ onMounted(loadSummary);
       <article class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 md:p-8 hover:shadow-md transition-shadow" data-test="home-section-notifications">
         <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-8">
           <div>
-            <span class="text-indigo-600 text-sm font-semibold tracking-wider uppercase mb-2 block">最新通知</span>
+            <span class="text-emerald-500 text-sm font-semibold tracking-wider uppercase mb-2 block">最新通知</span>
             <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mt-2" style="margin-top: 16px;">及时查看通知与审核反馈</h2>
           </div>
           <RouterLink
             v-if="!isGuest"
             to="/notifications"
-            class="text-indigo-600 hover:text-indigo-700 font-medium hover:underline inline-flex items-center"
+            class="text-violet-600 hover:text-violet-700 font-medium hover:underline inline-flex items-center"
           >
             查看全部通知
           </RouterLink>
@@ -653,7 +653,7 @@ onMounted(loadSummary);
       <article class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 md:p-8 hover:shadow-md transition-shadow">
         <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-8">
           <div>
-            <span class="text-indigo-600 text-sm font-semibold tracking-wider uppercase mb-2 block">首页说明</span>
+            <span class="text-violet-600 text-sm font-semibold tracking-wider uppercase mb-2 block">首页说明</span>
             <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mt-2" style="margin-top: 16px;">为什么这样安排首页结构</h2>
           </div>
         </div>
@@ -682,6 +682,7 @@ onMounted(loadSummary);
     </div>
   </section>
 </template>
+
 
 
 
