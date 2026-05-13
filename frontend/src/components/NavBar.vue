@@ -7,6 +7,8 @@ import { useUserStore } from "../stores/user.js";
 
 const userStore = useUserStore();
 const router = useRouter();
+const userDisplayName = computed(() => userStore.profile?.nickname || userStore.profile?.phone || "我的");
+const userInitial = computed(() => userDisplayName.value.trim().slice(0, 1).toUpperCase() || "我");
 
 const navItems = computed(() => {
   const items = [
@@ -17,7 +19,6 @@ const navItems = computed(() => {
   ];
 
   if (userStore.isAuthenticated) {
-    items.push({ to: "/profile", label: "我的" });
     items.push({ to: "/notifications", label: "通知" });
   }
 
@@ -59,23 +60,26 @@ async function handleLogout() {
       </nav>
 
       <div class="site-header__actions">
-        <div v-if="userStore.isAuthenticated" class="site-user">
-          <div class="site-user__topline">
-            <NotificationBell :count="userStore.unreadCount" />
-            <VerificationStatusBadge :status="userStore.profile?.verificationStatus" />
-          </div>
-          <span class="site-user__role">{{ userStore.roleLabel }}</span>
-          <span class="site-user__name">
-            {{ userStore.profile?.nickname || userStore.profile?.phone }}
-          </span>
-        </div>
+        <template v-if="userStore.isAuthenticated">
+          <NotificationBell :count="userStore.unreadCount" />
+          <VerificationStatusBadge :status="userStore.profile?.verificationStatus" />
+          <RouterLink class="site-user" to="/profile" aria-label="进入个人主页">
+            <span class="site-user__avatar" aria-hidden="true">{{ userInitial }}</span>
+            <span class="site-user__meta">
+              <span class="site-user__role">我的</span>
+              <span class="site-user__name">{{ userDisplayName }}</span>
+            </span>
+          </RouterLink>
+        </template>
 
-        <RouterLink v-if="!userStore.isAuthenticated" to="/login" class="app-link">
-          登录
-        </RouterLink>
-        <RouterLink v-if="!userStore.isAuthenticated" to="/register" class="ghost-btn">
-          注册
-        </RouterLink>
+        <template v-if="!userStore.isAuthenticated">
+          <RouterLink to="/login" class="app-link">
+            登录
+          </RouterLink>
+          <RouterLink to="/register" class="ghost-btn">
+            注册
+          </RouterLink>
+        </template>
         <button v-else type="button" class="ghost-btn" @click="handleLogout">
           退出登录
         </button>
@@ -165,31 +169,66 @@ async function handleLogout() {
 }
 
 .site-user {
-  display: grid;
-  gap: 4px;
-  justify-items: end;
+  min-height: var(--cp-touch-height);
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  padding: 6px 12px 6px 8px;
+  border: 1px solid rgba(24, 38, 63, 0.12);
+  border-radius: var(--cp-radius-pill);
+  background: rgba(255, 255, 255, 0.62);
+  transition:
+    background-color var(--cp-transition),
+    border-color var(--cp-transition),
+    box-shadow var(--cp-transition),
+    transform var(--cp-transition);
   min-width: 0;
 }
 
-.site-user__topline {
-  display: flex;
-  gap: 8px;
+.site-user:hover {
+  transform: translateY(-1px);
+  border-color: rgba(24, 38, 63, 0.24);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: var(--cp-shadow-soft);
+}
+
+.site-user.router-link-exact-active {
+  border-color: rgba(197, 79, 45, 0.28);
+  background: rgba(197, 79, 45, 0.08);
+}
+
+.site-user__avatar {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
   align-items: center;
-  justify-content: end;
-  max-width: 100%;
+  justify-content: center;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--cp-ink);
+  color: #fff9f1;
+  font-weight: 700;
+}
+
+.site-user__meta {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
 }
 
 .site-user__role {
-  font-size: var(--cp-text-sm);
+  font-size: var(--cp-text-xs);
   color: var(--cp-teal-deep);
+  line-height: 1.2;
 }
 
 .site-user__name {
   font-weight: 600;
-  max-width: 148px;
+  max-width: 120px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  line-height: 1.2;
 }
 
 .site-header__actions .ghost-btn {
@@ -209,7 +248,7 @@ async function handleLogout() {
   }
 
   .site-user {
-    justify-items: start;
+    max-width: 100%;
   }
 }
 
@@ -222,8 +261,8 @@ async function handleLogout() {
     padding: 0 12px;
   }
 
-  .site-user__topline {
-    flex-wrap: wrap;
+  .site-user__name {
+    max-width: 96px;
   }
 }
 </style>
