@@ -1,7 +1,9 @@
 package com.campus.config;
 
+import java.io.IOException;
 import java.util.stream.Collectors;
 
+import org.apache.http.ConnectionClosedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -17,7 +19,9 @@ import com.campus.common.Result;
 import com.campus.dto.AdminJobImportValidationResponse;
 
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -63,5 +67,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public Result<Void> handleUnexpected(Exception exception) {
         return Result.error(500, "internal server error");
+    }
+
+    @ExceptionHandler(IOException.class)
+    public Result<Void> handleIOException(IOException exception) {
+        log.error("Elasticsearch connection error, search will fallback to MySQL", exception);
+        return Result.error(503, "search service temporarily unavailable");
     }
 }

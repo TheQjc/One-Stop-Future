@@ -53,6 +53,9 @@ app:
     read-fallback-local-enabled: ${RESOURCE_PREVIEW_READ_FALLBACK_LOCAL_ENABLED:false}
     docx:
       soffice-command: ${RESOURCE_PREVIEW_DOCX_SOFFICE_COMMAND:soffice}
+  search-sync:
+    enabled: ${SEARCH_SYNC_ENABLED:true}
+    interval-ms: ${SEARCH_SYNC_INTERVAL_MS:300000}
 
 platform:
   integrations:
@@ -60,8 +63,10 @@ platform:
       enabled: ${REDIS_ENABLED:false}
       ttl-seconds: ${REDIS_CACHE_TTL_SECONDS:60}
     elasticsearch:
-      enabled: ${ES_ENABLED:false}
-      uris: ${ES_URIS:http://127.0.0.1:9200}
+      enabled: ${ES_ENABLED:true}
+      uris: ${ES_URIS:http://114.132.220.42:9200}
+      username: ${ES_USERNAME:elastic}
+      password: ${ES_PASSWORD:9ce68K7lOI8_7WgLdD8*}
       index-prefix: ${ES_INDEX_PREFIX:campus-platform}
     minio:
       enabled: ${MINIO_ENABLED:false}

@@ -436,6 +436,14 @@ img {
   border: 0;
 }
 
+.search-highlight {
+  background-color: var(--cp-highlight-bg);
+  color: var(--cp-highlight-color);
+  border-radius: var(--cp-highlight-radius);
+  padding: 0 2px;
+  font-style: normal;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
