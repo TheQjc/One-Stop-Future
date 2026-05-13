@@ -58,9 +58,10 @@ public class SearchService {
 
         if (esResult.degraded()) {
             log.warn("Elasticsearch unavailable, falling back to MySQL search for query: {}", normalizedQuery);
-            results = fallbackSearch(normalizedQuery, normalizedType, normalizedSort, permission);
-            results = applyManualHighlight(results, normalizedQuery);
-            totals = buildTotalsFromFallback(results);
+            FallbackSearchResult fallback = fallbackSearch(normalizedQuery, normalizedType, permission);
+            List<SearchResultItem> highlighted = applyManualHighlight(fallback.filteredResults, normalizedQuery);
+            totals = fallback.totals;
+            results = highlighted;
         } else {
             results = esResult.items();
             totals = buildTotalsFromEs(esResult.typeCounts());
@@ -76,6 +77,24 @@ public class SearchService {
                 results);
     }
 
+    private record FallbackSearchResult(List<SearchResultItem> filteredResults, SearchTotals totals) {
+    }
+
+    private FallbackSearchResult fallbackSearch(
+            String query,
+            SearchContentType type,
+            PermissionContext permission) {
+
+        List<SearchResultItem> postResults = communityService.searchPublishedPosts(query);
+        List<SearchResultItem> jobResults = jobService.searchPublishedJobs(query);
+        List<SearchResultItem> resourceResults = resourceService.searchPublishedResources(query);
+
+        List<SearchResultItem> allResults = mergeResults(postResults, jobResults, resourceResults);
+        List<SearchResultItem> filteredResults = filterByType(allResults, type, permission);
+        SearchTotals totals = buildTotalsFromFallback(allResults);
+        return new FallbackSearchResult(filteredResults, totals);
+    }
+
     private PermissionContext buildPermissionContext(String identity) {
         if (identity == null || identity.isBlank() || "anonymousUser".equals(identity)) {
             return PermissionContext.forAnonymous();
@@ -84,24 +103,18 @@ public class SearchService {
         return PermissionContext.fromUser(user);
     }
 
-    private List<SearchResultItem> fallbackSearch(
-            String query,
+    private List<SearchResultItem> filterByType(
+            List<SearchResultItem> allResults,
             SearchContentType type,
-            SearchSortType sort,
             PermissionContext permission) {
-
-        List<SearchResultItem> postResults = communityService.searchPublishedPosts(query);
-        List<SearchResultItem> jobResults = jobService.searchPublishedJobs(query);
-        List<SearchResultItem> resourceResults = resourceService.searchPublishedResources(query);
-
         return switch (type) {
-            case ALL -> mergeResults(postResults, jobResults, resourceResults);
-            case POST -> postResults;
-            case JOB -> jobResults;
-            case RESOURCE -> resourceResults;
+            case ALL -> allResults;
+            case POST -> allResults.stream().filter(r -> "POST".equals(r.type())).toList();
+            case JOB -> allResults.stream().filter(r -> "JOB".equals(r.type())).toList();
+            case RESOURCE -> allResults.stream().filter(r -> "RESOURCE".equals(r.type())).toList();
             case RESUME, NOTIFICATION, APPLICATION -> {
                 if (permission.isAdmin() || permission.isAuthenticated()) {
-                    yield List.of();
+                    yield allResults.stream().filter(r -> r.type().equals(type.name())).toList();
                 }
                 yield List.of();
             }
