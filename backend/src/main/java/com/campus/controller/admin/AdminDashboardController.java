@@ -8,7 +8,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.campus.common.Result;
 import com.campus.dto.AdminDashboardSummaryResponse;
+import com.campus.dto.AdminDashboardChartsResponse;
 import com.campus.service.AdminDashboardService;
+import org.springframework.web.bind.annotation.RequestParam;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @Validated
 @RestController
@@ -25,5 +29,15 @@ public class AdminDashboardController {
     @GetMapping("/summary")
     public Result<AdminDashboardSummaryResponse> summary() {
         return Result.success(adminDashboardService.getSummary());
+    }
+
+    @GetMapping("/charts")
+    public Result<AdminDashboardChartsResponse> getCharts(@RequestParam(defaultValue = "30") int days) {
+        return Result.success(adminDashboardService.getDashboardCharts(days));
+    }
+
+    @GetMapping("/export")
+    public void exportDashboardData(HttpServletResponse response, @RequestParam(defaultValue = "30") int days) throws IOException {
+        adminDashboardService.exportDashboardData(response, days);
     }
 }
