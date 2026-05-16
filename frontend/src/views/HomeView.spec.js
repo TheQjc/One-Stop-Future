@@ -192,7 +192,7 @@ test("renders guest hero copy in approved Chinese wording with live resources li
   expect(wrapper.get('[data-test="home-hero-copy"]').text()).toBe("公开内容、常用入口和成长方向会集中展示，先帮你看清选择，再进入具体模块。");
   expect(wrapper.get('[data-test="home-search-label"]').text()).toBe("站内搜索");
   expect(wrapper.get('input[name="home-search"]').attributes("placeholder")).toBe("搜索经验帖、岗位、院校、资料");
-  expect(wrapper.get(".hero-search__submit").text()).toBe("搜索");
+  expect(wrapper.get('button[type="submit"]').text()).toBe("搜索");
   expect(wrapper.get('[data-test="home-status-chip"]').text()).toBe("首页服务已开启");
   expect(wrapper.get('[data-test="home-primary-cta"]').text()).toBe("登录查看个人待办");
   expect(wrapper.get('[data-test="home-secondary-cta"]').text()).toBe("立即注册");
@@ -256,13 +256,50 @@ test("hydrates authenticated summary into store and shows signed-in hero copy", 
   expect(wrapper.text()).toContain("秋招周记");
 });
 
+test("keeps signed-in hero actions when a public home summary is returned for a local session", async () => {
+  setActivePinia(createPinia());
+  const userStore = useUserStore();
+
+  userStore.token = "demo-token";
+  userStore.profile = {
+    id: 2,
+    userId: 2,
+    phone: "13800000001",
+    username: "13800000001",
+    nickname: "Niudeyipi",
+    role: "USER",
+    verificationStatus: "PENDING",
+    unreadNotificationCount: 0,
+  };
+
+  getHomeSummary.mockResolvedValue(guestSummary);
+
+  const wrapper = mount(HomeView, {
+    global: {
+      stubs: {
+        RouterLink: {
+          props: ["to"],
+          template: "<a :data-to='typeof to === \"string\" ? to : JSON.stringify(to)'><slot /></a>",
+        },
+      },
+    },
+  });
+
+  await flushPromises();
+
+  expect(wrapper.get('[data-test="home-status-chip"]').text()).toContain("Niudeyipi");
+  expect(wrapper.get('[data-test="home-primary-cta"]').text()).toBe("进入个人中心");
+  expect(wrapper.get('[data-test="home-secondary-cta"]').text()).toBe("查看通知");
+  expect(wrapper.text()).not.toContain("登录查看个人待办");
+});
+
 test("home keeps common entry section before growth directions", async () => {
   getHomeSummary.mockResolvedValue(guestSummary);
 
   const wrapper = mountView();
   await flushPromises();
 
-  const orderedSections = wrapper.findAll('article.section-card[data-test]').map((node) => node.attributes("data-test"));
+  const orderedSections = wrapper.findAll('article[data-test^="home-section-"][data-test]').map((node) => node.attributes("data-test"));
 
   expect(orderedSections).toContain("home-section-entries");
   expect(orderedSections).toContain("home-section-tracks");
@@ -334,7 +371,7 @@ test("admin home shows the dashboard link before the existing admin destinations
   const wrapper = mountView();
   await flushPromises();
 
-  const linkTargets = wrapper.findAll(".service-grid a[data-to]").map((node) => node.attributes("data-to"));
+  const linkTargets = wrapper.findAll('[data-test="home-section-entries"] a[data-to]').map((node) => node.attributes("data-to"));
 
   expect(linkTargets).toEqual(expect.arrayContaining([
     "/admin/dashboard",

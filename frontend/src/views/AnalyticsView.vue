@@ -286,7 +286,11 @@ onMounted(() => {
                 <span>{{ card.activeDays }} 天有活跃</span>
               </div>
             </div>
-            <div class="trend-card__bars" :aria-label="`${card.label}趋势柱状图`">
+            <div
+              class="trend-card__bars"
+              :style="{ gridTemplateColumns: `repeat(${card.points.length}, minmax(14px, 1fr))` }"
+              :aria-label="`${card.label}趋势柱状图`"
+            >
               <div
                 v-for="point in card.points"
                 :key="`${card.key}-${point.date}`"
@@ -630,16 +634,21 @@ onMounted(() => {
 }
 
 .trend-card__bars {
-  min-height: 168px;
+  min-height: 224px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(12px, 1fr));
   gap: 6px;
   align-items: end;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 12px 2px 2px;
+  scrollbar-width: thin;
 }
 
 .trend-card__bar-wrap {
-  min-height: 168px;
+  min-width: 14px;
+  height: 204px;
   display: grid;
+  grid-template-rows: minmax(120px, 1fr) 56px;
   gap: 10px;
   align-items: end;
 }
@@ -657,6 +666,7 @@ onMounted(() => {
   color: var(--cp-ink-faint);
   font-size: 11px;
   text-align: center;
+  line-height: 1;
   writing-mode: vertical-rl;
   transform: rotate(180deg);
 }

@@ -68,6 +68,17 @@ public class UserService {
         return findByPhone(username);
     }
 
+    public User findByIdentity(String identity) {
+        if (identity == null || identity.isBlank() || "anonymousUser".equals(identity)) {
+            return null;
+        }
+        try {
+            return requireByIdentity(identity);
+        } catch (BusinessException e) {
+            return null;
+        }
+    }
+
     public User requireByUsername(String username) {
         return requireByIdentity(username);
     }
