@@ -1,7 +1,8 @@
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, nextTick, onBeforeUnmount } from "vue";
 import { RouterLink } from "vue-router";
-import { getAdminDashboardSummary } from "../../api/admin.js";
+import { getAdminDashboardSummary, getAdminDashboardCharts, exportAdminDashboardData } from "../../api/admin.js";
+import * as echarts from "echarts";
 
 function createEmptySummary() {
   return {
@@ -235,6 +236,19 @@ const sections = computed(() => [
   },
 ]);
 
+const chartsLoading = ref(true);
+const chartsError = ref("");
+const chartsData = ref(null);
+
+const trendChartRef = ref(null);
+const tagChartRef = ref(null);
+const rankingChartRef = ref(null);
+
+let trendChartInstance = null;
+let tagChartInstance = null;
+let rankingChartInstance = null;
+let chartResizeObserver = null;
+
 async function loadSummary() {
   loading.value = true;
   pageError.value = "";
@@ -248,7 +262,149 @@ async function loadSummary() {
   }
 }
 
-onMounted(loadSummary);
+async function loadCharts() {
+  chartsLoading.value = true;
+  chartsError.value = "";
+  try {
+    chartsData.value = await getAdminDashboardCharts(30);
+  } catch (error) {
+    chartsError.value = error.message || "图表数据加载失败";
+  } finally {
+    chartsLoading.value = false;
+    // 使用 nextTick 确保 v-else 的 DOM 已经渲染完毕
+    nextTick(() => {
+      if (!chartsError.value) {
+        renderTrendChart();
+        renderTagChart();
+        renderRankingChart();
+        
+        // 监听容器大小变化，解决 CSS 动画或 Grid 布局导致初始宽带为 0 的问题
+        if (!chartResizeObserver) {
+          chartResizeObserver = new ResizeObserver(() => {
+            if (trendChartInstance) trendChartInstance.resize();
+            if (tagChartInstance) tagChartInstance.resize();
+            if (rankingChartInstance) rankingChartInstance.resize();
+          });
+        }
+        if (trendChartRef.value) chartResizeObserver.observe(trendChartRef.value);
+        if (tagChartRef.value) chartResizeObserver.observe(tagChartRef.value);
+        if (rankingChartRef.value) chartResizeObserver.observe(rankingChartRef.value);
+      }
+    });
+  }
+}
+
+function renderTrendChart() {
+  if (!trendChartRef.value || !chartsData.value) return;
+  if (trendChartInstance) trendChartInstance.dispose();
+  trendChartInstance = echarts.init(trendChartRef.value);
+  const chart = trendChartInstance;
+  const data = chartsData.value;
+  const dateSet = new Set();
+  
+  if (data.registrationTrends) data.registrationTrends.forEach(d => dateSet.add(d.date));
+  if (data.postTrends) data.postTrends.forEach(d => dateSet.add(d.date));
+  if (data.activeUserTrends) data.activeUserTrends.forEach(d => dateSet.add(d.date));
+  
+  const dates = Array.from(dateSet).sort();
+
+  const getCounts = (trend) => dates.map(date => {
+    const found = trend ? trend.find(d => d.date === date) : null;
+    return found ? found.count : 0;
+  });
+
+  chart.setOption({
+    tooltip: { trigger: 'axis' },
+    legend: { data: ['注册数', '发帖数', '活跃用户(DAU近似)'] },
+    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+    xAxis: { type: 'category', boundaryGap: false, data: dates },
+    yAxis: { type: 'value' },
+    series: [
+      { name: '注册数', type: 'line', smooth: true, data: getCounts(data.registrationTrends) },
+      { name: '发帖数', type: 'line', smooth: true, data: getCounts(data.postTrends) },
+      { name: '活跃用户(DAU近似)', type: 'line', smooth: true, data: getCounts(data.activeUserTrends) }
+    ]
+  });
+}
+
+function renderTagChart() {
+  if (!tagChartRef.value || !chartsData.value) return;
+  if (tagChartInstance) tagChartInstance.dispose();
+  tagChartInstance = echarts.init(tagChartRef.value);
+  const chart = tagChartInstance;
+  const data = chartsData.value.tagProportions ? chartsData.value.tagProportions.map(d => ({ name: d.tag || '无标签', value: d.count })) : [];
+  
+  chart.setOption({
+    tooltip: { trigger: 'item' },
+    legend: { top: '5%', left: 'center' },
+    series: [
+      {
+        name: '标签占比',
+        type: 'pie',
+        radius: ['40%', '70%'],
+        avoidLabelOverlap: false,
+        itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
+        label: { show: false, position: 'center' },
+        emphasis: { label: { show: true, fontSize: 20, fontWeight: 'bold' } },
+        labelLine: { show: false },
+        data: data
+      }
+    ]
+  });
+
+}
+
+function renderRankingChart() {
+  if (!rankingChartRef.value || !chartsData.value) return;
+  if (rankingChartInstance) rankingChartInstance.dispose();
+  rankingChartInstance = echarts.init(rankingChartRef.value);
+  const chart = rankingChartInstance;
+  const data = chartsData.value.downloadRankings ? chartsData.value.downloadRankings.slice(0, 10) : [];
+  
+  chart.setOption({
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+    xAxis: { type: 'value' },
+    yAxis: { 
+      type: 'category', 
+      data: data.map(d => d.title).reverse(),
+      axisLabel: {
+        formatter: (value) => value.length > 10 ? value.substring(0, 10) + '...' : value
+      }
+    },
+    series: [
+      {
+        name: '下载量',
+        type: 'bar',
+        data: data.map(d => d.count).reverse(),
+        itemStyle: { color: '#5470c6', borderRadius: [0, 4, 4, 0] }
+      }
+    ]
+  });
+
+}
+
+async function handleExport() {
+  try {
+    await exportAdminDashboardData(30);
+  } catch (error) {
+    alert("导出失败：" + (error.message || "未知错误"));
+  }
+}
+
+onMounted(() => {
+  loadSummary();
+  loadCharts();
+});
+
+onBeforeUnmount(() => {
+  if (chartResizeObserver) {
+    chartResizeObserver.disconnect();
+  }
+  if (trendChartInstance) trendChartInstance.dispose();
+  if (tagChartInstance) tagChartInstance.dispose();
+  if (rankingChartInstance) rankingChartInstance.dispose();
+});
 </script>
 
 <template>
@@ -375,6 +531,44 @@ onMounted(loadSummary);
         </article>
       </div>
     </template>
+
+    <!-- 数据分析板块 -->
+      <article class="section-card admin-desk-card" style="margin-top: 24px;">
+        <div class="section-header" style="display: flex; justify-content: space-between; align-items: flex-end;">
+          <div>
+            <span class="section-eyebrow">数据分析</span>
+            <h2 class="page-title" style="margin-top: 16px;">数据报表</h2>
+            <p class="page-subtitle" style="margin-top: 16px;">查看最近 30 天的运营趋势和分布情况。</p>
+          </div>
+          <button type="button" class="app-btn" style="padding: 8px 16px; border-radius: 8px; background: var(--cp-ink); color: white; border: none; cursor: pointer;" @click="handleExport">
+            导出数据 (CSV)
+          </button>
+        </div>
+
+        <div v-if="chartsLoading" class="empty-state admin-desk-card__empty">
+          正在加载图表数据...
+        </div>
+        <div v-else-if="chartsError" class="empty-state admin-desk-card__empty" style="color: var(--cp-danger);">
+          {{ chartsError }}
+          <button type="button" class="ghost-btn" @click="loadCharts" style="margin-top: 12px;">重试</button>
+        </div>
+        <div v-else>
+          <div class="dashboard-grid admin-dashboard__lead" style="margin-top: 24px;">
+            <article class="panel-card" style="grid-column: 1 / -1;">
+              <h3 class="admin-desk-card__subhead" style="margin-bottom: 16px;">最近 30 天趋势</h3>
+              <div ref="trendChartRef" style="width: 100%; height: 350px;"></div>
+            </article>
+            <article class="panel-card">
+              <h3 class="admin-desk-card__subhead" style="margin-bottom: 16px;">社区标签占比</h3>
+              <div ref="tagChartRef" style="width: 100%; height: 300px;"></div>
+            </article>
+            <article class="panel-card">
+              <h3 class="admin-desk-card__subhead" style="margin-bottom: 16px;">资源下载量排行 (Top 10)</h3>
+              <div ref="rankingChartRef" style="width: 100%; height: 300px;"></div>
+            </article>
+          </div>
+        </div>
+      </article>
   </section>
 </template>
 

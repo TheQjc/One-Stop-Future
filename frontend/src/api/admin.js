@@ -166,6 +166,28 @@ export async function getAdminDashboardSummary() {
   return data.data;
 }
 
+export async function getAdminDashboardCharts(days = 30) {
+  const { data } = await http.get("/admin/dashboard/charts", { params: { days } });
+  return data.data;
+}
+
+export async function exportAdminDashboardData(days = 30) {
+  const response = await http.get("/admin/dashboard/export", {
+    params: { days },
+    responseType: "blob",
+  });
+
+  const filename = extractFilename(response.headers["content-disposition"]) || "dashboard_data.csv";
+  const objectUrl = window.URL.createObjectURL(response.data);
+  const anchor = document.createElement("a");
+  anchor.href = objectUrl;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  window.URL.revokeObjectURL(objectUrl);
+}
+
 export async function getAdminApplications() {
   const { data } = await http.get("/admin/applications");
   return data.data;

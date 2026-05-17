@@ -29,12 +29,20 @@ public class AdminDashboardService {
     private final AdminDashboardReadMapper adminDashboardReadMapper;
     private final UserService userService;
     private final ResourceService resourceService;
+    private final com.campus.mapper.UserMapper userMapper;
+    private final com.campus.mapper.CommunityPostMapper communityPostMapper;
+    private final com.campus.mapper.ResourceItemMapper resourceItemMapper;
 
     public AdminDashboardService(AdminDashboardReadMapper adminDashboardReadMapper, UserService userService,
-            ResourceService resourceService) {
+            ResourceService resourceService, com.campus.mapper.UserMapper userMapper,
+            com.campus.mapper.CommunityPostMapper communityPostMapper,
+            com.campus.mapper.ResourceItemMapper resourceItemMapper) {
         this.adminDashboardReadMapper = adminDashboardReadMapper;
         this.userService = userService;
         this.resourceService = resourceService;
+        this.userMapper = userMapper;
+        this.communityPostMapper = communityPostMapper;
+        this.resourceItemMapper = resourceItemMapper;
     }
 
     public AdminDashboardSummaryResponse getSummary() {
@@ -43,6 +51,50 @@ public class AdminDashboardService {
                 buildCommunitySection(),
                 buildJobsSection(),
                 buildResourcesSection());
+    }
+
+    public com.campus.dto.AdminDashboardChartsResponse getDashboardCharts(int days) {
+        com.campus.dto.AdminDashboardChartsResponse response = new com.campus.dto.AdminDashboardChartsResponse();
+        response.setRegistrationTrends(userMapper.selectRegistrationTrends(days));
+        response.setPostTrends(communityPostMapper.selectPostTrends(days));
+        response.setActiveUserTrends(communityPostMapper.selectActiveUserTrends(days));
+        response.setTagProportions(communityPostMapper.selectTagProportions());
+        response.setDownloadRankings(resourceItemMapper.selectDownloadRankings());
+        return response;
+    }
+
+    public void exportDashboardData(jakarta.servlet.http.HttpServletResponse response, int days) throws java.io.IOException {
+        com.campus.dto.AdminDashboardChartsResponse charts = getDashboardCharts(days);
+        
+        response.setContentType("text/csv");
+        response.setCharacterEncoding("UTF-8");
+        response.setHeader("Content-Disposition", "attachment; filename=\"dashboard_data.csv\"");
+        
+        // Write BOM for Excel compatibility
+        response.getOutputStream().write(new byte[]{(byte)0xEF, (byte)0xBB, (byte)0xBF});
+
+        try (java.io.PrintWriter writer = new java.io.PrintWriter(new java.io.OutputStreamWriter(response.getOutputStream(), "UTF-8"));
+             org.apache.commons.csv.CSVPrinter csvPrinter = new org.apache.commons.csv.CSVPrinter(writer, 
+                org.apache.commons.csv.CSVFormat.DEFAULT.builder().setHeader("Type", "Key", "Value").build())) {
+            
+            for (com.campus.dto.AdminDashboardChartsResponse.TrendData data : charts.getRegistrationTrends()) {
+                csvPrinter.printRecord("Registration Trend", data.getDate(), data.getCount());
+            }
+            for (com.campus.dto.AdminDashboardChartsResponse.TrendData data : charts.getPostTrends()) {
+                csvPrinter.printRecord("Post Trend", data.getDate(), data.getCount());
+            }
+            for (com.campus.dto.AdminDashboardChartsResponse.TrendData data : charts.getActiveUserTrends()) {
+                csvPrinter.printRecord("Active User Trend (DAU Proxy)", data.getDate(), data.getCount());
+            }
+            for (com.campus.dto.AdminDashboardChartsResponse.TagData data : charts.getTagProportions()) {
+                csvPrinter.printRecord("Tag Proportion", data.getTag(), data.getCount());
+            }
+            for (com.campus.dto.AdminDashboardChartsResponse.RankingData data : charts.getDownloadRankings()) {
+                csvPrinter.printRecord("Download Ranking", data.getTitle(), data.getCount());
+            }
+            
+            csvPrinter.flush();
+        }
     }
 
     private AdminDashboardSummaryResponse.VerificationSection buildVerificationSection() {
