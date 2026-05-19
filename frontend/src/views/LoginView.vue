@@ -13,7 +13,7 @@ const form = reactive({
   verificationCode: "",
 });
 
-const demoAccounts = [
+const sampleAccounts = [
   {
     phone: "13800000000",
     label: "管理员账号",
@@ -28,11 +28,6 @@ const demoAccounts = [
     phone: "13800000002",
     label: "已认证用户账号",
     note: "用于查看已认证状态与通知入口",
-  },
-  {
-    phone: "13800000003",
-    label: "教师审核账号",
-    note: "可进入认证审核台并处理待审申请",
   },
 ];
 
@@ -137,15 +132,15 @@ onBeforeUnmount(() => {
             <p class="meta-copy">就业 / 考研 / 留学三条主线统一聚合</p>
           </article>
           <article class="panel-card">
-            <strong class="stat-value">当前阶段</strong>
-            <p class="meta-copy">首页、认证申请、通知中心与审核台已接通</p>
+            <strong class="stat-value">服务闭环</strong>
+            <p class="meta-copy">首页、认证申请、通知中心与审核台统一串联</p>
           </article>
         </div>
 
         <article class="panel-card helper-card">
-          <strong>测试账号</strong>
-          <ul class="demo-list">
-            <li v-for="account in demoAccounts" :key="account.phone">
+          <strong>体验账号</strong>
+          <ul class="sample-list">
+            <li v-for="account in sampleAccounts" :key="account.phone">
               <span>{{ account.phone }}</span>
               <strong>{{ account.label }}</strong>
               <small>{{ account.note }}</small>
@@ -160,7 +155,7 @@ onBeforeUnmount(() => {
             <span class="section-eyebrow">登录</span>
             <h2 class="page-title" style="margin-top: 16px;">手机号验证码登录</h2>
             <p class="page-subtitle" style="margin-top: 16px;">
-              当前测试环境会直接返回调试验证码，后续可无缝切换到真实短信通道。
+              获取验证码后即可登录，验证码会通过当前可用的验证通道返回。
             </p>
           </div>
         </div>
@@ -205,7 +200,7 @@ onBeforeUnmount(() => {
           <p class="field-hint">
             输入示例账号手机号后获取验证码即可登录，不再使用单独的用户名和密码。
           </p>
-          <p v-if="debugCode" class="debug-note">本次调试验证码：{{ debugCode }}</p>
+          <p v-if="debugCode" class="debug-note">本次测试验证码：{{ debugCode }}</p>
           <p v-if="errorMessage" class="field-error" role="alert">{{ errorMessage }}</p>
 
           <div class="inline-form-actions">
@@ -232,7 +227,7 @@ onBeforeUnmount(() => {
   gap: var(--cp-gap-4);
 }
 
-.demo-list {
+.sample-list {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -240,20 +235,20 @@ onBeforeUnmount(() => {
   gap: var(--cp-gap-3);
 }
 
-.demo-list li {
+.sample-list li {
   display: grid;
   gap: 4px;
   padding-bottom: 12px;
   border-bottom: 1px dashed var(--cp-line);
 }
 
-.demo-list li:last-child {
+.sample-list li:last-child {
   padding-bottom: 0;
   border-bottom: 0;
 }
 
-.demo-list span,
-.demo-list small {
+.sample-list span,
+.sample-list small {
   color: var(--cp-ink-soft);
   font-size: var(--cp-text-sm);
 }
