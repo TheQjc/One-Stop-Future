@@ -387,8 +387,9 @@ function renderRankingChart() {
 async function handleExport() {
   try {
     await exportAdminDashboardData(30);
+    chartsError.value = "";
   } catch (error) {
-    alert("导出失败：" + (error.message || "未知错误"));
+    chartsError.value = "分析报表导出失败：" + (error.message || "未知错误");
   }
 }
 
@@ -541,7 +542,7 @@ onBeforeUnmount(() => {
             <p class="page-subtitle" style="margin-top: 16px;">查看最近 30 天的运营趋势和分布情况。</p>
           </div>
           <button type="button" class="app-btn" style="padding: 8px 16px; border-radius: 8px; background: var(--cp-ink); color: white; border: none; cursor: pointer;" @click="handleExport">
-            导出数据 (CSV)
+            导出分析报表 (CSV)
           </button>
         </div>
 
