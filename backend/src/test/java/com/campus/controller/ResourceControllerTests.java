@@ -399,6 +399,25 @@ class ResourceControllerTests {
 
     @Test
     @WithMockUser(username = "2", roles = "USER")
+    void multipartRequestStringsAreSanitizedBeforeControllerUse() throws Exception {
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "safe-template.pdf", "application/pdf", "demo".getBytes(StandardCharsets.UTF_8));
+
+        mockMvc.perform(multipart("/api/resources")
+                        .file(file)
+                        .param("title", "安全资料<script>alert(1)</script>")
+                        .param("category", "RESUME_TEMPLATE")
+                        .param("summary", "<img src=x onerror=alert(1)>中文摘要")
+                        .param("description", "说明 <a href=\"javascript:alert(1)\">链接</a>"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.title").value("安全资料"))
+                .andExpect(jsonPath("$.data.summary").value("中文摘要"))
+                .andExpect(jsonPath("$.data.description").value("说明 链接"));
+    }
+
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
     void authenticatedUserCanResumeAndCompleteChunkedResourceUpload() throws Exception {
         MvcResult initResult = mockMvc.perform(post("/api/resources/chunk-uploads")
                         .contentType(MediaType.APPLICATION_JSON)

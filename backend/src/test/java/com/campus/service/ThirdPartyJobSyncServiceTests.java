@@ -177,6 +177,39 @@ class ThirdPartyJobSyncServiceTests {
     }
 
     @Test
+    void syncSanitizesDisplayFieldsBeforePersistingDrafts() {
+        serveJson("""
+                {
+                  "jobs": [
+                    {
+                      "title": "<img src=x onerror=alert(1)>Partner Data Analyst",
+                      "companyName": "North Lake Studio",
+                      "city": "Hangzhou",
+                      "jobType": "FULL_TIME",
+                      "educationRequirement": "BACHELOR",
+                      "sourceUrl": "https://partner.example/jobs/sanitized-analyst",
+                      "summary": "<script>alert(1)</script>New draft job",
+                      "content": "Click javascript:alert(1)",
+                      "deadlineAt": "2026-06-30 18:00:00"
+                    }
+                  ]
+                }
+                """);
+
+        service.syncJobs("1");
+
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT title FROM t_job_posting WHERE source_url = 'https://partner.example/jobs/sanitized-analyst'",
+                String.class)).isEqualTo("Partner Data Analyst");
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT summary FROM t_job_posting WHERE source_url = 'https://partner.example/jobs/sanitized-analyst'",
+                String.class)).isEqualTo("New draft job");
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT content FROM t_job_posting WHERE source_url = 'https://partner.example/jobs/sanitized-analyst'",
+                String.class)).isEqualTo("Click alert(1)");
+    }
+
+    @Test
     void malformedJsonFailsWholeSyncWithoutWrites() {
         serveRaw(200, "{ not-json");
 

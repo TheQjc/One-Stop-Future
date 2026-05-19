@@ -98,6 +98,26 @@ class JobBatchImportServiceTests {
                 Integer.class)).isEqualTo(0);
     }
 
+    @Test
+    void importSanitizesDisplayFieldsBeforePersistingDrafts() {
+        MockMultipartFile file = csvFile("""
+                title,companyName,city,jobType,educationRequirement,sourcePlatform,sourceUrl,summary,content,deadlineAt
+                <img src=x onerror=alert(1)>Security Analyst,Campus Future,Hangzhou,INTERNSHIP,BACHELOR,Official Site,https://jobs.example.com/import/sanitized,<script>alert(1)</script>Safe summary,Click javascript:alert(1),2026-06-20 18:00:00
+                """);
+
+        service.importJobs("1", file);
+
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT title FROM t_job_posting WHERE source_url = 'https://jobs.example.com/import/sanitized'",
+                String.class)).isEqualTo("Security Analyst");
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT summary FROM t_job_posting WHERE source_url = 'https://jobs.example.com/import/sanitized'",
+                String.class)).isEqualTo("Safe summary");
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT content FROM t_job_posting WHERE source_url = 'https://jobs.example.com/import/sanitized'",
+                String.class)).isEqualTo("Click alert(1)");
+    }
+
     private MockMultipartFile csvFile(String body) {
         return new MockMultipartFile(
                 "file",

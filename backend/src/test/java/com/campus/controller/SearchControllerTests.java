@@ -116,6 +116,22 @@ class SearchControllerTests {
                 .andExpect(jsonPath("$.data.results[2].path").value("/community/101"));
     }
 
+    @Test
+    void fallbackHighlightEscapesStoredHtmlBeforeAddingHighlightMarkup() throws Exception {
+        jdbcTemplate.update("""
+                INSERT INTO t_job_posting (id, title, company_name, city, job_type, education_requirement, source_platform, source_url, summary, content, deadline_at, published_at, status, created_by, updated_by, created_at, updated_at)
+                VALUES (102, '<img src=x onerror=alert(1)>Security Analyst', 'Search Labs', 'Shenzhen', 'INTERNSHIP', 'BACHELOR', 'Official Site', 'https://jobs.example.com/xss-analyst', '<script>alert(1)</script>Analyst summary', 'Analyst body', TIMESTAMPADD(DAY, 7, CURRENT_TIMESTAMP), CURRENT_TIMESTAMP, 'PUBLISHED', 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                """);
+
+        mockMvc.perform(get("/api/search").param("q", "Analyst").param("type", "JOB"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.results[0].highlightedTitle")
+                        .value("&lt;img src=x onerror=alert(1)&gt;Security <em class=\"search-highlight\">Analyst</em>"))
+                .andExpect(jsonPath("$.data.results[0].highlightedSummary")
+                        .value("&lt;script&gt;alert(1)&lt;/script&gt;<em class=\"search-highlight\">Analyst</em> summary"));
+    }
+
     private void insertUnifiedSearchFixtures() {
         jdbcTemplate.update("""
                 INSERT INTO t_community_post (id, author_id, tag, title, content, status, like_count, comment_count, favorite_count, created_at, updated_at)
