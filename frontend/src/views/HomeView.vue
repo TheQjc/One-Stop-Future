@@ -163,19 +163,19 @@ const heroEyebrow = computed(() => (
 
 const heroTitle = computed(() => (
   isGuest.value
-    ? "把就业、考研、留学放到一个首页里，先看方向，再做决定"
+    ? "让每一次成长选择，都有清晰路径可循"
     : `你好，${viewerName.value}，今天先从这几件事开始`
 ));
 
 const heroCopy = computed(() => (
   isGuest.value
-    ? "公开内容、常用入口和成长方向会集中展示，先帮你看清选择，再进入具体模块。"
+    ? "汇聚就业发展、升学规划、学习资源与校园经验，帮助你从目标确认到行动推进都更从容。"
     : "认证进度、未读通知和常用入口都会集中在这里，帮你先处理当下，再继续规划下一步。"
 ));
 
 const primaryStatusChip = computed(() => (
   isGuest.value
-    ? "首页服务已开启"
+    ? "一站式成长服务"
     : `${translateRole(summary.value.identity?.role || userStore.profile?.role)} / ${viewerName.value}`
 ));
 
@@ -296,7 +296,7 @@ const serviceCards = computed(() => {
     {
       code: "Track 05",
       title: "留学方向",
-      description: "语言、材料和申请时间线会在后续阶段补齐。",
+      description: "整理语言、材料和申请时间线，帮助你更早把准备节奏排清楚。",
       path: findEntry("assessment")?.enabled ? "/assessment" : "/login",
       enabled: Boolean(findEntry("assessment")?.enabled),
       metaLabel: entryStatusText(findEntry("assessment")),
@@ -538,7 +538,7 @@ onMounted(loadSummary);
           <h2 class="text-2xl md:text-3xl font-serif font-bold text-[#18263f] mt-4">从首页直接进入当前最需要的入口</h2>
           <hr class="w-16 border-t-2 border-[#c54f2d] my-6" />
           <p class="text-[#50607b] mt-2 max-w-3xl">
-            先开放个人中心、通知中心和管理审核台，三条方向入口保留为后续阶段能力。
+            常用服务、方向入口和管理工具集中在这里，登录后可继续处理个人待办。
           </p>
         </div>
       </div>
@@ -678,9 +678,9 @@ onMounted(loadSummary);
             </p>
           </article>
           <article class="bg-slate-50 rounded-2xl p-6 border border-[#ede2d0]">
-            <strong class="text-[#18263f] font-serif block mb-2">为后续方向功能留出位置</strong>
+            <strong class="text-[#18263f] font-serif block mb-2">持续汇聚成长服务</strong>
             <p class="text-[#50607b] leading-relaxed">
-              就业、考研、留学方向能力会继续向首页汇聚，当前先把结构和决策顺序固定下来。
+              就业、考研、留学相关服务集中呈现，方便学生把规划、材料和提醒放在同一处查看。
             </p>
           </article>
         </div>
