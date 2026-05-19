@@ -86,7 +86,7 @@ onMounted(loadPosts);
           <span class="section-eyebrow">社区治理</span>
           <h1 class="page-title" style="margin-top: 16px;">社区内容管理台</h1>
           <p class="page-subtitle" style="margin-top: 16px;">
-            当前阶段保留下线和删除两类最小治理动作，先把状态透明化，再处理具体帖子。
+            集中查看帖子状态和互动数据，并对不适合展示的内容执行下线或删除操作。
           </p>
         </div>
       </div>

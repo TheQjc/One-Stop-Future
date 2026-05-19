@@ -163,7 +163,7 @@ onMounted(loadUsers);
         </div>
 
         <p class="meta-copy" style="margin-top: 20px;">
-          当前阶段管理员账号受保护，不支持在这个页面直接切换状态。
+          管理员账号受保护，不支持在这个页面直接切换状态。
         </p>
         <p v-if="actionMessage" class="field-hint" style="margin-top: 16px;">{{ actionMessage }}</p>
         <p v-if="actionError" class="field-error" role="alert" style="margin-top: 12px;">
