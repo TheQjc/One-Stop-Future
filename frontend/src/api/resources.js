@@ -18,6 +18,11 @@ export async function getResourceDetail(id) {
   return data.data;
 }
 
+export async function getResourceVersions(id) {
+  const { data } = await http.get(`/resources/${id}/versions`);
+  return data.data;
+}
+
 export async function createResourceUpload(formData, options = {}) {
   const file = formData.get("file");
 

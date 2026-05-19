@@ -288,6 +288,39 @@ class ResourceControllerTests {
     }
 
     @Test
+    @WithMockUser(username = "2", roles = "USER")
+    void ownerCanReadResourceVersionHistory() throws Exception {
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "history-pack.pdf",
+                "application/pdf",
+                "history".getBytes(StandardCharsets.UTF_8));
+
+        mockMvc.perform(multipart("/api/resources")
+                        .file(file)
+                        .param("title", "History Pack")
+                        .param("category", "RESUME_TEMPLATE")
+                        .param("summary", "Versioned resource")
+                        .param("description", "Initial upload"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.title").value("History Pack"));
+
+        Long resourceId = jdbcTemplate.queryForObject(
+                "SELECT id FROM t_resource_item WHERE title = 'History Pack'",
+                Long.class);
+
+        mockMvc.perform(get("/api/resources/{id}/versions", resourceId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.total").value(1))
+                .andExpect(jsonPath("$.data.versions[0].versionNo").value(1))
+                .andExpect(jsonPath("$.data.versions[0].changeType").value("UPLOAD"))
+                .andExpect(jsonPath("$.data.versions[0].status").value("PENDING"))
+                .andExpect(jsonPath("$.data.versions[0].title").value("History Pack"));
+    }
+
+    @Test
     void previewZipRejectsNonZipResources() throws Exception {
         mockMvc.perform(get("/api/resources/1/preview-zip"))
                 .andExpect(status().isOk())

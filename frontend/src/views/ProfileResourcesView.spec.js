@@ -1,10 +1,11 @@
 import { flushPromises, mount } from "@vue/test-utils";
 import { beforeEach, expect, test, vi } from "vitest";
 import ProfileResourcesView from "./ProfileResourcesView.vue";
-import { getMyResources, previewResource, previewZipResource } from "../api/resources.js";
+import { getMyResources, getResourceVersions, previewResource, previewZipResource } from "../api/resources.js";
 
 vi.mock("../api/resources.js", () => ({
   getMyResources: vi.fn(),
+  getResourceVersions: vi.fn(),
   previewResource: vi.fn(),
   previewZipResource: vi.fn(),
 }));
@@ -133,4 +134,42 @@ test("docx resources use the generic FILE preview action", async () => {
   await flushPromises();
 
   expect(previewResource).toHaveBeenCalledWith(5);
+});
+
+test("loads and renders resource version history", async () => {
+  getMyResources.mockResolvedValue({
+    total: 1,
+    resources: [
+      {
+        id: 9,
+        title: "Versioned Pack",
+        status: "PENDING",
+        category: "RESUME_TEMPLATE",
+      },
+    ],
+  });
+  getResourceVersions.mockResolvedValue({
+    total: 1,
+    versions: [
+      {
+        id: 101,
+        versionNo: 1,
+        changeType: "UPLOAD",
+        title: "Versioned Pack",
+        fileName: "versioned-pack.pdf",
+        createdAt: "2026-04-18T10:00:00",
+      },
+    ],
+  });
+
+  const wrapper = mount(ProfileResourcesView);
+  await flushPromises();
+
+  await wrapper.find('[data-testid="versions-action-9"]').trigger("click");
+  await flushPromises();
+
+  expect(getResourceVersions).toHaveBeenCalledWith(9);
+  expect(wrapper.text()).toContain("版本历史");
+  expect(wrapper.text()).toContain("v1");
+  expect(wrapper.text()).toContain("versioned-pack.pdf");
 });
