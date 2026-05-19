@@ -38,6 +38,10 @@ function typeLabel(type) {
   const labelMap = {
     WELCOME: "欢迎",
     COMMUNITY_REPLY_RECEIVED: "评论回复",
+    COMMUNITY_POST_LIKED: "帖子点赞",
+    RESOURCE_APPROVED: "资料通过",
+    RESOURCE_REJECTED: "资料驳回",
+    RESOURCE_OFFLINED: "资料下线",
     SYSTEM: "系统",
     VERIFICATION_APPROVED: "认证通过",
     VERIFICATION_REJECTED: "认证驳回",

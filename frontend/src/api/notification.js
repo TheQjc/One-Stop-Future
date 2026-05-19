@@ -27,6 +27,16 @@ const defaultNotifications = [
     readAt: "2026-04-14T19:00:00",
   },
   {
+    id: 1004,
+    userId: 2,
+    type: "RESOURCE_APPROVED",
+    title: "资料已通过审核",
+    content: "你上传的资料已经发布，其他同学现在可以查看和下载。",
+    read: true,
+    createdAt: "2026-04-15T10:00:00",
+    readAt: "2026-04-15T10:30:00",
+  },
+  {
     id: 1003,
     userId: 3,
     type: "VERIFICATION_APPROVED",

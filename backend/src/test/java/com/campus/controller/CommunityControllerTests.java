@@ -229,10 +229,26 @@ class CommunityControllerTests {
                 .andExpect(jsonPath("$.data.likeCount").value(1))
                 .andExpect(jsonPath("$.data.likedByMe").value(true));
 
+        assertThat(jdbcTemplate.queryForObject(
+                """
+                        SELECT COUNT(*) FROM t_notification
+                        WHERE user_id = 3 AND type = 'COMMUNITY_POST_LIKED'
+                          AND source_type = 'COMMUNITY_POST' AND source_id = 2
+                        """,
+                Integer.class)).isEqualTo(1);
+
         mockMvc.perform(post("/api/community/posts/2/like"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.likeCount").value(1))
                 .andExpect(jsonPath("$.data.likedByMe").value(true));
+
+        assertThat(jdbcTemplate.queryForObject(
+                """
+                        SELECT COUNT(*) FROM t_notification
+                        WHERE user_id = 3 AND type = 'COMMUNITY_POST_LIKED'
+                          AND source_type = 'COMMUNITY_POST' AND source_id = 2
+                        """,
+                Integer.class)).isEqualTo(1);
 
         mockMvc.perform(post("/api/community/posts/2/favorite"))
                 .andExpect(status().isOk())
@@ -251,6 +267,22 @@ class CommunityControllerTests {
 
         assertThat(likeCount).isEqualTo(1);
         assertThat(commentCount).isEqualTo(1);
+    }
+
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
+    void selfLikeDoesNotCreateNotification() throws Exception {
+        mockMvc.perform(post("/api/community/posts/1/like"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.likedByMe").value(true));
+
+        assertThat(jdbcTemplate.queryForObject(
+                """
+                        SELECT COUNT(*) FROM t_notification
+                        WHERE user_id = 2 AND type = 'COMMUNITY_POST_LIKED'
+                          AND source_type = 'COMMUNITY_POST' AND source_id = 1
+                        """,
+                Integer.class)).isEqualTo(0);
     }
 
     @Test
