@@ -155,8 +155,27 @@ public class SearchService {
             return null;
         }
 
-        String escapedQuery = Pattern.quote(query.trim());
-        return text.replaceAll("(?i)(" + escapedQuery + ")", preTag + "$1" + postTag);
+        String escapedQuery = Pattern.quote(escapeHtml(query.trim()));
+        return escapeHtml(text).replaceAll("(?i)(" + escapedQuery + ")", preTag + "$1" + postTag);
+    }
+
+    private String escapeHtml(String text) {
+        if (text == null || text.isEmpty()) {
+            return text;
+        }
+        StringBuilder escaped = new StringBuilder(text.length());
+        for (int i = 0; i < text.length(); i++) {
+            char character = text.charAt(i);
+            switch (character) {
+                case '&' -> escaped.append("&amp;");
+                case '<' -> escaped.append("&lt;");
+                case '>' -> escaped.append("&gt;");
+                case '"' -> escaped.append("&quot;");
+                case '\'' -> escaped.append("&#39;");
+                default -> escaped.append(character);
+            }
+        }
+        return escaped.toString();
     }
 
     private List<SearchResultItem> mergeResults(

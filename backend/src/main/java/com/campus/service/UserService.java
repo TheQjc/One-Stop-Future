@@ -2,7 +2,11 @@ package com.campus.service;
 
 import java.time.LocalDateTime;
 
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.campus.common.BusinessException;
@@ -15,10 +19,19 @@ import com.campus.mapper.UserMapper;
 @Service
 public class UserService {
 
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
+
     private final UserMapper userMapper;
+    private SearchIndexSyncService searchIndexSyncService;
 
     public UserService(UserMapper userMapper) {
         this.userMapper = userMapper;
+    }
+
+    @Autowired
+    public UserService(UserMapper userMapper, ObjectProvider<SearchIndexSyncService> searchIndexSyncServiceProvider) {
+        this.userMapper = userMapper;
+        this.searchIndexSyncService = searchIndexSyncServiceProvider.getIfAvailable();
     }
 
     public User findByPhone(String phone) {
@@ -100,6 +113,7 @@ public class UserService {
         }
         user.setUpdatedAt(LocalDateTime.now());
         userMapper.updateById(user);
+        refreshSearchDocuments(user.getId());
         return toProfile(user);
     }
 
@@ -111,6 +125,17 @@ public class UserService {
     private void ensureAccountIsActive(User user) {
         if (UserStatus.BANNED.name().equals(user.getStatus())) {
             throw new BusinessException(403, "account is banned");
+        }
+    }
+
+    private void refreshSearchDocuments(Long userId) {
+        if (searchIndexSyncService == null) {
+            return;
+        }
+        try {
+            searchIndexSyncService.refreshUserDocuments(userId);
+        } catch (Exception exception) {
+            log.warn("Failed to refresh search documents after profile update for user {}", userId, exception);
         }
     }
 }
