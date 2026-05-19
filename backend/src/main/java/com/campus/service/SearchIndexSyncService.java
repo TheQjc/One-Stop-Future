@@ -280,32 +280,45 @@ public class SearchIndexSyncService {
     }
 
     private void createIndex() throws IOException {
-        esClient.indices().create(CreateIndexRequest.of(c -> c
-                .index(INDEX_NAME)
-                .settings(s -> s
-                        .numberOfShards("1")
-                        .numberOfReplicas("0"))
-                .mappings(m -> m
-                        .properties("id", p -> p.keyword(k -> k))
-                        .properties("contentType", p -> p.keyword(k -> k))
-                        .properties("ownerId", p -> p.long_(l -> l))
-                        .properties("visibility", p -> p.keyword(k -> k))
-                        .properties("status", p -> p.keyword(k -> k))
-                        .properties("title", p -> p.text(t -> t.analyzer("standard")
-                                .fields("keyword", f -> f.keyword(k -> k))))
-                        .properties("content", p -> p.text(t -> t.analyzer("standard")))
-                        .properties("summary", p -> p.text(t -> t.analyzer("standard")
-                                .fields("keyword", f -> f.keyword(k -> k))))
-                        .properties("tags", p -> p.keyword(k -> k))
-                        .properties("authorName", p -> p.text(t -> t.fields("keyword", f -> f.keyword(k -> k))))
-                        .properties("authorId", p -> p.long_(l -> l))
-                        .properties("publishedAt", p -> p.date(d -> d))
-                        .properties("createdAt", p -> p.date(d -> d))
-                        .properties("path", p -> p.keyword(k -> k))
-                        .properties("extra", p -> p.object(o -> o.enabled(true)))
-                )
-        ));
-        log.info("Created Elasticsearch index: {}", INDEX_NAME);
+        try {
+            esClient.indices().create(CreateIndexRequest.of(c -> c
+                    .index(INDEX_NAME)
+                    .settings(s -> s
+                            .numberOfShards("1")
+                            .numberOfReplicas("0"))
+                    .mappings(m -> m
+                            .properties("id", p -> p.keyword(k -> k))
+                            .properties("contentType", p -> p.keyword(k -> k))
+                            .properties("ownerId", p -> p.long_(l -> l))
+                            .properties("visibility", p -> p.keyword(k -> k))
+                            .properties("status", p -> p.keyword(k -> k))
+                            .properties("title", p -> p.text(t -> t.analyzer("standard")
+                                    .fields("keyword", f -> f.keyword(k -> k))))
+                            .properties("content", p -> p.text(t -> t.analyzer("standard")))
+                            .properties("summary", p -> p.text(t -> t.analyzer("standard")
+                                    .fields("keyword", f -> f.keyword(k -> k))))
+                            .properties("tags", p -> p.keyword(k -> k))
+                            .properties("authorName", p -> p.text(t -> t.fields("keyword", f -> f.keyword(k -> k))))
+                            .properties("authorId", p -> p.long_(l -> l))
+                            .properties("publishedAt", p -> p.date(d -> d))
+                            .properties("createdAt", p -> p.date(d -> d))
+                            .properties("path", p -> p.keyword(k -> k))
+                            .properties("extra", p -> p.object(o -> o.enabled(true)))
+                    )
+            ));
+            log.info("Created Elasticsearch index: {}", INDEX_NAME);
+        } catch (ElasticsearchException exception) {
+            if (!isResourceAlreadyExists(exception)) {
+                throw exception;
+            }
+            log.info("Elasticsearch index {} already exists, continuing startup.", INDEX_NAME);
+        }
+    }
+
+    private boolean isResourceAlreadyExists(ElasticsearchException exception) {
+        return exception.status() == 400
+                && exception.error() != null
+                && "resource_already_exists_exception".equals(exception.error().type());
     }
 
     private void deleteAndRecreateIndex() throws IOException {

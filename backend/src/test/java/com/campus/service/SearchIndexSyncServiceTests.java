@@ -35,9 +35,51 @@ import com.campus.mapper.ResourceItemMapper;
 import com.campus.mapper.UserMapper;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.ErrorResponse;
 import co.elastic.clients.elasticsearch.core.DeleteRequest;
+import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
+import co.elastic.clients.elasticsearch.indices.ElasticsearchIndicesClient;
+import co.elastic.clients.elasticsearch.indices.ExistsRequest;
+import co.elastic.clients.transport.endpoints.BooleanResponse;
 
 class SearchIndexSyncServiceTests {
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void fullReindexIgnoresCreateIndexRaceWhenIndexAlreadyExists() throws Exception {
+        ElasticsearchClient esClient = org.mockito.Mockito.mock(ElasticsearchClient.class);
+        ElasticsearchIndicesClient indicesClient = org.mockito.Mockito.mock(ElasticsearchIndicesClient.class);
+        ElasticsearchBulkIndexer bulkIndexer = org.mockito.Mockito.mock(ElasticsearchBulkIndexer.class);
+        CommunityPostMapper communityPostMapper = org.mockito.Mockito.mock(CommunityPostMapper.class);
+        JobPostingMapper jobPostingMapper = org.mockito.Mockito.mock(JobPostingMapper.class);
+        ResourceItemMapper resourceItemMapper = org.mockito.Mockito.mock(ResourceItemMapper.class);
+        UserMapper userMapper = org.mockito.Mockito.mock(UserMapper.class);
+
+        when(esClient.indices()).thenReturn(indicesClient);
+        when(indicesClient.exists(any(ExistsRequest.class))).thenReturn(new BooleanResponse(false));
+        when(indicesClient.create(any(CreateIndexRequest.class))).thenThrow(elasticsearchException(
+                400,
+                "resource_already_exists_exception",
+                "index [campus-platform] already exists"));
+        when(userMapper.selectList(null)).thenReturn(List.of());
+        when(communityPostMapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(List.of());
+        when(jobPostingMapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(List.of());
+        when(resourceItemMapper.selectList(any(LambdaQueryWrapper.class))).thenReturn(List.of());
+
+        SearchIndexSyncService syncService = new SearchIndexSyncService(
+                esClient,
+                bulkIndexer,
+                communityPostMapper,
+                jobPostingMapper,
+                resourceItemMapper,
+                userMapper,
+                new SearchSyncProperties());
+
+        SearchIndexSyncService.SyncResult result = syncService.fullReindex();
+
+        assertThat(result.total()).isZero();
+    }
 
     @Test
     @SuppressWarnings("unchecked")
@@ -240,5 +282,13 @@ class SearchIndexSyncServiceTests {
                 .containsExactlyInAnyOrder(
                         org.assertj.core.groups.Tuple.tuple("post_10", "FutureRunner"),
                         org.assertj.core.groups.Tuple.tuple("resource_20", "FutureRunner"));
+    }
+
+    private ElasticsearchException elasticsearchException(int status, String type, String reason) {
+        return new ElasticsearchException("es/indices.create", ErrorResponse.of(response -> response
+                .status(status)
+                .error(error -> error
+                        .type(type)
+                        .reason(reason))));
     }
 }
