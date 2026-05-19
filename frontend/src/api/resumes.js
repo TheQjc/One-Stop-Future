@@ -14,6 +14,15 @@ export async function createResume(formData) {
   return data.data;
 }
 
+export async function updateResume(id, formData) {
+  const { data } = await http.put(`/resumes/${id}`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return data.data;
+}
+
 export async function deleteResume(id) {
   const { data } = await http.delete(`/resumes/${id}`);
   return data.data;
