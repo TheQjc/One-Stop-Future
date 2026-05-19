@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -50,6 +51,7 @@ public class SearchIndexSyncService {
     private final SearchSyncProperties searchSyncProperties;
 
     private Clock clock = Clock.systemDefaultZone();
+    private final ReentrantLock syncLock = new ReentrantLock();
 
     private final AtomicReference<LocalDateTime> lastSyncTime = new AtomicReference<>(LocalDateTime.MIN);
 
@@ -78,8 +80,13 @@ public class SearchIndexSyncService {
     }
 
     public SyncResult reindexAll() throws IOException {
-        deleteAndRecreateIndex();
-        return fullReindex();
+        syncLock.lock();
+        try {
+            deleteAndRecreateIndex();
+            return fullReindex();
+        } finally {
+            syncLock.unlock();
+        }
     }
 
     public SyncResult incrementalSync() throws IOException {
@@ -335,6 +342,10 @@ public class SearchIndexSyncService {
         if (!searchSyncProperties.isEnabled()) {
             return;
         }
+        if (!syncLock.tryLock()) {
+            log.debug("Skipping scheduled incremental sync because another search sync is running");
+            return;
+        }
         try {
             SyncResult result = incrementalSync();
             if (result != null && result.total() > 0) {
@@ -343,6 +354,8 @@ public class SearchIndexSyncService {
             }
         } catch (Exception e) {
             log.error("Scheduled incremental sync failed", e);
+        } finally {
+            syncLock.unlock();
         }
     }
 }

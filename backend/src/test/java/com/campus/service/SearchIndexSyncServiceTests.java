@@ -17,6 +17,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -44,6 +45,47 @@ import co.elastic.clients.elasticsearch.indices.ExistsRequest;
 import co.elastic.clients.transport.endpoints.BooleanResponse;
 
 class SearchIndexSyncServiceTests {
+
+    @Test
+    void scheduledIncrementalSyncSkipsWhileAnotherSyncIsRunning() throws Exception {
+        SearchIndexSyncService syncService = org.mockito.Mockito.spy(new SearchIndexSyncService(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                new SearchSyncProperties()));
+        org.mockito.Mockito.doReturn(new SearchIndexSyncService.SyncResult(1, 0, 0, 1, 1))
+                .when(syncService)
+                .incrementalSync();
+
+        ReentrantLock syncLock = (ReentrantLock) ReflectionTestUtils.getField(syncService, "syncLock");
+        CountDownLatch lockHeld = new CountDownLatch(1);
+        CountDownLatch releaseLock = new CountDownLatch(1);
+        Thread holder = new Thread(() -> {
+            syncLock.lock();
+            try {
+                lockHeld.countDown();
+                assertThat(releaseLock.await(5, TimeUnit.SECONDS)).isTrue();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException(e);
+            } finally {
+                syncLock.unlock();
+            }
+        });
+        holder.start();
+        assertThat(lockHeld.await(5, TimeUnit.SECONDS)).isTrue();
+        try {
+            syncService.scheduledIncrementalSync();
+        } finally {
+            releaseLock.countDown();
+            holder.join(5000);
+        }
+
+        org.mockito.Mockito.verify(syncService, org.mockito.Mockito.never()).incrementalSync();
+    }
 
     @Test
     @SuppressWarnings("unchecked")
