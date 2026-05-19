@@ -12,7 +12,7 @@
 - 账号状态控制与封禁后禁止登录
 - 独立聚合首页
 - 个人中心与学生认证申请流程
-- 通知中心
+- 通知中心，覆盖欢迎、认证结果、社区回复、帖子点赞和资料审核结果通知
 - 社区列表 / 详情 / 发布 / 评论 / 回复 / 点赞 / 收藏
 - `/community` 内的 `DAY / WEEK / ALL` 社区热榜
 - 在发帖、列表、详情流程里可选启用的经验贴结构
@@ -25,6 +25,7 @@
 - 我的申请历史，以及快照预览 / 下载
 - 管理端只读申请工作台，以及快照预览 / 下载
 - 公开资料列表 / 详情 / 上传
+- 资料分片上传与中断后续传
 - 资料预览 / 下载 / 收藏 / 取消收藏
 - 我的资料 / 资料收藏 / 驳回后编辑重提
 - 管理端认证审核
@@ -56,13 +57,15 @@
 当前明确未实现：
 
 - 完整的管理后台运营看板、DAU / 漏斗指标、可导出分析报表
-- 版本历史、分片上传、简历重命名 / 替换
+- 资料版本历史、简历重命名 / 替换
+- 管理端导出分析报表
 
 ## 项目结构
 
 - `backend/`: Spring Boot 3、Spring Security、MyBatis-Plus、JWT
 - `frontend/`: Vue 3、Pinia、Vue Router、Axios、Vite、Vitest
 - `docs/superpowers/`: 需求、规格与实施计划
+- JSON 请求体和表单 / 查询参数中的字符串会通过后端统一清洗层移除脚本标签、事件处理属性和危险脚本协议，并保留正常中文内容
 - `backend/.local-storage/resources/`: `local` profile 下默认的本地原始资料存储目录
 - `backend/.local-storage/previews/`: `local` profile 下默认的 PPTX 转 PDF、DOCX 转 PDF、ZIP 预览产物缓存目录；非 `local` 运行环境也可通过 `RESOURCE_PREVIEW_TYPE=minio` 将新生成的预览产物写入 MinIO
   - 当前预览行为通过指纹失效并写入新产物来更新预览缓存
@@ -177,6 +180,11 @@ cd backend
 mvn -q test
 ```
 
+接口文档入口：
+
+- `GET /v3/api-docs`
+- `/swagger-ui/index.html`
+
 ### 前端测试
 
 ```bash
@@ -261,7 +269,7 @@ npm run build
 - 已登录用户会在同一个首页入口看到自己的身份态、未读数和下一步建议
 - `/profile` 展示当前账号资料以及当前登录用户的认证状态视图
 - 当前第一版认证流程下，一个用户同一时间只能提交一个有效认证申请
-- `/notifications` 支持欢迎通知、认证通知以及后续工作流通知的列表、单条已读和全部已读
+- `/notifications` 支持欢迎、认证结果、社区回复、帖子点赞、资料审核结果等通知的列表、单条已读和全部已读
 - 管理端的认证审核仍然在 `/admin/verifications` 中完成；无论通过还是驳回，结果都会回流到用户可见状态和通知中
 
 ## 资料库、生命周期与审核
@@ -278,6 +286,11 @@ npm run build
 - `GET /api/resources/{id}/download`
 - `GET /api/resources/{id}/preview`
 - `GET /api/resources/{id}/preview-zip`
+- `POST /api/resources/chunk-uploads`
+- `GET /api/resources/chunk-uploads/{uploadId}`
+- `POST /api/resources/chunk-uploads/{uploadId}/chunks/{chunkIndex}`
+- `POST /api/resources/chunk-uploads/{uploadId}/complete`
+- `DELETE /api/resources/chunk-uploads/{uploadId}`
 - `GET /api/admin/resources`
 - `POST /api/admin/resources/{id}/publish`
 - `POST /api/admin/resources/{id}/reject`
@@ -296,7 +309,9 @@ npm run build
 
 - 公开资料列表和详情页支持关键词 / 分类浏览、可见资料详情查看，以及收藏 / 取消收藏
 - 已登录用户可以上传资料，在 `/profile/resources` 中查看自己的资料，并通过 `/resources/:id/edit` 对被驳回资料进行重提
+- 上传资料默认使用分片上传会话；中断后可根据同一文件和元数据继续补传缺失分片，完成后仍进入 `PENDING` 审核流
 - 资料审核仍在 `/admin/resources` 中完成，管理员可以发布、驳回或下线资料
+- 管理员发布、驳回或下线资料时，会向资料上传者生成对应站内通知
 - PDF 支持内联预览；PPTX 和 DOCX 通过缓存后的 PDF 转换结果预览；ZIP 通过目录树接口预览
 - 原始资料和预览产物的 MinIO 迁移细节见下方专门的存储章节
 
@@ -590,7 +605,8 @@ npm run build
 - 对回复继续回复会被拒绝
 - 回复他人的顶层评论会生成 `COMMUNITY_REPLY_RECEIVED`
 - 回复自己的顶层评论不会生成通知
-- 通知中心会把新的回复通知类型映射为可读的社区回复标签
+- 点赞他人帖子会生成 `COMMUNITY_POST_LIKED`；自点赞和重复点赞不会重复生成通知
+- 通知中心会把社区回复和帖子点赞通知类型映射为可读标签
 - 无限层级线程、回复编辑、回复删除以及评论锚点深链仍不在当前范围内
 
 ## 统一搜索
