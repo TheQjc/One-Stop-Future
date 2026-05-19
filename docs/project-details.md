@@ -20,14 +20,14 @@
 - 我的帖子 / 我的收藏
 - 岗位列表 / 详情 / 筛选 / 来源跳转
 - 岗位收藏 / 取消收藏
-- 简历库上传 / 列表 / 预览 / 下载 / 删除
+- 简历库上传 / 列表 / 重命名 / 替换 / 预览 / 下载 / 删除
 - 站内一次性岗位申请与简历快照
 - 我的申请历史，以及快照预览 / 下载
 - 管理端只读申请工作台，以及快照预览 / 下载
 - 公开资料列表 / 详情 / 上传
 - 资料分片上传与中断后续传
 - 资料预览 / 下载 / 收藏 / 取消收藏
-- 我的资料 / 资料收藏 / 驳回后编辑重提
+- 我的资料 / 资料收藏 / 资料版本历史 / 驳回后编辑重提
 - 管理端认证审核
 - 管理端社区治理
 - 管理端岗位创建 / 编辑 / 发布 / 下线 / 删除
@@ -36,7 +36,7 @@
 - 非 `local` 运行环境下使用 MinIO 存储原始资料，并支持为新生成的 `PPTX` / `DOCX` / `ZIP` 预览产物单独启用基于 MinIO 的存储
 - 管理端历史本地资料向 MinIO 迁移，支持 dry-run 和有界批处理
 - 管理端历史预览产物向 MinIO 迁移，支持 dry-run 和有界批处理
-- 管理端只读总览页，可跳转到现有工作台
+- 管理端只读总览页，可查看运营趋势、分布、排行并导出分析报表，可跳转到现有工作台
 - 管理端用户状态工作台，可对非管理员账号执行封禁 / 恢复
 - 面向已发布帖子 / 岗位 / 资料的统一搜索
 - 面向已发布帖子 / 岗位 / 资料的趋势榜
@@ -56,9 +56,7 @@
 
 当前明确未实现：
 
-- 完整的管理后台运营看板、DAU / 漏斗指标、可导出分析报表
-- 资料版本历史、简历重命名 / 替换
-- 管理端导出分析报表
+- 更完整的管理后台运营漏斗指标
 
 ## 项目结构
 
@@ -286,6 +284,7 @@ npm run build
 - `GET /api/resources/{id}/download`
 - `GET /api/resources/{id}/preview`
 - `GET /api/resources/{id}/preview-zip`
+- `GET /api/resources/{id}/versions`
 - `POST /api/resources/chunk-uploads`
 - `GET /api/resources/chunk-uploads/{uploadId}`
 - `POST /api/resources/chunk-uploads/{uploadId}/chunks/{chunkIndex}`
@@ -309,6 +308,7 @@ npm run build
 
 - 公开资料列表和详情页支持关键词 / 分类浏览、可见资料详情查看，以及收藏 / 取消收藏
 - 已登录用户可以上传资料，在 `/profile/resources` 中查看自己的资料，并通过 `/resources/:id/edit` 对被驳回资料进行重提
+- 资料上传和被驳回重提会记录版本快照；有权访问该资料的用户可以查看版本历史
 - 上传资料默认使用分片上传会话；中断后可根据同一文件和元数据继续补传缺失分片，完成后仍进入 `PENDING` 审核流
 - 资料审核仍在 `/admin/resources` 中完成，管理员可以发布、驳回或下线资料
 - 管理员发布、驳回或下线资料时，会向资料上传者生成对应站内通知
@@ -342,6 +342,7 @@ npm run build
 
 - `GET /api/resumes/mine`
 - `POST /api/resumes`
+- `PUT /api/resumes/{id}`
 - `GET /api/resumes/{id}/preview`
 - `GET /api/resumes/{id}/download`
 - `DELETE /api/resumes/{id}`
@@ -362,6 +363,7 @@ npm run build
 当前 Phase N + Phase AA 范围：
 
 - 已登录用户可以在 `/profile/resumes` 中维护多份简历文件
+- 已登录用户可以在 `/profile/resumes` 中重命名简历，并可选择替换原始文件
 - 支持的简历格式为 `PDF`、`DOC`、`DOCX`
 - 已登录用户可以在 `/profile/resumes` 中预览自己的 `PDF` 和 `DOCX` 简历
 - `DOC` 简历在当前阶段仍仅支持下载
@@ -378,6 +380,8 @@ npm run build
 管理端后端接口：
 
 - `GET /api/admin/dashboard/summary`
+- `GET /api/admin/dashboard/charts`
+- `GET /api/admin/dashboard/export`
 
 管理端前端路由：
 
@@ -388,6 +392,8 @@ npm run build
 - 后端汇总接口和前端路由都仅允许管理员访问
 - 总览页只读，用于汇总关键管理工作区，不在总览页内直接执行审核或编辑操作
 - 汇总内容覆盖认证、社区、岗位和资料，提供数量、近期记录和跳转入口
+- 数据报表覆盖近 30 天注册趋势、发帖趋势、活跃用户近似趋势、社区标签占比和资料下载排行
+- 管理员可以导出 UTF-8 CSV 分析报表，内容包含总览指标、洞察、趋势、分布和排行
 - 总览卡片会把管理员导向现有工作台，如认证审核、社区治理、岗位管理和资料审核
 - 本地验证路径：以管理员身份登录后打开 `/admin/dashboard`，确认首页管理员入口和主导航管理员入口都能进入同一总览路由
 
@@ -713,7 +719,7 @@ npm run build
 - 首页中的 `assessment` 入口对登录用户直接可用，对游客显示 `LOGIN_REQUIRED`
 - 首页中的 `analytics` 对游客和登录用户都可用
 - 管理端总览只读且仅管理员可访问
-- 完整的管理端运营看板在当前阶段仍不在范围内
+- 更完整的运营漏斗指标仍不在当前范围内
 
 ## 历史本地资料 MinIO 迁移
 
