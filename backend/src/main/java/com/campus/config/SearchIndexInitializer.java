@@ -20,7 +20,7 @@ public class SearchIndexInitializer implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         try {
             log.info("Initializing search index on application startup...");
-            syncService.fullReindex();
+            syncService.reindexAll();
             log.info("Search index initialization completed successfully.");
         } catch (Exception e) {
             log.error("Failed to initialize search index on startup. "

@@ -34,7 +34,7 @@ public class AdminSearchController {
     public Result<ReindexResponse> reindex() {
         try {
             long start = System.currentTimeMillis();
-            SearchIndexSyncService.SyncResult result = syncService.fullReindex();
+            SearchIndexSyncService.SyncResult result = syncService.reindexAll();
             return Result.success(new ReindexResponse(
                     "Reindex completed successfully",
                     result.posts(),

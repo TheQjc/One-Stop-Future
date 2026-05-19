@@ -22,11 +22,11 @@ Based on the current codebase, README, and formal requirements, the remaining ga
 | `FR-ADMIN-004` 运营数据查看 | 只有最小后台总览；完整运营看板未完成 | P0 |
 | Redis 排行与缓存 | 只有配置预留；未接入 discover / community hot / home preview | P1 |
 | 缓存降级 | 未形成正式降级闭环 | P1 |
-| `FR-NOTIFICATION-004` 通知类型覆盖 | 目前只覆盖欢迎通知、认证结果通知、社区回复通知 | P1 |
-| 分片续传 | 资料上传仍是单请求直传 | P1 |
-| 全局输入防护 | 缺少统一输入清洗 / XSS 防护层 | P1 |
-| 接口文档同步 | 缺少 OpenAPI / Swagger 产物 | P1 |
-| README backlog: 版本历史、简历重命名 / 替换 | 非本轮正式需求收口重点 | P2 |
+| `FR-NOTIFICATION-004` 通知类型覆盖 | 已补齐点赞通知、资料审核通过 / 驳回 / 下线通知和前端标签 | Done |
+| 分片续传 | 已提供资料分片上传会话、断点续传和完成接口 | Done |
+| 全局输入防护 | 已提供 JSON 字符串统一清洗，覆盖脚本标签、事件属性和危险脚本协议 | Done |
+| 接口文档同步 | 已接入 OpenAPI / Swagger，并放行匿名文档入口 | Done |
+| README backlog: 版本历史、简历重命名 / 替换 | 仍未实现 | P2 |
 
 ## Assignment Principles
 

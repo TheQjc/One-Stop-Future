@@ -59,6 +59,23 @@ class UserControllerTests {
 
     @Test
     @WithMockUser(username = "2", roles = "USER")
+    void jsonRequestStringsAreSanitizedBeforeControllerUse() throws Exception {
+        mockMvc.perform(put("/api/users/me")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "nickname":"中文昵称<script>alert(1)</script>",
+                                  "realName":"<img src=x onerror=alert(1)>真实姓名"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.nickname").value("中文昵称"))
+                .andExpect(jsonPath("$.data.realName").value("真实姓名"));
+    }
+
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
     void bannedUserCannotReadProfileWithExistingLoginState() throws Exception {
         jdbcTemplate.update("UPDATE t_user SET status = 'BANNED' WHERE id = 2");
 

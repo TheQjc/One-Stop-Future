@@ -278,6 +278,14 @@ class AdminResourceControllerTests {
                 .andExpect(jsonPath("$.data.status").value("PUBLISHED"))
                 .andExpect(jsonPath("$.data.publishedAt").isNotEmpty());
 
+        assertThat(jdbcTemplate.queryForObject(
+                """
+                        SELECT COUNT(*) FROM t_notification
+                        WHERE user_id = 2 AND type = 'RESOURCE_APPROVED'
+                          AND source_type = 'RESOURCE' AND source_id = 4
+                        """,
+                Integer.class)).isEqualTo(1);
+
         mockMvc.perform(post("/api/admin/resources/3/reject")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -288,10 +296,26 @@ class AdminResourceControllerTests {
                 .andExpect(jsonPath("$.data.status").value("REJECTED"))
                 .andExpect(jsonPath("$.data.updatedAt").isNotEmpty());
 
+        assertThat(jdbcTemplate.queryForObject(
+                """
+                        SELECT COUNT(*) FROM t_notification
+                        WHERE user_id = 2 AND type = 'RESOURCE_REJECTED'
+                          AND source_type = 'RESOURCE' AND source_id = 3
+                        """,
+                Integer.class)).isEqualTo(1);
+
         mockMvc.perform(post("/api/admin/resources/1/offline"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.status").value("OFFLINE"));
+
+        assertThat(jdbcTemplate.queryForObject(
+                """
+                        SELECT COUNT(*) FROM t_notification
+                        WHERE user_id = 3 AND type = 'RESOURCE_OFFLINED'
+                          AND source_type = 'RESOURCE' AND source_id = 1
+                        """,
+                Integer.class)).isEqualTo(1);
 
         mockMvc.perform(get("/api/resources/1").with(anonymous()))
                 .andExpect(status().isOk())
@@ -304,7 +328,7 @@ class AdminResourceControllerTests {
 
     @Test
     @WithMockUser(username = "1", roles = "ADMIN")
-    void publishRejectAndOfflineDoNotChangeUpdatedAt() throws Exception {
+    void publishRejectAndOfflineRefreshUpdatedAtForSearchSync() throws Exception {
         jdbcTemplate.update(
                 """
                         INSERT INTO t_resource_item (
@@ -325,7 +349,7 @@ class AdminResourceControllerTests {
 
         LocalDateTime publishAfter = jdbcTemplate.queryForObject(
                 "SELECT updated_at FROM t_resource_item WHERE id = 4", LocalDateTime.class);
-        assertThat(publishAfter).isEqualTo(publishBefore);
+        assertThat(publishAfter).isAfter(publishBefore);
 
         LocalDateTime rejectBefore = jdbcTemplate.queryForObject(
                 "SELECT updated_at FROM t_resource_item WHERE id = 3", LocalDateTime.class);
@@ -339,7 +363,7 @@ class AdminResourceControllerTests {
 
         LocalDateTime rejectAfter = jdbcTemplate.queryForObject(
                 "SELECT updated_at FROM t_resource_item WHERE id = 3", LocalDateTime.class);
-        assertThat(rejectAfter).isEqualTo(rejectBefore);
+        assertThat(rejectAfter).isAfter(rejectBefore);
 
         LocalDateTime offlineBefore = jdbcTemplate.queryForObject(
                 "SELECT updated_at FROM t_resource_item WHERE id = 1", LocalDateTime.class);
@@ -349,7 +373,7 @@ class AdminResourceControllerTests {
 
         LocalDateTime offlineAfter = jdbcTemplate.queryForObject(
                 "SELECT updated_at FROM t_resource_item WHERE id = 1", LocalDateTime.class);
-        assertThat(offlineAfter).isEqualTo(offlineBefore);
+        assertThat(offlineAfter).isAfter(offlineBefore);
     }
 
     @Test

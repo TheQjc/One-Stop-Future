@@ -109,7 +109,7 @@ onBeforeUnmount(() => {
         <span class="section-eyebrow">新账号注册</span>
         <h1 class="page-title" style="margin-top: 18px;">先完成注册，再回到首页看清你的下一步</h1>
         <p class="page-subtitle" style="margin-top: 16px;">
-          当前阶段默认开放普通用户自主注册。注册成功后会直接建立登录态，并带你回到首页继续查看常用入口和成长方向。
+          使用手机号创建账号，注册成功后会自动登录，并带你回到首页继续查看常用入口和成长方向。
         </p>
 
         <div class="info-card-list" style="margin-top: 24px;">
@@ -140,7 +140,7 @@ onBeforeUnmount(() => {
             <span class="section-eyebrow">注册</span>
             <h2 class="page-title" style="margin-top: 16px;">手机号验证码注册</h2>
             <p class="page-subtitle" style="margin-top: 16px;">
-              当前测试环境会直接显示调试验证码，便于快速验证注册流程。
+              获取验证码后补充昵称，即可完成账号创建。
             </p>
           </div>
         </div>
@@ -197,7 +197,7 @@ onBeforeUnmount(() => {
           <p class="field-hint">
             后续可以在个人中心继续补充实名、学号、联系方式和认证材料。
           </p>
-          <p v-if="debugCode" class="debug-note">本次调试验证码：{{ debugCode }}</p>
+          <p v-if="debugCode" class="debug-note">本次测试验证码：{{ debugCode }}</p>
           <p v-if="errorMessage" class="field-error" role="alert">{{ errorMessage }}</p>
 
           <div class="inline-form-actions">

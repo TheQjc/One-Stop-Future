@@ -188,12 +188,12 @@ test("renders guest hero copy in approved Chinese wording with live resources li
   await flushPromises();
 
   expect(getHomeSummary).toHaveBeenCalledTimes(1);
-  expect(wrapper.get('[data-test="home-hero-title"]').text()).toBe("把就业、考研、留学放到一个首页里，先看方向，再做决定");
-  expect(wrapper.get('[data-test="home-hero-copy"]').text()).toBe("公开内容、常用入口和成长方向会集中展示，先帮你看清选择，再进入具体模块。");
+  expect(wrapper.get('[data-test="home-hero-title"]').text()).toBe("让每一次成长选择，都有清晰路径可循");
+  expect(wrapper.get('[data-test="home-hero-copy"]').text()).toBe("汇聚就业发展、升学规划、学习资源与校园经验，帮助你从目标确认到行动推进都更从容。");
   expect(wrapper.get('[data-test="home-search-label"]').text()).toBe("站内搜索");
   expect(wrapper.get('input[name="home-search"]').attributes("placeholder")).toBe("搜索经验帖、岗位、院校、资料");
   expect(wrapper.get('button[type="submit"]').text()).toBe("搜索");
-  expect(wrapper.get('[data-test="home-status-chip"]').text()).toBe("首页服务已开启");
+  expect(wrapper.get('[data-test="home-status-chip"]').text()).toBe("一站式成长服务");
   expect(wrapper.get('[data-test="home-primary-cta"]').text()).toBe("登录查看个人待办");
   expect(wrapper.get('[data-test="home-secondary-cta"]').text()).toBe("立即注册");
   expect(wrapper.get('[data-test="home-section-snapshot"]').text()).toContain("今日概览");

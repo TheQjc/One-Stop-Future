@@ -162,7 +162,7 @@ onMounted(loadResumes);
           <span class="section-eyebrow">我的简历</span>
           <h1 class="page-title" style="margin-top: 16px;">简历库</h1>
           <p class="page-subtitle" style="margin-top: 16px;">
-            把不同用途的投递简历集中放在这里，方便随时切换。当前阶段支持上传、预览、下载和删除。
+            把不同用途的投递简历集中放在这里，上传、预览、下载和删除都可以直接处理。
           </p>
         </div>
       </div>

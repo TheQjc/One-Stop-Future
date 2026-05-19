@@ -26,7 +26,7 @@ const cardMeta = computed(() => {
     return "立即进入";
   }
 
-  return "查看当前阶段";
+  return "查看详情";
 });
 </script>
 

@@ -36,6 +36,8 @@ npm run dev -- --host 127.0.0.1
 
 - 前端：`http://127.0.0.1:5173`
 - 后端：`http://127.0.0.1:8080`
+- OpenAPI：`http://127.0.0.1:8080/v3/api-docs`
+- Swagger UI：`http://127.0.0.1:8080/swagger-ui/index.html`
 
 ## 测试与构建
 

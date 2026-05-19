@@ -282,6 +282,15 @@ public class CommunityService {
             like.setUserId(viewer.getId());
             like.setCreatedAt(LocalDateTime.now());
             communityPostLikeMapper.insert(like);
+            if (!viewer.getId().equals(post.getAuthorId())) {
+                notificationService.createNotification(
+                        post.getAuthorId(),
+                        NotificationType.COMMUNITY_POST_LIKED.name(),
+                        "Your post received a like",
+                        viewer.getNickname() + " liked your post \"" + post.getTitle() + "\"",
+                        "COMMUNITY_POST",
+                        post.getId());
+            }
         }
         recalculatePostStats(post.getId());
         return toPostDetail(requirePublishedPost(post.getId()), viewer);

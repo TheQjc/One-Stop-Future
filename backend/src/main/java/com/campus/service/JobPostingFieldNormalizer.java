@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import com.campus.common.JobEducationRequirement;
 import com.campus.common.JobType;
+import com.campus.web.InputSanitizer;
 
 @Component
 public class JobPostingFieldNormalizer {
@@ -88,6 +89,6 @@ public class JobPostingFieldNormalizer {
     }
 
     private String normalizeText(String value) {
-        return value == null ? null : value.trim();
+        return value == null ? null : InputSanitizer.sanitize(value).trim();
     }
 }

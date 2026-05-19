@@ -73,3 +73,56 @@ test("renders the community reply label for reply notifications", async () => {
   expect(wrapper.text()).toContain("你的评论收到了回复");
   expect(wrapper.text()).toContain("认证同学回复了你在《录用时间线笔记》下的评论");
 });
+
+test("renders resource and post interaction notification labels", async () => {
+  window.localStorage.setItem("one-stop-future-demo-notifications", JSON.stringify([
+    {
+      id: 2002,
+      userId: 2,
+      type: "COMMUNITY_POST_LIKED",
+      title: "你的帖子收到了点赞",
+      content: "认证同学点赞了你的帖子《录用时间线笔记》",
+      read: false,
+      createdAt: "2026-04-21T11:00:00",
+      readAt: null,
+    },
+    {
+      id: 2003,
+      userId: 2,
+      type: "RESOURCE_APPROVED",
+      title: "资料已通过审核",
+      content: "你上传的资料已经发布。",
+      read: false,
+      createdAt: "2026-04-21T10:00:00",
+      readAt: null,
+    },
+    {
+      id: 2004,
+      userId: 2,
+      type: "RESOURCE_REJECTED",
+      title: "资料需要修改",
+      content: "请根据审核意见调整资料。",
+      read: true,
+      createdAt: "2026-04-21T09:00:00",
+      readAt: "2026-04-21T09:30:00",
+    },
+    {
+      id: 2005,
+      userId: 2,
+      type: "RESOURCE_OFFLINED",
+      title: "资料已下线",
+      content: "你的资料已被管理员下线。",
+      read: true,
+      createdAt: "2026-04-21T08:00:00",
+      readAt: "2026-04-21T08:30:00",
+    },
+  ]));
+
+  const { wrapper } = mountView();
+  await flushPromises();
+
+  expect(wrapper.text()).toContain("帖子点赞");
+  expect(wrapper.text()).toContain("资料通过");
+  expect(wrapper.text()).toContain("资料驳回");
+  expect(wrapper.text()).toContain("资料下线");
+});

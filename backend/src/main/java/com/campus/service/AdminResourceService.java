@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.campus.common.BusinessException;
+import com.campus.common.NotificationType;
 import com.campus.common.ResourceStatus;
 import com.campus.dto.AdminResourceListResponse;
 import com.campus.dto.ResourceDetailResponse;
@@ -23,12 +24,14 @@ public class AdminResourceService {
     private final ResourceItemMapper resourceItemMapper;
     private final UserService userService;
     private final ResourceService resourceService;
+    private final NotificationService notificationService;
 
     public AdminResourceService(ResourceItemMapper resourceItemMapper, UserService userService,
-            ResourceService resourceService) {
+            ResourceService resourceService, NotificationService notificationService) {
         this.resourceItemMapper = resourceItemMapper;
         this.userService = userService;
         this.resourceService = resourceService;
+        this.notificationService = notificationService;
     }
 
     public AdminResourceListResponse listResources() {
@@ -64,7 +67,11 @@ public class AdminResourceService {
         resource.setRejectReason(null);
         resource.setPublishedAt(now);
         resource.setReviewedAt(now);
+        resource.setUpdatedAt(now);
         resourceItemMapper.updateById(resource);
+        notifyResourceOwner(resource, NotificationType.RESOURCE_APPROVED,
+                "Your resource was published",
+                "Your resource \"" + resource.getTitle() + "\" is now visible to other students.");
         return resourceService.getResourceDetail(resource.getId(), identity);
     }
 
@@ -83,7 +90,11 @@ public class AdminResourceService {
         resource.setReviewedBy(admin.getId());
         resource.setRejectReason(reason.trim());
         resource.setReviewedAt(now);
+        resource.setUpdatedAt(now);
         resourceItemMapper.updateById(resource);
+        notifyResourceOwner(resource, NotificationType.RESOURCE_REJECTED,
+                "Your resource needs revision",
+                "Your resource \"" + resource.getTitle() + "\" was rejected: " + reason.trim());
         return resourceService.getResourceDetail(resource.getId(), identity);
     }
 
@@ -99,9 +110,27 @@ public class AdminResourceService {
         }
         resource.setStatus(ResourceStatus.OFFLINE.name());
         resource.setReviewedBy(admin.getId());
-        resource.setReviewedAt(LocalDateTime.now());
+        LocalDateTime now = LocalDateTime.now();
+        resource.setReviewedAt(now);
+        resource.setUpdatedAt(now);
         resourceItemMapper.updateById(resource);
+        notifyResourceOwner(resource, NotificationType.RESOURCE_OFFLINED,
+                "Your resource was taken offline",
+                "Your resource \"" + resource.getTitle() + "\" is no longer visible to other students.");
         return resourceService.getResourceDetail(resource.getId(), identity);
+    }
+
+    private void notifyResourceOwner(ResourceItem resource, NotificationType type, String title, String content) {
+        if (resource.getUploaderId() == null) {
+            return;
+        }
+        notificationService.createNotification(
+                resource.getUploaderId(),
+                type.name(),
+                title,
+                content,
+                "RESOURCE",
+                resource.getId());
     }
 
     private ResourceItem requireResource(Long resourceId) {

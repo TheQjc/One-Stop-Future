@@ -2,6 +2,7 @@ package com.campus.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch.core.search.HighlighterEncoder;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.MultiMatchQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
@@ -166,6 +167,7 @@ public class UnifiedSearchService {
         }
 
         Highlight highlight = Highlight.of(h -> h
+                .encoder(HighlighterEncoder.Html)
                 .fields("title", HighlightField.of(hf -> hf
                         .preTags(esProperties.getHighlight().getPreTag())
                         .postTags(esProperties.getHighlight().getPostTag())

@@ -30,7 +30,8 @@ test("renders phone code login form", async () => {
 
   expect(wrapper.text()).toContain("统一登录入口");
   expect(wrapper.text()).toContain("手机号验证码登录");
-  expect(wrapper.text()).toContain("当前阶段");
+  expect(wrapper.text()).toContain("服务闭环");
+  expect(wrapper.text()).toContain("体验账号");
   expect(wrapper.text()).not.toContain("Phone Code Login");
   expect(wrapper.find('input[name="phone"]').exists()).toBe(true);
   expect(wrapper.find('input[name="verificationCode"]').exists()).toBe(true);
