@@ -1,4 +1,5 @@
 import http from "./http.js";
+import { demoUsers } from "./auth.js";
 
 const preferMock = import.meta.env.MODE === "test";
 const USER_KEY = "one-stop-future-demo-users";
@@ -18,7 +19,19 @@ function writeJson(key, value) {
 }
 
 function readUsers() {
-  return readJson(USER_KEY, []);
+  const stored = readJson(USER_KEY, null);
+
+  if (!stored?.length) {
+    writeUsers(demoUsers);
+    return [...demoUsers];
+  }
+
+  const users = stored.map((user) => ({
+    ...demoUsers.find((item) => item.id === user.id),
+    ...user,
+  }));
+  writeUsers(users);
+  return users;
 }
 
 function writeUsers(users) {

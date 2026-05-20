@@ -50,12 +50,18 @@ function syncForms() {
   verificationForm.studentId = userStore.profile?.studentId || "";
 }
 
+function shouldRefreshProfile() {
+  return !userStore.profile || (
+    ["PENDING", "VERIFIED"].includes(userStore.profile.verificationStatus) && !userStore.profile.studentId
+  );
+}
+
 async function initialize() {
   loading.value = true;
   pageError.value = "";
 
   try {
-    if (!userStore.profile) {
+    if (shouldRefreshProfile()) {
       await userStore.fetchProfile();
     }
 

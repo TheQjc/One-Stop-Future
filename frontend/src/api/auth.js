@@ -4,7 +4,7 @@ const preferMock = import.meta.env.MODE === "test";
 const USER_KEY = "one-stop-future-demo-users";
 const CODE_KEY = "one-stop-future-demo-codes";
 
-const demoUsers = [
+export const demoUsers = [
   {
     id: 1,
     phone: "13800000000",
@@ -24,10 +24,12 @@ const demoUsers = [
   {
     id: 3,
     phone: "13800000002",
+    realName: "Verified User",
     nickname: "认证同学",
     role: "USER",
     status: "ACTIVE",
     verificationStatus: "VERIFIED",
+    studentId: "20260001",
   },
 ];
 
@@ -43,8 +45,13 @@ function writeJson(key, value) {
 function readUsers() {
   const stored = readJson(USER_KEY, null);
 
-  if (stored) {
-    return stored;
+  if (stored?.length) {
+    const users = stored.map((user) => ({
+      ...demoUsers.find((item) => item.id === user.id),
+      ...user,
+    }));
+    writeJson(USER_KEY, users);
+    return users;
   }
 
   writeJson(USER_KEY, demoUsers);
@@ -72,6 +79,8 @@ function buildAuthPayload(user) {
     role: user.role,
     status: user.status,
     verificationStatus: user.verificationStatus,
+    realName: user.realName,
+    studentId: user.studentId,
   };
 }
 
@@ -88,6 +97,8 @@ function normalizeAuthPayload(payload) {
     role: payload.role,
     status: payload.status,
     verificationStatus: payload.verificationStatus,
+    realName: payload.realName,
+    studentId: payload.studentId,
   };
 }
 
