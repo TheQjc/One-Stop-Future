@@ -43,6 +43,7 @@ export const useUserStore = defineStore("user", {
     token: window.localStorage.getItem(TOKEN_KEY) || "",
     profile: readJson(PROFILE_KEY, null),
     loading: false,
+    sessionChecked: false,
   }),
   getters: {
     isAuthenticated: (state) => Boolean(state.token),
@@ -85,11 +86,13 @@ export const useUserStore = defineStore("user", {
     },
     setAuth(payload) {
       this.token = payload.token;
+      this.sessionChecked = true;
       window.localStorage.setItem(TOKEN_KEY, payload.token);
       this.persistProfile(payload.profile || payload);
     },
     clearAuth() {
       this.token = "";
+      this.sessionChecked = false;
       window.localStorage.removeItem(TOKEN_KEY);
       this.persistProfile(null);
     },
@@ -140,7 +143,26 @@ export const useUserStore = defineStore("user", {
         return null;
       }
 
-      return this.mergeProfile(await getProfile());
+      const profile = this.mergeProfile(await getProfile());
+      this.sessionChecked = true;
+      return profile;
+    },
+    async ensureSessionFresh() {
+      if (!this.token) {
+        this.sessionChecked = false;
+        return null;
+      }
+
+      if (this.sessionChecked && this.profile) {
+        return this.profile;
+      }
+
+      try {
+        return await this.fetchProfile();
+      } catch (error) {
+        this.clearAuth();
+        throw error;
+      }
     },
     async saveProfile(form) {
       return this.mergeProfile(await updateProfile(form));

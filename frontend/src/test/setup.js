@@ -27,4 +27,9 @@ config.global.stubs = {
   },
 };
 
+Object.defineProperty(window, "scrollTo", {
+  value: vi.fn(),
+  writable: true,
+});
+
 window.localStorage.clear();

@@ -27,6 +27,10 @@ function shouldForceLogout(code, message) {
   return code === 401 || (code === 403 && message === "account is banned");
 }
 
+function shouldRedirectOnAuthFailure(config) {
+  return config?.skipAuthRedirect !== true;
+}
+
 http.interceptors.request.use((config) => {
   const token = window.localStorage.getItem(TOKEN_KEY);
 
@@ -47,7 +51,7 @@ http.interceptors.response.use(
       requestError.code = payload.code;
       requestError.data = payload.data ?? null;
 
-      if (shouldForceLogout(payload.code, payload.message)) {
+      if (shouldForceLogout(payload.code, payload.message) && shouldRedirectOnAuthFailure(response.config)) {
         clearPersistedAuth();
         redirectToLogin();
       }
@@ -64,7 +68,7 @@ http.interceptors.response.use(
     requestError.code = payload.code ?? status ?? 500;
     requestError.data = payload.data ?? null;
 
-    if (shouldForceLogout(requestError.code, requestError.message)) {
+    if (shouldForceLogout(requestError.code, requestError.message) && shouldRedirectOnAuthFailure(error.config)) {
       clearPersistedAuth();
       redirectToLogin();
     }

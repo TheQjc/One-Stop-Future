@@ -191,9 +191,9 @@ const router = createRouter({
 router.beforeEach(async (to) => {
   const userStore = useUserStore(pinia);
 
-  if (userStore.isAuthenticated && !userStore.profile) {
+  if (userStore.isAuthenticated) {
     try {
-      await userStore.fetchProfile();
+      await userStore.ensureSessionFresh();
     } catch (error) {
       userStore.clearAuth();
     }
