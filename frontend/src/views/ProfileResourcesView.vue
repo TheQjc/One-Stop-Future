@@ -20,6 +20,8 @@ const summary = ref({
   resources: [],
 });
 
+let versionHistoryRequestId = 0;
+
 const statusCards = computed(() => {
   const resources = summary.value.resources || [];
 
@@ -113,6 +115,7 @@ function canPreview(resource) {
 }
 
 async function loadResources() {
+  versionHistoryRequestId += 1;
   loading.value = true;
   errorMessage.value = "";
   zipPreviewError.value = "";
@@ -166,6 +169,9 @@ async function handlePreview(resource) {
 }
 
 async function handleLoadVersions(resource) {
+  const requestId = versionHistoryRequestId + 1;
+  versionHistoryRequestId = requestId;
+
   actionError.value = "";
   actionMessage.value = "";
   versionHistoryError.value = "";
@@ -181,11 +187,18 @@ async function handleLoadVersions(resource) {
   versionHistory.value = null;
 
   try {
-    versionHistory.value = await getResourceVersions(resource.id);
+    const history = await getResourceVersions(resource.id);
+    if (versionHistoryRequestId === requestId && versionHistoryResourceId.value === resource.id) {
+      versionHistory.value = history;
+    }
   } catch (error) {
-    versionHistoryError.value = error.message || "版本历史加载失败，请稍后重试。";
+    if (versionHistoryRequestId === requestId && versionHistoryResourceId.value === resource.id) {
+      versionHistoryError.value = error.message || "版本历史加载失败，请稍后重试。";
+    }
   } finally {
-    actionLoadingId.value = "";
+    if (versionHistoryRequestId === requestId) {
+      actionLoadingId.value = "";
+    }
   }
 }
 

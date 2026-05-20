@@ -173,3 +173,71 @@ test("loads and renders resource version history", async () => {
   expect(wrapper.text()).toContain("v1");
   expect(wrapper.text()).toContain("versioned-pack.pdf");
 });
+
+test("ignores a stale version history response after switching resources", async () => {
+  getMyResources.mockResolvedValue({
+    total: 2,
+    resources: [
+      {
+        id: 9,
+        title: "Versioned Pack",
+        status: "PENDING",
+        category: "RESUME_TEMPLATE",
+      },
+      {
+        id: 10,
+        title: "Fresh Pack",
+        status: "PENDING",
+        category: "RESUME_TEMPLATE",
+      },
+    ],
+  });
+
+  let resolveFirstRequest;
+  getResourceVersions
+    .mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveFirstRequest = resolve;
+        }),
+    )
+    .mockResolvedValueOnce({
+      total: 1,
+      versions: [
+        {
+          id: 202,
+          versionNo: 2,
+          changeType: "UPDATE",
+          title: "Fresh Pack",
+          fileName: "fresh-pack.pdf",
+          createdAt: "2026-04-18T11:00:00",
+        },
+      ],
+    });
+
+  const wrapper = mount(ProfileResourcesView);
+  await flushPromises();
+
+  await wrapper.find('[data-testid="versions-action-9"]').trigger("click");
+  await wrapper.find('[data-testid="versions-action-10"]').trigger("click");
+  await flushPromises();
+
+  resolveFirstRequest({
+    total: 1,
+    versions: [
+      {
+        id: 101,
+        versionNo: 1,
+        changeType: "UPLOAD",
+        title: "Versioned Pack",
+        fileName: "versioned-pack.pdf",
+        createdAt: "2026-04-18T10:00:00",
+      },
+    ],
+  });
+  await flushPromises();
+
+  expect(wrapper.text()).toContain("Fresh Pack");
+  expect(wrapper.text()).toContain("fresh-pack.pdf");
+  expect(wrapper.text()).not.toContain("versioned-pack.pdf");
+});
