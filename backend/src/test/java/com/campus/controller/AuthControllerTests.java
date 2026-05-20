@@ -90,6 +90,20 @@ class AuthControllerTests {
     }
 
     @Test
+    void loginReturnsVerifiedStudentId() throws Exception {
+        insertCode("13800000002", "LOGIN", "112233", 5);
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"phone":"13800000002","verificationCode":"112233"}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.verificationStatus").value("VERIFIED"))
+                .andExpect(jsonPath("$.data.studentId").value("20260001"));
+    }
+
+    @Test
     void loginRejectsBannedUsers() throws Exception {
         jdbcTemplate.update("UPDATE t_user SET status = 'BANNED' WHERE phone = '13800000001'");
         insertCode("13800000001", "LOGIN", "777777", 5);
