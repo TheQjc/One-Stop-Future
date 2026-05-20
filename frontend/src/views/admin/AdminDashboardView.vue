@@ -239,6 +239,7 @@ const sections = computed(() => [
 const chartsLoading = ref(true);
 const chartsError = ref("");
 const chartsData = ref(null);
+const exportError = ref("");
 
 const trendChartRef = ref(null);
 const tagChartRef = ref(null);
@@ -385,11 +386,12 @@ function renderRankingChart() {
 }
 
 async function handleExport() {
+  exportError.value = "";
+
   try {
     await exportAdminDashboardData(30);
-    chartsError.value = "";
   } catch (error) {
-    chartsError.value = "分析报表导出失败：" + (error.message || "未知错误");
+    exportError.value = "分析报表导出失败：" + (error.message || "未知错误");
   }
 }
 
@@ -541,10 +543,17 @@ onBeforeUnmount(() => {
             <h2 class="page-title" style="margin-top: 16px;">数据报表</h2>
             <p class="page-subtitle" style="margin-top: 16px;">查看最近 30 天的运营趋势和分布情况。</p>
           </div>
-          <button type="button" class="app-btn" style="padding: 8px 16px; border-radius: 8px; background: var(--cp-ink); color: white; border: none; cursor: pointer;" @click="handleExport">
+          <button
+            type="button"
+            class="app-btn"
+            data-testid="admin-dashboard-export"
+            style="padding: 8px 16px; border-radius: 8px; background: var(--cp-ink); color: white; border: none; cursor: pointer;"
+            @click="handleExport"
+          >
             导出分析报表 (CSV)
           </button>
         </div>
+        <p v-if="exportError" class="field-error" role="alert">{{ exportError }}</p>
 
         <div v-if="chartsLoading" class="empty-state admin-desk-card__empty">
           正在加载图表数据...
@@ -557,7 +566,7 @@ onBeforeUnmount(() => {
           <div class="dashboard-grid admin-dashboard__lead" style="margin-top: 24px;">
             <article class="panel-card" style="grid-column: 1 / -1;">
               <h3 class="admin-desk-card__subhead" style="margin-bottom: 16px;">最近 30 天趋势</h3>
-              <div ref="trendChartRef" style="width: 100%; height: 350px;"></div>
+              <div ref="trendChartRef" data-testid="admin-dashboard-trend-chart" style="width: 100%; height: 350px;"></div>
             </article>
             <article class="panel-card">
               <h3 class="admin-desk-card__subhead" style="margin-bottom: 16px;">社区标签占比</h3>

@@ -255,3 +255,17 @@ test("exports the dashboard analysis report from the report panel", async () => 
 
   expect(exportAdminDashboardData).toHaveBeenCalledWith(30);
 });
+
+test("export failures surface inline without replacing the chart section", async () => {
+  getAdminDashboardSummary.mockResolvedValue(buildSummary());
+  exportAdminDashboardData.mockRejectedValueOnce(new Error("export failed"));
+
+  const wrapper = mountView();
+  await flushPromises();
+
+  await wrapper.find('[data-testid="admin-dashboard-export"]').trigger("click");
+  await flushPromises();
+
+  expect(wrapper.text()).toContain("export failed");
+  expect(wrapper.find('[data-testid="admin-dashboard-trend-chart"]').exists()).toBe(true);
+});
