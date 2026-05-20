@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.campus.common.BusinessException;
 import com.campus.common.UserStatus;
+import com.campus.config.SearchSyncProperties;
 import com.campus.dto.UpdateProfileRequest;
 import com.campus.dto.UserProfile;
 import com.campus.entity.User;
@@ -23,15 +24,19 @@ public class UserService {
 
     private final UserMapper userMapper;
     private SearchIndexSyncService searchIndexSyncService;
+    private SearchSyncProperties searchSyncProperties;
 
     public UserService(UserMapper userMapper) {
         this.userMapper = userMapper;
+        this.searchSyncProperties = new SearchSyncProperties();
     }
 
     @Autowired
-    public UserService(UserMapper userMapper, ObjectProvider<SearchIndexSyncService> searchIndexSyncServiceProvider) {
+    public UserService(UserMapper userMapper, ObjectProvider<SearchIndexSyncService> searchIndexSyncServiceProvider,
+            SearchSyncProperties searchSyncProperties) {
         this.userMapper = userMapper;
         this.searchIndexSyncService = searchIndexSyncServiceProvider.getIfAvailable();
+        this.searchSyncProperties = searchSyncProperties;
     }
 
     public User findByPhone(String phone) {
@@ -129,7 +134,7 @@ public class UserService {
     }
 
     private void refreshSearchDocuments(Long userId) {
-        if (searchIndexSyncService == null) {
+        if (searchIndexSyncService == null || searchSyncProperties == null || !searchSyncProperties.isEnabled()) {
             return;
         }
         try {

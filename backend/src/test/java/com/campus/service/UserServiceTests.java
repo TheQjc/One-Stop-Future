@@ -16,6 +16,7 @@ import com.campus.dto.UpdateProfileRequest;
 import com.campus.dto.UserProfile;
 import com.campus.entity.User;
 import com.campus.mapper.UserMapper;
+import com.campus.config.SearchSyncProperties;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTests {
@@ -57,6 +58,26 @@ class UserServiceTests {
         assertThat(profile.nickname()).isEqualTo("FutureRunner");
         assertThat(profile.realName()).isEqualTo("Student Updated");
         verify(searchIndexSyncService).refreshUserDocuments(2L);
+    }
+
+    @Test
+    void updateProfileSkipsSearchDocumentRefreshWhenSearchSyncIsDisabled() throws Exception {
+        User user = user(2L, "13800000001", "NormalUser");
+        when(userMapper.selectById(2L)).thenReturn(user);
+
+        SearchSyncProperties searchSyncProperties = new SearchSyncProperties();
+        searchSyncProperties.setEnabled(false);
+
+        UserService userService = new UserService(userMapper);
+        ReflectionTestUtils.setField(userService, "searchIndexSyncService", searchIndexSyncService);
+        ReflectionTestUtils.setField(userService, "searchSyncProperties", searchSyncProperties);
+
+        UserProfile profile = userService.updateProfile("2",
+                new UpdateProfileRequest("FutureRunner", "Student Updated"));
+
+        assertThat(profile.nickname()).isEqualTo("FutureRunner");
+        assertThat(profile.realName()).isEqualTo("Student Updated");
+        verify(searchIndexSyncService, org.mockito.Mockito.never()).refreshUserDocuments(2L);
     }
 
     private User user(Long id, String phone, String nickname) {
