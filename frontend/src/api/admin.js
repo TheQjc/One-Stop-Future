@@ -342,11 +342,7 @@ export async function getAdminJobs() {
 }
 
 export async function importAdminJobs(formData) {
-  const { data } = await http.post("/admin/jobs/import", formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
+  const { data } = await http.post("/admin/jobs/import", formData);
   return data.data;
 }
 
