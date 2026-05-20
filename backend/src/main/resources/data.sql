@@ -84,26 +84,26 @@ INSERT INTO t_job_posting (
 )
 VALUES
   (
-    1, 'Java Backend Intern', 'Future Campus Tech', 'Shenzhen', 'INTERNSHIP', 'BACHELOR', 'Official Site',
+    1, '后端开发实习生', '未来校园科技', '深圳', 'INTERNSHIP', 'BACHELOR', '官网',
     'https://jobs.example.com/future-campus-tech/backend-intern',
-    'Work on Spring Boot services, internal tooling, and campus product delivery.',
-    'Join the backend engineering team to support student-facing platform modules and internal admin tools.',
+    '参与 Spring Boot 服务、后台工具和学生端模块建设。',
+    '加入后端研发小组，负责学生成长平台的接口开发、数据整理和管理端能力支持。',
     TIMESTAMPADD(DAY, 20, CURRENT_TIMESTAMP), TIMESTAMPADD(DAY, -3, CURRENT_TIMESTAMP), 'PUBLISHED', 1, 1,
     CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
   ),
   (
-    2, 'Campus Recruitment Product Manager', 'North Bay Education', 'Guangzhou', 'CAMPUS', 'BACHELOR', 'WeCom Channel',
+    2, '校园招聘产品助理', '北湾教育', '广州', 'CAMPUS', 'BACHELOR', '企业微信',
     'https://jobs.example.com/north-bay-education/campus-pm',
-    'Coordinate recruitment campaigns, student research, and cross-team delivery for campus growth.',
-    'Focus on campus recruitment planning, content coordination, and basic data analysis for hiring funnels.',
+    '协助校招活动、学生调研和跨团队需求推进。',
+    '负责校招项目排期、内容协调和基础数据分析，帮助团队优化招聘转化。',
     TIMESTAMPADD(DAY, 30, CURRENT_TIMESTAMP), TIMESTAMPADD(DAY, -1, CURRENT_TIMESTAMP), 'PUBLISHED', 1, 1,
     CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
   ),
   (
-    3, 'AI Research Assistant', 'Delta Lab', 'Shenzhen', 'FULL_TIME', 'MASTER', 'Internal Referral',
+    3, 'AI 研究助理', '启澜实验室', '深圳', 'FULL_TIME', 'MASTER', '内推',
     'https://jobs.example.com/delta-lab/ai-research-assistant',
-    'Draft job card awaiting final review before publication.',
-    'Support model evaluation, experiment organization, and research material synthesis.',
+    '待审核的 AI 研究助理岗位草稿。',
+    '支持模型评测、实验记录整理和研究资料归档，协助团队形成阶段性结论。',
     TIMESTAMPADD(DAY, 45, CURRENT_TIMESTAMP), NULL, 'DRAFT', 1, 1,
     CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
   );

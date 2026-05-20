@@ -110,7 +110,7 @@ class UserControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.total").value(1))
-                .andExpect(jsonPath("$.data.jobs[0].title").value("Java Backend Intern"));
+                .andExpect(jsonPath("$.data.jobs[0].title").value("后端开发实习生"));
     }
 
     @Test

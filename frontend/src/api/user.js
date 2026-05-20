@@ -1,4 +1,5 @@
 import http from "./http.js";
+import { demoUsers } from "./auth.js";
 
 const preferMock = import.meta.env.MODE === "test";
 const USER_KEY = "one-stop-future-demo-users";
@@ -18,7 +19,19 @@ function writeJson(key, value) {
 }
 
 function readUsers() {
-  return readJson(USER_KEY, []);
+  const stored = readJson(USER_KEY, null);
+
+  if (!stored?.length) {
+    writeUsers(demoUsers);
+    return [...demoUsers];
+  }
+
+  const users = stored.map((user) => ({
+    ...demoUsers.find((item) => item.id === user.id),
+    ...user,
+  }));
+  writeUsers(users);
+  return users;
 }
 
 function writeUsers(users) {
@@ -65,56 +78,38 @@ function getFallbackProfile() {
   return toProfile(users[index]);
 }
 
+function updateFallbackProfile(payload) {
+  const users = readUsers();
+  const index = findCurrentUserIndex(users);
+
+  if (index < 0) {
+    throw new Error("当前用户不存在");
+  }
+
+  users[index] = {
+    ...users[index],
+    nickname: payload.nickname ?? users[index].nickname,
+    realName: payload.realName ?? users[index].realName,
+  };
+
+  writeUsers(users);
+  return toProfile(users[index]);
+}
+
 export async function getProfile() {
   if (preferMock) {
     return getFallbackProfile();
   }
 
-  try {
-    const { data } = await http.get("/users/me");
-    return data.data;
-  } catch (error) {
-    return getFallbackProfile();
-  }
+  const { data } = await http.get("/users/me", { skipAuthRedirect: true });
+  return data.data;
 }
 
 export async function updateProfile(payload) {
   if (preferMock) {
-    const users = readUsers();
-    const index = findCurrentUserIndex(users);
-
-    if (index < 0) {
-      throw new Error("当前用户不存在");
-    }
-
-    users[index] = {
-      ...users[index],
-      nickname: payload.nickname ?? users[index].nickname,
-      realName: payload.realName ?? users[index].realName,
-    };
-
-    writeUsers(users);
-    return toProfile(users[index]);
+    return updateFallbackProfile(payload);
   }
 
-  try {
-    const { data } = await http.put("/users/me", payload);
-    return data.data;
-  } catch (error) {
-    const users = readUsers();
-    const index = findCurrentUserIndex(users);
-
-    if (index < 0) {
-      throw new Error("当前用户不存在");
-    }
-
-    users[index] = {
-      ...users[index],
-      nickname: payload.nickname ?? users[index].nickname,
-      realName: payload.realName ?? users[index].realName,
-    };
-
-    writeUsers(users);
-    return toProfile(users[index]);
-  }
+  const { data } = await http.put("/users/me", payload);
+  return data.data;
 }

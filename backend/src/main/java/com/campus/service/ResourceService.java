@@ -24,12 +24,15 @@ import com.campus.common.ResourceStatus;
 import com.campus.dto.MyResourceListResponse;
 import com.campus.dto.ResourceDetailResponse;
 import com.campus.dto.ResourceListResponse;
+import com.campus.dto.ResourceVersionListResponse;
 import com.campus.dto.ResourceZipPreviewResponse;
 import com.campus.dto.SearchResponse;
 import com.campus.entity.ResourceItem;
+import com.campus.entity.ResourceVersion;
 import com.campus.entity.User;
 import com.campus.entity.UserFavorite;
 import com.campus.mapper.ResourceItemMapper;
+import com.campus.mapper.ResourceVersionMapper;
 import com.campus.mapper.UserFavoriteMapper;
 import com.campus.preview.ResourcePreviewService;
 import com.campus.storage.ResourceFileStorage;
@@ -43,17 +46,20 @@ public class ResourceService {
     private static final Logger log = LoggerFactory.getLogger(ResourceService.class);
 
     private final ResourceItemMapper resourceItemMapper;
+    private final ResourceVersionMapper resourceVersionMapper;
     private final UserFavoriteMapper userFavoriteMapper;
     private final UserService userService;
     private final ResourceFileStorage resourceFileStorage;
     private final ResourcePreviewService resourcePreviewService;
     private final PreviewArtifactCleanupService previewArtifactCleanupService;
 
-    public ResourceService(ResourceItemMapper resourceItemMapper, UserFavoriteMapper userFavoriteMapper,
+    public ResourceService(ResourceItemMapper resourceItemMapper, ResourceVersionMapper resourceVersionMapper,
+            UserFavoriteMapper userFavoriteMapper,
             UserService userService, ResourceFileStorage resourceFileStorage,
             ResourcePreviewService resourcePreviewService,
             PreviewArtifactCleanupService previewArtifactCleanupService) {
         this.resourceItemMapper = resourceItemMapper;
+        this.resourceVersionMapper = resourceVersionMapper;
         this.userFavoriteMapper = userFavoriteMapper;
         this.userService = userService;
         this.resourceFileStorage = Objects.requireNonNull(resourceFileStorage, "resourceFileStorage");
@@ -193,6 +199,7 @@ public class ResourceService {
         resource.setCreatedAt(LocalDateTime.now());
         resource.setUpdatedAt(LocalDateTime.now());
         resourceItemMapper.insert(resource);
+        recordResourceVersion(resource, uploader.getId(), "UPLOAD");
         return toResourceDetail(resource, uploader);
     }
 
@@ -230,6 +237,7 @@ public class ResourceService {
         resource.setCreatedAt(LocalDateTime.now());
         resource.setUpdatedAt(LocalDateTime.now());
         resourceItemMapper.insert(resource);
+        recordResourceVersion(resource, uploader.getId(), "UPLOAD");
         return toResourceDetail(resource, uploader);
     }
 
@@ -264,12 +272,27 @@ public class ResourceService {
         resource.setPublishedAt(null);
         resource.setUpdatedAt(LocalDateTime.now());
         resourceItemMapper.updateById(resource);
+        recordResourceVersion(resource, viewer.getId(), "RESUBMIT");
 
         tryDeleteReplacedFile(previousStorageKey, resource.getStorageKey());
         previewArtifactCleanupService.cleanupAfterResourceMutation(
                 oldTarget,
                 resourcePreviewService.previewArtifactTargetOf(resource));
         return toResourceDetail(resource, viewer);
+    }
+
+    public ResourceVersionListResponse listResourceVersions(String identity, Long resourceId) {
+        User viewer = findViewer(identity);
+        ResourceItem resource = requireVisibleResourceForViewer(resourceId, viewer);
+        List<ResourceVersionListResponse.ResourceVersionItem> versions = resourceVersionMapper.selectList(
+                new LambdaQueryWrapper<ResourceVersion>()
+                        .eq(ResourceVersion::getResourceId, resource.getId())
+                        .orderByDesc(ResourceVersion::getVersionNo)
+                        .orderByDesc(ResourceVersion::getId))
+                .stream()
+                .map(this::toResourceVersionItem)
+                .toList();
+        return new ResourceVersionListResponse(versions.size(), versions);
     }
 
     @Transactional
@@ -381,6 +404,26 @@ public class ResourceService {
         return resource;
     }
 
+    private void recordResourceVersion(ResourceItem resource, Long operatorId, String changeType) {
+        ResourceVersion version = new ResourceVersion();
+        version.setResourceId(resource.getId());
+        version.setVersionNo(resourceVersionMapper.selectMaxVersionNo(resource.getId()) + 1);
+        version.setChangeType(changeType);
+        version.setTitle(resource.getTitle());
+        version.setCategory(resource.getCategory());
+        version.setSummary(resource.getSummary());
+        version.setDescription(resource.getDescription());
+        version.setStatus(resource.getStatus());
+        version.setFileName(resource.getFileName());
+        version.setFileExt(resource.getFileExt());
+        version.setContentType(resource.getContentType());
+        version.setFileSize(resource.getFileSize());
+        version.setStorageKey(resource.getStorageKey());
+        version.setOperatorId(operatorId);
+        version.setCreatedAt(LocalDateTime.now());
+        resourceVersionMapper.insert(version);
+    }
+
     private ResourceListResponse.ResourceSummary toResourceSummary(ResourceItem resource, User viewer) {
         return new ResourceListResponse.ResourceSummary(
                 resource.getId(),
@@ -441,6 +484,25 @@ public class ResourceService {
                 isEditableByOwner(resource),
                 canPreviewResource(resource, viewer),
                 previewKind);
+    }
+
+    private ResourceVersionListResponse.ResourceVersionItem toResourceVersionItem(ResourceVersion version) {
+        return new ResourceVersionListResponse.ResourceVersionItem(
+                version.getId(),
+                version.getResourceId(),
+                version.getVersionNo(),
+                version.getChangeType(),
+                version.getTitle(),
+                version.getCategory(),
+                version.getSummary(),
+                version.getDescription(),
+                version.getStatus(),
+                version.getFileName(),
+                version.getFileExt(),
+                version.getContentType(),
+                version.getFileSize(),
+                version.getOperatorId(),
+                version.getCreatedAt());
     }
 
     private ResourceFileStream openResourceFile(ResourceItem resource) {

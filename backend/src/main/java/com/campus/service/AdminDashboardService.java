@@ -54,10 +54,11 @@ public class AdminDashboardService {
     }
 
     public com.campus.dto.AdminDashboardChartsResponse getDashboardCharts(int days) {
+        LocalDateTime start = LocalDate.now().minusDays(Math.max(1, days) - 1L).atStartOfDay();
         com.campus.dto.AdminDashboardChartsResponse response = new com.campus.dto.AdminDashboardChartsResponse();
-        response.setRegistrationTrends(userMapper.selectRegistrationTrends(days));
-        response.setPostTrends(communityPostMapper.selectPostTrends(days));
-        response.setActiveUserTrends(communityPostMapper.selectActiveUserTrends(days));
+        response.setRegistrationTrends(userMapper.selectRegistrationTrends(start));
+        response.setPostTrends(communityPostMapper.selectPostTrends(start));
+        response.setActiveUserTrends(communityPostMapper.selectActiveUserTrends(start));
         response.setTagProportions(communityPostMapper.selectTagProportions());
         response.setDownloadRankings(resourceItemMapper.selectDownloadRankings());
         return response;
@@ -65,32 +66,55 @@ public class AdminDashboardService {
 
     public void exportDashboardData(jakarta.servlet.http.HttpServletResponse response, int days) throws java.io.IOException {
         com.campus.dto.AdminDashboardChartsResponse charts = getDashboardCharts(days);
+        AdminDashboardSummaryResponse summary = getSummary();
         
         response.setContentType("text/csv");
         response.setCharacterEncoding("UTF-8");
-        response.setHeader("Content-Disposition", "attachment; filename=\"dashboard_data.csv\"");
+        response.setHeader("Content-Disposition", "attachment; filename=\"dashboard_analysis_report.csv\"");
         
-        // Write BOM for Excel compatibility
         response.getOutputStream().write(new byte[]{(byte)0xEF, (byte)0xBB, (byte)0xBF});
 
         try (java.io.PrintWriter writer = new java.io.PrintWriter(new java.io.OutputStreamWriter(response.getOutputStream(), "UTF-8"));
              org.apache.commons.csv.CSVPrinter csvPrinter = new org.apache.commons.csv.CSVPrinter(writer, 
-                org.apache.commons.csv.CSVFormat.DEFAULT.builder().setHeader("Type", "Key", "Value").build())) {
-            
+                org.apache.commons.csv.CSVFormat.DEFAULT.builder().setHeader("Section", "Metric", "Value", "Note").build())) {
+            csvPrinter.printRecord("Overview", "Pending Verifications", summary.verification().pendingCount(),
+                    "Applications waiting for admin review");
+            csvPrinter.printRecord("Overview", "Reviewed Today", summary.verification().reviewedToday(),
+                    "Verification applications reviewed today");
+            csvPrinter.printRecord("Overview", "Published Posts", summary.community().publishedCount(),
+                    "Visible community posts");
+            csvPrinter.printRecord("Overview", "Active Jobs", summary.jobs().publishedCount(),
+                    "Published job postings");
+            csvPrinter.printRecord("Overview", "Published Resources", summary.resources().publishedCount(),
+                    "Resources visible to users");
+            csvPrinter.printRecord("Overview", "Pending Resources", summary.resources().pendingCount(),
+                    "Resources waiting for admin review");
+
+            com.campus.dto.AdminDashboardChartsResponse.RankingData topDownload = charts.getDownloadRankings() == null
+                    || charts.getDownloadRankings().isEmpty() ? null : charts.getDownloadRankings().get(0);
+            csvPrinter.printRecord("Insight", "Top Download Resource",
+                    topDownload == null ? "N/A" : topDownload.getTitle(),
+                    topDownload == null ? "No resource download data" : topDownload.getCount() + " downloads");
+            com.campus.dto.AdminDashboardChartsResponse.TagData topTag = charts.getTagProportions() == null
+                    || charts.getTagProportions().isEmpty() ? null : charts.getTagProportions().get(0);
+            csvPrinter.printRecord("Insight", "Top Community Tag",
+                    topTag == null ? "N/A" : topTag.getTag(),
+                    topTag == null ? "No tag data" : topTag.getCount() + " posts");
+
             for (com.campus.dto.AdminDashboardChartsResponse.TrendData data : charts.getRegistrationTrends()) {
-                csvPrinter.printRecord("Registration Trend", data.getDate(), data.getCount());
+                csvPrinter.printRecord("Trend", "Registration", data.getCount(), data.getDate());
             }
             for (com.campus.dto.AdminDashboardChartsResponse.TrendData data : charts.getPostTrends()) {
-                csvPrinter.printRecord("Post Trend", data.getDate(), data.getCount());
+                csvPrinter.printRecord("Trend", "Post", data.getCount(), data.getDate());
             }
             for (com.campus.dto.AdminDashboardChartsResponse.TrendData data : charts.getActiveUserTrends()) {
-                csvPrinter.printRecord("Active User Trend (DAU Proxy)", data.getDate(), data.getCount());
+                csvPrinter.printRecord("Trend", "Active User (DAU Proxy)", data.getCount(), data.getDate());
             }
             for (com.campus.dto.AdminDashboardChartsResponse.TagData data : charts.getTagProportions()) {
-                csvPrinter.printRecord("Tag Proportion", data.getTag(), data.getCount());
+                csvPrinter.printRecord("Distribution", "Community Tag", data.getCount(), data.getTag());
             }
             for (com.campus.dto.AdminDashboardChartsResponse.RankingData data : charts.getDownloadRankings()) {
-                csvPrinter.printRecord("Download Ranking", data.getTitle(), data.getCount());
+                csvPrinter.printRecord("Ranking", "Resource Downloads", data.getCount(), data.getTitle());
             }
             
             csvPrinter.flush();

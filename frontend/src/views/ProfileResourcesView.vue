@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from "vue";
 import { RouterLink } from "vue-router";
 import ResourceZipPreviewPanel from "../components/ResourceZipPreviewPanel.vue";
-import { getMyResources, previewResource, previewZipResource } from "../api/resources.js";
+import { getMyResources, getResourceVersions, previewResource, previewZipResource } from "../api/resources.js";
 
 const loading = ref(true);
 const errorMessage = ref("");
@@ -12,10 +12,15 @@ const actionLoadingId = ref("");
 const zipPreviewError = ref("");
 const zipPreviewResourceId = ref(null);
 const zipPreviewData = ref(null);
+const versionHistoryResourceId = ref(null);
+const versionHistory = ref(null);
+const versionHistoryError = ref("");
 const summary = ref({
   total: 0,
   resources: [],
 });
+
+let versionHistoryRequestId = 0;
 
 const statusCards = computed(() => {
   const resources = summary.value.resources || [];
@@ -110,11 +115,15 @@ function canPreview(resource) {
 }
 
 async function loadResources() {
+  versionHistoryRequestId += 1;
   loading.value = true;
   errorMessage.value = "";
   zipPreviewError.value = "";
   zipPreviewResourceId.value = null;
   zipPreviewData.value = null;
+  versionHistoryResourceId.value = null;
+  versionHistory.value = null;
+  versionHistoryError.value = "";
 
   try {
     summary.value = await getMyResources();
@@ -159,12 +168,50 @@ async function handlePreview(resource) {
   }
 }
 
+async function handleLoadVersions(resource) {
+  const requestId = versionHistoryRequestId + 1;
+  versionHistoryRequestId = requestId;
+
+  actionError.value = "";
+  actionMessage.value = "";
+  versionHistoryError.value = "";
+
+  if (versionHistoryResourceId.value === resource.id) {
+    versionHistoryResourceId.value = null;
+    versionHistory.value = null;
+    return;
+  }
+
+  actionLoadingId.value = `versions-${resource.id}`;
+  versionHistoryResourceId.value = resource.id;
+  versionHistory.value = null;
+
+  try {
+    const history = await getResourceVersions(resource.id);
+    if (versionHistoryRequestId === requestId && versionHistoryResourceId.value === resource.id) {
+      versionHistory.value = history;
+    }
+  } catch (error) {
+    if (versionHistoryRequestId === requestId && versionHistoryResourceId.value === resource.id) {
+      versionHistoryError.value = error.message || "版本历史加载失败，请稍后重试。";
+    }
+  } finally {
+    if (versionHistoryRequestId === requestId) {
+      actionLoadingId.value = "";
+    }
+  }
+}
+
 function previewLabel(resource) {
   return previewKindOf(resource) === "ZIP_TREE" ? "查看目录" : "预览";
 }
 
 function showZipPreview(resource) {
   return previewKindOf(resource) === "ZIP_TREE" && zipPreviewResourceId.value === resource.id;
+}
+
+function showVersionHistory(resource) {
+  return versionHistoryResourceId.value === resource.id;
 }
 
 onMounted(loadResources);
@@ -240,10 +287,7 @@ onMounted(loadResources);
             {{ resource.summary || "这条记录暂时没有摘要。" }}
           </p>
 
-          <div
-            v-if="resource.editable || canPreview(resource)"
-            class="inline-form-actions resource-record-card__actions"
-          >
+          <div class="inline-form-actions resource-record-card__actions">
             <RouterLink
               v-if="resource.editable"
               :to="`/resources/${resource.id}/edit`"
@@ -263,6 +307,15 @@ onMounted(loadResources);
                 ? (previewKindOf(resource) === "ZIP_TREE" ? "正在加载目录..." : "正在打开预览...")
                 : previewLabel(resource) }}
             </button>
+            <button
+              type="button"
+              class="ghost-btn"
+              :data-testid="`versions-action-${resource.id}`"
+              :disabled="actionLoadingId === `versions-${resource.id}`"
+              @click="handleLoadVersions(resource)"
+            >
+              {{ actionLoadingId === `versions-${resource.id}` ? "加载中..." : "版本历史" }}
+            </button>
           </div>
 
           <ResourceZipPreviewPanel
@@ -278,6 +331,37 @@ onMounted(loadResources);
           >
             <strong>审核说明</strong>
             <p class="meta-copy" style="margin-top: 12px;">{{ resource.rejectReason }}</p>
+          </article>
+
+          <article
+            v-if="showVersionHistory(resource)"
+            class="panel-card resource-record-card__versions"
+          >
+            <strong>版本历史</strong>
+            <p v-if="versionHistoryError" class="field-error" role="alert" style="margin-top: 12px;">
+              {{ versionHistoryError }}
+            </p>
+            <div v-else-if="!versionHistory" class="meta-copy" style="margin-top: 12px;">
+              正在加载版本记录...
+            </div>
+            <div v-else-if="!versionHistory.versions.length" class="meta-copy" style="margin-top: 12px;">
+              暂无版本记录。
+            </div>
+            <div v-else class="resource-version-list">
+              <article
+                v-for="version in versionHistory.versions"
+                :key="version.id"
+                class="resource-version-list__item"
+              >
+                <span class="status-badge pending">v{{ version.versionNo }}</span>
+                <div>
+                  <strong>{{ version.title }}</strong>
+                  <p class="meta-copy">
+                    {{ version.changeType }} · {{ version.fileName }} · {{ formatTime(version.createdAt) }}
+                  </p>
+                </div>
+              </article>
+            </div>
           </article>
         </article>
       </div>
@@ -354,6 +438,22 @@ onMounted(loadResources);
   background:
     linear-gradient(180deg, rgba(255, 247, 241, 0.84), rgba(255, 240, 236, 0.96)),
     radial-gradient(circle at top right, rgba(197, 79, 45, 0.14), transparent 36%);
+}
+
+.resource-record-card__versions {
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.resource-version-list {
+  display: grid;
+  gap: var(--cp-gap-3);
+  margin-top: 12px;
+}
+
+.resource-version-list__item {
+  display: flex;
+  gap: var(--cp-gap-3);
+  align-items: flex-start;
 }
 
 @media (max-width: 1023px) {

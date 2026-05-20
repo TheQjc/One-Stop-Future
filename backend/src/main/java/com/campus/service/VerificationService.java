@@ -54,6 +54,7 @@ public class VerificationService {
         verificationApplicationMapper.insert(application);
 
         user.setRealName(request.realName().trim());
+        user.setStudentId(request.studentId().trim());
         user.setVerificationStatus(VerificationStatus.PENDING.name());
         user.setUpdatedAt(now);
         userMapper.updateById(user);

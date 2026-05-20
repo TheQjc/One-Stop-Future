@@ -1,10 +1,30 @@
 import { flushPromises, mount } from "@vue/test-utils";
 import { beforeEach, expect, test, vi } from "vitest";
 import router from "../../router/index.js";
-import { getAdminDashboardSummary } from "../../api/admin.js";
+import {
+  exportAdminDashboardData,
+  getAdminDashboardCharts,
+  getAdminDashboardSummary,
+} from "../../api/admin.js";
 import AdminDashboardView from "./AdminDashboardView.vue";
 
+class TestResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+vi.mock("echarts", () => ({
+  init: vi.fn(() => ({
+    dispose: vi.fn(),
+    resize: vi.fn(),
+    setOption: vi.fn(),
+  })),
+}));
+
 vi.mock("../../api/admin.js", () => ({
+  exportAdminDashboardData: vi.fn(),
+  getAdminDashboardCharts: vi.fn(),
   getAdminDashboardSummary: vi.fn(),
 }));
 
@@ -51,10 +71,10 @@ function buildSummary() {
       latestActionableJobs: [
         {
           id: 61,
-          title: "Campus operations intern",
-          companyName: "One Stop Studio",
-          city: "Shanghai",
-          sourcePlatform: "Official Site",
+          title: "校园运营实习生",
+          companyName: "一站式工作室",
+          city: "上海",
+          sourcePlatform: "官网",
           status: "DRAFT",
           updatedAt: "2026-04-18T07:30:00",
         },
@@ -125,7 +145,16 @@ function mountView() {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.stubGlobal("ResizeObserver", TestResizeObserver);
   window.localStorage.clear();
+  getAdminDashboardCharts.mockResolvedValue({
+    registrationTrends: [],
+    postTrends: [],
+    activeUserTrends: [],
+    tagProportions: [],
+    downloadRankings: [],
+  });
+  exportAdminDashboardData.mockResolvedValue();
 });
 
 test("route exists as an admin-only route", () => {
@@ -150,7 +179,7 @@ test("page loads summary and renders four sections", async () => {
   expect(wrapper.text()).toContain("资源看板");
   expect(wrapper.text()).toContain("Pending Student");
   expect(wrapper.text()).toContain("First community post");
-  expect(wrapper.text()).toContain("Campus operations intern");
+  expect(wrapper.text()).toContain("校园运营实习生");
   expect(wrapper.text()).toContain("Resume workshop pack");
 });
 
@@ -213,4 +242,30 @@ test("empty recent lines keep metrics and desk links visible", async () => {
     "/admin/jobs",
     "/admin/resources",
   ]));
+});
+
+test("exports the dashboard analysis report from the report panel", async () => {
+  getAdminDashboardSummary.mockResolvedValue(buildSummary());
+
+  const wrapper = mountView();
+  await flushPromises();
+
+  await wrapper.findAll("button").find((button) => button.text().includes("导出分析报表")).trigger("click");
+  await flushPromises();
+
+  expect(exportAdminDashboardData).toHaveBeenCalledWith(30);
+});
+
+test("export failures surface inline without replacing the chart section", async () => {
+  getAdminDashboardSummary.mockResolvedValue(buildSummary());
+  exportAdminDashboardData.mockRejectedValueOnce(new Error("export failed"));
+
+  const wrapper = mountView();
+  await flushPromises();
+
+  await wrapper.find('[data-testid="admin-dashboard-export"]').trigger("click");
+  await flushPromises();
+
+  expect(wrapper.text()).toContain("export failed");
+  expect(wrapper.find('[data-testid="admin-dashboard-trend-chart"]').exists()).toBe(true);
 });

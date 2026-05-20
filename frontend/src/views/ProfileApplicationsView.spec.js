@@ -20,9 +20,9 @@ test("renders my application history", async () => {
       {
         id: 11,
         jobId: 1,
-        jobTitle: "Java Backend Intern",
-        companyName: "Future Campus Tech",
-        city: "Shenzhen",
+        jobTitle: "后端开发实习生",
+        companyName: "未来校园科技",
+        city: "深圳",
         status: "SUBMITTED",
         resumeTitleSnapshot: "Intern Resume",
         resumeFileNameSnapshot: "intern-resume.pdf",
@@ -43,9 +43,9 @@ test("renders my application history", async () => {
   });
   await flushPromises();
 
-  expect(wrapper.text()).toContain("Java Backend Intern");
-  expect(wrapper.text()).toContain("Future Campus Tech");
-  expect(wrapper.text()).toContain("Shenzhen");
+  expect(wrapper.text()).toContain("后端开发实习生");
+  expect(wrapper.text()).toContain("未来校园科技");
+  expect(wrapper.text()).toContain("深圳");
   expect(wrapper.text()).toContain("已提交");
   expect(wrapper.text()).toContain("Intern Resume");
   expect(wrapper.text()).toContain("2026-04-18");
@@ -59,9 +59,9 @@ test("pdf and docx snapshots show preview and download while doc stays download-
       {
         id: 11,
         jobId: 1,
-        jobTitle: "Java Backend Intern",
-        companyName: "Future Campus Tech",
-        city: "Shenzhen",
+        jobTitle: "后端开发实习生",
+        companyName: "未来校园科技",
+        city: "深圳",
         status: "SUBMITTED",
         resumeTitleSnapshot: "PDF Snapshot",
         resumeFileNameSnapshot: "intern.pdf",
@@ -72,9 +72,9 @@ test("pdf and docx snapshots show preview and download while doc stays download-
       {
         id: 12,
         jobId: 1,
-        jobTitle: "Java Backend Intern",
-        companyName: "Future Campus Tech",
-        city: "Shenzhen",
+        jobTitle: "后端开发实习生",
+        companyName: "未来校园科技",
+        city: "深圳",
         status: "SUBMITTED",
         resumeTitleSnapshot: "DOCX Snapshot",
         resumeFileNameSnapshot: "intern.docx",
@@ -85,9 +85,9 @@ test("pdf and docx snapshots show preview and download while doc stays download-
       {
         id: 13,
         jobId: 1,
-        jobTitle: "Java Backend Intern",
-        companyName: "Future Campus Tech",
-        city: "Shenzhen",
+        jobTitle: "后端开发实习生",
+        companyName: "未来校园科技",
+        city: "深圳",
         status: "SUBMITTED",
         resumeTitleSnapshot: "DOC Snapshot",
         resumeFileNameSnapshot: "intern.doc",
@@ -123,9 +123,9 @@ test("preview and download actions call the applicant snapshot helpers", async (
       {
         id: 11,
         jobId: 1,
-        jobTitle: "Java Backend Intern",
-        companyName: "Future Campus Tech",
-        city: "Shenzhen",
+        jobTitle: "后端开发实习生",
+        companyName: "未来校园科技",
+        city: "深圳",
         status: "SUBMITTED",
         resumeTitleSnapshot: "DOCX Snapshot",
         resumeFileNameSnapshot: "intern.docx",

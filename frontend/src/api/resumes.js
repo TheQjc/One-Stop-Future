@@ -6,11 +6,12 @@ export async function getMyResumes() {
 }
 
 export async function createResume(formData) {
-  const { data } = await http.post("/resumes", formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
+  const { data } = await http.post("/resumes", formData);
+  return data.data;
+}
+
+export async function updateResume(id, formData) {
+  const { data } = await http.put(`/resumes/${id}`, formData);
   return data.data;
 }
 

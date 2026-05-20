@@ -38,15 +38,15 @@ vi.mock("../api/resumes.js", () => ({
 
 const baseDetail = {
   id: 11,
-  title: "Offer Analyst Intern",
-  companyName: "Future Campus Tech",
-  city: "Shenzhen",
+  title: "求职数据分析实习生",
+  companyName: "未来校园科技",
+  city: "深圳",
   jobType: "INTERNSHIP",
   educationRequirement: "BACHELOR",
-  sourcePlatform: "Official Site",
+  sourcePlatform: "官网",
   sourceUrl: "https://jobs.example.com/offer-analyst-intern",
-  summary: "A short job summary.",
-  content: "A longer explanation of the role.",
+  summary: "协助整理校招投递和面试数据。",
+  content: "和产品、运营同学一起分析岗位转化，输出面向学生的求职建议。",
   deadlineAt: "2026-05-20T18:00:00",
   favoritedByMe: false,
 };

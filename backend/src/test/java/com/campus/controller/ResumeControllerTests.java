@@ -172,6 +172,47 @@ class ResumeControllerTests {
 
     @Test
     @WithMockUser(username = "2", roles = "USER")
+    void authenticatedUserCanRenameAndReplaceOwnResume() throws Exception {
+        jdbcTemplate.update(
+                """
+                        INSERT INTO t_resume (
+                          id, user_id, title, file_name, file_ext, content_type, file_size, storage_key, created_at, updated_at
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                        """,
+                9010L, 2L, "Old Resume", "old-resume.pdf", "pdf", "application/pdf", 100L, "seed/old-resume.pdf");
+        Files.createDirectories(STORAGE_ROOT.resolve("seed"));
+        Files.writeString(STORAGE_ROOT.resolve("seed/old-resume.pdf"), "old");
+
+        MockMultipartFile replacement = new MockMultipartFile(
+                "file",
+                "new-resume.docx",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "new-docx".getBytes(StandardCharsets.UTF_8));
+
+        mockMvc.perform(multipart("/api/resumes/9010")
+                        .file(replacement)
+                        .with(request -> {
+                            request.setMethod("PUT");
+                            return request;
+                        })
+                        .param("title", "Renamed Resume"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.id").value(9010))
+                .andExpect(jsonPath("$.data.title").value("Renamed Resume"))
+                .andExpect(jsonPath("$.data.fileName").value("new-resume.docx"))
+                .andExpect(jsonPath("$.data.previewAvailable").value(true));
+
+        Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM t_resume WHERE id = 9010", Integer.class);
+        assertThat(count).isEqualTo(1);
+        String updatedStorageKey = jdbcTemplate.queryForObject(
+                "SELECT storage_key FROM t_resume WHERE id = 9010", String.class);
+        assertThat(updatedStorageKey).isNotEqualTo("seed/old-resume.pdf");
+        assertThat(Files.exists(STORAGE_ROOT.resolve("seed/old-resume.pdf"))).isFalse();
+    }
+
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
     void docResumePreviewIsRejected() throws Exception {
         jdbcTemplate.update(
                 """

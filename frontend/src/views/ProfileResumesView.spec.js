@@ -1,7 +1,14 @@
 import { flushPromises, mount } from "@vue/test-utils";
 import { beforeEach, expect, test, vi } from "vitest";
 import ProfileResumesView from "./ProfileResumesView.vue";
-import { createResume, deleteResume, downloadResume, getMyResumes, previewResume } from "../api/resumes.js";
+import {
+  createResume,
+  deleteResume,
+  downloadResume,
+  getMyResumes,
+  previewResume,
+  updateResume,
+} from "../api/resumes.js";
 
 vi.mock("../api/resumes.js", () => ({
   createResume: vi.fn(),
@@ -9,6 +16,7 @@ vi.mock("../api/resumes.js", () => ({
   downloadResume: vi.fn(),
   getMyResumes: vi.fn(),
   previewResume: vi.fn(),
+  updateResume: vi.fn(),
 }));
 
 beforeEach(() => {
@@ -112,4 +120,60 @@ test("pdf and docx resumes show preview while doc stays download-only", async ()
   await wrapper.find('[data-testid="preview-resume-2"]').trigger("click");
 
   expect(previewResume).toHaveBeenCalledWith(2);
+});
+
+test("renames and optionally replaces an existing resume", async () => {
+  getMyResumes
+    .mockResolvedValueOnce({
+      total: 1,
+      resumes: [
+        {
+          id: 8,
+          title: "Old Resume",
+          fileName: "old-resume.pdf",
+          previewAvailable: true,
+          previewKind: "FILE",
+        },
+      ],
+    })
+    .mockResolvedValueOnce({
+      total: 1,
+      resumes: [
+        {
+          id: 8,
+          title: "New Resume",
+          fileName: "new-resume.docx",
+          previewAvailable: true,
+          previewKind: "FILE",
+        },
+      ],
+    });
+  updateResume.mockResolvedValue({
+    id: 8,
+    title: "New Resume",
+    fileName: "new-resume.docx",
+  });
+
+  const wrapper = mount(ProfileResumesView);
+  await flushPromises();
+
+  await wrapper.find('[data-testid="edit-resume-8"]').trigger("click");
+  await wrapper.find('[data-testid="edit-resume-title-8"]').setValue("New Resume");
+  const fileInput = wrapper.find('[data-testid="edit-resume-file-8"]');
+  const file = new File(["docx"], "new-resume.docx", {
+    type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  });
+  Object.defineProperty(fileInput.element, "files", {
+    value: [file],
+    configurable: true,
+  });
+  await fileInput.trigger("change");
+  await wrapper.find('[data-testid="save-resume-8"]').trigger("submit");
+  await flushPromises();
+
+  expect(updateResume).toHaveBeenCalledTimes(1);
+  expect(updateResume.mock.calls[0][0]).toBe(8);
+  expect(updateResume.mock.calls[0][1].get("title")).toBe("New Resume");
+  expect(updateResume.mock.calls[0][1].get("file")).toBe(file);
+  expect(wrapper.text()).toContain("New Resume");
 });

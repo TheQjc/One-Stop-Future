@@ -70,7 +70,7 @@ test("loads job cards, refetches with filters, and shows localized filter summar
   getJobs
     .mockResolvedValueOnce({
       total: 1,
-      jobs: [{ id: 1, title: "Java Backend Intern" }],
+      jobs: [{ id: 1, title: "后端开发实习生" }],
     })
     .mockResolvedValueOnce({
       total: 1,
@@ -81,19 +81,19 @@ test("loads job cards, refetches with filters, and shows localized filter summar
   await flushPromises();
 
   expect(getJobs).toHaveBeenNthCalledWith(1, {});
-  expect(wrapper.text()).toContain("Java Backend Intern");
+  expect(wrapper.text()).toContain("后端开发实习生");
 
-  await wrapper.find('input[name="keyword"]').setValue("backend");
-  await wrapper.find('select[name="city"]').setValue("Shenzhen");
+  await wrapper.find('input[name="keyword"]').setValue("后端");
+  await wrapper.find('select[name="city"]').setValue("深圳");
   await wrapper.find("form").trigger("submit.prevent");
   await flushPromises();
 
   expect(getJobs).toHaveBeenNthCalledWith(2, {
-    keyword: "backend",
-    city: "Shenzhen",
+    keyword: "后端",
+    city: "深圳",
   });
   expect(wrapper.text()).toContain("Filtered Job");
-  expect(wrapper.text()).toContain("关键词：backend");
+  expect(wrapper.text()).toContain("关键词：后端");
   expect(wrapper.text()).toContain("城市：深圳");
 });
 

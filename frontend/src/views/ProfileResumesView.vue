@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from "vue";
-import { createResume, deleteResume, downloadResume, getMyResumes, previewResume } from "../api/resumes.js";
+import { createResume, deleteResume, downloadResume, getMyResumes, previewResume, updateResume } from "../api/resumes.js";
 
 const loading = ref(true);
 const errorMessage = ref("");
@@ -10,6 +10,9 @@ const uploading = ref(false);
 const actionLoadingId = ref("");
 const selectedFile = ref(null);
 const fileInputRef = ref(null);
+const editingResumeId = ref(null);
+const editTitle = ref("");
+const editFile = ref(null);
 const summary = ref({
   total: 0,
   resumes: [],
@@ -32,6 +35,52 @@ function formatTime(value) {
   }
 
   return String(value).replace("T", " ").slice(0, 16);
+}
+
+function startEdit(resume) {
+  editingResumeId.value = resume.id;
+  editTitle.value = resume.title || "";
+  editFile.value = null;
+  actionError.value = "";
+  actionMessage.value = "";
+}
+
+function cancelEdit() {
+  editingResumeId.value = null;
+  editTitle.value = "";
+  editFile.value = null;
+}
+
+function handleEditFileChange(event) {
+  editFile.value = event.target.files?.[0] || null;
+}
+
+async function handleUpdate(resume) {
+  actionMessage.value = "";
+  actionError.value = "";
+
+  if (!editTitle.value.trim()) {
+    actionError.value = "请输入简历标题。";
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("title", editTitle.value.trim());
+  if (editFile.value) {
+    formData.append("file", editFile.value);
+  }
+
+  actionLoadingId.value = `update-${resume.id}`;
+  try {
+    await updateResume(resume.id, formData);
+    actionMessage.value = `已更新 ${editTitle.value.trim()}。`;
+    cancelEdit();
+    await loadResumes();
+  } catch (error) {
+    actionError.value = error.message || "简历更新失败，请稍后重试。";
+  } finally {
+    actionLoadingId.value = "";
+  }
 }
 
 function formatSize(value) {
@@ -264,7 +313,55 @@ onMounted(loadResumes);
               <span>上传于 {{ formatTime(resume.createdAt) }}</span>
             </div>
 
+            <form
+              v-if="editingResumeId === resume.id"
+              class="field-grid resume-edit-form"
+              @submit.prevent="handleUpdate(resume)"
+            >
+              <label class="field-label">
+                标题
+                <input
+                  v-model.trim="editTitle"
+                  class="field-control"
+                  :data-testid="`edit-resume-title-${resume.id}`"
+                  type="text"
+                  maxlength="100"
+                />
+              </label>
+              <label class="field-label">
+                替换文件（可选）
+                <input
+                  class="field-control"
+                  :data-testid="`edit-resume-file-${resume.id}`"
+                  type="file"
+                  accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                  @change="handleEditFileChange"
+                />
+              </label>
+              <div class="inline-form-actions">
+                <button
+                  type="submit"
+                  class="app-btn"
+                  :data-testid="`save-resume-${resume.id}`"
+                  :disabled="actionLoadingId === `update-${resume.id}`"
+                >
+                  {{ actionLoadingId === `update-${resume.id}` ? "保存中..." : "保存修改" }}
+                </button>
+                <button type="button" class="ghost-btn" @click="cancelEdit">
+                  取消
+                </button>
+              </div>
+            </form>
+
             <div class="inline-form-actions">
+              <button
+                :data-testid="`edit-resume-${resume.id}`"
+                type="button"
+                class="ghost-btn"
+                @click="startEdit(resume)"
+              >
+                重命名 / 替换
+              </button>
               <button
                 v-if="resume.previewAvailable && resume.previewKind === 'FILE'"
                 :data-testid="`preview-resume-${resume.id}`"
@@ -359,6 +456,10 @@ onMounted(loadResumes);
   gap: var(--cp-gap-3);
   color: var(--cp-ink-soft);
   font-size: var(--cp-text-sm);
+}
+
+.resume-edit-form {
+  padding-top: 4px;
 }
 
 @media (max-width: 767px) {

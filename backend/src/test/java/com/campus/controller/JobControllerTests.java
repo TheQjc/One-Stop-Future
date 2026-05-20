@@ -35,12 +35,34 @@ class JobControllerTests {
                 .andExpect(jsonPath("$.data.total").value(2))
                 .andExpect(jsonPath("$.data.jobs[0].title").isNotEmpty());
 
-        mockMvc.perform(get("/api/jobs").param("city", "Shenzhen"))
+        mockMvc.perform(get("/api/jobs").param("city", "深圳"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.data.city").value("Shenzhen"))
+                .andExpect(jsonPath("$.data.city").value("深圳"))
                 .andExpect(jsonPath("$.data.total").value(1))
-                .andExpect(jsonPath("$.data.jobs[0].city").value("Shenzhen"));
+                .andExpect(jsonPath("$.data.jobs[0].city").value("深圳"));
+    }
+
+    @Test
+    void localizedFiltersMatchCanonicalImportedJobFields() throws Exception {
+        jdbcTemplate.update(
+                """
+                        INSERT INTO t_job_posting (
+                          id, title, company_name, city, job_type, education_requirement, source_platform, source_url,
+                          summary, content, deadline_at, published_at, status, created_by, updated_by, created_at, updated_at
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TIMESTAMPADD(DAY, 20, CURRENT_TIMESTAMP), CURRENT_TIMESTAMP, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                        """,
+                101L, "Imported Hangzhou Role", "Campus Import", "Hangzhou", "INTERNSHIP", "BACHELOR",
+                "Official Site", "https://jobs.example.com/imported-hangzhou-role",
+                "Imported job summary", "Imported job body", "PUBLISHED", 1L, 1L);
+
+        mockMvc.perform(get("/api/jobs")
+                        .param("city", "杭州")
+                        .param("sourcePlatform", "官网"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.total").value(1))
+                .andExpect(jsonPath("$.data.jobs[0].title").value("Imported Hangzhou Role"));
     }
 
     @Test
@@ -49,7 +71,7 @@ class JobControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.id").value(1))
-                .andExpect(jsonPath("$.data.title").value("Java Backend Intern"))
+                .andExpect(jsonPath("$.data.title").value("后端开发实习生"))
                 .andExpect(jsonPath("$.data.sourceUrl").value("https://jobs.example.com/future-campus-tech/backend-intern"));
 
         mockMvc.perform(get("/api/jobs/3"))

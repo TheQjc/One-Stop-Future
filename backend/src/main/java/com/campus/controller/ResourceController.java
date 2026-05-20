@@ -27,6 +27,7 @@ import com.campus.dto.ResourceChunkUploadInitRequest;
 import com.campus.dto.ResourceChunkUploadStatusResponse;
 import com.campus.dto.ResourceDetailResponse;
 import com.campus.dto.ResourceListResponse;
+import com.campus.dto.ResourceVersionListResponse;
 import com.campus.dto.ResourceZipPreviewResponse;
 import com.campus.service.ResourceChunkUploadService;
 import com.campus.service.ResourceService;
@@ -101,6 +102,11 @@ public class ResourceController {
     @GetMapping("/{id}")
     public Result<ResourceDetailResponse> detail(@PathVariable Long id, Authentication authentication) {
         return Result.success(resourceService.getResourceDetail(id, identityOf(authentication)));
+    }
+
+    @GetMapping("/{id}/versions")
+    public Result<ResourceVersionListResponse> versions(@PathVariable Long id, Authentication authentication) {
+        return Result.success(resourceService.listResourceVersions(identityOf(authentication), id));
     }
 
     @GetMapping("/{id}/download")

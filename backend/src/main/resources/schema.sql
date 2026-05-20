@@ -8,6 +8,7 @@ DROP TABLE IF EXISTS t_decision_assessment_option;
 DROP TABLE IF EXISTS t_decision_assessment_question;
 DROP TABLE IF EXISTS t_job_application;
 DROP TABLE IF EXISTS t_resume;
+DROP TABLE IF EXISTS t_resource_version;
 DROP TABLE IF EXISTS t_resource_item;
 DROP TABLE IF EXISTS t_job_posting;
 DROP TABLE IF EXISTS t_user_favorite;
@@ -137,6 +138,27 @@ CREATE TABLE t_resource_item (
   reviewed_at DATETIME NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE t_resource_version (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  resource_id BIGINT NOT NULL,
+  version_no INT NOT NULL,
+  change_type VARCHAR(30) NOT NULL,
+  title VARCHAR(120) NOT NULL,
+  category VARCHAR(32) NOT NULL,
+  summary VARCHAR(300) NOT NULL,
+  description TEXT NULL,
+  status VARCHAR(20) NOT NULL,
+  file_name VARCHAR(255) NOT NULL,
+  file_ext VARCHAR(20) NOT NULL,
+  content_type VARCHAR(120) NOT NULL,
+  file_size BIGINT NOT NULL,
+  storage_key VARCHAR(500) NOT NULL,
+  operator_id BIGINT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_resource_version_no (resource_id, version_no),
+  KEY idx_resource_version_resource (resource_id)
 );
 
 CREATE TABLE t_resume (

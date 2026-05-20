@@ -23,8 +23,8 @@ test("renders the read-only admin applications workbench", async () => {
       {
         id: 1001,
         jobId: 1,
-        jobTitle: "Java Backend Intern",
-        companyName: "Future Campus Tech",
+        jobTitle: "后端开发实习生",
+        companyName: "未来校园科技",
         applicantUserId: 2,
         applicantNickname: "普通同学",
         resumeFileNameSnapshot: "intern-resume.pdf",
@@ -48,8 +48,8 @@ test("renders the read-only admin applications workbench", async () => {
   });
   await flushPromises();
 
-  expect(wrapper.text()).toContain("Java Backend Intern");
-  expect(wrapper.text()).toContain("Future Campus Tech");
+  expect(wrapper.text()).toContain("后端开发实习生");
+  expect(wrapper.text()).toContain("未来校园科技");
   expect(wrapper.text()).toContain("2");
   expect(wrapper.text()).toContain("普通同学");
   expect(wrapper.text()).toContain("intern-resume.pdf");
@@ -68,8 +68,8 @@ test("download action calls the admin resume snapshot helper", async () => {
       {
         id: 1001,
         jobId: 1,
-        jobTitle: "Java Backend Intern",
-        companyName: "Future Campus Tech",
+        jobTitle: "后端开发实习生",
+        companyName: "未来校园科技",
         applicantUserId: 2,
         applicantNickname: "普通同学",
         resumeFileNameSnapshot: "intern-resume.pdf",
@@ -108,8 +108,8 @@ test("admin shows preview for previewable snapshots and hides it for doc", async
       {
         id: 1001,
         jobId: 1,
-        jobTitle: "Java Backend Intern",
-        companyName: "Future Campus Tech",
+        jobTitle: "后端开发实习生",
+        companyName: "未来校园科技",
         applicantUserId: 2,
         applicantNickname: "普通同学",
         resumeFileNameSnapshot: "intern.docx",
@@ -121,8 +121,8 @@ test("admin shows preview for previewable snapshots and hides it for doc", async
       {
         id: 1002,
         jobId: 1,
-        jobTitle: "Java Backend Intern",
-        companyName: "Future Campus Tech",
+        jobTitle: "后端开发实习生",
+        companyName: "未来校园科技",
         applicantUserId: 2,
         applicantNickname: "普通同学",
         resumeFileNameSnapshot: "intern.doc",
@@ -160,8 +160,8 @@ test("preview action calls the admin snapshot preview helper", async () => {
       {
         id: 1001,
         jobId: 1,
-        jobTitle: "Java Backend Intern",
-        companyName: "Future Campus Tech",
+        jobTitle: "后端开发实习生",
+        companyName: "未来校园科技",
         applicantUserId: 2,
         applicantNickname: "普通同学",
         resumeFileNameSnapshot: "intern.docx",

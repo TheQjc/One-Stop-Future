@@ -1,6 +1,8 @@
 package com.campus.controller.admin;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -126,6 +128,19 @@ class AdminDashboardControllerTests {
                 .andExpect(jsonPath("$.data.verification.latestPendingApplications.length()").value(0))
                 .andExpect(jsonPath("$.data.jobs.latestActionableJobs.length()").value(0))
                 .andExpect(jsonPath("$.data.resources.latestPendingResources.length()").value(0));
+    }
+
+    @Test
+    @WithMockUser(username = "1", roles = "ADMIN")
+    void adminCanExportDashboardAnalysisReport() throws Exception {
+        mockMvc.perform(get("/api/admin/dashboard/export"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Disposition",
+                        org.hamcrest.Matchers.containsString("dashboard_analysis_report")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Section,Metric,Value,Note")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Overview,Published Resources")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Insight,Top Download Resource")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Trend,Registration")));
     }
 
     @Test

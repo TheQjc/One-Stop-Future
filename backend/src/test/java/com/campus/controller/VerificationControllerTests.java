@@ -49,7 +49,8 @@ class VerificationControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.realName").value("Normal User"))
-                .andExpect(jsonPath("$.data.verificationStatus").value("PENDING"));
+                .andExpect(jsonPath("$.data.verificationStatus").value("PENDING"))
+                .andExpect(jsonPath("$.data.studentId").value("20260009"));
 
         Integer applicationCount = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM t_verification_application WHERE user_id = 2 AND status = 'PENDING'",

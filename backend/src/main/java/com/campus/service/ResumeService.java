@@ -89,6 +89,32 @@ public class ResumeService {
         return new DownloadedResume(openedResume.fileName(), openedResume.contentType(), openedResume.inputStream());
     }
 
+    @Transactional
+    public ResumeRecordResponse update(String identity, Long resumeId, String title, MultipartFile file) {
+        User viewer = userService.requireByIdentity(identity);
+        Resume resume = requireOwnedResume(viewer.getId(), resumeId);
+        Optional<ResumePreviewService.PreviewArtifactTarget> oldTarget =
+                resumePreviewService.previewArtifactTargetOf(resume);
+        String previousStorageKey = resume.getStorageKey();
+
+        resume.setTitle(requireText(title, "title"));
+        if (file != null && !file.isEmpty()) {
+            ValidatedResumeFile validatedFile = validateFile(file);
+            String replacementKey = storeValidatedFile(validatedFile, file);
+            resume.setFileName(validatedFile.originalFilename());
+            resume.setFileExt(validatedFile.extension());
+            resume.setContentType(validatedFile.contentType());
+            resume.setFileSize(validatedFile.size());
+            resume.setStorageKey(replacementKey);
+        }
+        resume.setUpdatedAt(LocalDateTime.now());
+        resumeMapper.updateById(resume);
+
+        tryDeleteReplacedFile(previousStorageKey, resume.getStorageKey());
+        tryDeletePreviewArtifact(oldTarget);
+        return toRecord(resume);
+    }
+
     public ResumeFileStream preview(String identity, Long resumeId) {
         User viewer = userService.requireByIdentity(identity);
         Resume resume = requireOwnedResume(viewer.getId(), resumeId);
@@ -173,6 +199,13 @@ public class ResumeService {
         } catch (IOException exception) {
             log.warn("Failed to delete resume file: {}", storageKey, exception);
         }
+    }
+
+    private void tryDeleteReplacedFile(String previousStorageKey, String currentStorageKey) {
+        if (previousStorageKey == null || previousStorageKey.isBlank() || previousStorageKey.equals(currentStorageKey)) {
+            return;
+        }
+        tryDeleteStoredFile(previousStorageKey);
     }
 
     private void tryDeletePreviewArtifact(Optional<ResumePreviewService.PreviewArtifactTarget> oldTarget) {

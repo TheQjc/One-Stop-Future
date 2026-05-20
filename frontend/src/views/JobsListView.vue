@@ -24,10 +24,10 @@ const summary = ref({
 
 const cityOptions = [
   { value: "", label: "全部城市" },
-  { value: "Shenzhen", label: "深圳" },
-  { value: "Guangzhou", label: "广州" },
-  { value: "Shanghai", label: "上海" },
-  { value: "Hangzhou", label: "杭州" },
+  { value: "深圳", label: "深圳" },
+  { value: "广州", label: "广州" },
+  { value: "上海", label: "上海" },
+  { value: "杭州", label: "杭州" },
 ];
 
 const jobTypeOptions = [
@@ -47,9 +47,9 @@ const educationOptions = [
 
 const sourcePlatformOptions = [
   { value: "", label: "全部来源" },
-  { value: "Official Site", label: "官网" },
-  { value: "WeCom Channel", label: "企业微信" },
-  { value: "Internal Referral", label: "内推" },
+  { value: "官网", label: "官网" },
+  { value: "企业微信", label: "企业微信" },
+  { value: "内推", label: "内推" },
 ];
 
 function getOptionLabel(options, value) {

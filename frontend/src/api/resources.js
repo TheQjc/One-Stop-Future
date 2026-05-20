@@ -18,6 +18,11 @@ export async function getResourceDetail(id) {
   return data.data;
 }
 
+export async function getResourceVersions(id) {
+  const { data } = await http.get(`/resources/${id}/versions`);
+  return data.data;
+}
+
 export async function createResourceUpload(formData, options = {}) {
   const file = formData.get("file");
 
@@ -75,9 +80,6 @@ export async function getResourceChunkUploadStatus(uploadId) {
 
 export async function uploadResourceChunk(uploadId, chunkIndex, formData) {
   const { data } = await http.post(`/resources/chunk-uploads/${uploadId}/chunks/${chunkIndex}`, formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
     timeout: 30000,
   });
   return data.data;
@@ -91,11 +93,7 @@ export async function completeResourceChunkUpload(uploadId) {
 }
 
 export async function updateResource(id, formData) {
-  const { data } = await http.put(`/resources/${id}`, formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
+  const { data } = await http.put(`/resources/${id}`, formData);
   return data.data;
 }
 
