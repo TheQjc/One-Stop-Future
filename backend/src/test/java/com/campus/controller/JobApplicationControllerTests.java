@@ -95,7 +95,7 @@ class JobApplicationControllerTests {
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.total").value(1))
                 .andExpect(jsonPath("$.data.applications[0].jobId").value(1))
-                .andExpect(jsonPath("$.data.applications[0].jobTitle").value("Java Backend Intern"))
+                .andExpect(jsonPath("$.data.applications[0].jobTitle").value("后端开发实习生"))
                 .andExpect(jsonPath("$.data.applications[0].resumeTitleSnapshot").value("Intern Resume"))
                 .andExpect(jsonPath("$.data.applications[0].previewAvailable").value(true))
                 .andExpect(jsonPath("$.data.applications[0].previewKind").value("FILE"));

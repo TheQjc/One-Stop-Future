@@ -97,7 +97,7 @@ class AdminJobApplicationControllerTests {
                 .andExpect(jsonPath("$.data.uniqueApplicants").value(1))
                 .andExpect(jsonPath("$.data.uniqueJobs").value(1))
                 .andExpect(jsonPath("$.data.applications[0].id").value(applicationId))
-                .andExpect(jsonPath("$.data.applications[0].jobTitle").value("Java Backend Intern"))
+                .andExpect(jsonPath("$.data.applications[0].jobTitle").value("后端开发实习生"))
                 .andExpect(jsonPath("$.data.applications[0].applicantNickname").value("NormalUser"))
                 .andExpect(jsonPath("$.data.applications[0].previewAvailable").value(true))
                 .andExpect(jsonPath("$.data.applications[0].previewKind").value("FILE"));

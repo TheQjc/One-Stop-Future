@@ -1,6 +1,7 @@
 package com.campus.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -68,7 +69,7 @@ public class JobService {
                     .like(JobPosting::getSummary, normalizedKeyword));
         }
         if (normalizedCity != null) {
-            wrapper.eq(JobPosting::getCity, normalizedCity);
+            wrapper.in(JobPosting::getCity, expandLocalizedJobField(normalizedCity));
         }
         if (normalizedJobType != null) {
             wrapper.eq(JobPosting::getJobType, normalizedJobType);
@@ -77,7 +78,7 @@ public class JobService {
             wrapper.eq(JobPosting::getEducationRequirement, normalizedEducationRequirement);
         }
         if (normalizedSourcePlatform != null) {
-            wrapper.eq(JobPosting::getSourcePlatform, normalizedSourcePlatform);
+            wrapper.in(JobPosting::getSourcePlatform, expandLocalizedJobField(normalizedSourcePlatform));
         }
 
         List<JobListResponse.JobSummary> jobs = jobPostingMapper.selectList(wrapper).stream()
@@ -272,6 +273,30 @@ public class JobService {
             return null;
         }
         return value.trim();
+    }
+
+    private List<String> expandLocalizedJobField(String value) {
+        List<String> candidates = new ArrayList<>();
+        candidates.add(value);
+        switch (value) {
+            case "深圳" -> candidates.add("Shenzhen");
+            case "广州" -> candidates.add("Guangzhou");
+            case "上海" -> candidates.add("Shanghai");
+            case "杭州" -> candidates.add("Hangzhou");
+            case "官网" -> candidates.add("Official Site");
+            case "企业微信" -> candidates.add("WeCom Channel");
+            case "内推" -> candidates.add("Internal Referral");
+            case "Shenzhen" -> candidates.add("深圳");
+            case "Guangzhou" -> candidates.add("广州");
+            case "Shanghai" -> candidates.add("上海");
+            case "Hangzhou" -> candidates.add("杭州");
+            case "Official Site" -> candidates.add("官网");
+            case "WeCom Channel" -> candidates.add("企业微信");
+            case "Internal Referral" -> candidates.add("内推");
+            default -> {
+            }
+        }
+        return candidates.stream().distinct().toList();
     }
 
     private String normalizeJobType(String jobType) {
