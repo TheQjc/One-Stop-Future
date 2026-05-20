@@ -27,6 +27,10 @@ const educationLabels = {
 };
 
 const cityLabels = {
+  深圳: "深圳",
+  广州: "广州",
+  上海: "上海",
+  杭州: "杭州",
   Shenzhen: "深圳",
   Guangzhou: "广州",
   Shanghai: "上海",
@@ -34,6 +38,9 @@ const cityLabels = {
 };
 
 const sourceLabels = {
+  官网: "官网",
+  企业微信: "企业微信",
+  内推: "内推",
   "Official Site": "官网",
   "WeCom Channel": "企业微信",
   "Internal Referral": "内推",

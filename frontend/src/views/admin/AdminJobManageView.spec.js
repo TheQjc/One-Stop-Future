@@ -16,15 +16,15 @@ vi.mock("../../api/admin.js", () => ({
 
 const draftJob = {
   id: 31,
-  title: "Draft job",
-  companyName: "Campus Future",
+  title: "待发布岗位",
+  companyName: "校园未来中心",
   status: "DRAFT",
 };
 
 const publishedJob = {
   id: 31,
-  title: "Draft job",
-  companyName: "Campus Future",
+  title: "待发布岗位",
+  companyName: "校园未来中心",
   status: "PUBLISHED",
 };
 
@@ -50,7 +50,7 @@ test("publishes a draft job and reloads the board", async () => {
   const wrapper = mount(AdminJobManageView);
   await flushPromises();
 
-  expect(wrapper.text()).toContain("Draft job");
+  expect(wrapper.text()).toContain("待发布岗位");
 
   await wrapper.find(".publish-action").trigger("click");
   await flushPromises();
@@ -94,8 +94,8 @@ test("imports a csv file and reloads the board", async () => {
       total: 1,
       jobs: [{
         id: 88,
-        title: "Data Intern",
-        companyName: "Campus Future",
+        title: "数据运营实习生",
+        companyName: "校园未来中心",
         status: "DRAFT",
       }],
     });
@@ -168,8 +168,8 @@ test("syncs the configured feed and reloads the board", async () => {
       total: 1,
       jobs: [{
         id: 1,
-        title: "Java Backend Intern",
-        companyName: "Future Campus Tech",
+        title: "后端开发实习生",
+        companyName: "未来校园科技",
         status: "PUBLISHED",
       }],
     })
@@ -178,14 +178,14 @@ test("syncs the configured feed and reloads the board", async () => {
       jobs: [
         {
           id: 1,
-          title: "Java Backend Intern Updated",
-          companyName: "Future Campus Tech",
+          title: "后端开发实习生（更新）",
+          companyName: "未来校园科技",
           status: "PUBLISHED",
         },
         {
           id: 99,
-          title: "Partner Data Analyst",
-          companyName: "North Lake Studio",
+          title: "合作方数据分析师",
+          companyName: "北湖工作室",
           status: "DRAFT",
         },
       ],
@@ -224,8 +224,8 @@ test("renders sync failure without reloading the jobs board", async () => {
     total: 1,
     jobs: [{
       id: 1,
-      title: "Java Backend Intern",
-      companyName: "Future Campus Tech",
+      title: "后端开发实习生",
+      companyName: "未来校园科技",
       status: "PUBLISHED",
     }],
   });
