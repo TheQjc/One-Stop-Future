@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.campus.common.BusinessException;
 import com.campus.common.JobApplicationStatus;
 import com.campus.common.JobPostingStatus;
+import com.campus.common.NotificationType;
 import com.campus.common.ResourcePreviewKind;
 import com.campus.dto.ApplyJobRequest;
 import com.campus.dto.JobApplicationRecordResponse;
@@ -37,15 +38,18 @@ public class JobApplicationService {
     private final UserService userService;
     private final ResourceFileStorage resourceFileStorage;
     private final ApplicationSnapshotPreviewService applicationSnapshotPreviewService;
+    private final NotificationService notificationService;
 
     public JobApplicationService(JobApplicationMapper jobApplicationMapper, JobPostingMapper jobPostingMapper,
             UserService userService, ResourceFileStorage resourceFileStorage,
-            ApplicationSnapshotPreviewService applicationSnapshotPreviewService) {
+            ApplicationSnapshotPreviewService applicationSnapshotPreviewService,
+            NotificationService notificationService) {
         this.jobApplicationMapper = jobApplicationMapper;
         this.jobPostingMapper = jobPostingMapper;
         this.userService = userService;
         this.resourceFileStorage = resourceFileStorage;
         this.applicationSnapshotPreviewService = applicationSnapshotPreviewService;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -90,6 +94,14 @@ public class JobApplicationService {
             tryDeleteSnapshotFile(snapshotStorageKey);
             throw exception;
         }
+
+        notificationService.createNotification(
+                applicant.getId(),
+                NotificationType.JOB_APPLICATION_SUBMITTED.name(),
+                "Application submitted",
+                "Your application for \"" + job.getTitle() + "\" at " + job.getCompanyName() + " has been submitted.",
+                "JOB_APPLICATION",
+                application.getId());
 
         return toRecord(application);
     }

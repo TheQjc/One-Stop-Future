@@ -19,6 +19,11 @@ import com.campus.dto.JobListResponse;
 import com.campus.service.JobApplicationService;
 import com.campus.service.JobService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "岗位", description = "岗位浏览、筛选、申请与收藏")
 @Validated
 @RestController
 @RequestMapping("/api/jobs")
@@ -32,6 +37,7 @@ public class JobController {
         this.jobApplicationService = jobApplicationService;
     }
 
+    @Operation(summary = "获取岗位列表")
     @GetMapping
     public Result<JobListResponse> list(
             @RequestParam(required = false) String keyword,
@@ -44,22 +50,28 @@ public class JobController {
                 identityOf(authentication)));
     }
 
+    @Operation(summary = "获取岗位详情")
     @GetMapping("/{id}")
     public Result<JobDetailResponse> detail(@PathVariable Long id, Authentication authentication) {
         return Result.success(jobService.getJobDetail(id, identityOf(authentication)));
     }
 
+    @Operation(summary = "申请岗位")
+    @ApiResponse(responseCode = "200", description = "申请成功")
     @PostMapping("/{id}/apply")
     public Result<JobApplicationRecordResponse> apply(@PathVariable Long id, Authentication authentication,
             @Validated @RequestBody ApplyJobRequest request) {
         return Result.success(jobApplicationService.apply(authentication.getName(), id, request));
     }
 
+    @Operation(summary = "收藏岗位")
+    @ApiResponse(responseCode = "200", description = "收藏成功")
     @PostMapping("/{id}/favorite")
     public Result<JobDetailResponse> favorite(@PathVariable Long id, Authentication authentication) {
         return Result.success(jobService.favoriteJob(authentication.getName(), id));
     }
 
+    @Operation(summary = "取消收藏岗位")
     @DeleteMapping("/{id}/favorite")
     public Result<JobDetailResponse> unfavorite(@PathVariable Long id, Authentication authentication) {
         return Result.success(jobService.unfavoriteJob(authentication.getName(), id));

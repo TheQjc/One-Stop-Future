@@ -3,18 +3,18 @@ services:
     image: mysql:8.0
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: Qiao@2541Pass
-      MYSQL_DATABASE: campus_platform
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-CHANGE_ME}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-campus_platform}
       TZ: Asia/Shanghai
     ports:
-      - "3306:3306"
+      - "${MYSQL_PORT:-3306}:3306"
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
     volumes:
       - mysql-data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-pQiao@2541Pass"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-p${MYSQL_ROOT_PASSWORD:-CHANGE_ME}"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -24,8 +24,8 @@ services:
     restart: unless-stopped
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-CHANGE_ME}
       TZ: Asia/Shanghai
     ports:
       - "9000:9000"
@@ -40,16 +40,16 @@ services:
     restart: unless-stopped
     environment:
       DB_URL: jdbc:mysql://mysql:3306/campus_platform?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
-      DB_USERNAME: root
-      DB_PASSWORD: Qiao@2541Pass
+      DB_USERNAME: ${DB_USERNAME:-root}
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD:-CHANGE_ME}
       RESOURCE_STORAGE_TYPE: minio
       MINIO_ENABLED: "true"
       MINIO_ENDPOINT: http://minio:9000
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-CHANGE_ME}
       MINIO_BUCKET: campus-platform
-      JWT_SECRET: test-secret-key-test-secret-key-1234
-      JWT_EXPIRE_SECONDS: 7200
+      JWT_SECRET: ${JWT_SECRET:-CHANGE_ME}
+      JWT_EXPIRE_SECONDS: ${JWT_EXPIRE_SECONDS:-7200}
       TZ: Asia/Shanghai
     depends_on:
       mysql:

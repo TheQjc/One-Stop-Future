@@ -34,6 +34,11 @@ import com.campus.service.ResourceService;
 import com.campus.service.ResourceService.DownloadedResource;
 import com.campus.service.ResourceService.ResourceFileStream;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "学习资料", description = "资料上传（含分片上传+断点续传）、预览、下载、收藏")
 @Validated
 @RestController
 @RequestMapping("/api/resources")
@@ -47,6 +52,7 @@ public class ResourceController {
         this.resourceChunkUploadService = resourceChunkUploadService;
     }
 
+    @Operation(summary = "获取资料列表")
     @GetMapping
     public Result<ResourceListResponse> list(
             @RequestParam(required = false) String keyword,
@@ -55,11 +61,14 @@ public class ResourceController {
         return Result.success(resourceService.listResources(keyword, category, identityOf(authentication)));
     }
 
+    @Operation(summary = "获取我的资料")
     @GetMapping("/mine")
     public Result<MyResourceListResponse> mine(Authentication authentication) {
         return Result.success(resourceService.listMyResources(authentication.getName()));
     }
 
+    @Operation(summary = "初始化分片上传")
+    @ApiResponse(responseCode = "200", description = "初始化成功")
     @PostMapping("/chunk-uploads")
     public Result<ResourceChunkUploadStatusResponse> initiateChunkUpload(
             @RequestBody ResourceChunkUploadInitRequest request,
@@ -67,6 +76,7 @@ public class ResourceController {
         return Result.success(resourceChunkUploadService.initiate(authentication.getName(), request));
     }
 
+    @Operation(summary = "查询分片上传状态")
     @GetMapping("/chunk-uploads/{uploadId}")
     public Result<ResourceChunkUploadStatusResponse> chunkUploadStatus(
             @PathVariable String uploadId,
@@ -74,6 +84,8 @@ public class ResourceController {
         return Result.success(resourceChunkUploadService.status(authentication.getName(), uploadId));
     }
 
+    @Operation(summary = "上传分片")
+    @ApiResponse(responseCode = "200", description = "上传成功")
     @PostMapping("/chunk-uploads/{uploadId}/chunks/{chunkIndex}")
     public Result<ResourceChunkUploadStatusResponse> uploadChunk(
             @PathVariable String uploadId,
@@ -84,6 +96,8 @@ public class ResourceController {
                 chunk));
     }
 
+    @Operation(summary = "完成分片上传")
+    @ApiResponse(responseCode = "200", description = "上传完成")
     @PostMapping("/chunk-uploads/{uploadId}/complete")
     public Result<ResourceDetailResponse> completeChunkUpload(
             @PathVariable String uploadId,
@@ -91,6 +105,7 @@ public class ResourceController {
         return Result.success(resourceChunkUploadService.complete(authentication.getName(), uploadId));
     }
 
+    @Operation(summary = "取消分片上传")
     @DeleteMapping("/chunk-uploads/{uploadId}")
     public Result<Void> abortChunkUpload(
             @PathVariable String uploadId,
@@ -99,16 +114,19 @@ public class ResourceController {
         return Result.success();
     }
 
+    @Operation(summary = "获取资料详情")
     @GetMapping("/{id}")
     public Result<ResourceDetailResponse> detail(@PathVariable Long id, Authentication authentication) {
         return Result.success(resourceService.getResourceDetail(id, identityOf(authentication)));
     }
 
+    @Operation(summary = "获取资料版本列表")
     @GetMapping("/{id}/versions")
     public Result<ResourceVersionListResponse> versions(@PathVariable Long id, Authentication authentication) {
         return Result.success(resourceService.listResourceVersions(identityOf(authentication), id));
     }
 
+    @Operation(summary = "下载资料")
     @GetMapping("/{id}/download")
     public ResponseEntity<InputStreamResource> download(@PathVariable Long id, Authentication authentication) {
         DownloadedResource download = resourceService.downloadResource(authentication.getName(), id);
@@ -121,6 +139,7 @@ public class ResourceController {
                 .body(new InputStreamResource(download.inputStream()));
     }
 
+    @Operation(summary = "预览资料")
     @GetMapping("/{id}/preview")
     public ResponseEntity<InputStreamResource> preview(@PathVariable Long id, Authentication authentication) {
         ResourceFileStream preview = resourceService.previewResource(id, identityOf(authentication));
@@ -133,11 +152,14 @@ public class ResourceController {
                 .body(new InputStreamResource(preview.inputStream()));
     }
 
+    @Operation(summary = "预览压缩包")
     @GetMapping("/{id}/preview-zip")
     public Result<ResourceZipPreviewResponse> previewZip(@PathVariable Long id, Authentication authentication) {
         return Result.success(resourceService.previewZipResource(id, identityOf(authentication)));
     }
 
+    @Operation(summary = "上传资料")
+    @ApiResponse(responseCode = "200", description = "上传成功")
     @PostMapping
     public Result<ResourceDetailResponse> upload(
             @RequestParam String title,
@@ -150,6 +172,8 @@ public class ResourceController {
                 description, file));
     }
 
+    @Operation(summary = "更新资料")
+    @ApiResponse(responseCode = "200", description = "更新成功")
     @PutMapping("/{id}")
     public Result<ResourceDetailResponse> update(
             @PathVariable Long id,
@@ -163,11 +187,14 @@ public class ResourceController {
                 summary, description, file));
     }
 
+    @Operation(summary = "收藏资料")
+    @ApiResponse(responseCode = "200", description = "收藏成功")
     @PostMapping("/{id}/favorite")
     public Result<ResourceDetailResponse> favorite(@PathVariable Long id, Authentication authentication) {
         return Result.success(resourceService.favoriteResource(authentication.getName(), id));
     }
 
+    @Operation(summary = "取消收藏资料")
     @DeleteMapping("/{id}/favorite")
     public Result<ResourceDetailResponse> unfavorite(@PathVariable Long id, Authentication authentication) {
         return Result.success(resourceService.unfavoriteResource(authentication.getName(), id));

@@ -58,9 +58,9 @@ class ApplicationConfigSafetyTests {
         assertThat(properties.getProperty("platform.integrations.redis.ttl-seconds"))
                 .isEqualTo("${REDIS_CACHE_TTL_SECONDS:60}");
         assertThat(properties.getProperty("spring.data.redis.host"))
-                .isEqualTo("${REDIS_HOST:114.132.220.42}");
+                .isEqualTo("${REDIS_HOST:localhost}");
         assertThat(properties.getProperty("spring.data.redis.port"))
-                .isEqualTo("${REDIS_PORT:16379}");
+                .isEqualTo("${REDIS_PORT:6379}");
     }
 
     @Test

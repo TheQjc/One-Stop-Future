@@ -294,7 +294,7 @@ class ResourceControllerTests {
                 "file",
                 "history-pack.pdf",
                 "application/pdf",
-                "history".getBytes(StandardCharsets.UTF_8));
+                "%PDF-1.4\nhistory".getBytes(StandardCharsets.UTF_8));
 
         mockMvc.perform(multipart("/api/resources")
                         .file(file)
@@ -411,7 +411,7 @@ class ResourceControllerTests {
     @WithMockUser(username = "2", roles = "USER")
     void loggedInUserCanUploadResource() throws Exception {
         MockMultipartFile file = new MockMultipartFile(
-                "file", "resume-template.pdf", "application/pdf", "demo".getBytes(StandardCharsets.UTF_8));
+                "file", "resume-template.pdf", "application/pdf", "%PDF-1.4\ndemo".getBytes(StandardCharsets.UTF_8));
 
         mockMvc.perform(multipart("/api/resources")
                         .file(file)
@@ -434,7 +434,7 @@ class ResourceControllerTests {
     @WithMockUser(username = "2", roles = "USER")
     void multipartRequestStringsAreSanitizedBeforeControllerUse() throws Exception {
         MockMultipartFile file = new MockMultipartFile(
-                "file", "safe-template.pdf", "application/pdf", "demo".getBytes(StandardCharsets.UTF_8));
+                "file", "safe-template.pdf", "application/pdf", "%PDF-1.4\ndemo".getBytes(StandardCharsets.UTF_8));
 
         mockMvc.perform(multipart("/api/resources")
                         .file(file)
@@ -594,7 +594,7 @@ class ResourceControllerTests {
                 "seed/2026/04/resume-template-revision.pdf");
 
         MockMultipartFile file = new MockMultipartFile(
-                "file", "revised-pack.pdf", "application/pdf", "new-pdf".getBytes(StandardCharsets.UTF_8));
+                "file", "revised-pack.pdf", "application/pdf", "%PDF-1.4\nnew-pdf".getBytes(StandardCharsets.UTF_8));
 
         mockMvc.perform(multipart("/api/resources/4")
                         .file(file)
@@ -654,7 +654,7 @@ class ResourceControllerTests {
         Files.createDirectories(oldPreviewPath.getParent());
         Files.writeString(oldPreviewPath, "%PDF-old");
         MockMultipartFile file = new MockMultipartFile(
-                "file", "revised-pack.pdf", "application/pdf", "new-pdf".getBytes(StandardCharsets.UTF_8));
+                "file", "revised-pack.pdf", "application/pdf", "%PDF-1.4\nnew-pdf".getBytes(StandardCharsets.UTF_8));
 
         mockMvc.perform(multipart("/api/resources/4")
                         .file(file)
