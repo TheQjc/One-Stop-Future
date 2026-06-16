@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.campus.common.BusinessException;
+import com.campus.common.NotificationType;
 import com.campus.common.ResourcePreviewKind;
 import com.campus.dto.ResumeListResponse;
 import com.campus.dto.ResumeRecordResponse;
@@ -27,6 +28,7 @@ import com.campus.entity.User;
 import com.campus.mapper.ResumeMapper;
 import com.campus.preview.ResumePreviewService;
 import com.campus.storage.ResourceFileStorage;
+import com.campus.web.FileMagicBytesValidator;
 
 @Service
 public class ResumeService {
@@ -39,14 +41,17 @@ public class ResumeService {
     private final ResourceFileStorage resourceFileStorage;
     private final MultipartProperties multipartProperties;
     private final ResumePreviewService resumePreviewService;
+    private final NotificationService notificationService;
 
     public ResumeService(ResumeMapper resumeMapper, UserService userService, ResourceFileStorage resourceFileStorage,
-            MultipartProperties multipartProperties, ResumePreviewService resumePreviewService) {
+            MultipartProperties multipartProperties, ResumePreviewService resumePreviewService,
+            NotificationService notificationService) {
         this.resumeMapper = resumeMapper;
         this.userService = userService;
         this.resourceFileStorage = Objects.requireNonNull(resourceFileStorage, "resourceFileStorage");
         this.multipartProperties = Objects.requireNonNull(multipartProperties, "multipartProperties");
         this.resumePreviewService = Objects.requireNonNull(resumePreviewService, "resumePreviewService");
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -67,6 +72,15 @@ public class ResumeService {
         resume.setCreatedAt(LocalDateTime.now());
         resume.setUpdatedAt(LocalDateTime.now());
         resumeMapper.insert(resume);
+
+        notificationService.createNotification(
+                viewer.getId(),
+                NotificationType.RESUME_UPLOADED.name(),
+                "Resume uploaded",
+                "Your resume \"" + normalizedTitle + "\" has been uploaded successfully.",
+                "RESUME",
+                resume.getId());
+
         return toRecord(resume);
     }
 
@@ -247,6 +261,14 @@ public class ResumeService {
         String extension = extractExtension(normalizedFilename);
         if (!ALLOWED_EXTENSIONS.contains(extension)) {
             throw new BusinessException(400, "unsupported resume file type");
+        }
+
+        try {
+            FileMagicBytesValidator.validateMultipartFile(file, extension);
+        } catch (IOException e) {
+            throw new BusinessException(400, "cannot read resume file");
+        } catch (IllegalArgumentException e) {
+            throw new BusinessException(400, e.getMessage());
         }
 
         String contentType = file.getContentType();

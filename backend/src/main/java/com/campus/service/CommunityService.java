@@ -232,15 +232,17 @@ public class CommunityService {
         comment.setCreatedAt(now);
         comment.setUpdatedAt(now);
         communityCommentMapper.insert(comment);
+
         if (!author.getId().equals(post.getAuthorId())) {
             notificationService.createNotification(
                     post.getAuthorId(),
-                    NotificationType.COMMUNITY_COMMENT_RECEIVED.name(),
+                    NotificationType.COMMUNITY_POST_COMMENTED.name(),
                     "Your post received a comment",
                     author.getNickname() + " commented on your post \"" + post.getTitle() + "\"",
                     "COMMUNITY_POST",
                     post.getId());
         }
+
         recalculatePostStats(post.getId());
         return toPostDetail(requirePublishedPost(post.getId()), author);
     }

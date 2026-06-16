@@ -5,9 +5,9 @@ spring:
   application:
     name: campus-platform
   datasource:
-    url: ${DB_URL:jdbc:mysql://114.132.220.42:3306/campus_platform?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai}
+    url: ${DB_URL:jdbc:mysql://localhost:3306/campus_platform?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai}
     username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:Qiao@2541Pass}
+    password: ${DB_PASSWORD:CHANGE_ME}
     driver-class-name: com.mysql.cj.jdbc.Driver
   sql:
     init:
@@ -20,9 +20,9 @@ spring:
     time-zone: Asia/Shanghai
   data:
     redis:
-      host: ${REDIS_HOST:114.132.220.42}
-      port: ${REDIS_PORT:16379}
-      password: ${REDIS_PASSWORD:Rd_8xY2kP!mQ}
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:CHANGE_ME}
       database: ${REDIS_DATABASE:0}
       lettuce:
         pool:
@@ -64,9 +64,9 @@ platform:
       ttl-seconds: ${REDIS_CACHE_TTL_SECONDS:60}
     elasticsearch:
       enabled: ${ES_ENABLED:true}
-      uris: ${ES_URIS:http://114.132.220.42:9200}
+      uris: ${ES_URIS:http://localhost:9200}
       username: ${ES_USERNAME:elastic}
-      password: ${ES_PASSWORD:9ce68K7lOI8_7WgLdD8*}
+      password: ${ES_PASSWORD:CHANGE_ME}
       index-prefix: ${ES_INDEX_PREFIX:campus-platform}
     minio:
       enabled: ${MINIO_ENABLED:false}

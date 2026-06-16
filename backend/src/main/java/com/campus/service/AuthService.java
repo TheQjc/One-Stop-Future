@@ -61,7 +61,7 @@ public class AuthService {
         verificationCode.setCreatedAt(LocalDateTime.now());
         verificationCodeMapper.insert(verificationCode);
         if (mockSmsMode) {
-            log.info("Mock SMS code sent: phone={}, purpose={}, code={}", request.phone(), purpose, code);
+            log.info("SMS code generated: phone={}, purpose={}", request.phone(), purpose);
             return new SendCodeResponse(purpose, code, CODE_EXPIRE_SECONDS);
         }
         return new SendCodeResponse(purpose, null, CODE_EXPIRE_SECONDS);

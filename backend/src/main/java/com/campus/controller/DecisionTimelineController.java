@@ -15,6 +15,10 @@ import com.campus.common.Result;
 import com.campus.dto.DecisionTimelineResponse;
 import com.campus.service.DecisionTimelineService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "时间线", description = "升学/就业关键里程碑")
 @Validated
 @RestController
 @RequestMapping("/api/decision")
@@ -26,6 +30,7 @@ public class DecisionTimelineController {
         this.timelineService = timelineService;
     }
 
+    @Operation(summary = "获取关键时间线")
     @GetMapping("/timeline")
     public Result<DecisionTimelineResponse> timeline(
             @RequestParam(required = false) String track,

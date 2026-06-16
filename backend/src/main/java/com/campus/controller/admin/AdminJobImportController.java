@@ -13,6 +13,11 @@ import com.campus.common.Result;
 import com.campus.dto.AdminJobImportResponse;
 import com.campus.service.JobBatchImportService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "管理-岗位导入", description = "第三方岗位数据批量导入")
 @Validated
 @RestController
 @PreAuthorize("hasRole('ADMIN')")
@@ -25,6 +30,8 @@ public class AdminJobImportController {
         this.jobBatchImportService = jobBatchImportService;
     }
 
+    @Operation(summary = "批量导入岗位")
+    @ApiResponse(responseCode = "200", description = "导入成功")
     @PostMapping("/import")
     public Result<AdminJobImportResponse> importJobs(
             @RequestParam("file") MultipartFile file,

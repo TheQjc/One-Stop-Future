@@ -10,6 +10,10 @@ import com.campus.common.Result;
 import com.campus.dto.DiscoverResponse;
 import com.campus.service.DiscoverService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "发现", description = "热门排行与推荐内容")
 @Validated
 @RestController
 @RequestMapping("/api/discover")
@@ -21,6 +25,7 @@ public class DiscoverController {
         this.discoverService = discoverService;
     }
 
+    @Operation(summary = "获取热门排行与推荐")
     @GetMapping
     public Result<DiscoverResponse> discover(
             @RequestParam(required = false) String tab,
