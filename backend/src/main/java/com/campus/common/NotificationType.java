@@ -2,6 +2,7 @@ package com.campus.common;
 
 public enum NotificationType {
     WELCOME,
+    COMMUNITY_COMMENT_RECEIVED,
     COMMUNITY_REPLY_RECEIVED,
     COMMUNITY_POST_LIKED,
     COMMUNITY_POST_COMMENTED,

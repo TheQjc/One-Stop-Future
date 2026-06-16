@@ -1,7 +1,16 @@
 import { flushPromises, mount } from "@vue/test-utils";
 import { beforeEach, expect, test, vi } from "vitest";
 import AdminJobManageView from "./AdminJobManageView.vue";
-import { getAdminJobs, importAdminJobs, offlineAdminJob, publishAdminJob, syncAdminJobs } from "../../api/admin.js";
+import {
+  createAdminJob,
+  deleteAdminJob,
+  getAdminJobs,
+  importAdminJobs,
+  offlineAdminJob,
+  publishAdminJob,
+  syncAdminJobs,
+  updateAdminJob,
+} from "../../api/admin.js";
 
 vi.mock("../../api/admin.js", () => ({
   createAdminJob: vi.fn(),
@@ -29,8 +38,101 @@ const publishedJob = {
 };
 
 beforeEach(() => {
-  vi.clearAllMocks();
+  vi.resetAllMocks();
   window.localStorage.clear();
+});
+
+async function fillJobForm(wrapper, overrides = {}) {
+  await wrapper.find('input[name="title"]').setValue(overrides.title || "新岗位草稿");
+  await wrapper.find('input[name="companyName"]').setValue(overrides.companyName || "校园未来中心");
+  await wrapper.find('input[name="city"]').setValue(overrides.city || "杭州");
+  await wrapper.find('input[name="sourceUrl"]').setValue(overrides.sourceUrl || "https://jobs.example.com/admin-created");
+  await wrapper.find('select[name="jobType"]').setValue(overrides.jobType || "INTERNSHIP");
+  await wrapper.find('select[name="educationRequirement"]').setValue(overrides.educationRequirement || "BACHELOR");
+  await wrapper.find('input[name="sourcePlatform"]').setValue(overrides.sourcePlatform || "官方渠道");
+  await wrapper.find('textarea[name="summary"]').setValue(overrides.summary || "岗位摘要");
+  await wrapper.find('textarea[name="content"]').setValue(overrides.content || "岗位正文");
+}
+
+test("creates a draft job from the editor action", async () => {
+  getAdminJobs
+    .mockResolvedValueOnce({
+      total: 0,
+      jobs: [],
+    })
+    .mockResolvedValueOnce({
+      total: 1,
+      jobs: [{ ...draftJob }],
+    });
+  createAdminJob.mockResolvedValue({ ...draftJob });
+
+  const wrapper = mount(AdminJobManageView);
+  await flushPromises();
+
+  await fillJobForm(wrapper);
+  await wrapper.find('[data-testid="job-save-button"]').trigger("submit");
+  await flushPromises();
+
+  expect(createAdminJob).toHaveBeenCalledWith(expect.objectContaining({
+    title: "新岗位草稿",
+    companyName: "校园未来中心",
+    city: "杭州",
+    jobType: "INTERNSHIP",
+    educationRequirement: "BACHELOR",
+    sourcePlatform: "官方渠道",
+    sourceUrl: "https://jobs.example.com/admin-created",
+    summary: "岗位摘要",
+    content: "岗位正文",
+  }));
+  expect(getAdminJobs).toHaveBeenCalledTimes(2);
+});
+
+test("edits a row job and saves changes from the editor action", async () => {
+  getAdminJobs
+    .mockResolvedValueOnce({
+      total: 1,
+      jobs: [{ ...draftJob }],
+    })
+    .mockResolvedValueOnce({
+      total: 1,
+      jobs: [{ ...draftJob, title: "更新后的岗位" }],
+    });
+  updateAdminJob.mockResolvedValue({ ...draftJob, title: "更新后的岗位" });
+
+  const wrapper = mount(AdminJobManageView);
+  await flushPromises();
+
+  await wrapper.find('[data-testid="edit-job-row-31"]').trigger("click");
+  await wrapper.find('input[name="title"]').setValue("更新后的岗位");
+  await wrapper.find('[data-testid="job-save-button"]').trigger("submit");
+  await flushPromises();
+
+  expect(updateAdminJob).toHaveBeenCalledWith(31, expect.objectContaining({
+    title: "更新后的岗位",
+  }));
+  expect(getAdminJobs).toHaveBeenCalledTimes(2);
+});
+
+test("deletes a row job and reloads the board", async () => {
+  getAdminJobs
+    .mockResolvedValueOnce({
+      total: 1,
+      jobs: [{ ...draftJob }],
+    })
+    .mockResolvedValueOnce({
+      total: 0,
+      jobs: [],
+    });
+  deleteAdminJob.mockResolvedValue(true);
+
+  const wrapper = mount(AdminJobManageView);
+  await flushPromises();
+
+  await wrapper.find('[data-testid="delete-job-row-31"]').trigger("click");
+  await flushPromises();
+
+  expect(deleteAdminJob).toHaveBeenCalledWith(31);
+  expect(getAdminJobs).toHaveBeenCalledTimes(2);
 });
 
 test("publishes a draft job and reloads the board", async () => {
@@ -129,7 +231,7 @@ test("renders row-level import errors returned by the backend", async () => {
     total: 0,
     jobs: [],
   });
-  const requestError = new Error("job import validation failed");
+  const requestError = new Error("岗位导入校验失败");
   requestError.code = 400;
   requestError.data = {
     fileName: "jobs.csv",
@@ -138,7 +240,7 @@ test("renders row-level import errors returned by the backend", async () => {
     errors: [{
       rowNumber: 2,
       column: "jobType",
-      message: "invalid job type",
+      message: "岗位类型无效",
     }],
   };
   importAdminJobs.mockRejectedValue(requestError);
@@ -157,9 +259,9 @@ test("renders row-level import errors returned by the backend", async () => {
   await flushPromises();
 
   expect(getAdminJobs).toHaveBeenCalledTimes(1);
-  expect(wrapper.text()).toContain("job import validation failed");
+  expect(wrapper.text()).toContain("岗位导入校验失败");
   expect(wrapper.text()).toContain("第 2 行");
-  expect(wrapper.text()).toContain("invalid job type");
+  expect(wrapper.text()).toContain("岗位类型无效");
 });
 
 test("syncs the configured feed and reloads the board", async () => {
@@ -229,7 +331,7 @@ test("renders sync failure without reloading the jobs board", async () => {
       status: "PUBLISHED",
     }],
   });
-  syncAdminJobs.mockRejectedValue(new Error("invalid job sync feed"));
+  syncAdminJobs.mockRejectedValue(new Error("岗位同步数据源无效"));
 
   const wrapper = mount(AdminJobManageView);
   await flushPromises();
@@ -238,5 +340,5 @@ test("renders sync failure without reloading the jobs board", async () => {
   await flushPromises();
 
   expect(getAdminJobs).toHaveBeenCalledTimes(1);
-  expect(wrapper.text()).toContain("invalid job sync feed");
+  expect(wrapper.text()).toContain("岗位同步数据源无效");
 });

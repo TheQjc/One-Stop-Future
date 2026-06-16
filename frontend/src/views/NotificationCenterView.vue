@@ -37,6 +37,7 @@ function setProcessing(id, value) {
 function typeLabel(type) {
   const labelMap = {
     WELCOME: "欢迎",
+    COMMUNITY_COMMENT_RECEIVED: "帖子评论",
     COMMUNITY_REPLY_RECEIVED: "评论回复",
     COMMUNITY_POST_LIKED: "帖子点赞",
     RESOURCE_APPROVED: "资料通过",

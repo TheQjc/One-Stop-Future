@@ -77,7 +77,7 @@ class JobControllerTests {
         mockMvc.perform(get("/api/jobs/3"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(404))
-                .andExpect(jsonPath("$.message").value("job not found"));
+                .andExpect(jsonPath("$.message").value("岗位不存在"));
     }
 
     @Test
@@ -138,6 +138,6 @@ class JobControllerTests {
         mockMvc.perform(get("/api/jobs").param("jobType", "PART_TIME"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("invalid job type"));
+                .andExpect(jsonPath("$.message").value("岗位类型无效"));
     }
 }

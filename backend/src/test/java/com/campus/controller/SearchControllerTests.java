@@ -57,7 +57,7 @@ class SearchControllerTests {
         mockMvc.perform(get("/api/search").param("q", "   "))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("search query is required"));
+                .andExpect(jsonPath("$.message").value("请输入搜索关键词"));
     }
 
     @Test
@@ -65,12 +65,12 @@ class SearchControllerTests {
         mockMvc.perform(get("/api/search").param("q", "resume").param("type", "ARTICLE"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("invalid search type"));
+                .andExpect(jsonPath("$.message").value("搜索类型无效"));
 
         mockMvc.perform(get("/api/search").param("q", "resume").param("sort", "HOT"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("invalid search sort"));
+                .andExpect(jsonPath("$.message").value("搜索排序无效"));
     }
 
     @Test

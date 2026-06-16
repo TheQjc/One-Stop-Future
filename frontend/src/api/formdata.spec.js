@@ -1,7 +1,7 @@
 import { beforeEach, expect, test, vi } from "vitest";
 import { createResume, updateResume } from "./resumes.js";
 import { importAdminJobs } from "./admin.js";
-import { updateResource, uploadResourceChunk } from "./resources.js";
+import { createResourceUpload, updateResource, uploadResourceChunk } from "./resources.js";
 
 const http = vi.hoisted(() => ({
   get: vi.fn(),
@@ -45,4 +45,11 @@ test("multipart helpers leave content-type generation to the browser", async () 
 
   const chunkOptions = http.post.mock.calls[1][2];
   expect(chunkOptions).not.toHaveProperty("headers");
+});
+
+test("resource upload without a file fails with a Chinese message", async () => {
+  const formData = new FormData();
+  formData.append("title", "资料标题");
+
+  await expect(createResourceUpload(formData)).rejects.toThrow("请先选择文件");
 });
