@@ -450,7 +450,12 @@ loadJobs();
           <p v-if="errorMessage" class="field-error" role="alert">{{ errorMessage }}</p>
 
           <div class="inline-form-actions">
-            <button type="submit" class="app-btn" :disabled="Boolean(actionLoadingId)">
+            <button
+              type="submit"
+              class="app-btn"
+              data-testid="job-save-button"
+              :disabled="Boolean(actionLoadingId)"
+            >
               {{ selectedJobId ? "保存草稿" : "创建草稿" }}
             </button>
             <button type="button" class="ghost-btn" :disabled="Boolean(actionLoadingId)" @click="resetForm">
@@ -501,12 +506,18 @@ loadJobs();
                 <td>{{ statusLabel(job.status) }}</td>
                 <td>
                   <div class="inline-form-actions">
-                    <button type="button" class="ghost-btn" @click="applyJobToForm(job)">
+                    <button
+                      type="button"
+                      class="ghost-btn"
+                      :data-testid="`edit-job-row-${job.id}`"
+                      @click="applyJobToForm(job)"
+                    >
                       编辑
                     </button>
                     <button
                       type="button"
                       class="ghost-btn publish-action"
+                      :data-testid="`publish-job-row-${job.id}`"
                       :disabled="job.status === 'PUBLISHED' || actionLoadingId === `publish-${job.id}`"
                       @click="handlePublish(job.id)"
                     >
@@ -515,6 +526,7 @@ loadJobs();
                     <button
                       type="button"
                       class="ghost-btn offline-action"
+                      :data-testid="`offline-job-row-${job.id}`"
                       :disabled="job.status !== 'PUBLISHED' || actionLoadingId === `offline-${job.id}`"
                       @click="handleOffline(job.id)"
                     >
@@ -523,6 +535,7 @@ loadJobs();
                     <button
                       type="button"
                       class="danger-btn"
+                      :data-testid="`delete-job-row-${job.id}`"
                       :disabled="job.status === 'DELETED' || actionLoadingId === `delete-${job.id}`"
                       @click="handleDelete(job.id)"
                     >
@@ -543,12 +556,18 @@ loadJobs();
               <strong>{{ job.title }}</strong>
               <p class="meta-copy">{{ job.companyName }} / {{ statusLabel(job.status) }}</p>
               <div class="inline-form-actions" style="margin-top: 12px;">
-                <button type="button" class="ghost-btn" @click="applyJobToForm(job)">
+                <button
+                  type="button"
+                  class="ghost-btn"
+                  :data-testid="`edit-job-card-${job.id}`"
+                  @click="applyJobToForm(job)"
+                >
                   编辑
                 </button>
                 <button
                   type="button"
                   class="ghost-btn publish-action"
+                  :data-testid="`publish-job-card-${job.id}`"
                   :disabled="job.status === 'PUBLISHED' || actionLoadingId === `publish-${job.id}`"
                   @click="handlePublish(job.id)"
                 >
@@ -557,6 +576,7 @@ loadJobs();
                 <button
                   type="button"
                   class="ghost-btn offline-action"
+                  :data-testid="`offline-job-card-${job.id}`"
                   :disabled="job.status !== 'PUBLISHED' || actionLoadingId === `offline-${job.id}`"
                   @click="handleOffline(job.id)"
                 >
@@ -565,6 +585,7 @@ loadJobs();
                 <button
                   type="button"
                   class="danger-btn"
+                  :data-testid="`delete-job-card-${job.id}`"
                   :disabled="job.status === 'DELETED' || actionLoadingId === `delete-${job.id}`"
                   @click="handleDelete(job.id)"
                 >
