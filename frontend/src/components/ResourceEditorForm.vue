@@ -233,12 +233,20 @@ function submitForm() {
 
         <label class="field-label">
           {{ mode === "edit" ? "替换文件（可选）" : "文件" }}
-          <input
-            class="field-control"
-            type="file"
-            accept=".pdf,.docx,.pptx,.zip"
-            @change="onFileChange"
-          />
+          <span class="file-picker">
+            <span class="ghost-btn file-picker__button" data-testid="resource-file-label">
+              {{ mode === "edit" ? "选择替换文件" : "选择资源文件" }}
+            </span>
+            <span class="file-picker__name" data-testid="resource-file-name">
+              {{ selectedFileLabel }}
+            </span>
+            <input
+              class="file-picker__input"
+              type="file"
+              accept=".pdf,.docx,.pptx,.zip"
+              @change="onFileChange"
+            />
+          </span>
         </label>
       </div>
 
@@ -308,6 +316,36 @@ function submitForm() {
       transparent 1px,
       transparent 26px
     );
+}
+
+.file-picker {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.file-picker__button {
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.file-picker__name {
+  min-width: 0;
+  color: var(--cp-ink-soft);
+  font-size: var(--cp-text-sm);
+  overflow-wrap: anywhere;
+}
+
+.file-picker__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
 }
 
 @media (min-width: 1024px) {
