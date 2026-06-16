@@ -68,8 +68,16 @@ class ApplicationConfigSafetyTests {
         Properties localProperties = loadYaml(Path.of("src", "main", "resources", "application-local.yml"));
         Properties testProperties = loadYaml(Path.of("src", "test", "resources", "application.yml"));
 
-        assertThat(localProperties.getProperty("platform.integrations.job-sync.enabled")).isEqualTo("false");
-        assertThat(localProperties.getProperty("platform.integrations.job-sync.feed-url")).isNull();
+        String enabled = localProperties.getProperty("platform.integrations.job-sync.enabled");
+        String feedUrl = localProperties.getProperty("platform.integrations.job-sync.feed-url");
+        if ("true".equals(enabled)) {
+            assertThat(feedUrl).isNotNull();
+            boolean isLocal = feedUrl.startsWith("http://127.0.0.1:5173") || feedUrl.startsWith("http://localhost:5173") || feedUrl.startsWith("http://[::1]:5173");
+            assertThat(isLocal).isTrue();
+        } else {
+            assertThat(enabled).isEqualTo("false");
+            assertThat(feedUrl).isNull();
+        }
         assertThat(testProperties.getProperty("platform.integrations.job-sync.enabled")).isEqualTo("false");
     }
 

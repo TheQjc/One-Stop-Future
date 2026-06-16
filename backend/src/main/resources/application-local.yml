@@ -53,4 +53,5 @@ platform:
       secret-key: minioadmin
       bucket: campus-platform
     job-sync:
-      enabled: false
+      enabled: true
+      feed-url: http://127.0.0.1:5173/jobs-feed.json
