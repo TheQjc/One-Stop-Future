@@ -1,0 +1,4 @@
+title,companyName,city,jobType,educationRequirement,sourcePlatform,sourceUrl,summary,content,deadlineAt
+Java后端开发工程师,谷歌,北京,FULL_TIME,BACHELOR,官网,https://careers.google.com/jobs/1,开发和维护一站式成长平台的后端服务。,职责：\n1. 负责核心系统设计；\n2. 参与高并发服务的优化。,2026-12-31 23:59:59
+前端开发实习生,微软,苏州,INTERNSHIP,BACHELOR,内推,https://careers.microsoft.com/jobs/2,参与微软核心云服务控制台前端开发。,职责：\n1. 负责React组件开发；\n2. 优化页面加载速度。,2026-12-31 23:59:59
+算法工程师（校招）,美团,北京,CAMPUS,MASTER,官网,https://careers.meituan.com/jobs/3,负责推荐算法的研发与工程落地。,职责：\n1. 参与搜推算法模型训练；\n2. 提升用户点击转化率。,2026-12-31 23:59:59

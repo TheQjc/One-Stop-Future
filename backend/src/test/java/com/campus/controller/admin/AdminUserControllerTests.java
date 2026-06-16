@@ -39,11 +39,11 @@ class AdminUserControllerTests {
         mockMvc.perform(get("/api/admin/users"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.data.total").value(3))
-                .andExpect(jsonPath("$.data.activeCount").value(3))
+                .andExpect(jsonPath("$.data.total").value(4))
+                .andExpect(jsonPath("$.data.activeCount").value(4))
                 .andExpect(jsonPath("$.data.bannedCount").value(0))
                 .andExpect(jsonPath("$.data.verifiedCount").value(1))
-                .andExpect(jsonPath("$.data.users[0].id").value(3))
+                .andExpect(jsonPath("$.data.users[0].id").value(4))
                 .andExpect(jsonPath("$.data.users[0].status").value("ACTIVE"));
     }
 

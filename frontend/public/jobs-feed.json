@@ -1,0 +1,59 @@
+{
+  "jobs": [
+    {
+      "title": "后端开发实习生",
+      "companyName": "字节跳动",
+      "city": "北京",
+      "jobType": "INTERNSHIP",
+      "educationRequirement": "BACHELOR",
+      "sourceUrl": "https://jobs.bytedance.com",
+      "summary": "负责字节跳动核心业务的后端开发与系统优化。",
+      "content": "岗位职责：\n1. 参与高并发后台服务的设计与研发；\n2. 负责核心模块的代码编写与单元测试。\n\n任职要求：\n1. 熟悉 Java/Go/C++ 至少一种语言；\n2. 具备扎实的数据结构与算法基础；\n3. 每周可实习 4 天以上，持续 3 个月以上。",
+      "deadlineAt": "2026-09-30 23:59:59"
+    },
+    {
+      "title": "前端开发实习生",
+      "companyName": "腾讯",
+      "city": "深圳",
+      "jobType": "INTERNSHIP",
+      "educationRequirement": "BACHELOR",
+      "sourceUrl": "https://jobs.tencent.com/mock/2",
+      "summary": "负责腾讯云及核心业务前端页面的开发与体验优化。",
+      "content": "岗位职责：\n1. 参与核心业务的前端研发工作；\n2. 与产品和设计团队紧密配合，还原高质量交互界面。\n\n任职要求：\n1. 熟悉 HTML/CSS/JavaScript，了解 Vue 或 React；\n2. 具有良好的沟通能力和团队协作精神。",
+      "deadlineAt": "2026-09-30 23:59:59"
+    },
+    {
+      "title": "算法研发实习生",
+      "companyName": "百度",
+      "city": "北京",
+      "jobType": "INTERNSHIP",
+      "educationRequirement": "MASTER",
+      "sourceUrl": "https://jobs.baidu.com/mock/3",
+      "summary": "负责百度搜索与AI大模型算法的优化与工程落地。",
+      "content": "岗位职责：\n1. 探索大模型前沿算法；\n2. 优化搜索召回与排序机制。\n\n任职要求：\n1. 计算机、数学等相关专业硕士及以上学历；\n2. 熟练掌握 PyTorch/TensorFlow 并在 NLP/CV 有相关经验。",
+      "deadlineAt": "2026-09-30 23:59:59"
+    },
+    {
+      "title": "Java开发实习生",
+      "companyName": "阿里巴巴",
+      "city": "杭州",
+      "jobType": "INTERNSHIP",
+      "educationRequirement": "BACHELOR",
+      "sourceUrl": "https://jobs.alibaba.com/mock/4",
+      "summary": "负责淘宝/天猫电商核心系统的业务开发与稳定性维护。",
+      "content": "岗位职责：\n1. 负责电商业务后端模块的设计与实现；\n2. 解决大流量场景下的性能瓶颈问题。\n\n任职要求：\n1. Java 基础扎实，熟悉 Spring Boot、MyBatis 等框架；\n2. 了解 MySQL、Redis 等常用数据库。",
+      "deadlineAt": "2026-09-30 23:59:59"
+    },
+    {
+      "title": "软件工程实习生",
+      "companyName": "华为",
+      "city": "上海",
+      "jobType": "INTERNSHIP",
+      "educationRequirement": "BACHELOR",
+      "sourceUrl": "https://jobs.huawei.com/mock/5",
+      "summary": "参与华为云服务与智能终端操作系统核心特性的研发。",
+      "content": "岗位职责：\n1. 参与分布式系统开发及网络优化；\n2. 编写高质量的代码，配合团队进行测试交付。\n\n任职要求：\n1. 计算机或电子通信相关专业；\n2. 掌握 C/C++/Java，有良好的代码规范；\n3. 每周实习 5 天，持续至少 6 个月优先。",
+      "deadlineAt": "2026-09-30 23:59:59"
+    }
+  ]
+}

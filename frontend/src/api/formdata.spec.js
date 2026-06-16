@@ -51,5 +51,5 @@ test("resource upload without a file fails with a Chinese message", async () => 
   const formData = new FormData();
   formData.append("title", "资料标题");
 
-  await expect(createResourceUpload(formData)).rejects.toThrow("请先选择文件");
+  await expect(createResourceUpload(formData)).rejects.toThrow("必须选择文件");
 });

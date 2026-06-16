@@ -70,11 +70,11 @@ test("loads job cards, refetches with filters, and shows localized filter summar
   getJobs
     .mockResolvedValueOnce({
       total: 1,
-      jobs: [{ id: 1, title: "后端开发实习生" }],
+      jobs: [{ id: 1, title: "后端开发实习生", city: "深圳" }],
     })
     .mockResolvedValueOnce({
       total: 1,
-      jobs: [{ id: 2, title: "Filtered Job" }],
+      jobs: [{ id: 2, title: "Filtered Job", city: "深圳" }],
     });
 
   const wrapper = mountView();

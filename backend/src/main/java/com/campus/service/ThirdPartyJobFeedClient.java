@@ -56,8 +56,10 @@ public class ThirdPartyJobFeedClient {
             response = httpClient().send(requestBuilder.build(), HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
+            exception.printStackTrace();
             throw new BusinessException(500, MESSAGE_JOB_SYNC_REQUEST_FAILED);
         } catch (IOException exception) {
+            exception.printStackTrace();
             throw new BusinessException(500, MESSAGE_JOB_SYNC_REQUEST_FAILED);
         }
 
@@ -84,6 +86,7 @@ public class ThirdPartyJobFeedClient {
 
     private HttpClient httpClient() {
         return HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_1_1)
                 .connectTimeout(Duration.ofMillis(jobSyncProperties.getConnectTimeoutMs()))
                 .build();
     }
