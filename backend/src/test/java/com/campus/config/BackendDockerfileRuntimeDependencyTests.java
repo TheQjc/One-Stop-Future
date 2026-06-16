@@ -18,6 +18,7 @@ class BackendDockerfileRuntimeDependencyTests {
         assertThat(dockerfile).contains("libfreetype6");
         assertThat(dockerfile).contains("fontconfig");
         assertThat(dockerfile).contains("fonts-dejavu-core");
+        assertThat(dockerfile).contains("fonts-noto-cjk");
         assertThat(dockerfile).contains("java.awt.headless=true");
         assertThat(dockerfile).contains("rm -rf /var/lib/apt/lists/*");
     }
