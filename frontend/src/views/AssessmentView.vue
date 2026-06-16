@@ -22,6 +22,138 @@ const actionLabelMap = {
   COMPARE_SCHOOLS: "对比院校",
 };
 
+const questionCopyMap = {
+  DECISION_Q1: {
+    prompt: "目前哪种结果对你来说最重要？",
+    description: "选择最符合你当前优先级的一项。",
+  },
+  DECISION_Q2: {
+    prompt: "你更喜欢如何衡量自己的进展？",
+    description: "选择让你觉得最受鼓舞且最现实的方式。",
+  },
+  DECISION_Q3: {
+    prompt: "你每周有多少可支配的专注时间？",
+    description: "请诚实填写，以确保推荐计划具有实际可行性。",
+  },
+  DECISION_Q4: {
+    prompt: "你能够容忍哪种程度的不确定性？",
+    description: "不同的发展路径伴随不同类型的风险与模糊性。",
+  },
+  DECISION_Q5: {
+    prompt: "哪种学习风格最适合你？",
+    description: "你偏好的学习模式会影响你能坚持多久。",
+  },
+  DECISION_Q6: {
+    prompt: "你需要在什么时候确定清晰的下一步规划？",
+    description: "明确的截止期限有助于选择合适节奏的发展路径。",
+  },
+};
+
+const optionCopyMap = {
+  Q1_A: {
+    label: "提升考试成绩",
+    description: "优先考虑系统性学习和分数提升。",
+  },
+  Q1_B: {
+    label: "尽快拿到工作录用通知",
+    description: "优先考虑就业竞争力和面试表现。",
+  },
+  Q1_C: {
+    label: "准备出国留学",
+    description: "优先考虑语言考试和留学申请。",
+  },
+  Q1_D: {
+    label: "保持多种选择",
+    description: "在探索过程中倾向于一份平衡的计划。",
+  },
+  Q2_A: {
+    label: "构建作品集并交付项目",
+    description: "进度通过产出和迭代清晰可见。",
+  },
+  Q2_B: {
+    label: "达到明确的分数目标",
+    description: "进度通过量化的分数展现。",
+  },
+  Q2_C: {
+    label: "完成申请材料和文书",
+    description: "进度通过已提交的里程碑体现。",
+  },
+  Q2_D: {
+    label: "小步快跑的综合成果",
+    description: "进度来自产出和学习习惯的结合。",
+  },
+  Q3_A: {
+    label: "10-15 小时",
+    description: "时间充裕，适合制定系统化的复习计划。",
+  },
+  Q3_B: {
+    label: "5-8 小时",
+    description: "更适合进行针对性的面试练习和小项目。",
+  },
+  Q3_C: {
+    label: "15-20 小时",
+    description: "时间非常充裕，适合备考语言及准备申请材料。",
+  },
+  Q3_D: {
+    label: "每周情况不同",
+    description: "需要更加灵活的学习安排。",
+  },
+  Q4_A: {
+    label: "更倾向于可预测的里程碑",
+    description: "在有清晰检查点和反馈的环境下效率最高。",
+  },
+  Q4_B: {
+    label: "偏好模糊环境下的快速迭代",
+    description: "能适应需求变化和快速迭代周期。",
+  },
+  Q4_C: {
+    label: "偏好长线规划",
+    description: "能妥善管理更长的时间跨度与文书流程。",
+  },
+  Q4_D: {
+    label: "可以接受一定的不确定性",
+    description: "能够通过平衡的计划进行适应。",
+  },
+  Q5_A: {
+    label: "通过历年真题和刷题来练习",
+    description: "重复和反馈能有效帮助我提高。",
+  },
+  Q5_B: {
+    label: "通过构建真实项目来学习",
+    description: "实际项目和任务更有助于我掌握知识。",
+  },
+  Q5_C: {
+    label: "通过阅读和写作来学习",
+    description: "文档、论文和规划是我的强项。",
+  },
+  Q5_D: {
+    label: "混合搭配",
+    description: "在不同的学习模式中寻求多样性。",
+  },
+  Q6_A: {
+    label: "1-2 个月内",
+    description: "时间较短；选择结构化的近期计划。",
+  },
+  Q6_B: {
+    label: "3-6 个月内",
+    description: "中期时间线；可容纳面试和项目实战。",
+  },
+  Q6_C: {
+    label: "6-12 个月内",
+    description: "长期时间线；可容纳申请和各类考试。",
+  },
+  Q6_D: {
+    label: "没有固定截止期限",
+    description: "选择一份平衡的探索性计划。",
+  },
+};
+
+const summaryTextMap = {
+  EXAM: "推荐方向：升学考研/考公。专注于系统化的学习目标和可量化的分数提升。",
+  CAREER: "推荐方向：求职就业。专注于项目实践、面试准备和求职竞争力的提升。",
+  ABROAD: "推荐方向：出国深造。专注于语言考试、申请流程关键节点和时间规划。",
+};
+
 const loading = reactive({
   questions: true,
   latest: true,
@@ -139,6 +271,37 @@ function displayTrack(track) {
   return trackLabelMap[track] || track || "未确定";
 }
 
+function displayQuestionPrompt(question) {
+  return questionCopyMap[question?.code]?.prompt || question?.prompt || "";
+}
+
+function displayQuestionDescription(question) {
+  return questionCopyMap[question?.code]?.description || question?.description || "";
+}
+
+function displayQuestionNumber(question, index) {
+  return `第 ${question?.displayOrder || index + 1} 题`;
+}
+
+function displayOptionLabel(option) {
+  return optionCopyMap[option?.code]?.label || option?.label || "";
+}
+
+function displayOptionDescription(option) {
+  return optionCopyMap[option?.code]?.description || option?.description || "";
+}
+
+function displayOptionOrdinal(index) {
+  return `选项 ${index + 1}`;
+}
+
+function displaySummaryText(assessmentResult) {
+  if (!assessmentResult) {
+    return "";
+  }
+  return summaryTextMap[assessmentResult.recommendedTrack] || assessmentResult.summaryText || "";
+}
+
 function displayActionLabel(action) {
   if (!action) {
     return "查看下一步";
@@ -189,8 +352,8 @@ onMounted(loadAll);
           <h2 class="page-title" style="margin-top: 16px;">
             推荐方向：{{ displayTrack(latest.recommendedTrack) }}
           </h2>
-          <p v-if="latest.summaryText" class="page-subtitle" style="margin-top: 16px;">
-            {{ latest.summaryText }}
+          <p v-if="displaySummaryText(latest)" class="page-subtitle" style="margin-top: 16px;">
+            {{ displaySummaryText(latest) }}
           </p>
         </div>
       </div>
@@ -225,19 +388,21 @@ onMounted(loadAll);
       </div>
       <form v-else class="question-stack" @submit.prevent="submit">
         <fieldset
-          v-for="question in questionSet.questions"
+          v-for="(question, questionIndex) in questionSet.questions"
           :key="question.id"
           class="question-card"
         >
           <legend class="question-card__legend">
-            <span class="question-card__code">{{ question.code }}</span>
-            <span class="question-card__prompt">{{ question.prompt }}</span>
+            <span class="question-card__code">{{ displayQuestionNumber(question, questionIndex) }}</span>
+            <span class="question-card__prompt">{{ displayQuestionPrompt(question) }}</span>
           </legend>
-          <p v-if="question.description" class="muted-copy">{{ question.description }}</p>
+          <p v-if="displayQuestionDescription(question)" class="muted-copy">
+            {{ displayQuestionDescription(question) }}
+          </p>
 
           <div class="option-grid">
             <label
-              v-for="option in question.options"
+              v-for="(option, optionIndex) in question.options"
               :key="option.id"
               class="option-card"
               :class="{ selected: String(optionIdFor(question.id)) === String(option.id) }"
@@ -251,11 +416,11 @@ onMounted(loadAll);
                 @change="setAnswer(question.id, $event.target.value)"
               />
               <div class="option-card__top">
-                <strong class="option-card__label">{{ option.label }}</strong>
-                <span class="option-card__code">{{ option.code }}</span>
+                <strong class="option-card__label">{{ displayOptionLabel(option) }}</strong>
+                <span class="option-card__code">{{ displayOptionOrdinal(optionIndex) }}</span>
               </div>
-              <p v-if="option.description" class="option-card__desc">
-                {{ option.description }}
+              <p v-if="displayOptionDescription(option)" class="option-card__desc">
+                {{ displayOptionDescription(option) }}
               </p>
             </label>
           </div>
@@ -286,8 +451,8 @@ onMounted(loadAll);
           <h2 class="page-title" style="margin-top: 16px;">
             推荐方向：{{ displayTrack(result.recommendedTrack) }}
           </h2>
-          <p v-if="result.summaryText" class="page-subtitle" style="margin-top: 16px;">
-            {{ result.summaryText }}
+          <p v-if="displaySummaryText(result)" class="page-subtitle" style="margin-top: 16px;">
+            {{ displaySummaryText(result) }}
           </p>
         </div>
       </div>
