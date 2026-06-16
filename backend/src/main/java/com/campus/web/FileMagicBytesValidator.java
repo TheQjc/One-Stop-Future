@@ -70,7 +70,7 @@ public final class FileMagicBytesValidator {
         }
 
         if (!inputStream.markSupported()) {
-            return; // cannot validate without mark/reset support
+            throw new IllegalArgumentException("inputStream must support mark/reset for magic bytes validation");
         }
 
         byte[] header = readHeaderFromStream(inputStream);
