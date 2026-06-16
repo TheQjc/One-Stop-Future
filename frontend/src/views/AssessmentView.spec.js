@@ -48,23 +48,23 @@ test("loads decision questions and blocks submit until all answers are selected"
       {
         id: 1,
         code: "DECISION_Q1",
-        prompt: "Prompt 1",
-        description: "",
+        prompt: "Which outcome matters most to you right now?",
+        description: "Pick the option that best matches your current priority.",
         displayOrder: 1,
         options: [
-          { id: 11, code: "Q1_A", label: "Option A", description: "", displayOrder: 1 },
-          { id: 12, code: "Q1_B", label: "Option B", description: "", displayOrder: 2 },
+          { id: 11, code: "Q1_A", label: "Improve exam performance", description: "Prioritize structured learning and score improvements.", displayOrder: 1 },
+          { id: 12, code: "Q1_B", label: "Get a job offer sooner", description: "Prioritize employability and interviews.", displayOrder: 2 },
         ],
       },
       {
         id: 2,
         code: "DECISION_Q2",
-        prompt: "Prompt 2",
-        description: "",
+        prompt: "How do you prefer to measure progress?",
+        description: "Choose what feels most motivating and realistic.",
         displayOrder: 2,
         options: [
-          { id: 21, code: "Q2_A", label: "Option C", description: "", displayOrder: 1 },
-          { id: 22, code: "Q2_B", label: "Option D", description: "", displayOrder: 2 },
+          { id: 21, code: "Q2_A", label: "Build a portfolio and ship projects", description: "Progress is visible through outputs and iterations.", displayOrder: 1 },
+          { id: 22, code: "Q2_B", label: "Hit clear score targets", description: "Progress is visible through measurable scores.", displayOrder: 2 },
         ],
       },
     ],
@@ -91,6 +91,12 @@ test("loads decision questions and blocks submit until all answers are selected"
 
   expect(wrapper.text()).toContain("方向测评");
   expect(wrapper.text()).toContain("每题选择一个最符合你的选项。");
+  expect(wrapper.text()).toContain("目前哪种结果对你来说最重要？");
+  expect(wrapper.text()).toContain("提升考试成绩");
+  expect(wrapper.text()).not.toContain("Which outcome matters most to you right now?");
+  expect(wrapper.text()).not.toContain("Improve exam performance");
+  expect(wrapper.text()).not.toContain("DECISION_Q1");
+  expect(wrapper.text()).not.toContain("Q1_A");
 
   const submitButton = wrapper.find('[data-test="assessment-submit"]');
   expect(submitButton.attributes("disabled")).toBeDefined();
@@ -110,5 +116,9 @@ test("loads decision questions and blocks submit until all answers are selected"
   const timelineButtons = wrapper.findAll("button").filter((button) => button.text() === "查看时间线");
   expect(timelineLinks.length + timelineButtons.length).toBe(1);
   expect(wrapper.text()).toContain("推荐方向：考研");
+  expect(wrapper.text()).toContain("推荐方向：升学考研/考公。");
+  expect(wrapper.text()).not.toContain("Recommendation: EXAM");
+  expect(wrapper.text()).not.toContain("Go to Timeline");
+  expect(wrapper.text()).not.toContain("Compare Schools");
   expect(wrapper.text()).toContain("方向排序");
 });
