@@ -22,13 +22,9 @@ const summary = ref({
   jobs: [],
 });
 
-const cityOptions = [
+const cityOptions = ref([
   { value: "", label: "全部城市" },
-  { value: "深圳", label: "深圳" },
-  { value: "广州", label: "广州" },
-  { value: "上海", label: "上海" },
-  { value: "杭州", label: "杭州" },
-];
+]);
 
 const jobTypeOptions = [
   { value: "", label: "全部类型" },
@@ -59,7 +55,7 @@ function getOptionLabel(options, value) {
 const activeFilterLabels = computed(() => {
   const items = [];
   if (filters.keyword) items.push(`关键词：${filters.keyword}`);
-  if (filters.city) items.push(`城市：${getOptionLabel(cityOptions, filters.city)}`);
+  if (filters.city) items.push(`城市：${getOptionLabel(cityOptions.value, filters.city)}`);
   if (filters.jobType) items.push(`岗位类型：${getOptionLabel(jobTypeOptions, filters.jobType)}`);
   if (filters.educationRequirement) items.push(`学历要求：${getOptionLabel(educationOptions, filters.educationRequirement)}`);
   if (filters.sourcePlatform) items.push(`来源：${getOptionLabel(sourcePlatformOptions, filters.sourcePlatform)}`);
@@ -72,12 +68,22 @@ function buildParams() {
   );
 }
 
-async function loadJobs() {
+async function loadJobs(isInitial = false) {
   loading.value = true;
   errorMessage.value = "";
 
   try {
-    summary.value = await getJobs(buildParams());
+    const res = await getJobs(buildParams());
+    summary.value = res;
+    if (isInitial) {
+      const cities = Array.from(
+        new Set(res.jobs.map((job) => job.city).filter(Boolean))
+      ).sort();
+      cityOptions.value = [
+        { value: "", label: "全部城市" },
+        ...cities.map((city) => ({ value: city, label: city })),
+      ];
+    }
   } catch (error) {
     errorMessage.value = error.message || "岗位信息加载失败，请稍后重试。";
   } finally {
@@ -100,7 +106,7 @@ function resetFilters() {
   loadJobs();
 }
 
-onMounted(loadJobs);
+onMounted(() => loadJobs(true));
 </script>
 
 <template>
