@@ -106,6 +106,9 @@ test("loads decision questions and blocks submit until all answers are selected"
 
   expect(submitDecisionAnswers).toHaveBeenCalledTimes(1);
   expect(wrapper.find('[data-test="assessment-result"]').exists()).toBe(true);
+  const timelineLinks = wrapper.findAll('[data-to="/timeline"]');
+  const timelineButtons = wrapper.findAll("button").filter((button) => button.text() === "查看时间线");
+  expect(timelineLinks.length + timelineButtons.length).toBe(1);
   expect(wrapper.text()).toContain("推荐方向：考研");
   expect(wrapper.text()).toContain("方向排序");
 });
