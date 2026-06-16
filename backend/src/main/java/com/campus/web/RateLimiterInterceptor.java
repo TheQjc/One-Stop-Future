@@ -60,7 +60,7 @@ public class RateLimiterInterceptor implements HandlerInterceptor {
         }
 
         if ("POST".equalsIgnoreCase(method) && path.equals("/api/auth/login")) {
-            String ip = getClientIp(request);
+            String ip = request.getRemoteAddr();
             checkRate(loginCounters, "login:" + ip, LOGIN_PER_IP_MAX, LOGIN_PER_IP_WINDOW_SECONDS,
                     "too many login attempts, please wait");
         }
@@ -81,18 +81,6 @@ public class RateLimiterInterceptor implements HandlerInterceptor {
         if (counter.count() > max) {
             throw new BusinessException(429, message);
         }
-    }
-
-    private String getClientIp(HttpServletRequest request) {
-        String xForwardedFor = request.getHeader("X-Forwarded-For");
-        if (xForwardedFor != null && !xForwardedFor.isBlank()) {
-            return xForwardedFor.split(",")[0].trim();
-        }
-        String xRealIp = request.getHeader("X-Real-IP");
-        if (xRealIp != null && !xRealIp.isBlank()) {
-            return xRealIp.trim();
-        }
-        return request.getRemoteAddr();
     }
 
     private record WindowCounter(Instant windowStart, int count) {
