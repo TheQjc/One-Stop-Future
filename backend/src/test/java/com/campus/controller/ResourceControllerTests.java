@@ -551,6 +551,35 @@ class ResourceControllerTests {
 
     @Test
     @WithMockUser(username = "2", roles = "USER")
+    void missingResourceChunkReturnsChineseValidationError() throws Exception {
+        MvcResult initResult = mockMvc.perform(post("/api/resources/chunk-uploads")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "title": "Missing Chunk",
+                                  "category": "RESUME_TEMPLATE",
+                                  "summary": "No chunk part",
+                                  "fileName": "missing-chunk.pdf",
+                                  "contentType": "application/pdf",
+                                  "fileSize": 5,
+                                  "chunkSize": 5
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andReturn();
+
+        JsonNode initJson = objectMapper.readTree(initResult.getResponse().getContentAsString());
+        String uploadId = initJson.path("data").path("uploadId").asText();
+
+        mockMvc.perform(multipart("/api/resources/chunk-uploads/{uploadId}/chunks/{chunkIndex}", uploadId, 0))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.message").value("请上传分片文件"));
+    }
+
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
     void ownerCanResubmitRejectedResourceWithoutReplacingFile() throws Exception {
         insertResource(4L, 2L, "REJECTED", "Please simplify the intro section",
                 "resume-template-revision.pdf", "pdf", "application/pdf",

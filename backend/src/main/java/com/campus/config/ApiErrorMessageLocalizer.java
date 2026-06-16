@@ -85,6 +85,7 @@ public final class ApiErrorMessageLocalizer {
             Map.entry("application resume preview unavailable", "申请简历预览暂不可用"),
             Map.entry("file is required", "请先选择文件"),
             Map.entry("Required part 'file' is not present.", "请先选择文件"),
+            Map.entry("Required part 'chunk' is not present.", "请上传分片文件"),
             Map.entry("file is too large", "文件过大"),
             Map.entry("file name is required", "请提供文件名"),
             Map.entry("unsupported file type", "暂不支持该文件类型"),
