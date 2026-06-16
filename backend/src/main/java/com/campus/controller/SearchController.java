@@ -11,6 +11,11 @@ import com.campus.common.Result;
 import com.campus.dto.SearchResponse;
 import com.campus.service.SearchService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "搜索", description = "统一搜索（ES 主检索 + MySQL 降级 + 关键词高亮）")
 @Validated
 @RestController
 @RequestMapping("/api/search")
@@ -22,6 +27,7 @@ public class SearchController {
         this.searchService = searchService;
     }
 
+    @Operation(summary = "统一搜索")
     @GetMapping
     public Result<SearchResponse> search(
             @RequestParam String q,

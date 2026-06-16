@@ -1,4 +1,7 @@
 package com.campus.dto;
 
-public record ApplyJobRequest(Long resumeId) {
+import jakarta.validation.constraints.NotNull;
+
+public record ApplyJobRequest(
+        @NotNull(message = "resume is required") Long resumeId) {
 }

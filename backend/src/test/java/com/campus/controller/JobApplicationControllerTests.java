@@ -89,6 +89,12 @@ class JobApplicationControllerTests {
         assertThat(snapshotStorageKey).isNotEqualTo("seed/resumes/intern-resume.pdf");
         assertThat(Files.readString(STORAGE_ROOT.resolve(snapshotStorageKey), StandardCharsets.UTF_8))
                 .isEqualTo("resume-pdf");
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT title FROM t_notification WHERE user_id = 2 AND type = 'JOB_APPLICATION_SUBMITTED'",
+                String.class)).isEqualTo("岗位申请已提交");
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT content FROM t_notification WHERE user_id = 2 AND type = 'JOB_APPLICATION_SUBMITTED'",
+                String.class)).isEqualTo("你对「后端开发实习生」的申请已提交，请留意后续进度。");
 
         mockMvc.perform(get("/api/applications/mine"))
                 .andExpect(status().isOk())

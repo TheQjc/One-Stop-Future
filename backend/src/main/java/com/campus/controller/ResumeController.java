@@ -26,6 +26,11 @@ import com.campus.dto.ResumeRecordResponse;
 import com.campus.service.ResumeService;
 import com.campus.service.ResumeService.DownloadedResume;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "简历", description = "简历上传、管理与预览")
 @Validated
 @RestController
 @RequestMapping("/api/resumes")
@@ -37,6 +42,8 @@ public class ResumeController {
         this.resumeService = resumeService;
     }
 
+    @Operation(summary = "上传简历")
+    @ApiResponse(responseCode = "200", description = "上传成功")
     @PostMapping
     public Result<ResumeRecordResponse> upload(
             @RequestParam String title,
@@ -45,11 +52,14 @@ public class ResumeController {
         return Result.success(resumeService.upload(authentication.getName(), title, file));
     }
 
+    @Operation(summary = "获取我的简历列表")
     @GetMapping("/mine")
     public Result<ResumeListResponse> mine(Authentication authentication) {
         return Result.success(resumeService.listMine(authentication.getName()));
     }
 
+    @Operation(summary = "更新简历")
+    @ApiResponse(responseCode = "200", description = "更新成功")
     @PutMapping("/{id}")
     public Result<ResumeRecordResponse> update(
             @PathVariable Long id,
@@ -59,6 +69,7 @@ public class ResumeController {
         return Result.success(resumeService.update(authentication.getName(), id, title, file));
     }
 
+    @Operation(summary = "下载简历")
     @GetMapping("/{id}/download")
     public ResponseEntity<InputStreamResource> download(@PathVariable Long id, Authentication authentication) {
         DownloadedResume download = resumeService.download(authentication.getName(), id);
@@ -71,6 +82,7 @@ public class ResumeController {
                 .body(new InputStreamResource(download.inputStream()));
     }
 
+    @Operation(summary = "预览简历")
     @GetMapping("/{id}/preview")
     public ResponseEntity<InputStreamResource> preview(@PathVariable Long id, Authentication authentication) {
         ResumeService.ResumeFileStream preview = resumeService.preview(authentication.getName(), id);
@@ -83,6 +95,7 @@ public class ResumeController {
                 .body(new InputStreamResource(preview.inputStream()));
     }
 
+    @Operation(summary = "删除简历")
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id, Authentication authentication) {
         resumeService.delete(authentication.getName(), id);

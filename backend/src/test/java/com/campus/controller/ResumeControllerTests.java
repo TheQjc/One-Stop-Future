@@ -90,7 +90,7 @@ class ResumeControllerTests {
                 "file",
                 "campus-resume.pdf",
                 "application/pdf",
-                "resume".getBytes(StandardCharsets.UTF_8));
+                "%PDF-1.4\nresume".getBytes(StandardCharsets.UTF_8));
 
         mockMvc.perform(multipart("/api/resumes")
                         .file(file)
@@ -109,6 +109,12 @@ class ResumeControllerTests {
                 resumeId);
 
         assertThat(Files.exists(STORAGE_ROOT.resolve(storageKey))).isTrue();
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT title FROM t_notification WHERE user_id = 2 AND type = 'RESUME_UPLOADED'",
+                String.class)).isEqualTo("简历上传成功");
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT content FROM t_notification WHERE user_id = 2 AND type = 'RESUME_UPLOADED'",
+                String.class)).isEqualTo("你的简历《Intern Resume》已上传成功。");
 
         mockMvc.perform(get("/api/resumes/mine"))
                 .andExpect(status().isOk())
@@ -162,7 +168,7 @@ class ResumeControllerTests {
                 9002L, 2L, "Docx Resume", "resume.docx", "docx",
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document", 100L, "seed/resume.docx");
         Files.createDirectories(STORAGE_ROOT.resolve("seed"));
-        Files.write(STORAGE_ROOT.resolve("seed/resume.docx"), "docx".getBytes(StandardCharsets.UTF_8));
+        Files.write(STORAGE_ROOT.resolve("seed/resume.docx"), new byte[] {0x50, 0x4B, 0x03, 0x04, 'd', 'o', 'c', 'x'});
 
         mockMvc.perform(get("/api/resumes/9002/preview"))
                 .andExpect(status().isOk())
@@ -187,7 +193,7 @@ class ResumeControllerTests {
                 "file",
                 "new-resume.docx",
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                "new-docx".getBytes(StandardCharsets.UTF_8));
+                "PKnew-docx".getBytes(StandardCharsets.UTF_8));
 
         mockMvc.perform(multipart("/api/resumes/9010")
                         .file(replacement)
@@ -310,6 +316,7 @@ class ResumeControllerTests {
     @WithMockUser(username = "2", roles = "USER")
     void resumeUploadRejectsFilesAboveConfiguredMultipartLimit() throws Exception {
         byte[] payload = new byte[6 * 1024];
+        System.arraycopy("%PDF-1.4\n".getBytes(StandardCharsets.UTF_8), 0, payload, 0, 8);
         MockMultipartFile file = new MockMultipartFile(
                 "file",
                 "oversized-resume.pdf",

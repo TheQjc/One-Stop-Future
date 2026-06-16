@@ -21,6 +21,10 @@ import com.campus.preview.ApplicationSnapshotPreviewService;
 import com.campus.service.AdminJobApplicationService;
 import com.campus.service.AdminJobApplicationService.DownloadedApplicationResume;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "管理-申请", description = "岗位申请查看与简历下载")
 @Validated
 @RestController
 @PreAuthorize("hasRole('ADMIN')")
@@ -33,11 +37,13 @@ public class AdminJobApplicationController {
         this.adminJobApplicationService = adminJobApplicationService;
     }
 
+    @Operation(summary = "获取申请列表")
     @GetMapping
     public Result<AdminJobApplicationListResponse> list() {
         return Result.success(adminJobApplicationService.listApplications());
     }
 
+    @Operation(summary = "下载简历")
     @GetMapping("/{id}/resume/download")
     public ResponseEntity<InputStreamResource> downloadResume(@PathVariable Long id) {
         DownloadedApplicationResume download = adminJobApplicationService.downloadResumeSnapshot(id);
@@ -50,6 +56,7 @@ public class AdminJobApplicationController {
                 .body(new InputStreamResource(download.inputStream()));
     }
 
+    @Operation(summary = "预览简历")
     @GetMapping("/{id}/resume/preview")
     public ResponseEntity<InputStreamResource> previewResume(@PathVariable Long id) {
         ApplicationSnapshotPreviewService.PreviewFile preview =

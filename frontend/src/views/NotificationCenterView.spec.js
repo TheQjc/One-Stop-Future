@@ -74,6 +74,28 @@ test("renders the community reply label for reply notifications", async () => {
   expect(wrapper.text()).toContain("认证同学回复了你在《录用时间线笔记》下的评论");
 });
 
+test("renders the community comment label for post comment notifications", async () => {
+  window.localStorage.setItem("one-stop-future-demo-notifications", JSON.stringify([
+    {
+      id: 2006,
+      userId: 2,
+      type: "COMMUNITY_COMMENT_RECEIVED",
+      title: "你的帖子收到评论",
+      content: "认证同学评论了你的帖子《录用时间线笔记》",
+      read: false,
+      createdAt: "2026-04-21T10:00:00",
+      readAt: null,
+    },
+  ]));
+
+  const { wrapper } = mountView();
+  await flushPromises();
+
+  expect(wrapper.text()).toContain("帖子评论");
+  expect(wrapper.text()).toContain("你的帖子收到评论");
+  expect(wrapper.text()).toContain("认证同学评论了你的帖子《录用时间线笔记》");
+});
+
 test("renders resource and post interaction notification labels", async () => {
   window.localStorage.setItem("one-stop-future-demo-notifications", JSON.stringify([
     {
@@ -125,4 +147,57 @@ test("renders resource and post interaction notification labels", async () => {
   expect(wrapper.text()).toContain("资料通过");
   expect(wrapper.text()).toContain("资料驳回");
   expect(wrapper.text()).toContain("资料下线");
+});
+
+test("renders labels for submission and upload notifications", async () => {
+  window.localStorage.setItem("one-stop-future-demo-notifications", JSON.stringify([
+    {
+      id: 2007,
+      userId: 2,
+      type: "RESOURCE_UPLOADED",
+      title: "资料已提交审核",
+      content: "你上传的资料《求职资料包》已提交审核。",
+      read: false,
+      createdAt: "2026-04-21T12:00:00",
+      readAt: null,
+    },
+    {
+      id: 2008,
+      userId: 2,
+      type: "RESUME_UPLOADED",
+      title: "简历上传成功",
+      content: "你的简历《后端实习简历》已上传成功。",
+      read: false,
+      createdAt: "2026-04-21T12:10:00",
+      readAt: null,
+    },
+    {
+      id: 2009,
+      userId: 2,
+      type: "JOB_APPLICATION_SUBMITTED",
+      title: "岗位申请已提交",
+      content: "你对「后端实习生」的申请已提交。",
+      read: true,
+      createdAt: "2026-04-21T12:20:00",
+      readAt: "2026-04-21T12:30:00",
+    },
+    {
+      id: 2010,
+      userId: 2,
+      type: "COMMUNITY_POST_COMMENTED",
+      title: "你的帖子收到评论",
+      content: "同学评论了你的帖子《面试复盘》。",
+      read: true,
+      createdAt: "2026-04-21T12:40:00",
+      readAt: "2026-04-21T12:50:00",
+    },
+  ]));
+
+  const { wrapper } = mountView();
+  await flushPromises();
+
+  expect(wrapper.text()).toContain("资料上传");
+  expect(wrapper.text()).toContain("简历上传");
+  expect(wrapper.text()).toContain("岗位申请");
+  expect(wrapper.text()).toContain("帖子评论");
 });

@@ -20,6 +20,10 @@ import com.campus.dto.MyJobApplicationListResponse;
 import com.campus.preview.ApplicationSnapshotPreviewService;
 import com.campus.service.JobApplicationService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "岗位申请", description = "我的申请记录管理")
 @Validated
 @RestController
 @RequestMapping("/api/applications")
@@ -31,11 +35,13 @@ public class JobApplicationController {
         this.jobApplicationService = jobApplicationService;
     }
 
+    @Operation(summary = "获取我的申请列表")
     @GetMapping("/mine")
     public Result<MyJobApplicationListResponse> mine(Authentication authentication) {
         return Result.success(jobApplicationService.listMine(authentication.getName()));
     }
 
+    @Operation(summary = "下载申请简历")
     @GetMapping("/{id}/resume/download")
     public ResponseEntity<InputStreamResource> downloadResume(@PathVariable Long id, Authentication authentication) {
         JobApplicationService.DownloadedApplicationResume download =
@@ -49,6 +55,7 @@ public class JobApplicationController {
                 .body(new InputStreamResource(download.inputStream()));
     }
 
+    @Operation(summary = "预览申请简历")
     @GetMapping("/{id}/resume/preview")
     public ResponseEntity<InputStreamResource> previewResume(@PathVariable Long id, Authentication authentication) {
         ApplicationSnapshotPreviewService.PreviewFile preview =
