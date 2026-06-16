@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import com.campus.common.BusinessException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,14 +28,31 @@ public class RateLimiterInterceptor implements HandlerInterceptor {
 
     private final Map<String, WindowCounter> smsCounters = new ConcurrentHashMap<>();
     private final Map<String, WindowCounter> loginCounters = new ConcurrentHashMap<>();
+    private final ObjectMapper objectMapper;
+
+    public RateLimiterInterceptor(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String path = request.getRequestURI();
         String method = request.getMethod();
 
         if ("POST".equalsIgnoreCase(method) && path.equals("/api/auth/codes/send")) {
-            String phone = request.getParameter("phone");
+            String phone = null;
+            if (request instanceof CachedBodyHttpServletRequest cachedRequest) {
+                byte[] body = cachedRequest.getCachedBody();
+                if (body != null && body.length > 0) {
+                    JsonNode jsonNode = objectMapper.readTree(body);
+                    if (jsonNode.has("phone")) {
+                        phone = jsonNode.get("phone").asText();
+                    }
+                }
+            } else {
+                phone = request.getParameter("phone");
+            }
+            
             if (phone != null && !phone.isBlank()) {
                 checkRate(smsCounters, "sms:" + phone, SMS_PER_PHONE_MAX, SMS_PER_PHONE_WINDOW_SECONDS,
                         "verification code sent too frequently, please wait");
