@@ -30,6 +30,8 @@ const statCards = computed(() => [
     value: summary.value.total || summary.value.resumes.length,
   },
 ]);
+const selectedFileLabel = computed(() => selectedFile.value?.name || "还没有选择文件");
+const editFileLabel = computed(() => editFile.value?.name || "未选择替换文件");
 
 function formatTime(value) {
   if (!value) {
@@ -268,14 +270,28 @@ onMounted(loadResumes);
 
           <label class="field-label">
             文件
-            <input
-              ref="fileInputRef"
-              class="field-control"
-              name="file"
-              type="file"
-              accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-              @change="handleFileChange"
-            />
+            <span class="file-picker">
+              <span
+                class="ghost-btn file-picker__button"
+                data-testid="resume-upload-file-label"
+              >
+                选择简历文件
+              </span>
+              <span
+                class="file-picker__name"
+                data-testid="resume-upload-file-name"
+              >
+                {{ selectedFileLabel }}
+              </span>
+              <input
+                ref="fileInputRef"
+                class="file-picker__input"
+                name="file"
+                type="file"
+                accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                @change="handleFileChange"
+              />
+            </span>
           </label>
 
           <p class="field-hint">
@@ -346,13 +362,27 @@ onMounted(loadResumes);
               </label>
               <label class="field-label">
                 替换文件（可选）
-                <input
-                  class="field-control"
-                  :data-testid="`edit-resume-file-${resume.id}`"
-                  type="file"
-                  accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                  @change="handleEditFileChange"
-                />
+                <span class="file-picker">
+                  <span
+                    class="ghost-btn file-picker__button"
+                    :data-testid="`edit-resume-file-label-${resume.id}`"
+                  >
+                    选择替换文件
+                  </span>
+                  <span
+                    class="file-picker__name"
+                    :data-testid="`edit-resume-file-name-${resume.id}`"
+                  >
+                    {{ editFileLabel }}
+                  </span>
+                  <input
+                    class="file-picker__input"
+                    :data-testid="`edit-resume-file-${resume.id}`"
+                    type="file"
+                    accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    @change="handleEditFileChange"
+                  />
+                </span>
               </label>
               <div class="inline-form-actions">
                 <button
@@ -476,6 +506,36 @@ onMounted(loadResumes);
 
 .resume-edit-form {
   padding-top: 4px;
+}
+
+.file-picker {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.file-picker__button {
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.file-picker__name {
+  min-width: 0;
+  color: var(--cp-ink-soft);
+  font-size: var(--cp-text-sm);
+  overflow-wrap: anywhere;
+}
+
+.file-picker__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
 }
 
 @media (max-width: 767px) {

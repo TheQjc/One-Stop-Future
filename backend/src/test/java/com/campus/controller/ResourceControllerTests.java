@@ -28,6 +28,8 @@ import org.apache.poi.xslf.usermodel.XSLFSlide;
 import org.apache.poi.xslf.usermodel.XSLFTextBox;
 import org.apache.poi.xslf.usermodel.XSLFTextParagraph;
 import org.apache.poi.xslf.usermodel.XSLFTextRun;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -522,6 +524,59 @@ class ResourceControllerTests {
 
     @Test
     @WithMockUser(username = "2", roles = "USER")
+    void authenticatedUserCanCompleteAndPreviewChunkedDocxResourceWithChineseFilename() throws Exception {
+        byte[] docxBytes = simpleDocxBytes("实验报告模板");
+        MvcResult initResult = mockMvc.perform(post("/api/resources/chunk-uploads")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "title": "实验报告模板",
+                                  "category": "OTHER",
+                                  "summary": "DOCX 分片上传",
+                                  "description": "中文文件名",
+                                  "fileName": "实验报告模版-增强版.docx",
+                                  "contentType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                                  "fileSize": %d,
+                                  "chunkSize": %d
+                                }
+                                """.formatted(docxBytes.length, docxBytes.length)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andReturn();
+
+        JsonNode initJson = objectMapper.readTree(initResult.getResponse().getContentAsString());
+        String uploadId = initJson.path("data").path("uploadId").asText();
+
+        MockMultipartFile chunk = new MockMultipartFile(
+                "chunk",
+                "chunk-0.part",
+                "application/octet-stream",
+                docxBytes);
+        mockMvc.perform(multipart("/api/resources/chunk-uploads/{uploadId}/chunks/{chunkIndex}", uploadId, 0)
+                        .file(chunk))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.complete").value(true));
+
+        mockMvc.perform(post("/api/resources/chunk-uploads/{uploadId}/complete", uploadId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.title").value("实验报告模板"))
+                .andExpect(jsonPath("$.data.fileName").value("实验报告模版-增强版.docx"))
+                .andExpect(jsonPath("$.data.previewAvailable").value(true))
+                .andExpect(jsonPath("$.data.previewKind").value("FILE"));
+
+        Long resourceId = jdbcTemplate.queryForObject(
+                "SELECT id FROM t_resource_item WHERE title = '实验报告模板'",
+                Long.class);
+        mockMvc.perform(get("/api/resources/{id}/preview", resourceId))
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, containsString("inline")))
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, containsString("application/pdf")));
+    }
+
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
     void incompleteChunkedUploadCannotBeCompleted() throws Exception {
         MvcResult initResult = mockMvc.perform(post("/api/resources/chunk-uploads")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -768,6 +823,16 @@ class ResourceControllerTests {
             XSLFTextRun textRun = paragraph.addNewTextRun();
             textRun.setText(title);
             slideShow.write(outputStream);
+            return outputStream.toByteArray();
+        }
+    }
+
+    private byte[] simpleDocxBytes(String text) throws IOException {
+        try (XWPFDocument document = new XWPFDocument();
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            XWPFParagraph paragraph = document.createParagraph();
+            paragraph.createRun().setText(text);
+            document.write(outputStream);
             return outputStream.toByteArray();
         }
     }

@@ -81,3 +81,22 @@ test("submits upload form and redirects to my resources", async () => {
   expect(payload.get("file")).toBe(file);
   expect(routerPush).toHaveBeenCalledWith("/profile/resources");
 });
+
+test("shows Chinese file picker copy for resource upload", async () => {
+  const wrapper = mountView();
+
+  expect(wrapper.get('[data-testid="resource-file-label"]').text()).toContain("选择资源文件");
+  expect(wrapper.get('[data-testid="resource-file-name"]').text()).toContain("还没有选择文件");
+
+  const file = new File(["demo"], "实验报告模版-增强版.docx", {
+    type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  });
+  const fileInput = wrapper.find('input[type="file"]');
+  Object.defineProperty(fileInput.element, "files", {
+    value: [file],
+    configurable: true,
+  });
+  await fileInput.trigger("change");
+
+  expect(wrapper.get('[data-testid="resource-file-name"]').text()).toContain("实验报告模版-增强版.docx");
+});

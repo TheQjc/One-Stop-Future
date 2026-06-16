@@ -102,6 +102,53 @@ test("rejects unsupported resume files before upload", async () => {
   expect(wrapper.text()).toContain("仅支持 PDF、DOC、DOCX 简历文件。");
 });
 
+test("shows Chinese file picker copy for resume upload and replacement", async () => {
+  getMyResumes.mockResolvedValue({
+    total: 1,
+    resumes: [
+      {
+        id: 8,
+        title: "Old Resume",
+        fileName: "old-resume.pdf",
+        previewAvailable: true,
+        previewKind: "FILE",
+      },
+    ],
+  });
+
+  const wrapper = mount(ProfileResumesView);
+  await flushPromises();
+
+  expect(wrapper.get('[data-testid="resume-upload-file-label"]').text()).toContain("选择简历文件");
+  expect(wrapper.get('[data-testid="resume-upload-file-name"]').text()).toBe("还没有选择文件");
+
+  const uploadFile = new File(["resume"], "实习投递版简历.pdf", { type: "application/pdf" });
+  const uploadInput = wrapper.find('input[name="file"]');
+  Object.defineProperty(uploadInput.element, "files", {
+    value: [uploadFile],
+    configurable: true,
+  });
+  await uploadInput.trigger("change");
+
+  expect(wrapper.get('[data-testid="resume-upload-file-name"]').text()).toBe("实习投递版简历.pdf");
+
+  await wrapper.find('[data-testid="edit-resume-8"]').trigger("click");
+  expect(wrapper.get('[data-testid="edit-resume-file-label-8"]').text()).toContain("选择替换文件");
+  expect(wrapper.get('[data-testid="edit-resume-file-name-8"]').text()).toBe("未选择替换文件");
+
+  const replacementFile = new File(["docx"], "增强版简历.docx", {
+    type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  });
+  const replacementInput = wrapper.find('[data-testid="edit-resume-file-8"]');
+  Object.defineProperty(replacementInput.element, "files", {
+    value: [replacementFile],
+    configurable: true,
+  });
+  await replacementInput.trigger("change");
+
+  expect(wrapper.get('[data-testid="edit-resume-file-name-8"]').text()).toBe("增强版简历.docx");
+});
+
 test("pdf and docx resumes show preview while doc stays download-only", async () => {
   getMyResumes.mockResolvedValue({
     total: 3,

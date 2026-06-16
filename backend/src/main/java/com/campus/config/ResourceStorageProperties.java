@@ -12,4 +12,5 @@ public class ResourceStorageProperties {
 
     private String type = "local";
     private String localRoot = ".local-storage/resources";
+    private boolean readFallbackLocalEnabled = true;
 }

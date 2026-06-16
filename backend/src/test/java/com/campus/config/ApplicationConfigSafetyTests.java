@@ -35,6 +35,8 @@ class ApplicationConfigSafetyTests {
         Properties properties = loadYaml(Path.of("src", "main", "resources", "application.yml"));
 
         assertThat(properties.getProperty("app.resource-storage.type")).isEqualTo("${RESOURCE_STORAGE_TYPE:local}");
+        assertThat(properties.getProperty("app.resource-storage.read-fallback-local-enabled"))
+                .isEqualTo("${RESOURCE_STORAGE_READ_FALLBACK_LOCAL_ENABLED:true}");
         assertThat(properties.getProperty("platform.integrations.minio.enabled")).isEqualTo("${MINIO_ENABLED:false}");
         assertThat(properties.getProperty("platform.integrations.minio.bucket")).isEqualTo("${MINIO_BUCKET:campus-platform}");
     }
