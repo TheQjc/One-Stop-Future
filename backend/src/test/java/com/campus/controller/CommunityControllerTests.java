@@ -17,6 +17,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.campus.common.NotificationType;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @Sql(scripts = { "/schema.sql", "/data.sql" }, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
@@ -227,17 +229,18 @@ class CommunityControllerTests {
         assertThat(jdbcTemplate.queryForObject(
                 """
                         SELECT COUNT(*) FROM t_notification
-                        WHERE user_id = 3 AND type = 'COMMUNITY_COMMENT_RECEIVED'
+                        WHERE user_id = 3 AND type = ?
                           AND source_type = 'COMMUNITY_POST' AND source_id = 2
                         """,
-                Integer.class)).isEqualTo(1);
+                Integer.class, NotificationType.COMMUNITY_POST_COMMENTED.name())).isEqualTo(1);
         assertThat(jdbcTemplate.queryForObject(
                 """
                         SELECT content FROM t_notification
-                        WHERE user_id = 3 AND type = 'COMMUNITY_COMMENT_RECEIVED'
+                        WHERE user_id = 3 AND type = ?
                           AND source_type = 'COMMUNITY_POST' AND source_id = 2
                         """,
-                String.class)).contains("NormalUser").contains("Exam planning checklist");
+                String.class, NotificationType.COMMUNITY_POST_COMMENTED.name()))
+                .contains("普通用户").contains("考研规划检查清单");
 
         mockMvc.perform(post("/api/community/posts/2/like"))
                 .andExpect(status().isOk())
@@ -247,10 +250,10 @@ class CommunityControllerTests {
         assertThat(jdbcTemplate.queryForObject(
                 """
                         SELECT COUNT(*) FROM t_notification
-                        WHERE user_id = 3 AND type = 'COMMUNITY_POST_LIKED'
+                        WHERE user_id = 3 AND type = ?
                           AND source_type = 'COMMUNITY_POST' AND source_id = 2
                         """,
-                Integer.class)).isEqualTo(1);
+                Integer.class, NotificationType.COMMUNITY_POST_LIKED.name())).isEqualTo(1);
 
         mockMvc.perform(post("/api/community/posts/2/like"))
                 .andExpect(status().isOk())
@@ -260,10 +263,10 @@ class CommunityControllerTests {
         assertThat(jdbcTemplate.queryForObject(
                 """
                         SELECT COUNT(*) FROM t_notification
-                        WHERE user_id = 3 AND type = 'COMMUNITY_POST_LIKED'
+                        WHERE user_id = 3 AND type = ?
                           AND source_type = 'COMMUNITY_POST' AND source_id = 2
                         """,
-                Integer.class)).isEqualTo(1);
+                Integer.class, NotificationType.COMMUNITY_POST_LIKED.name())).isEqualTo(1);
 
         mockMvc.perform(post("/api/community/posts/2/favorite"))
                 .andExpect(status().isOk())
@@ -294,10 +297,10 @@ class CommunityControllerTests {
         assertThat(jdbcTemplate.queryForObject(
                 """
                         SELECT COUNT(*) FROM t_notification
-                        WHERE user_id = 2 AND type = 'COMMUNITY_POST_LIKED'
+                        WHERE user_id = 2 AND type = ?
                           AND source_type = 'COMMUNITY_POST' AND source_id = 1
                         """,
-                Integer.class)).isEqualTo(0);
+                Integer.class, NotificationType.COMMUNITY_POST_LIKED.name())).isEqualTo(0);
     }
 
     @Test
