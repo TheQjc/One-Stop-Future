@@ -22,6 +22,11 @@ import com.campus.service.AdminResourceMigrationService;
 import com.campus.service.AdminResourcePreviewMigrationService;
 import com.campus.service.AdminResourceService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "管理-资料审核", description = "学习资料审核与上下架")
 @Validated
 @RestController
 @PreAuthorize("hasRole('ADMIN')")
@@ -40,16 +45,21 @@ public class AdminResourceController {
         this.adminResourcePreviewMigrationService = adminResourcePreviewMigrationService;
     }
 
+    @Operation(summary = "获取资料列表")
     @GetMapping
     public Result<AdminResourceListResponse> list() {
         return Result.success(adminResourceService.listResources());
     }
 
+    @Operation(summary = "发布资料")
+    @ApiResponse(responseCode = "200", description = "发布成功")
     @PostMapping("/{id}/publish")
     public Result<ResourceDetailResponse> publish(@PathVariable Long id, Authentication authentication) {
         return Result.success(adminResourceService.publishResource(authentication.getName(), id));
     }
 
+    @Operation(summary = "驳回资料")
+    @ApiResponse(responseCode = "200", description = "驳回成功")
     @PostMapping("/{id}/reject")
     public Result<ResourceDetailResponse> reject(@PathVariable Long id, Authentication authentication,
             @RequestBody(required = false) AdminResourceReviewRequest request) {
@@ -57,11 +67,15 @@ public class AdminResourceController {
         return Result.success(adminResourceService.rejectResource(authentication.getName(), id, reason));
     }
 
+    @Operation(summary = "下架资料")
+    @ApiResponse(responseCode = "200", description = "下架成功")
     @PostMapping("/{id}/offline")
     public Result<ResourceDetailResponse> offline(@PathVariable Long id, Authentication authentication) {
         return Result.success(adminResourceService.offlineResource(authentication.getName(), id));
     }
 
+    @Operation(summary = "迁移文件至 MinIO")
+    @ApiResponse(responseCode = "200", description = "迁移成功")
     @PostMapping("/migrate-to-minio")
     public Result<AdminResourceMigrationResponse> migrateToMinio(
             Authentication authentication,
@@ -73,6 +87,8 @@ public class AdminResourceController {
                 adminResourceMigrationService.migrateResources(authentication.getName(), normalizedRequest));
     }
 
+    @Operation(summary = "迁移预览产物至 MinIO")
+    @ApiResponse(responseCode = "200", description = "迁移成功")
     @PostMapping("/migrate-preview-artifacts-to-minio")
     public Result<AdminResourcePreviewMigrationResponse> migratePreviewArtifactsToMinio(
             Authentication authentication,

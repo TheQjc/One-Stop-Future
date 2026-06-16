@@ -74,6 +74,28 @@ test("renders the community reply label for reply notifications", async () => {
   expect(wrapper.text()).toContain("认证同学回复了你在《录用时间线笔记》下的评论");
 });
 
+test("renders the community comment label for post comment notifications", async () => {
+  window.localStorage.setItem("one-stop-future-demo-notifications", JSON.stringify([
+    {
+      id: 2006,
+      userId: 2,
+      type: "COMMUNITY_COMMENT_RECEIVED",
+      title: "你的帖子收到评论",
+      content: "认证同学评论了你的帖子《录用时间线笔记》",
+      read: false,
+      createdAt: "2026-04-21T10:00:00",
+      readAt: null,
+    },
+  ]));
+
+  const { wrapper } = mountView();
+  await flushPromises();
+
+  expect(wrapper.text()).toContain("帖子评论");
+  expect(wrapper.text()).toContain("你的帖子收到评论");
+  expect(wrapper.text()).toContain("认证同学评论了你的帖子《录用时间线笔记》");
+});
+
 test("renders resource and post interaction notification labels", async () => {
   window.localStorage.setItem("one-stop-future-demo-notifications", JSON.stringify([
     {

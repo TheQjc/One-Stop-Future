@@ -232,6 +232,17 @@ public class CommunityService {
         comment.setCreatedAt(now);
         comment.setUpdatedAt(now);
         communityCommentMapper.insert(comment);
+
+        if (!author.getId().equals(post.getAuthorId())) {
+            notificationService.createNotification(
+                    post.getAuthorId(),
+                    NotificationType.COMMUNITY_POST_COMMENTED.name(),
+                    "Your post received a comment",
+                    author.getNickname() + " commented on your post \"" + post.getTitle() + "\"",
+                    "COMMUNITY_POST",
+                    post.getId());
+        }
+
         recalculatePostStats(post.getId());
         return toPostDetail(requirePublishedPost(post.getId()), author);
     }
@@ -264,6 +275,15 @@ public class CommunityService {
                     NotificationType.COMMUNITY_REPLY_RECEIVED.name(),
                     "您的评论收到了回复",
                     author.getNickname() + " 在《" + post.getTitle() + "》下回复了您的评论",
+                    "COMMUNITY_POST",
+                    post.getId());
+        }
+        if (!author.getId().equals(post.getAuthorId())) {
+            notificationService.createNotification(
+                    post.getAuthorId(),
+                    NotificationType.COMMUNITY_COMMENT_RECEIVED.name(),
+                    "Your post received a comment",
+                    author.getNickname() + " commented on your post \"" + post.getTitle() + "\"",
                     "COMMUNITY_POST",
                     post.getId());
         }

@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.campus.common.BusinessException;
 import com.campus.common.FavoriteTargetType;
+import com.campus.common.NotificationType;
 import com.campus.common.ResourceCategory;
 import com.campus.common.ResourcePreviewKind;
 import com.campus.common.ResourceStatus;
@@ -36,6 +37,7 @@ import com.campus.mapper.ResourceVersionMapper;
 import com.campus.mapper.UserFavoriteMapper;
 import com.campus.preview.ResourcePreviewService;
 import com.campus.storage.ResourceFileStorage;
+import com.campus.web.FileMagicBytesValidator;
 
 @Service
 public class ResourceService {
@@ -52,12 +54,14 @@ public class ResourceService {
     private final ResourceFileStorage resourceFileStorage;
     private final ResourcePreviewService resourcePreviewService;
     private final PreviewArtifactCleanupService previewArtifactCleanupService;
+    private final NotificationService notificationService;
 
     public ResourceService(ResourceItemMapper resourceItemMapper, ResourceVersionMapper resourceVersionMapper,
             UserFavoriteMapper userFavoriteMapper,
             UserService userService, ResourceFileStorage resourceFileStorage,
             ResourcePreviewService resourcePreviewService,
-            PreviewArtifactCleanupService previewArtifactCleanupService) {
+            PreviewArtifactCleanupService previewArtifactCleanupService,
+            NotificationService notificationService) {
         this.resourceItemMapper = resourceItemMapper;
         this.resourceVersionMapper = resourceVersionMapper;
         this.userFavoriteMapper = userFavoriteMapper;
@@ -67,6 +71,7 @@ public class ResourceService {
         this.previewArtifactCleanupService = Objects.requireNonNull(
                 previewArtifactCleanupService,
                 "previewArtifactCleanupService");
+        this.notificationService = notificationService;
     }
 
     public ResourceListResponse listResources(String keyword, String category, String identity) {
@@ -200,6 +205,15 @@ public class ResourceService {
         resource.setUpdatedAt(LocalDateTime.now());
         resourceItemMapper.insert(resource);
         recordResourceVersion(resource, uploader.getId(), "UPLOAD");
+
+        notificationService.createNotification(
+                uploader.getId(),
+                NotificationType.RESOURCE_UPLOADED.name(),
+                "Resource uploaded",
+                "Your resource \"" + normalizedTitle + "\" has been uploaded and is pending review.",
+                "RESOURCE",
+                resource.getId());
+
         return toResourceDetail(resource, uploader);
     }
 
@@ -238,6 +252,15 @@ public class ResourceService {
         resource.setUpdatedAt(LocalDateTime.now());
         resourceItemMapper.insert(resource);
         recordResourceVersion(resource, uploader.getId(), "UPLOAD");
+
+        notificationService.createNotification(
+                uploader.getId(),
+                NotificationType.RESOURCE_UPLOADED.name(),
+                "Resource uploaded",
+                "Your resource \"" + normalizedTitle + "\" has been uploaded and is pending review.",
+                "RESOURCE",
+                resource.getId());
+
         return toResourceDetail(resource, uploader);
     }
 
@@ -688,6 +711,14 @@ public class ResourceService {
         String extension = extractExtension(originalFilename);
         if (!ALLOWED_EXTENSIONS.contains(extension)) {
             throw new BusinessException(400, "不支持的文件类型");
+        }
+
+        try {
+            FileMagicBytesValidator.validateMultipartFile(file, extension);
+        } catch (IOException e) {
+            throw new BusinessException(400, "cannot read file");
+        } catch (IllegalArgumentException e) {
+            throw new BusinessException(400, e.getMessage());
         }
 
         String contentType = file.getContentType();

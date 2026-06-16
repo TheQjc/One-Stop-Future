@@ -19,8 +19,13 @@ import com.campus.service.JobService;
 import com.campus.service.ResourceService;
 import com.campus.service.UserService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import java.util.Locale;
 
+@Tag(name = "用户", description = "个人资料查看与更新")
 @Validated
 @RestController
 @RequestMapping("/api/users")
@@ -39,11 +44,13 @@ public class UserController {
         this.resourceService = resourceService;
     }
 
+    @Operation(summary = "获取当前用户信息")
     @GetMapping("/me")
     public Result<UserProfile> me(Authentication authentication) {
         return Result.success(userService.getProfile(authentication.getName()));
     }
 
+    @Operation(summary = "获取我的收藏")
     @GetMapping("/me/favorites")
     public Result<Object> favorites(Authentication authentication,
             @RequestParam(defaultValue = "POST") String type) {
@@ -55,6 +62,8 @@ public class UserController {
         };
     }
 
+    @Operation(summary = "更新个人资料")
+    @ApiResponse(responseCode = "200", description = "更新成功")
     @PutMapping("/me")
     public Result<UserProfile> updateProfile(Authentication authentication,
             @Validated @RequestBody UpdateProfileRequest request) {

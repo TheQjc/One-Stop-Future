@@ -17,6 +17,11 @@ import com.campus.dto.AdminVerificationDashboardResponse;
 import com.campus.dto.AdminVerificationReviewRequest;
 import com.campus.service.AdminVerificationService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "管理-认证审核", description = "学生认证申请审批")
 @Validated
 @RestController
 @PreAuthorize("hasRole('ADMIN')")
@@ -29,16 +34,20 @@ public class AdminVerificationController {
         this.adminVerificationService = adminVerificationService;
     }
 
+    @Operation(summary = "获取认证审核看板")
     @GetMapping("/dashboard")
     public Result<AdminVerificationDashboardResponse> dashboard() {
         return Result.success(adminVerificationService.getDashboard());
     }
 
+    @Operation(summary = "获取认证申请列表")
     @GetMapping
     public Result<List<AdminVerificationDashboardResponse.VerificationApplicationSummary>> list() {
         return Result.success(adminVerificationService.listApplications());
     }
 
+    @Operation(summary = "审核认证申请")
+    @ApiResponse(responseCode = "200", description = "审核完成")
     @PostMapping("/{id}/review")
     public Result<Void> review(@PathVariable Long id, Authentication authentication,
             @Validated @RequestBody AdminVerificationReviewRequest request) {
