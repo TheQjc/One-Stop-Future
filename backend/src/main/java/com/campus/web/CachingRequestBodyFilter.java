@@ -19,12 +19,19 @@ public class CachingRequestBodyFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        String contentType = request.getContentType();
-        if (contentType != null && contentType.contains("application/json")) {
+        if (shouldCache(request)) {
             CachedBodyHttpServletRequest cachedBodyHttpServletRequest = new CachedBodyHttpServletRequest(request);
             filterChain.doFilter(cachedBodyHttpServletRequest, response);
         } else {
             filterChain.doFilter(request, response);
         }
+    }
+
+    private boolean shouldCache(HttpServletRequest request) {
+        String contentType = request.getContentType();
+        return "POST".equalsIgnoreCase(request.getMethod())
+                && "/api/auth/codes/send".equals(request.getRequestURI())
+                && contentType != null
+                && contentType.contains("application/json");
     }
 }

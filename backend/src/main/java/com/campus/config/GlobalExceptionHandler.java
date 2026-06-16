@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.campus.common.BusinessException;
@@ -90,35 +91,36 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<Result<Void>> handleMethodNotSupported(HttpRequestMethodNotSupportedException exception) {
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
-                .body(Result.error(405, "method not allowed"));
+                .body(Result.error(405, "请求方法不支持"));
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public Result<Void> handleMissingParam(MissingServletRequestParameterException exception) {
-        return Result.error(400, "missing required parameter: " + exception.getParameterName());
+        return Result.error(400, "缺少必填参数：" + exception.getParameterName());
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public Result<Void> handleTypeMismatch(MethodArgumentTypeMismatchException exception) {
-        return Result.error(400, "invalid parameter type for: " + exception.getName());
+        return Result.error(400, "参数类型不正确：" + exception.getName());
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<Result<Void>> handleMaxUploadSize(MaxUploadSizeExceededException exception) {
         return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
-                .body(Result.error(413, "file too large"));
+                .body(Result.error(413, "文件大小超出限制"));
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
     public ResponseEntity<Result<Void>> handleMediaTypeNotSupported(HttpMediaTypeNotSupportedException exception) {
         return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-                .body(Result.error(415, "unsupported media type"));
+                .body(Result.error(415, "不支持的请求内容类型"));
     }
 
     @ExceptionHandler(BindException.class)
     public Result<Void> handleBindException(BindException exception) {
         String msg = exception.getBindingResult().getFieldErrors().stream()
-                .map(error -> error.getField() + " " + error.getDefaultMessage())
+                .map(error -> ApiErrorMessageLocalizer.localize(error.getDefaultMessage()))
+                .distinct()
                 .collect(Collectors.joining(", "));
         return Result.error(400, msg);
     }
@@ -126,7 +128,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public Result<Void> handleUnexpected(Exception exception) {
         log.error("Unexpected error", exception);
-        return Result.error(500, "internal server error");
+        return Result.error(500, "服务器开小差了，请稍后再试");
     }
 
     @ExceptionHandler(IOException.class)

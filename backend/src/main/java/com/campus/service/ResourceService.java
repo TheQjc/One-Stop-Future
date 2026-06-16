@@ -209,8 +209,8 @@ public class ResourceService {
         notificationService.createNotification(
                 uploader.getId(),
                 NotificationType.RESOURCE_UPLOADED.name(),
-                "Resource uploaded",
-                "Your resource \"" + normalizedTitle + "\" has been uploaded and is pending review.",
+                "资料已提交审核",
+                "你上传的资料《" + normalizedTitle + "》已提交审核，审核通过后将公开展示。",
                 "RESOURCE",
                 resource.getId());
 
@@ -256,8 +256,8 @@ public class ResourceService {
         notificationService.createNotification(
                 uploader.getId(),
                 NotificationType.RESOURCE_UPLOADED.name(),
-                "Resource uploaded",
-                "Your resource \"" + normalizedTitle + "\" has been uploaded and is pending review.",
+                "资料已提交审核",
+                "你上传的资料《" + normalizedTitle + "》已提交审核，审核通过后将公开展示。",
                 "RESOURCE",
                 resource.getId());
 
@@ -716,7 +716,7 @@ public class ResourceService {
         try {
             FileMagicBytesValidator.validateMultipartFile(file, extension);
         } catch (IOException e) {
-            throw new BusinessException(400, "cannot read file");
+            throw new BusinessException(400, "无法读取文件");
         } catch (IllegalArgumentException e) {
             throw new BusinessException(400, e.getMessage());
         }
