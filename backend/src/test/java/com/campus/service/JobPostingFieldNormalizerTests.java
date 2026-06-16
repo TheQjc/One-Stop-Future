@@ -27,7 +27,7 @@ class JobPostingFieldNormalizerTests {
     void rejectsUnsupportedSourceUrlSchemes() {
         assertThatThrownBy(() -> normalizer.normalizeSourceUrl("ftp://partner.example/jobs/1"))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("invalid source url");
+                .hasMessage("无效的来源URL");
     }
 
     @Test

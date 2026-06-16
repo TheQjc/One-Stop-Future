@@ -11,7 +11,7 @@ def login(page, phone):
     page.get_by_role("button", name="获取验证码").click()
     
     time.sleep(1.5)
-    debug_text = page.get_by_text("本次调试验证码：").inner_text()
+    debug_text = page.get_by_text("本次测试验证码：").inner_text()
     code = re.search(r'\d+', debug_text).group()
     
     page.get_by_placeholder("请输入 6 位验证码").fill(code)

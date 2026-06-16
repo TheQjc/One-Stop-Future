@@ -150,7 +150,7 @@ class JobApplicationControllerTests {
         mockMvc.perform(get("/api/applications/{id}/resume/preview", applicationId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("申请简历预览仅支持 PDF 或 DOCX"));
+                .andExpect(jsonPath("$.message").value("申请简历预览仅支持 pdf 或 docx 格式"));
     }
 
     @Test
@@ -162,12 +162,12 @@ class JobApplicationControllerTests {
         mockMvc.perform(get("/api/applications/{id}/resume/preview", applicationId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(404))
-                .andExpect(jsonPath("$.message").value("申请记录不存在"));
+                .andExpect(jsonPath("$.message").value("申请不存在"));
 
         mockMvc.perform(get("/api/applications/{id}/resume/download", applicationId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(404))
-                .andExpect(jsonPath("$.message").value("申请记录不存在"));
+                .andExpect(jsonPath("$.message").value("申请不存在"));
     }
 
     @Test
@@ -186,7 +186,7 @@ class JobApplicationControllerTests {
                                 """.formatted(resumeId)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("你已申请过该岗位"));
+                .andExpect(jsonPath("$.message").value("已投递过该岗位"));
     }
 
     @Test
@@ -234,7 +234,7 @@ class JobApplicationControllerTests {
                                 """.formatted(resumeId)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(500))
-                .andExpect(jsonPath("$.message").value("申请简历快照保存失败"));
+                .andExpect(jsonPath("$.message").value("保存申请简历快照失败"));
 
         Integer applicationCount = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM t_job_application WHERE job_id = 1 AND applicant_user_id = 2",

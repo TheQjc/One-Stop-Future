@@ -89,7 +89,7 @@ public class AnalyticsService {
                     publicTrends,
                     distribution,
                     "ERROR",
-                    "Personal analytics temporarily unavailable.",
+                    "个人分析数据暂时不可用。",
                     null,
                     List.of(),
                     List.of());
@@ -162,22 +162,22 @@ public class AnalyticsService {
         }
         String normalized = period.trim().toUpperCase(java.util.Locale.ROOT);
         if (!"7D".equals(normalized) && !"30D".equals(normalized)) {
-            throw new BusinessException(400, "invalid period");
+            throw new BusinessException(400, "无效的时间段");
         }
         return normalized;
     }
 
     private Long requireUserId(String identity) {
         if (identity == null || identity.isBlank()) {
-            throw new BusinessException(401, "unauthorized");
+            throw new BusinessException(401, "未授权");
         }
         if (!identity.matches("^\\d+$")) {
-            throw new BusinessException(401, "unauthorized");
+            throw new BusinessException(401, "未授权");
         }
         try {
             return Long.parseLong(identity);
         } catch (NumberFormatException ex) {
-            throw new BusinessException(401, "unauthorized");
+            throw new BusinessException(401, "未授权");
         }
     }
 
@@ -219,16 +219,16 @@ public class AnalyticsService {
         items.add(startAssessmentAction());
         items.add(new NextActionItem(
                 "OPEN_TIMELINE",
-                "Open Timeline",
+                "打开成长路线",
                 "/timeline",
-                "Turn your latest recommendation into an actionable plan."));
+                "将您最新的推荐转化为可执行的计划。"));
 
         if ("EXAM".equalsIgnoreCase(recommendedTrack) || "ABROAD".equalsIgnoreCase(recommendedTrack)) {
             items.add(new NextActionItem(
                     "COMPARE_SCHOOLS",
-                    "Compare Schools",
+                    "对比院校",
                     "/schools/compare",
-                    "Compare key options side-by-side for your track."));
+                    "并排对比您所选方向的关键选项。"));
         }
         return items;
     }
@@ -236,9 +236,9 @@ public class AnalyticsService {
     private NextActionItem startAssessmentAction() {
         return new NextActionItem(
                 "START_ASSESSMENT",
-                "Start Assessment",
+                "开始测评",
                 "/assessment",
-                "Answer a short assessment to generate or refresh your direction snapshot.");
+                "回答简短的测评，以生成或更新您的方向快照。");
     }
 
     private int safeInt(Integer value) {

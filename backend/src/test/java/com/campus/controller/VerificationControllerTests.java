@@ -76,7 +76,7 @@ class VerificationControllerTests {
                                 """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("已有待审核的认证申请"));
+                .andExpect(jsonPath("$.message").value("已有待处理的认证申请"));
     }
 
     @Test
@@ -89,6 +89,6 @@ class VerificationControllerTests {
                                 """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(403))
-                .andExpect(jsonPath("$.message").value("只有普通用户可以申请认证"));
+                .andExpect(jsonPath("$.message").value("只有普通用户可以申请学生认证"));
     }
 }

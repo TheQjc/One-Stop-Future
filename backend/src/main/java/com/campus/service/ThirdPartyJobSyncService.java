@@ -24,8 +24,8 @@ public class ThirdPartyJobSyncService {
 
     private static final String ISSUE_TYPE_SKIPPED = "SKIPPED";
     private static final String ISSUE_TYPE_INVALID = "INVALID";
-    private static final String MESSAGE_JOB_SYNC_UNAVAILABLE = "job sync unavailable";
-    private static final String MESSAGE_INVALID_JOB_SYNC_FEED = "invalid job sync feed";
+    private static final String MESSAGE_JOB_SYNC_UNAVAILABLE = "岗位同步不可用";
+    private static final String MESSAGE_INVALID_JOB_SYNC_FEED = "无效的岗位同步数据源";
 
     private final JobPostingMapper jobPostingMapper;
     private final UserService userService;
@@ -78,7 +78,7 @@ public class ThirdPartyJobSyncService {
                         itemIndex,
                         normalized.sourceUrl(),
                         ISSUE_TYPE_SKIPPED,
-                        "job is deleted locally"));
+                        "岗位在本地已被删除"));
                 continue;
             }
 

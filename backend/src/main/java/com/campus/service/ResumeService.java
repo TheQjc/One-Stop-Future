@@ -141,7 +141,7 @@ public class ResumeService {
                     () -> openResumeFile(resume, "resume preview unavailable").inputStream());
             return new ResumeFileStream(previewFile.fileName(), previewFile.contentType(), previewFile.inputStream());
         }
-        throw new BusinessException(400, "resume preview only supports pdf or docx");
+        throw new BusinessException(400, "简历预览仅支持 pdf 或 docx 格式");
     }
 
     @Transactional
@@ -159,7 +159,7 @@ public class ResumeService {
     private Resume requireOwnedResume(Long userId, Long resumeId) {
         Resume resume = resumeMapper.selectById(resumeId);
         if (resume == null || resume.getUserId() == null || !resume.getUserId().equals(userId)) {
-            throw new BusinessException(404, "resume not found");
+            throw new BusinessException(404, "简历不存在");
         }
         return resume;
     }
@@ -197,7 +197,7 @@ public class ResumeService {
         try (InputStream inputStream = file.getInputStream()) {
             return resourceFileStorage.store(validatedFile.originalFilename(), inputStream);
         } catch (IOException exception) {
-            throw new BusinessException(500, "failed to store resume file");
+            throw new BusinessException(500, "存储简历文件失败");
         }
     }
 
@@ -236,31 +236,31 @@ public class ResumeService {
 
     private String requireText(String value, String fieldName) {
         if (value == null || value.isBlank()) {
-            throw new BusinessException(400, fieldName + " is required");
+            throw new BusinessException(400, fieldName + "是必填项");
         }
         return value.trim();
     }
 
     private ValidatedResumeFile validateFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {
-            throw new BusinessException(400, "file is required");
+            throw new BusinessException(400, "必须选择文件");
         }
 
         validateFileSize(file);
 
         String originalFilename = file.getOriginalFilename();
         if (originalFilename == null || originalFilename.isBlank()) {
-            throw new BusinessException(400, "resume file name is required");
+            throw new BusinessException(400, "简历文件名是必填项");
         }
 
         String normalizedFilename = originalFilename.trim();
         if (normalizedFilename.isEmpty()) {
-            throw new BusinessException(400, "resume file name is required");
+            throw new BusinessException(400, "简历文件名是必填项");
         }
 
         String extension = extractExtension(normalizedFilename);
         if (!ALLOWED_EXTENSIONS.contains(extension)) {
-            throw new BusinessException(400, "unsupported resume file type");
+            throw new BusinessException(400, "不支持的简历文件类型");
         }
 
         try {
@@ -286,14 +286,14 @@ public class ResumeService {
             maxBytes = Long.MAX_VALUE;
         }
         if (file.getSize() > maxBytes) {
-            throw new BusinessException(400, "resume file is too large");
+            throw new BusinessException(400, "简历文件过大");
         }
     }
 
     private String extractExtension(String originalFilename) {
         int lastDot = originalFilename.lastIndexOf('.');
         if (lastDot < 0 || lastDot == originalFilename.length() - 1) {
-            throw new BusinessException(400, "unsupported resume file type");
+            throw new BusinessException(400, "不支持的简历文件类型");
         }
         return originalFilename.substring(lastDot + 1).toLowerCase(Locale.ROOT);
     }

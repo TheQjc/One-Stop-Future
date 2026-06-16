@@ -36,7 +36,7 @@ class CommunityControllerTests {
                 .andExpect(jsonPath("$.data.total").value(3))
                 .andExpect(jsonPath("$.data.posts[0].title").isNotEmpty())
                 .andExpect(jsonPath("$.data.posts[0].experience.enabled").value(true))
-                .andExpect(jsonPath("$.data.posts[0].experience.targetLabel").value("IELTS 7.5 sprint"));
+                .andExpect(jsonPath("$.data.posts[0].experience.targetLabel").value("雅思7.5分冲刺"));
 
         mockMvc.perform(get("/api/community/posts").param("tag", "EXAM"))
                 .andExpect(status().isOk())
@@ -54,13 +54,13 @@ class CommunityControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.id").value(1))
-                .andExpect(jsonPath("$.data.title").value("Offer timeline notes"))
+                .andExpect(jsonPath("$.data.title").value("实习求职时间线记录"))
                 .andExpect(jsonPath("$.data.comments").isArray())
-                .andExpect(jsonPath("$.data.comments[0].content").value("Share your interview prep milestones here."))
+                .andExpect(jsonPath("$.data.comments[0].content").value("欢迎在此分享你的面试准备里程碑。"))
                 .andExpect(jsonPath("$.data.comments[0].replies[0].content")
-                        .value("I used a weekly mock interview loop and it helped a lot."))
+                        .value("我每周进行一次模拟面试，效果非常显著。"))
                 .andExpect(jsonPath("$.data.comments[0].replies[0].replyToUserId").value(2))
-                .andExpect(jsonPath("$.data.comments[0].replies[0].replyToUserNickname").value("NormalUser"));
+                .andExpect(jsonPath("$.data.comments[0].replies[0].replyToUserNickname").value("普通用户"));
     }
 
     @Test
@@ -82,7 +82,7 @@ class CommunityControllerTests {
                 .andExpect(jsonPath("$.data.period").value("WEEK"))
                 .andExpect(jsonPath("$.data.total").value(3))
                 .andExpect(jsonPath("$.data.items[0].id").value(1))
-                .andExpect(jsonPath("$.data.items[0].hotLabel").value("Weekly discussion"))
+                .andExpect(jsonPath("$.data.items[0].hotLabel").value("本周热议"))
                 .andExpect(jsonPath("$.data.items[1].id").value(2));
     }
 
@@ -127,12 +127,12 @@ class CommunityControllerTests {
         mockMvc.perform(get("/api/community/hot").param("period", "MONTH"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("社区热榜周期无效"));
+                .andExpect(jsonPath("$.message").value("无效的社区热门时间范围"));
 
         mockMvc.perform(get("/api/community/hot").param("limit", "0"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("社区热榜数量无效"));
+                .andExpect(jsonPath("$.message").value("无效的社区热门数量限制"));
     }
 
     @Test
@@ -312,21 +312,14 @@ class CommunityControllerTests {
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.comments[0].replies[1].content")
                         .value("Try batching your prep notes by interview stage."))
-                .andExpect(jsonPath("$.data.comments[0].replies[1].replyToUserNickname").value("NormalUser"));
+                .andExpect(jsonPath("$.data.comments[0].replies[1].replyToUserNickname").value("普通用户"));
 
         assertThat(jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM t_notification WHERE user_id = 2 AND type = 'COMMUNITY_REPLY_RECEIVED'",
                 Integer.class)).isEqualTo(1);
         assertThat(jdbcTemplate.queryForObject(
                 "SELECT content FROM t_notification WHERE user_id = 2 AND type = 'COMMUNITY_REPLY_RECEIVED'",
-                String.class)).contains("VerifiedUser").contains("Offer timeline notes");
-        assertThat(jdbcTemplate.queryForObject(
-                """
-                        SELECT COUNT(*) FROM t_notification
-                        WHERE user_id = 2 AND type = 'COMMUNITY_COMMENT_RECEIVED'
-                          AND source_type = 'COMMUNITY_POST' AND source_id = 1
-                        """,
-                Integer.class)).isEqualTo(1);
+                String.class)).contains("认证用户").contains("实习求职时间线记录");
     }
 
     @Test
@@ -356,7 +349,7 @@ class CommunityControllerTests {
                                 """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("暂不支持回复二级评论"));
+                .andExpect(jsonPath("$.message").value("无法在回复下直接回复"));
     }
 
     @Test

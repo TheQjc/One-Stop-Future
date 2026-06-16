@@ -71,7 +71,7 @@ public class AuthService {
     public AuthResponse register(RegisterRequest request) {
         consumeValidCode(request.phone(), PURPOSE_REGISTER, request.verificationCode());
         if (userMapper.selectByPhone(request.phone()) != null) {
-            throw new BusinessException(400, "phone already registered");
+            throw new BusinessException(400, "手机号已被注册");
         }
         User user = new User();
         user.setPhone(request.phone());
@@ -91,10 +91,10 @@ public class AuthService {
         consumeValidCode(request.phone(), PURPOSE_LOGIN, request.verificationCode());
         User user = userMapper.selectByPhone(request.phone());
         if (user == null) {
-            throw new BusinessException(400, "phone or verification code is incorrect");
+            throw new BusinessException(400, "手机号或验证码错误");
         }
         if (UserStatus.BANNED.name().equals(user.getStatus())) {
-            throw new BusinessException(403, "account is banned");
+            throw new BusinessException(403, "该账号已被封禁");
         }
         return toAuthResponse(user);
     }
@@ -103,11 +103,11 @@ public class AuthService {
         try {
             String normalized = purpose.toUpperCase(Locale.ROOT);
             if (!PURPOSE_REGISTER.equals(normalized) && !PURPOSE_LOGIN.equals(normalized)) {
-                throw new IllegalArgumentException("unsupported purpose");
+                throw new IllegalArgumentException("不支持的验证码用途");
             }
             return normalized;
         } catch (IllegalArgumentException | NullPointerException ex) {
-            throw new BusinessException(400, "invalid purpose");
+            throw new BusinessException(400, "无效的验证码用途");
         }
     }
 
@@ -124,10 +124,10 @@ public class AuthService {
                 .orderByDesc(VerificationCode::getCreatedAt)
                 .last("limit 1"));
         if (verificationCode == null) {
-            throw new BusinessException(400, "phone or verification code is incorrect");
+            throw new BusinessException(400, "手机号或验证码错误");
         }
         if (verificationCode.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new BusinessException(400, "verification code has expired");
+            throw new BusinessException(400, "验证码已过期");
         }
         verificationCode.setConsumedAt(LocalDateTime.now());
         verificationCodeMapper.updateById(verificationCode);
@@ -136,7 +136,7 @@ public class AuthService {
     private void insertWelcomeNotification(Long userId) {
         jdbcTemplate.update(
                 "INSERT INTO t_notification (user_id, type, title, content, is_read, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-                userId, "WELCOME", "Welcome", "Welcome to One-Stop Future.", 0, LocalDateTime.now());
+                userId, "WELCOME", "欢迎", "欢迎来到一站式成长平台。", 0, LocalDateTime.now());
     }
 
     private AuthResponse toAuthResponse(User user) {

@@ -101,7 +101,7 @@ class AnalyticsServiceTests {
 
         assertThat(response.publicTrends()).hasSize(7);
         assertThat(response.personalStatus()).isEqualTo("ERROR");
-        assertThat(response.personalMessage()).isEqualTo("Personal analytics temporarily unavailable.");
+        assertThat(response.personalMessage()).isEqualTo("个人分析数据暂时不可用。");
         assertThat(response.personalSnapshot()).isNull();
         assertThat(response.personalHistory()).isEmpty();
         assertThat(response.nextActions()).isEmpty();

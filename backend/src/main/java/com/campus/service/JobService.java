@@ -195,13 +195,13 @@ public class JobService {
     private JobPosting requireVisibleJob(Long jobId, User viewer) {
         JobPosting job = jobPostingMapper.selectById(jobId);
         if (job == null) {
-            throw new BusinessException(404, "job not found");
+            throw new BusinessException(404, "岗位不存在");
         }
         if (viewer != null && "ADMIN".equals(viewer.getRole())) {
             return job;
         }
         if (!JobPostingStatus.PUBLISHED.name().equals(job.getStatus())) {
-            throw new BusinessException(404, "job not found");
+            throw new BusinessException(404, "岗位不存在");
         }
         return job;
     }
@@ -209,7 +209,7 @@ public class JobService {
     private JobPosting requirePublishedJob(Long jobId) {
         JobPosting job = jobPostingMapper.selectById(jobId);
         if (job == null || !JobPostingStatus.PUBLISHED.name().equals(job.getStatus())) {
-            throw new BusinessException(404, "job not found");
+            throw new BusinessException(404, "岗位不存在");
         }
         return job;
     }
@@ -306,7 +306,7 @@ public class JobService {
         try {
             return JobType.valueOf(jobType.trim().toUpperCase(Locale.ROOT)).name();
         } catch (IllegalArgumentException exception) {
-            throw new BusinessException(400, "invalid job type");
+            throw new BusinessException(400, "无效的岗位类型");
         }
     }
 
@@ -318,7 +318,7 @@ public class JobService {
             return JobEducationRequirement.valueOf(
                     educationRequirement.trim().toUpperCase(Locale.ROOT)).name();
         } catch (IllegalArgumentException exception) {
-            throw new BusinessException(400, "invalid education requirement");
+            throw new BusinessException(400, "无效的学历要求");
         }
     }
 

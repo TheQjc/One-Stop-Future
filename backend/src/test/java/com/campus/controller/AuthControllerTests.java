@@ -114,7 +114,7 @@ class AuthControllerTests {
                                 """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(403))
-                .andExpect(jsonPath("$.message").value("账号已被封禁"));
+                .andExpect(jsonPath("$.message").value("该账号已被封禁"));
     }
 
     @Test

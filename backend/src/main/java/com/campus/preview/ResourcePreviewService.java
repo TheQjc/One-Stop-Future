@@ -71,17 +71,17 @@ public class ResourcePreviewService {
 
     public PreviewFile previewFile(ResourceItem resource, PptxSourceSupplier pptxSourceSupplier) {
         return previewGeneratedPdf(pptxArtifactKeyOf(resource), resource, pptxSourceSupplier::open,
-                pptxPreviewGenerator::generate, "pptx preview unavailable");
+                pptxPreviewGenerator::generate, "PPTX预览不可用");
     }
 
     public PreviewFile previewDocx(ResourceItem resource, DocxSourceSupplier docxSourceSupplier) {
         return previewGeneratedPdf(docxArtifactKeyOf(resource), resource, docxSourceSupplier::open,
-                docxPreviewGenerator::generate, "docx preview unavailable");
+                docxPreviewGenerator::generate, "DOCX预览不可用");
     }
 
     public ResourceZipPreviewResponse previewZip(ResourceItem resource, ZipSourceSupplier zipSourceSupplier) {
         String artifactKey = zipArtifactKeyOf(resource);
-        Optional<InputStream> cachedArtifact = openArtifactIfPresent(artifactKey, "zip preview unavailable");
+        Optional<InputStream> cachedArtifact = openArtifactIfPresent(artifactKey, "ZIP预览不可用");
         if (cachedArtifact.isPresent()) {
             return readZipArtifact(cachedArtifact.get());
         }
@@ -93,7 +93,7 @@ public class ResourcePreviewService {
             artifactStorage.write(artifactKey, new ByteArrayInputStream(serialized));
             return generated;
         } catch (IOException exception) {
-            throw new BusinessException(500, "zip preview unavailable");
+            throw new BusinessException(500, "ZIP预览不可用");
         }
     }
 
@@ -141,7 +141,7 @@ public class ResourcePreviewService {
         try (InputStream inputStream = artifactInputStream) {
             return objectMapper.readValue(inputStream, ResourceZipPreviewResponse.class);
         } catch (IOException exception) {
-            throw new BusinessException(500, "zip preview unavailable");
+            throw new BusinessException(500, "ZIP预览不可用");
         }
     }
 

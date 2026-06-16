@@ -51,7 +51,7 @@ public class NotificationService {
         User user = userService.requireByIdentity(identity);
         Notification notification = notificationMapper.selectById(notificationId);
         if (notification == null || !user.getId().equals(notification.getUserId())) {
-            throw new BusinessException(404, "notification not found");
+            throw new BusinessException(404, "通知不存在");
         }
         if (Integer.valueOf(1).equals(notification.getIsRead())) {
             return;

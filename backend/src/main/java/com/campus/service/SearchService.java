@@ -209,7 +209,7 @@ public class SearchService {
 
     private String normalizeRequiredQuery(String query) {
         if (query == null || query.isBlank()) {
-            throw new BusinessException(400, "search query is required");
+            throw new BusinessException(400, "搜索查询词必填");
         }
         return query.trim();
     }
@@ -221,7 +221,7 @@ public class SearchService {
         try {
             return SearchContentType.valueOf(type.trim().toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException exception) {
-            throw new BusinessException(400, "invalid search type");
+            throw new BusinessException(400, "无效的搜索类型");
         }
     }
 
@@ -232,7 +232,7 @@ public class SearchService {
         try {
             return SearchSortType.valueOf(sort.trim().toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException exception) {
-            throw new BusinessException(400, "invalid search sort");
+            throw new BusinessException(400, "无效的搜索排序方式");
         }
     }
 

@@ -33,14 +33,14 @@ public class VerificationService {
     public UserProfile apply(String identity, VerificationApplyRequest request) {
         User user = userService.requireByIdentity(identity);
         if (!UserRole.USER.name().equals(user.getRole())) {
-            throw new BusinessException(403, "only normal users can apply for verification");
+            throw new BusinessException(403, "只有普通用户可以申请学生认证");
         }
         if (VerificationStatus.VERIFIED.name().equals(user.getVerificationStatus())) {
-            throw new BusinessException(400, "user is already verified");
+            throw new BusinessException(400, "用户已经是认证状态");
         }
         if (verificationApplicationMapper.selectPendingByUserId(user.getId()) != null
                 || VerificationStatus.PENDING.name().equals(user.getVerificationStatus())) {
-            throw new BusinessException(400, "pending verification application already exists");
+            throw new BusinessException(400, "已有待处理的认证申请");
         }
 
         LocalDateTime now = LocalDateTime.now();

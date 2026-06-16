@@ -157,7 +157,7 @@ class ResourcePreviewServiceTests {
 
         assertThatThrownBy(() -> service.previewDocx(resource, this::sampleDocxStream))
                 .isInstanceOf(BusinessException.class)
-                .hasMessage("docx preview unavailable");
+                .hasMessage("DOCX预览不可用");
     }
 
     @Test
@@ -189,7 +189,7 @@ class ResourcePreviewServiceTests {
 
         assertThatThrownBy(() -> service.previewDocx(resource, this::sampleDocxStream))
                 .isInstanceOf(BusinessException.class)
-                .hasMessage("docx preview unavailable");
+                .hasMessage("DOCX预览不可用");
     }
 
     @Test
@@ -202,7 +202,7 @@ class ResourcePreviewServiceTests {
 
         assertThatThrownBy(() -> service.previewFile(resource, this::samplePptxStream))
                 .isInstanceOf(BusinessException.class)
-                .hasMessage("pptx preview unavailable");
+                .hasMessage("PPTX预览不可用");
     }
 
     @Test
@@ -214,7 +214,7 @@ class ResourcePreviewServiceTests {
 
         assertThatThrownBy(() -> service.previewZip(resource, this::sampleZipStream))
                 .isInstanceOf(BusinessException.class)
-                .hasMessage("zip preview unavailable");
+                .hasMessage("ZIP预览不可用");
     }
 
     private static class NoopStorage implements ResourcePreviewArtifactStorage {

@@ -46,7 +46,7 @@ public class DecisionTimelineController {
         try {
             return LocalDate.parse(anchorDate.trim());
         } catch (DateTimeParseException ex) {
-            throw new BusinessException(400, "invalid anchorDate");
+            throw new BusinessException(400, "无效的基准日期");
         }
     }
 }

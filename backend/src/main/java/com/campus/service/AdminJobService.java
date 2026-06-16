@@ -70,7 +70,7 @@ public class AdminJobService {
         User admin = userService.requireByIdentity(identity);
         JobPosting job = requireJob(jobId);
         if (JobPostingStatus.DELETED.name().equals(job.getStatus())) {
-            throw new BusinessException(400, "deleted job cannot be updated");
+            throw new BusinessException(400, "已删除的岗位不能更新");
         }
         applyRequest(job, request.title(), request.companyName(), request.city(), request.jobType(),
                 request.educationRequirement(), request.sourcePlatform(), request.sourceUrl(), request.summary(),
@@ -86,7 +86,7 @@ public class AdminJobService {
         User admin = userService.requireByIdentity(identity);
         JobPosting job = requireJob(jobId);
         if (JobPostingStatus.DELETED.name().equals(job.getStatus())) {
-            throw new BusinessException(400, "deleted job cannot be published");
+            throw new BusinessException(400, "已删除的岗位不能发布");
         }
         validatePublishable(job);
         LocalDateTime now = LocalDateTime.now();
@@ -103,13 +103,13 @@ public class AdminJobService {
         User admin = userService.requireByIdentity(identity);
         JobPosting job = requireJob(jobId);
         if (JobPostingStatus.DELETED.name().equals(job.getStatus())) {
-            throw new BusinessException(400, "deleted job cannot be offlined");
+            throw new BusinessException(400, "已删除的岗位不能下线");
         }
         if (JobPostingStatus.OFFLINE.name().equals(job.getStatus())) {
             return jobService.getJobDetail(job.getId(), identity);
         }
         if (!JobPostingStatus.PUBLISHED.name().equals(job.getStatus())) {
-            throw new BusinessException(400, "only published job can be offlined");
+            throw new BusinessException(400, "只有已发布的岗位才能下线");
         }
         job.setStatus(JobPostingStatus.OFFLINE.name());
         job.setUpdatedBy(admin.getId());
@@ -150,7 +150,7 @@ public class AdminJobService {
         if (isBlank(job.getTitle()) || isBlank(job.getCompanyName()) || isBlank(job.getCity()) || isBlank(job.getJobType())
                 || isBlank(job.getEducationRequirement()) || isBlank(job.getSourcePlatform()) || isBlank(job.getSourceUrl())
                 || isBlank(job.getSummary())) {
-            throw new BusinessException(400, "job is not ready for publish");
+            throw new BusinessException(400, "岗位信息不完整，无法发布");
         }
         normalizeOrThrow(() -> fieldNormalizer.normalizeSourceUrl(job.getSourceUrl()));
     }
@@ -158,7 +158,7 @@ public class AdminJobService {
     private JobPosting requireJob(Long jobId) {
         JobPosting job = jobPostingMapper.selectById(jobId);
         if (job == null) {
-            throw new BusinessException(404, "job not found");
+            throw new BusinessException(404, "岗位不存在");
         }
         return job;
     }

@@ -36,7 +36,7 @@ class DecisionSchoolControllerTests {
         mockMvc.perform(get("/api/decision/schools").param("track", "CAREER"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("申请方向无效"));
+                .andExpect(jsonPath("$.message").value("无效的规划方向"));
     }
 
     @Test

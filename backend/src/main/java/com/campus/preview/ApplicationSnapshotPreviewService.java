@@ -67,12 +67,12 @@ public class ApplicationSnapshotPreviewService {
                         safeContentType(application.getResumeContentTypeSnapshot()),
                         sourceSupplier.open());
             } catch (IOException | RuntimeException exception) {
-                throw new BusinessException(500, "application resume preview unavailable");
+                throw new BusinessException(500, "申请简历预览不可用");
             }
         }
 
         if (!isDocx(application.getResumeFileExtSnapshot(), application.getResumeContentTypeSnapshot())) {
-            throw new BusinessException(400, "application resume preview only supports pdf or docx");
+            throw new BusinessException(400, "申请简历预览仅支持 pdf 或 docx 格式");
         }
 
         String artifactKey = docxArtifactKeyOf(application);
@@ -88,7 +88,7 @@ public class ApplicationSnapshotPreviewService {
             return new PreviewFile(previewFileName(application.getResumeFileNameSnapshot()), "application/pdf",
                     new ByteArrayInputStream(pdfBytes));
         } catch (IOException | RuntimeException exception) {
-            throw new BusinessException(500, "application resume preview unavailable");
+            throw new BusinessException(500, "申请简历预览不可用");
         }
     }
 
@@ -107,7 +107,7 @@ public class ApplicationSnapshotPreviewService {
         } catch (FileNotFoundException exception) {
             return Optional.empty();
         } catch (IOException exception) {
-            throw new BusinessException(500, "application resume preview unavailable");
+            throw new BusinessException(500, "申请简历预览不可用");
         }
     }
 

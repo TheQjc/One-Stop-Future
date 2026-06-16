@@ -222,7 +222,7 @@ public class ResourceService {
             StoredResourceFile storedFile) {
         User uploader = userService.requireByIdentity(identity);
         if (metadata == null || storedFile == null) {
-            throw new BusinessException(400, "invalid request");
+            throw new BusinessException(400, "无效的请求");
         }
         String normalizedTitle = requireText(metadata.title(), "title");
         String normalizedCategory = normalizeRequiredCategory(metadata.category());
@@ -368,14 +368,14 @@ public class ResourceService {
                     () -> openResourceFile(resource).inputStream());
             return new ResourceFileStream(previewFile.fileName(), previewFile.contentType(), previewFile.inputStream());
         }
-        throw new BusinessException(400, "resource preview only supports pdf, pptx or docx");
+        throw new BusinessException(400, "仅支持PDF、PPTX或DOCX格式的资料预览");
     }
 
     public ResourceZipPreviewResponse previewZipResource(Long resourceId, String identity) {
         User viewer = findViewer(identity);
         ResourceItem resource = requireVisibleResourceForViewer(resourceId, viewer);
         if (!isZip(resource)) {
-            throw new BusinessException(400, "zip preview only supports zip resources");
+            throw new BusinessException(400, "ZIP预览仅支持ZIP格式的资料");
         }
         return resourcePreviewService.previewZip(resource, () -> openResourceFile(resource).inputStream());
     }
@@ -397,13 +397,13 @@ public class ResourceService {
         if (canViewerSeeResource(resource, viewer)) {
             return resource;
         }
-        throw new BusinessException(404, "resource not found");
+        throw new BusinessException(404, "资料不存在");
     }
 
     private ResourceItem requirePublishedResource(Long resourceId) {
         ResourceItem resource = requireExistingResource(resourceId);
         if (!ResourceStatus.PUBLISHED.name().equals(resource.getStatus())) {
-            throw new BusinessException(404, "resource not found");
+            throw new BusinessException(404, "资料不存在");
         }
         return resource;
     }
@@ -411,10 +411,10 @@ public class ResourceService {
     private ResourceItem requireEditableRejectedResource(Long resourceId, User viewer) {
         ResourceItem resource = requireExistingResource(resourceId);
         if (resource.getUploaderId() == null || !resource.getUploaderId().equals(viewer.getId())) {
-            throw new BusinessException(404, "resource not found");
+            throw new BusinessException(404, "资料不存在");
         }
         if (!ResourceStatus.REJECTED.name().equals(resource.getStatus())) {
-            throw new BusinessException(400, "only rejected resource can be resubmitted");
+            throw new BusinessException(400, "只有被驳回的资料才能重新提交");
         }
         return resource;
     }
@@ -422,7 +422,7 @@ public class ResourceService {
     private ResourceItem requireExistingResource(Long resourceId) {
         ResourceItem resource = resourceItemMapper.selectById(resourceId);
         if (resource == null) {
-            throw new BusinessException(404, "resource not found");
+            throw new BusinessException(404, "资料不存在");
         }
         return resource;
     }
@@ -531,12 +531,12 @@ public class ResourceService {
     private ResourceFileStream openResourceFile(ResourceItem resource) {
         try {
             if (!resourceFileStorage.exists(resource.getStorageKey())) {
-                throw new BusinessException(500, "resource file unavailable");
+                throw new BusinessException(500, "资料文件不可用");
             }
             return new ResourceFileStream(resource.getFileName(), resource.getContentType(),
                     resourceFileStorage.open(resource.getStorageKey()));
         } catch (IOException exception) {
-            throw new BusinessException(500, "resource file unavailable");
+            throw new BusinessException(500, "资料文件不可用");
         }
     }
 
@@ -544,7 +544,7 @@ public class ResourceService {
         try (InputStream inputStream = file.getInputStream()) {
             return resourceFileStorage.store(validatedFile.originalFilename(), inputStream);
         } catch (IOException exception) {
-            throw new BusinessException(500, "failed to store resource file");
+            throw new BusinessException(500, "保存资料文件失败");
         }
     }
 
@@ -664,7 +664,14 @@ public class ResourceService {
     private String requireText(String value, String fieldName) {
         String normalized = normalizeOptional(value);
         if (normalized == null) {
-            throw new BusinessException(400, fieldName + " is required");
+            String chineseFieldName = switch (fieldName) {
+                case "title" -> "标题";
+                case "summary" -> "摘要";
+                case "storage key" -> "存储键";
+                case "file name" -> "文件名";
+                default -> fieldName;
+            };
+            throw new BusinessException(400, chineseFieldName + "是必填项");
         }
         return normalized;
     }
@@ -676,34 +683,34 @@ public class ResourceService {
         try {
             return ResourceCategory.valueOf(category.trim().toUpperCase(Locale.ROOT)).name();
         } catch (IllegalArgumentException exception) {
-            throw new BusinessException(400, "invalid resource category");
+            throw new BusinessException(400, "无效的资料分类");
         }
     }
 
     private String normalizeRequiredCategory(String category) {
         String normalized = normalizeCategory(category);
         if (normalized == null) {
-            throw new BusinessException(400, "category is required");
+            throw new BusinessException(400, "资料分类是必填项");
         }
         return normalized;
     }
 
     private ValidatedFile validateFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {
-            throw new BusinessException(400, "file is required");
+            throw new BusinessException(400, "请选择文件");
         }
         if (file.getSize() > MAX_FILE_SIZE_BYTES) {
-            throw new BusinessException(400, "file is too large");
+            throw new BusinessException(400, "文件大小超出限制");
         }
 
         String originalFilename = file.getOriginalFilename();
         if (originalFilename == null || originalFilename.isBlank()) {
-            throw new BusinessException(400, "file name is required");
+            throw new BusinessException(400, "文件名不能为空");
         }
 
         String extension = extractExtension(originalFilename);
         if (!ALLOWED_EXTENSIONS.contains(extension)) {
-            throw new BusinessException(400, "unsupported file type");
+            throw new BusinessException(400, "不支持的文件类型");
         }
 
         try {
@@ -724,19 +731,19 @@ public class ResourceService {
 
     private ValidatedFile validateStoredFile(StoredResourceFile storedFile) {
         if (storedFile.size() <= 0) {
-            throw new BusinessException(400, "file is required");
+            throw new BusinessException(400, "请选择文件");
         }
         if (storedFile.size() > MAX_FILE_SIZE_BYTES) {
-            throw new BusinessException(400, "file is too large");
+            throw new BusinessException(400, "文件大小超出限制");
         }
         String originalFilename = requireText(storedFile.originalFilename(), "file name");
         String extension = extractExtension(originalFilename);
         if (!ALLOWED_EXTENSIONS.contains(extension)) {
-            throw new BusinessException(400, "unsupported file type");
+            throw new BusinessException(400, "不支持的文件类型");
         }
         if (storedFile.extension() != null && !storedFile.extension().isBlank()
                 && !extension.equals(storedFile.extension().trim().toLowerCase(Locale.ROOT))) {
-            throw new BusinessException(400, "unsupported file type");
+            throw new BusinessException(400, "不支持的文件类型");
         }
         String contentType = storedFile.contentType();
         if (contentType == null || contentType.isBlank()) {
@@ -748,7 +755,7 @@ public class ResourceService {
     private String extractExtension(String originalFilename) {
         int lastDot = originalFilename.lastIndexOf('.');
         if (lastDot < 0 || lastDot == originalFilename.length() - 1) {
-            throw new BusinessException(400, "unsupported file type");
+            throw new BusinessException(400, "不支持的文件类型");
         }
         return originalFilename.substring(lastDot + 1).toLowerCase(Locale.ROOT);
     }

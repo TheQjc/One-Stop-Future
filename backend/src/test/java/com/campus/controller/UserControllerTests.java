@@ -39,7 +39,7 @@ class UserControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.phone").value("13800000001"))
-                .andExpect(jsonPath("$.data.nickname").value("NormalUser"))
+                .andExpect(jsonPath("$.data.nickname").value("普通用户"))
                 .andExpect(jsonPath("$.data.verificationStatus").value("UNVERIFIED"));
     }
 
@@ -82,7 +82,7 @@ class UserControllerTests {
         mockMvc.perform(get("/api/users/me"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(403))
-                .andExpect(jsonPath("$.message").value("账号已被封禁"));
+                .andExpect(jsonPath("$.message").value("该账号已被封禁"));
     }
 
     @Test
@@ -96,7 +96,7 @@ class UserControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.total").value(1))
-                .andExpect(jsonPath("$.data.posts[0].title").value("Exam planning checklist"));
+                .andExpect(jsonPath("$.data.posts[0].title").value("考研规划检查清单"));
     }
 
     @Test
@@ -124,6 +124,6 @@ class UserControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.total").value(1))
-                .andExpect(jsonPath("$.data.resources[0].title").value("2026 Resume Template Pack"));
+                .andExpect(jsonPath("$.data.resources[0].title").value("2026年求职简历模板包"));
     }
 }

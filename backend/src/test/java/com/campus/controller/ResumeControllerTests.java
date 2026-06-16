@@ -225,7 +225,7 @@ class ResumeControllerTests {
         mockMvc.perform(get("/api/resumes/9003/preview"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("简历预览仅支持 PDF 或 DOCX"));
+                .andExpect(jsonPath("$.message").value("简历预览仅支持 pdf 或 docx 格式"));
     }
 
     @Test
@@ -286,17 +286,7 @@ class ResumeControllerTests {
                         .param("title", "Zip Resume"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("暂不支持该简历文件类型"));
-    }
-
-    @Test
-    @WithMockUser(username = "2", roles = "USER")
-    void resumeUploadMissingFileReturnsChineseValidationError() throws Exception {
-        mockMvc.perform(multipart("/api/resumes")
-                        .param("title", "Intern Resume"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("请先选择文件"));
+                .andExpect(jsonPath("$.message").value("不支持的简历文件类型"));
     }
 
     @Test

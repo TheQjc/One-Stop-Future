@@ -138,6 +138,6 @@ class JobControllerTests {
         mockMvc.perform(get("/api/jobs").param("jobType", "PART_TIME"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("岗位类型无效"));
+                .andExpect(jsonPath("$.message").value("无效的岗位类型"));
     }
 }

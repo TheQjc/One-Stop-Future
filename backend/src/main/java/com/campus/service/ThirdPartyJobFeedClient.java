@@ -20,9 +20,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Service
 public class ThirdPartyJobFeedClient {
 
-    private static final String MESSAGE_JOB_SYNC_UNAVAILABLE = "job sync unavailable";
-    private static final String MESSAGE_JOB_SYNC_REQUEST_FAILED = "job sync request failed";
-    private static final String MESSAGE_INVALID_JOB_SYNC_FEED = "invalid job sync feed";
+    private static final String MESSAGE_JOB_SYNC_UNAVAILABLE = "岗位同步不可用";
+    private static final String MESSAGE_JOB_SYNC_REQUEST_FAILED = "岗位同步请求失败";
+    private static final String MESSAGE_INVALID_JOB_SYNC_FEED = "无效的岗位同步数据源";
 
     private final JobSyncProperties jobSyncProperties;
     private final ObjectMapper objectMapper;

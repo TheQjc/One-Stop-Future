@@ -62,7 +62,7 @@ public class ResourceChunkUploadService {
     public ResourceChunkUploadStatusResponse initiate(String identity, ResourceChunkUploadInitRequest request) {
         User uploader = userService.requireByIdentity(identity);
         if (request == null) {
-            throw new BusinessException(400, "invalid request");
+            throw new BusinessException(400, "无效的请求");
         }
 
         String title = requireText(request.title(), "title");
@@ -111,7 +111,7 @@ public class ResourceChunkUploadService {
             Files.copy(inputStream, tempPath, StandardCopyOption.REPLACE_EXISTING);
             moveReplacing(tempPath, chunkPath);
         } catch (IOException exception) {
-            throw new BusinessException(500, "failed to store resource chunk");
+            throw new BusinessException(500, "保存分片失败");
         }
         return statusOf(metadata);
     }
@@ -121,14 +121,14 @@ public class ResourceChunkUploadService {
         UploadSessionMetadata metadata = requireOwnedSession(uploadId, uploader);
         List<Integer> missingChunks = missingChunks(metadata);
         if (!missingChunks.isEmpty()) {
-            throw new BusinessException(400, "resource chunks are incomplete");
+            throw new BusinessException(400, "资料分片不完整");
         }
 
         Path assembledPath = sessionPath(metadata.uploadId()).resolve("assembled.bin");
         try {
             assembleChunks(metadata, assembledPath);
             if (Files.size(assembledPath) != metadata.fileSize()) {
-                throw new BusinessException(400, "assembled resource size mismatch");
+                throw new BusinessException(400, "合并后的文件大小不匹配");
             }
             String storageKey;
             try (InputStream inputStream = Files.newInputStream(assembledPath)) {
@@ -145,7 +145,7 @@ public class ResourceChunkUploadService {
         } catch (BusinessException exception) {
             throw exception;
         } catch (IOException exception) {
-            throw new BusinessException(500, "failed to complete resource upload");
+            throw new BusinessException(500, "完成资料上传失败");
         }
     }
 
@@ -185,21 +185,21 @@ public class ResourceChunkUploadService {
     private UploadSessionMetadata requireOwnedSession(String uploadId, User uploader) {
         UploadSessionMetadata metadata = readMetadata(uploadId);
         if (!metadata.uploaderId().equals(uploader.getId())) {
-            throw new BusinessException(404, "upload session not found");
+            throw new BusinessException(404, "上传会话不存在");
         }
         return metadata;
     }
 
     private void validateChunk(UploadSessionMetadata metadata, int chunkIndex, MultipartFile chunk) {
         if (chunkIndex < 0 || chunkIndex >= metadata.totalChunks()) {
-            throw new BusinessException(400, "invalid chunk index");
+            throw new BusinessException(400, "无效的分片索引");
         }
         if (chunk == null || chunk.isEmpty()) {
-            throw new BusinessException(400, "chunk is required");
+            throw new BusinessException(400, "分片文件不能为空");
         }
         long expectedSize = expectedChunkSize(metadata, chunkIndex);
         if (chunk.getSize() != expectedSize) {
-            throw new BusinessException(400, "invalid chunk size");
+            throw new BusinessException(400, "无效的分片大小");
         }
     }
 
@@ -238,19 +238,19 @@ public class ResourceChunkUploadService {
             Files.createDirectories(sessionPath);
             objectMapper.writeValue(sessionPath.resolve("session.json").toFile(), metadata);
         } catch (IOException exception) {
-            throw new BusinessException(500, "failed to create upload session");
+            throw new BusinessException(500, "创建上传会话失败");
         }
     }
 
     private UploadSessionMetadata readMetadata(String uploadId) {
         Path metadataPath = sessionPath(uploadId).resolve("session.json");
         if (!Files.exists(metadataPath)) {
-            throw new BusinessException(404, "upload session not found");
+            throw new BusinessException(404, "上传会话不存在");
         }
         try {
             return objectMapper.readValue(metadataPath.toFile(), UploadSessionMetadata.class);
         } catch (IOException exception) {
-            throw new BusinessException(404, "upload session not found");
+            throw new BusinessException(404, "上传会话不存在");
         }
     }
 
@@ -267,7 +267,7 @@ public class ResourceChunkUploadService {
         try {
             return UUID.fromString(uploadId).toString();
         } catch (RuntimeException exception) {
-            throw new BusinessException(404, "upload session not found");
+            throw new BusinessException(404, "上传会话不存在");
         }
     }
 
@@ -300,15 +300,15 @@ public class ResourceChunkUploadService {
 
     private ValidatedUploadFile validateFileMetadata(String originalFilename, String contentType, Long fileSize) {
         if (fileSize == null || fileSize <= 0) {
-            throw new BusinessException(400, "file is required");
+            throw new BusinessException(400, "请选择文件");
         }
         if (fileSize > MAX_FILE_SIZE_BYTES) {
-            throw new BusinessException(400, "file is too large");
+            throw new BusinessException(400, "文件大小超出限制");
         }
         String normalizedFilename = requireText(originalFilename, "file name");
         String extension = extractExtension(normalizedFilename);
         if (!ALLOWED_EXTENSIONS.contains(extension)) {
-            throw new BusinessException(400, "unsupported file type");
+            throw new BusinessException(400, "不支持的文件类型");
         }
         String normalizedContentType = normalizeOptional(contentType);
         if (normalizedContentType == null) {
@@ -320,10 +320,10 @@ public class ResourceChunkUploadService {
     private int normalizeChunkSize(Integer requestedChunkSize) {
         int chunkSize = requestedChunkSize == null ? defaultChunkSizeBytes : requestedChunkSize;
         if (chunkSize <= 0) {
-            throw new BusinessException(400, "chunk size is required");
+            throw new BusinessException(400, "分片大小是必填项");
         }
         if (chunkSize > maxChunkSizeBytes) {
-            throw new BusinessException(400, "chunk size is too large");
+            throw new BusinessException(400, "分片大小超出限制");
         }
         return chunkSize;
     }
@@ -342,7 +342,13 @@ public class ResourceChunkUploadService {
     private String requireText(String value, String fieldName) {
         String normalized = normalizeOptional(value);
         if (normalized == null) {
-            throw new BusinessException(400, fieldName + " is required");
+            String chineseFieldName = switch (fieldName) {
+                case "title" -> "标题";
+                case "summary" -> "摘要";
+                case "file name" -> "文件名";
+                default -> fieldName;
+            };
+            throw new BusinessException(400, chineseFieldName + "是必填项");
         }
         return normalized;
     }
@@ -350,19 +356,19 @@ public class ResourceChunkUploadService {
     private String normalizeRequiredCategory(String category) {
         String normalized = normalizeOptional(category);
         if (normalized == null) {
-            throw new BusinessException(400, "category is required");
+            throw new BusinessException(400, "资料分类是必填项");
         }
         try {
             return ResourceCategory.valueOf(normalized.toUpperCase(Locale.ROOT)).name();
         } catch (IllegalArgumentException exception) {
-            throw new BusinessException(400, "invalid resource category");
+            throw new BusinessException(400, "无效的资料分类");
         }
     }
 
     private String extractExtension(String originalFilename) {
         int lastDot = originalFilename.lastIndexOf('.');
         if (lastDot < 0 || lastDot == originalFilename.length() - 1) {
-            throw new BusinessException(400, "unsupported file type");
+            throw new BusinessException(400, "不支持的文件类型");
         }
         return originalFilename.substring(lastDot + 1).toLowerCase(Locale.ROOT);
     }

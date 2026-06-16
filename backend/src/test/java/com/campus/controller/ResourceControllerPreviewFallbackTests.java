@@ -161,7 +161,7 @@ class ResourceControllerPreviewFallbackTests {
         mockMvc.perform(get("/api/resources/4/preview"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(500))
-                .andExpect(jsonPath("$.message").value("PPTX 预览暂不可用"));
+                .andExpect(jsonPath("$.message").value("PPTX预览不可用"));
     }
 
     private void writePreviewArtifact(String artifactKey, byte[] content) throws IOException {

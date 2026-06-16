@@ -69,7 +69,7 @@ public class ResumePreviewService {
             return new PreviewFile(previewFileName(resume.getFileName()), "application/pdf",
                     new ByteArrayInputStream(pdfBytes));
         } catch (IOException | RuntimeException exception) {
-            throw new BusinessException(500, "resume preview unavailable");
+            throw new BusinessException(500, "简历预览不可用");
         }
     }
 
@@ -92,7 +92,7 @@ public class ResumePreviewService {
         } catch (FileNotFoundException exception) {
             return Optional.empty();
         } catch (IOException exception) {
-            throw new BusinessException(500, "resume preview unavailable");
+            throw new BusinessException(500, "简历预览不可用");
         }
     }
 

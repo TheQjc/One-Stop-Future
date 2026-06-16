@@ -35,8 +35,8 @@ public class DecisionAssessmentService {
     private static final int ACTIVE = 1;
     private static final List<String> TRACK_TIEBREAK_ORDER = List.of("EXAM", "CAREER", "ABROAD");
     private static final List<NextActionItem> DEFAULT_NEXT_ACTIONS = List.of(
-            new NextActionItem("TIMELINE", "Go to Timeline", "/timeline"),
-            new NextActionItem("COMPARE_SCHOOLS", "Compare Schools", "/schools/compare"));
+            new NextActionItem("TIMELINE", "前往成长路线", "/timeline"),
+            new NextActionItem("COMPARE_SCHOOLS", "对比院校", "/schools/compare"));
 
     private final DecisionAssessmentQuestionMapper questionMapper;
     private final DecisionAssessmentOptionMapper optionMapper;
@@ -88,7 +88,7 @@ public class DecisionAssessmentService {
     public DecisionAssessmentResultResponse submit(String identity, DecisionAssessmentSubmissionRequest request) {
         Long userId = requireUserId(identity);
         if (request == null || request.answers() == null) {
-            throw new BusinessException(400, "invalid request");
+            throw new BusinessException(400, "无效的请求");
         }
 
         List<DecisionAssessmentQuestion> activeQuestions = questionMapper.selectList(
@@ -97,7 +97,7 @@ public class DecisionAssessmentService {
                         .orderByAsc(DecisionAssessmentQuestion::getDisplayOrder)
                         .orderByAsc(DecisionAssessmentQuestion::getId));
         if (activeQuestions.isEmpty()) {
-            throw new BusinessException(400, "assessment questions not configured");
+            throw new BusinessException(400, "测评题目未配置");
         }
 
         Set<Long> requiredQuestionIds = activeQuestions.stream()
@@ -106,23 +106,23 @@ public class DecisionAssessmentService {
 
         List<AnswerItem> answers = request.answers();
         if (answers.size() != requiredQuestionIds.size()) {
-            throw new BusinessException(400, "incomplete answers");
+            throw new BusinessException(400, "有未回答的题目");
         }
 
         Map<Long, Long> optionIdByQuestionId = new LinkedHashMap<>();
         for (AnswerItem answer : answers) {
             if (answer == null || answer.questionId() == null || answer.optionId() == null) {
-                throw new BusinessException(400, "invalid request");
+                throw new BusinessException(400, "无效的请求");
             }
             Long existing = optionIdByQuestionId.putIfAbsent(answer.questionId(), answer.optionId());
             if (existing != null) {
-                throw new BusinessException(400, "duplicate question answers");
+                throw new BusinessException(400, "重复提交同一题目的答案");
             }
         }
 
         if (!optionIdByQuestionId.keySet().containsAll(requiredQuestionIds)
                 || !requiredQuestionIds.containsAll(optionIdByQuestionId.keySet())) {
-            throw new BusinessException(400, "unknown question");
+            throw new BusinessException(400, "未知的题目");
         }
 
         List<Long> optionIds = optionIdByQuestionId.values().stream().toList();
@@ -130,7 +130,7 @@ public class DecisionAssessmentService {
                 .eq(DecisionAssessmentOption::getIsActive, ACTIVE)
                 .in(DecisionAssessmentOption::getId, optionIds));
         if (selectedOptions.size() != optionIds.size()) {
-            throw new BusinessException(400, "unknown option");
+            throw new BusinessException(400, "未知的选项");
         }
 
         Map<Long, DecisionAssessmentOption> optionById = new LinkedHashMap<>();
@@ -145,7 +145,7 @@ public class DecisionAssessmentService {
             Long questionId = entry.getKey();
             DecisionAssessmentOption option = optionById.get(entry.getValue());
             if (option == null || option.getQuestionId() == null || !option.getQuestionId().equals(questionId)) {
-                throw new BusinessException(400, "option does not belong to question");
+                throw new BusinessException(400, "选项不属于该题目");
             }
             careerScore += safeInt(option.getCareerScore());
             examScore += safeInt(option.getExamScore());
@@ -156,7 +156,7 @@ public class DecisionAssessmentService {
         List<RankItem> ranking = rankingFor(scores);
         String recommendedTrack = ranking.isEmpty() ? null : ranking.get(0).track();
         if (recommendedTrack == null) {
-            throw new BusinessException(400, "invalid score result");
+            throw new BusinessException(400, "无效的分数结果");
         }
 
         String summaryText = summaryTextFor(recommendedTrack);
@@ -225,15 +225,15 @@ public class DecisionAssessmentService {
 
     private Long requireUserId(String identity) {
         if (identity == null || identity.isBlank()) {
-            throw new BusinessException(401, "unauthorized");
+            throw new BusinessException(401, "未授权");
         }
         if (!identity.matches("^\\d+$")) {
-            throw new BusinessException(401, "unauthorized");
+            throw new BusinessException(401, "未授权");
         }
         try {
             return Long.parseLong(identity);
         } catch (NumberFormatException ex) {
-            throw new BusinessException(401, "unauthorized");
+            throw new BusinessException(401, "未授权");
         }
     }
 
@@ -249,10 +249,10 @@ public class DecisionAssessmentService {
 
     private String summaryTextFor(String recommendedTrack) {
         return switch (recommendedTrack) {
-            case "EXAM" -> "Recommendation: EXAM. Focus on structured study goals and measurable score gains.";
-            case "CAREER" -> "Recommendation: CAREER. Focus on projects, interview readiness, and employability wins.";
-            case "ABROAD" -> "Recommendation: ABROAD. Focus on language tests, application milestones, and timelines.";
-            default -> "Recommendation ready. Focus on the next steps to move forward.";
+            case "EXAM" -> "推荐方向：升学考研/考公。专注于系统化的学习目标和可量化的分数提升。";
+            case "CAREER" -> "推荐方向：求职就业。专注于项目实践、面试准备和求职竞争力的提升。";
+            case "ABROAD" -> "推荐方向：出国深造。专注于语言考试、申请流程关键节点和时间规划。";
+            default -> "推荐方案已准备就绪。专注于下一步行动以稳步推进。";
         };
     }
 }

@@ -105,7 +105,7 @@ class ApplicationSnapshotPreviewServiceTests {
         assertThatThrownBy(() -> service.preview(application,
                 () -> new ByteArrayInputStream("doc".getBytes(StandardCharsets.UTF_8))))
                 .isInstanceOf(BusinessException.class)
-                .hasMessage("application resume preview only supports pdf or docx");
+                .hasMessage("申请简历预览仅支持 pdf 或 docx 格式");
     }
 
     @Test
@@ -120,7 +120,7 @@ class ApplicationSnapshotPreviewServiceTests {
         assertThatThrownBy(() -> service.preview(application,
                 () -> new ByteArrayInputStream("docx".getBytes(StandardCharsets.UTF_8))))
                 .isInstanceOf(BusinessException.class)
-                .hasMessage("application resume preview unavailable");
+                .hasMessage("申请简历预览不可用");
     }
 
     private static class NoopStorage implements ResourcePreviewArtifactStorage {
