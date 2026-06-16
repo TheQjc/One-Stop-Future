@@ -25,10 +25,23 @@ class AdminSearchControllerTests {
         assertThat(syncService.fullReindexCalledDirectly).isFalse();
     }
 
+    @Test
+    void reindexFailureReturnsChineseMessage() {
+        RecordingSearchIndexSyncService syncService = new RecordingSearchIndexSyncService();
+        syncService.failReindex = true;
+        AdminSearchController controller = new AdminSearchController(syncService, null);
+
+        Result<AdminSearchController.ReindexResponse> response = controller.reindex();
+
+        assertThat(response.code()).isEqualTo(500);
+        assertThat(response.message()).isEqualTo("搜索索引重建失败，请稍后重试");
+    }
+
     private static class RecordingSearchIndexSyncService extends SearchIndexSyncService {
 
         private boolean reindexAllCalled;
         private boolean fullReindexCalledDirectly;
+        private boolean failReindex;
 
         RecordingSearchIndexSyncService() {
             super(null, null, null, null, null, null, null);
@@ -43,6 +56,9 @@ class AdminSearchControllerTests {
         @Override
         public SyncResult reindexAll() throws IOException {
             reindexAllCalled = true;
+            if (failReindex) {
+                throw new IOException("Elasticsearch timeout");
+            }
             return new SyncResult(1, 2, 3, 6, 10);
         }
     }

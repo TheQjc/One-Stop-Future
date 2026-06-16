@@ -27,7 +27,7 @@ export async function createResourceUpload(formData, options = {}) {
   const file = formData.get("file");
 
   if (!file) {
-    throw new Error("file is required");
+    throw new Error("请先选择文件");
   }
 
   const metadata = resourceUploadMetadataOf(formData, file);

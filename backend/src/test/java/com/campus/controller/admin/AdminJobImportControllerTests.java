@@ -58,8 +58,9 @@ class AdminJobImportControllerTests {
         mockMvc.perform(multipart("/api/admin/jobs/import").file(file))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("job import validation failed"))
+                .andExpect(jsonPath("$.message").value("岗位导入校验失败"))
                 .andExpect(jsonPath("$.data.importedCount").value(0))
+                .andExpect(jsonPath("$.data.errors[0].message").value("岗位类型无效"))
                 .andExpect(jsonPath("$.data.errors[0].column").value("jobType"));
     }
 

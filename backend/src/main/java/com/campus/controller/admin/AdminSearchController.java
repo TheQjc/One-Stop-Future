@@ -43,7 +43,7 @@ public class AdminSearchController {
                     result.total(),
                     System.currentTimeMillis() - start));
         } catch (java.io.IOException e) {
-            return Result.error(500, "Reindex failed: " + e.getMessage());
+            return Result.error(500, "搜索索引重建失败，请稍后重试");
         }
     }
 

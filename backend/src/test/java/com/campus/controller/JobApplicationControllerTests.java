@@ -150,7 +150,7 @@ class JobApplicationControllerTests {
         mockMvc.perform(get("/api/applications/{id}/resume/preview", applicationId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("application resume preview only supports pdf or docx"));
+                .andExpect(jsonPath("$.message").value("申请简历预览仅支持 PDF 或 DOCX"));
     }
 
     @Test
@@ -162,12 +162,12 @@ class JobApplicationControllerTests {
         mockMvc.perform(get("/api/applications/{id}/resume/preview", applicationId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(404))
-                .andExpect(jsonPath("$.message").value("application not found"));
+                .andExpect(jsonPath("$.message").value("申请记录不存在"));
 
         mockMvc.perform(get("/api/applications/{id}/resume/download", applicationId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(404))
-                .andExpect(jsonPath("$.message").value("application not found"));
+                .andExpect(jsonPath("$.message").value("申请记录不存在"));
     }
 
     @Test
@@ -186,7 +186,7 @@ class JobApplicationControllerTests {
                                 """.formatted(resumeId)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("already applied to this job"));
+                .andExpect(jsonPath("$.message").value("你已申请过该岗位"));
     }
 
     @Test
@@ -202,7 +202,7 @@ class JobApplicationControllerTests {
                                 """.formatted(resumeId)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(404))
-                .andExpect(jsonPath("$.message").value("resume not found"));
+                .andExpect(jsonPath("$.message").value("简历不存在"));
     }
 
     @Test
@@ -218,7 +218,7 @@ class JobApplicationControllerTests {
                                 """.formatted(resumeId)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(404))
-                .andExpect(jsonPath("$.message").value("job not found"));
+                .andExpect(jsonPath("$.message").value("岗位不存在"));
     }
 
     @Test
@@ -234,7 +234,7 @@ class JobApplicationControllerTests {
                                 """.formatted(resumeId)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(500))
-                .andExpect(jsonPath("$.message").value("failed to store application resume snapshot"));
+                .andExpect(jsonPath("$.message").value("申请简历快照保存失败"));
 
         Integer applicationCount = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM t_job_application WHERE job_id = 1 AND applicant_user_id = 2",

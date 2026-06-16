@@ -119,7 +119,7 @@ class ResourceControllerTests {
         mockMvc.perform(get("/api/resources/3"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(404))
-                .andExpect(jsonPath("$.message").value("resource not found"));
+                .andExpect(jsonPath("$.message").value("资源不存在"));
     }
 
     @Test
@@ -325,7 +325,7 @@ class ResourceControllerTests {
         mockMvc.perform(get("/api/resources/1/preview-zip"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("zip preview only supports zip resources"));
+                .andExpect(jsonPath("$.message").value("压缩包预览仅支持 ZIP 资源"));
     }
 
     @Test
@@ -337,7 +337,7 @@ class ResourceControllerTests {
         mockMvc.perform(get("/api/resources/4/preview"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(404))
-                .andExpect(jsonPath("$.message").value("resource not found"));
+                .andExpect(jsonPath("$.message").value("资源不存在"));
     }
 
     @Test
@@ -345,7 +345,7 @@ class ResourceControllerTests {
         mockMvc.perform(get("/api/resources/3/preview"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(404))
-                .andExpect(jsonPath("$.message").value("resource not found"));
+                .andExpect(jsonPath("$.message").value("资源不存在"));
     }
 
     @Test
@@ -353,7 +353,7 @@ class ResourceControllerTests {
         mockMvc.perform(get("/api/resources/2/preview"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("resource preview only supports pdf, pptx or docx"));
+                .andExpect(jsonPath("$.message").value("资源预览仅支持 PDF、PPTX 或 DOCX"));
     }
 
     @Test
@@ -404,7 +404,7 @@ class ResourceControllerTests {
         mockMvc.perform(get("/api/resources/6/preview"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(500))
-                .andExpect(jsonPath("$.message").value("resource file unavailable"));
+                .andExpect(jsonPath("$.message").value("资源文件暂不可用"));
     }
 
     @Test
@@ -546,7 +546,36 @@ class ResourceControllerTests {
         mockMvc.perform(post("/api/resources/chunk-uploads/{uploadId}/complete", uploadId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("resource chunks are incomplete"));
+                .andExpect(jsonPath("$.message").value("资料分片尚未上传完整"));
+    }
+
+    @Test
+    @WithMockUser(username = "2", roles = "USER")
+    void missingResourceChunkReturnsChineseValidationError() throws Exception {
+        MvcResult initResult = mockMvc.perform(post("/api/resources/chunk-uploads")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "title": "Missing Chunk",
+                                  "category": "RESUME_TEMPLATE",
+                                  "summary": "No chunk part",
+                                  "fileName": "missing-chunk.pdf",
+                                  "contentType": "application/pdf",
+                                  "fileSize": 5,
+                                  "chunkSize": 5
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andReturn();
+
+        JsonNode initJson = objectMapper.readTree(initResult.getResponse().getContentAsString());
+        String uploadId = initJson.path("data").path("uploadId").asText();
+
+        mockMvc.perform(multipart("/api/resources/chunk-uploads/{uploadId}/chunks/{chunkIndex}", uploadId, 0))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.message").value("请上传分片文件"));
     }
 
     @Test
@@ -684,7 +713,7 @@ class ResourceControllerTests {
                         .param("summary", "Nope"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("only rejected resource can be resubmitted"));
+                .andExpect(jsonPath("$.message").value("只有审核未通过的资源可以重新提交"));
     }
 
     @Test
@@ -692,7 +721,7 @@ class ResourceControllerTests {
         mockMvc.perform(get("/api/resources").param("category", "BOOK"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("invalid resource category"));
+                .andExpect(jsonPath("$.message").value("资源分类无效"));
     }
 
     @Test

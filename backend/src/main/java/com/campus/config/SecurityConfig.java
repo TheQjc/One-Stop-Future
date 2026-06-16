@@ -80,13 +80,13 @@ public class SecurityConfig {
     @Bean
     AuthenticationEntryPoint authenticationEntryPoint(ObjectMapper objectMapper) {
         return (request, response, authException) -> writeJson(response, 401,
-                objectMapper.writeValueAsString(Result.error(401, "unauthorized")));
+                objectMapper.writeValueAsString(Result.error(401, "请先登录")));
     }
 
     @Bean
     AccessDeniedHandler accessDeniedHandler(ObjectMapper objectMapper) {
         return (request, response, accessDeniedException) -> writeJson(response, 403,
-                objectMapper.writeValueAsString(Result.error(403, "forbidden")));
+                objectMapper.writeValueAsString(Result.error(403, "没有权限执行该操作")));
     }
 
     private void writeJson(jakarta.servlet.http.HttpServletResponse response, int status, String body)

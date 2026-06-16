@@ -151,7 +151,7 @@ class AdminJobApplicationControllerTests {
         mockMvc.perform(get("/api/admin/applications/{id}/resume/preview", applicationId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("application resume preview only supports pdf or docx"));
+                .andExpect(jsonPath("$.message").value("申请简历预览仅支持 PDF 或 DOCX"));
     }
 
     @Test

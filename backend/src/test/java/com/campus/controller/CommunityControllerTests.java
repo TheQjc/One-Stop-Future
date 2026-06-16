@@ -127,12 +127,12 @@ class CommunityControllerTests {
         mockMvc.perform(get("/api/community/hot").param("period", "MONTH"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("invalid community hot period"));
+                .andExpect(jsonPath("$.message").value("社区热榜周期无效"));
 
         mockMvc.perform(get("/api/community/hot").param("limit", "0"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("invalid community hot limit"));
+                .andExpect(jsonPath("$.message").value("社区热榜数量无效"));
     }
 
     @Test
@@ -224,6 +224,21 @@ class CommunityControllerTests {
                 .andExpect(jsonPath("$.data.commentCount").value(1))
                 .andExpect(jsonPath("$.data.comments[0].content").value("Useful planning summary."));
 
+        assertThat(jdbcTemplate.queryForObject(
+                """
+                        SELECT COUNT(*) FROM t_notification
+                        WHERE user_id = 3 AND type = 'COMMUNITY_COMMENT_RECEIVED'
+                          AND source_type = 'COMMUNITY_POST' AND source_id = 2
+                        """,
+                Integer.class)).isEqualTo(1);
+        assertThat(jdbcTemplate.queryForObject(
+                """
+                        SELECT content FROM t_notification
+                        WHERE user_id = 3 AND type = 'COMMUNITY_COMMENT_RECEIVED'
+                          AND source_type = 'COMMUNITY_POST' AND source_id = 2
+                        """,
+                String.class)).contains("NormalUser").contains("Exam planning checklist");
+
         mockMvc.perform(post("/api/community/posts/2/like"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.likeCount").value(1))
@@ -305,6 +320,13 @@ class CommunityControllerTests {
         assertThat(jdbcTemplate.queryForObject(
                 "SELECT content FROM t_notification WHERE user_id = 2 AND type = 'COMMUNITY_REPLY_RECEIVED'",
                 String.class)).contains("VerifiedUser").contains("Offer timeline notes");
+        assertThat(jdbcTemplate.queryForObject(
+                """
+                        SELECT COUNT(*) FROM t_notification
+                        WHERE user_id = 2 AND type = 'COMMUNITY_COMMENT_RECEIVED'
+                          AND source_type = 'COMMUNITY_POST' AND source_id = 1
+                        """,
+                Integer.class)).isEqualTo(1);
     }
 
     @Test
@@ -334,7 +356,7 @@ class CommunityControllerTests {
                                 """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("cannot reply to a reply"));
+                .andExpect(jsonPath("$.message").value("暂不支持回复二级评论"));
     }
 
     @Test
@@ -344,6 +366,6 @@ class CommunityControllerTests {
         mockMvc.perform(get("/api/community/posts/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(404))
-                .andExpect(jsonPath("$.message").value("community post not found"));
+                .andExpect(jsonPath("$.message").value("帖子不存在"));
     }
 }
