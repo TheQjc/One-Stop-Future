@@ -51,6 +51,10 @@ const showLatestBlock = computed(() => (
   && answeredCount.value === 0
 ));
 
+const hasTimelineNextAction = computed(() => (
+  result.value?.nextActions?.some((action) => action.path === "/timeline")
+));
+
 function optionIdFor(questionId) {
   return answers.value.get(questionId) ?? "";
 }
@@ -330,7 +334,7 @@ onMounted(loadAll);
         >
           {{ displayActionLabel(action) }}
         </button>
-        <RouterLink to="/timeline" class="ghost-btn">查看时间线</RouterLink>
+        <RouterLink v-if="!hasTimelineNextAction" to="/timeline" class="ghost-btn">查看时间线</RouterLink>
       </div>
     </article>
 

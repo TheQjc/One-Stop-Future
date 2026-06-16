@@ -12,3 +12,14 @@ frontend/dist/
 .local-storage/
 backend/.local-storage/
 extract_docx.py
+.agents/
+.codegraph/
+.cursor/
+docs/ttt/
+logs/
+backend/logs/
+jmeter.log
+skills-lock.json
+前端启动.png
+后端启动.png
+/软件测试实验/
