@@ -320,6 +320,13 @@ class CommunityControllerTests {
         assertThat(jdbcTemplate.queryForObject(
                 "SELECT content FROM t_notification WHERE user_id = 2 AND type = 'COMMUNITY_REPLY_RECEIVED'",
                 String.class)).contains("VerifiedUser").contains("Offer timeline notes");
+        assertThat(jdbcTemplate.queryForObject(
+                """
+                        SELECT COUNT(*) FROM t_notification
+                        WHERE user_id = 2 AND type = 'COMMUNITY_COMMENT_RECEIVED'
+                          AND source_type = 'COMMUNITY_POST' AND source_id = 1
+                        """,
+                Integer.class)).isEqualTo(1);
     }
 
     @Test

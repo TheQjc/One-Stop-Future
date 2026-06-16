@@ -276,6 +276,15 @@ public class CommunityService {
                     "COMMUNITY_POST",
                     post.getId());
         }
+        if (!author.getId().equals(post.getAuthorId())) {
+            notificationService.createNotification(
+                    post.getAuthorId(),
+                    NotificationType.COMMUNITY_COMMENT_RECEIVED.name(),
+                    "Your post received a comment",
+                    author.getNickname() + " commented on your post \"" + post.getTitle() + "\"",
+                    "COMMUNITY_POST",
+                    post.getId());
+        }
 
         recalculatePostStats(post.getId());
         return toPostDetail(requirePublishedPost(post.getId()), author);
