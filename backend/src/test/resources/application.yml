@@ -28,6 +28,7 @@ app:
   resource-storage:
     type: local
     local-root: .local-storage/resources
+    read-fallback-local-enabled: false
   resource-upload:
     chunk-root: .local-storage/resource-upload-sessions
     default-chunk-size-bytes: 5242880

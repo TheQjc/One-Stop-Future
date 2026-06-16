@@ -20,4 +20,8 @@ public class HistoricalLocalResourceReader {
     public InputStream open(String storageKey) throws IOException {
         return Files.newInputStream(pathResolver.resolve(storageKey));
     }
+
+    public void delete(String storageKey) throws IOException {
+        Files.deleteIfExists(pathResolver.resolve(storageKey));
+    }
 }

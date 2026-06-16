@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 
+import com.campus.storage.FallbackResourceFileStorage;
+import com.campus.storage.HistoricalLocalResourceReader;
 import com.campus.storage.LocalResourceFileStorage;
 import com.campus.storage.MinioObjectOperations;
 import com.campus.storage.MinioResourceFileStorage;
@@ -53,9 +55,23 @@ public class ResourceStorageConfiguration {
     @DependsOn("minioStorageSelectionGuard")
     @ConditionalOnProperty(prefix = "app.resource-storage", name = "type", havingValue = "minio")
     ResourceFileStorage minioResourceFileStorage(
-            MinioIntegrationProperties properties,
+            MinioIntegrationProperties minioProperties,
             MinioObjectOperations operations,
             StorageKeyFactory keyFactory) throws IOException {
-        return new MinioResourceFileStorage(properties.getBucket(), operations, keyFactory);
+        MinioResourceFileStorage primaryStorage =
+                new MinioResourceFileStorage(minioProperties.getBucket(), operations, keyFactory);
+        if (!resourceStorageProperties.isReadFallbackLocalEnabled()) {
+            return primaryStorage;
+        }
+        return new FallbackResourceFileStorage(
+                primaryStorage,
+                new HistoricalLocalResourceReader(resourceStorageProperties.getLocalRoot()));
     }
+
+    private final ResourceStorageProperties resourceStorageProperties;
+
+    public ResourceStorageConfiguration(ResourceStorageProperties resourceStorageProperties) {
+        this.resourceStorageProperties = resourceStorageProperties;
+    }
+
 }
