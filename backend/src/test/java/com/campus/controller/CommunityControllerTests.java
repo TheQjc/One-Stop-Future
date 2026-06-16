@@ -224,6 +224,21 @@ class CommunityControllerTests {
                 .andExpect(jsonPath("$.data.commentCount").value(1))
                 .andExpect(jsonPath("$.data.comments[0].content").value("Useful planning summary."));
 
+        assertThat(jdbcTemplate.queryForObject(
+                """
+                        SELECT COUNT(*) FROM t_notification
+                        WHERE user_id = 3 AND type = 'COMMUNITY_COMMENT_RECEIVED'
+                          AND source_type = 'COMMUNITY_POST' AND source_id = 2
+                        """,
+                Integer.class)).isEqualTo(1);
+        assertThat(jdbcTemplate.queryForObject(
+                """
+                        SELECT content FROM t_notification
+                        WHERE user_id = 3 AND type = 'COMMUNITY_COMMENT_RECEIVED'
+                          AND source_type = 'COMMUNITY_POST' AND source_id = 2
+                        """,
+                String.class)).contains("NormalUser").contains("Exam planning checklist");
+
         mockMvc.perform(post("/api/community/posts/2/like"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.likeCount").value(1))
