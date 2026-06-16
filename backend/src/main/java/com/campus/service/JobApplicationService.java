@@ -98,8 +98,8 @@ public class JobApplicationService {
         notificationService.createNotification(
                 applicant.getId(),
                 NotificationType.JOB_APPLICATION_SUBMITTED.name(),
-                "Application submitted",
-                "Your application for \"" + job.getTitle() + "\" at " + job.getCompanyName() + " has been submitted.",
+                "岗位申请已提交",
+                "你对「" + job.getTitle() + "」的申请已提交，请留意后续进度。",
                 "JOB_APPLICATION",
                 application.getId());
 

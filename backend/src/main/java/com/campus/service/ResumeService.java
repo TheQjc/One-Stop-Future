@@ -76,8 +76,8 @@ public class ResumeService {
         notificationService.createNotification(
                 viewer.getId(),
                 NotificationType.RESUME_UPLOADED.name(),
-                "Resume uploaded",
-                "Your resume \"" + normalizedTitle + "\" has been uploaded successfully.",
+                "简历上传成功",
+                "你的简历《" + normalizedTitle + "》已上传成功。",
                 "RESUME",
                 resume.getId());
 
@@ -266,7 +266,7 @@ public class ResumeService {
         try {
             FileMagicBytesValidator.validateMultipartFile(file, extension);
         } catch (IOException e) {
-            throw new BusinessException(400, "cannot read resume file");
+            throw new BusinessException(400, "无法读取简历文件");
         } catch (IllegalArgumentException e) {
             throw new BusinessException(400, e.getMessage());
         }

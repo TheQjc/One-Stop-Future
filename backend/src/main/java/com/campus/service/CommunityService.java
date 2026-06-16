@@ -237,8 +237,8 @@ public class CommunityService {
             notificationService.createNotification(
                     post.getAuthorId(),
                     NotificationType.COMMUNITY_POST_COMMENTED.name(),
-                    "Your post received a comment",
-                    author.getNickname() + " commented on your post \"" + post.getTitle() + "\"",
+                    "你的帖子收到评论",
+                    author.getNickname() + "评论了你的帖子《" + post.getTitle() + "》。",
                     "COMMUNITY_POST",
                     post.getId());
         }
@@ -282,8 +282,8 @@ public class CommunityService {
             notificationService.createNotification(
                     post.getAuthorId(),
                     NotificationType.COMMUNITY_COMMENT_RECEIVED.name(),
-                    "Your post received a comment",
-                    author.getNickname() + " commented on your post \"" + post.getTitle() + "\"",
+                    "你的帖子收到评论",
+                    author.getNickname() + "评论了你的帖子《" + post.getTitle() + "》。",
                     "COMMUNITY_POST",
                     post.getId());
         }

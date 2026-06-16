@@ -309,6 +309,12 @@ class ResourceControllerTests {
         Long resourceId = jdbcTemplate.queryForObject(
                 "SELECT id FROM t_resource_item WHERE title = 'History Pack'",
                 Long.class);
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT title FROM t_notification WHERE user_id = 2 AND type = 'RESOURCE_UPLOADED'",
+                String.class)).isEqualTo("资料已提交审核");
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT content FROM t_notification WHERE user_id = 2 AND type = 'RESOURCE_UPLOADED'",
+                String.class)).isEqualTo("你上传的资料《History Pack》已提交审核，审核通过后将公开展示。");
 
         mockMvc.perform(get("/api/resources/{id}/versions", resourceId))
                 .andExpect(status().isOk())

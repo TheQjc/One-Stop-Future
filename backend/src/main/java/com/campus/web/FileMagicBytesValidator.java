@@ -52,7 +52,7 @@ public final class FileMagicBytesValidator {
         }
 
         throw new IllegalArgumentException(
-                "file content does not match extension ." + extension);
+                "文件内容与扩展名不匹配");
     }
 
     /**
@@ -81,7 +81,7 @@ public final class FileMagicBytesValidator {
         }
 
         throw new IllegalArgumentException(
-                "file content does not match extension ." + extension);
+                "文件内容与扩展名不匹配");
     }
 
     private static byte[] readHeader(MultipartFile file) throws IOException {

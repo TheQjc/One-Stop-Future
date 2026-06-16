@@ -109,6 +109,12 @@ class ResumeControllerTests {
                 resumeId);
 
         assertThat(Files.exists(STORAGE_ROOT.resolve(storageKey))).isTrue();
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT title FROM t_notification WHERE user_id = 2 AND type = 'RESUME_UPLOADED'",
+                String.class)).isEqualTo("简历上传成功");
+        assertThat(jdbcTemplate.queryForObject(
+                "SELECT content FROM t_notification WHERE user_id = 2 AND type = 'RESUME_UPLOADED'",
+                String.class)).isEqualTo("你的简历《Intern Resume》已上传成功。");
 
         mockMvc.perform(get("/api/resumes/mine"))
                 .andExpect(status().isOk())
