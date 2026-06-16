@@ -127,12 +127,12 @@ class CommunityControllerTests {
         mockMvc.perform(get("/api/community/hot").param("period", "MONTH"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("invalid community hot period"));
+                .andExpect(jsonPath("$.message").value("社区热榜周期无效"));
 
         mockMvc.perform(get("/api/community/hot").param("limit", "0"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("invalid community hot limit"));
+                .andExpect(jsonPath("$.message").value("社区热榜数量无效"));
     }
 
     @Test
@@ -349,7 +349,7 @@ class CommunityControllerTests {
                                 """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("cannot reply to a reply"));
+                .andExpect(jsonPath("$.message").value("暂不支持回复二级评论"));
     }
 
     @Test
@@ -359,6 +359,6 @@ class CommunityControllerTests {
         mockMvc.perform(get("/api/community/posts/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(404))
-                .andExpect(jsonPath("$.message").value("community post not found"));
+                .andExpect(jsonPath("$.message").value("帖子不存在"));
     }
 }

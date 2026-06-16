@@ -52,17 +52,17 @@ class DiscoverControllerTests {
         mockMvc.perform(get("/api/discover").param("tab", "ARTICLE"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("invalid discover tab"));
+                .andExpect(jsonPath("$.message").value("发现页标签无效"));
 
         mockMvc.perform(get("/api/discover").param("period", "MONTH"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("invalid discover period"));
+                .andExpect(jsonPath("$.message").value("发现页周期无效"));
 
         mockMvc.perform(get("/api/discover").param("limit", "0"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("invalid discover limit"));
+                .andExpect(jsonPath("$.message").value("发现页数量无效"));
     }
 
     @Test

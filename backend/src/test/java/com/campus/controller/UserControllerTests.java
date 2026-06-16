@@ -82,7 +82,7 @@ class UserControllerTests {
         mockMvc.perform(get("/api/users/me"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(403))
-                .andExpect(jsonPath("$.message").value("account is banned"));
+                .andExpect(jsonPath("$.message").value("账号已被封禁"));
     }
 
     @Test

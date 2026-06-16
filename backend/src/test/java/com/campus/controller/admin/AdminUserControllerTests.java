@@ -75,6 +75,6 @@ class AdminUserControllerTests {
         mockMvc.perform(post("/api/admin/users/1/ban"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("admin account status cannot be changed"));
+                .andExpect(jsonPath("$.message").value("不能修改管理员账号状态"));
     }
 }

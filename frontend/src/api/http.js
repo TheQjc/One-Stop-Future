@@ -8,6 +8,8 @@ const http = axios.create({
   timeout: 8000,
 });
 
+const DEFAULT_ERROR_MESSAGE = "请求失败，请稍后重试";
+
 function clearPersistedAuth() {
   window.localStorage.removeItem(TOKEN_KEY);
   window.localStorage.removeItem(PROFILE_KEY);
@@ -24,7 +26,7 @@ function redirectToLogin() {
 }
 
 function shouldForceLogout(code, message) {
-  return code === 401 || (code === 403 && message === "account is banned");
+  return code === 401 || (code === 403 && ["account is banned", "账号已被封禁"].includes(message));
 }
 
 function shouldRedirectOnAuthFailure(config) {
@@ -47,7 +49,7 @@ http.interceptors.response.use(
     const payload = response.data;
 
     if (payload && typeof payload.code === "number" && payload.code !== 200) {
-      const requestError = new Error(payload.message || "request failed");
+      const requestError = new Error(payload.message || DEFAULT_ERROR_MESSAGE);
       requestError.code = payload.code;
       requestError.data = payload.data ?? null;
 
@@ -64,7 +66,7 @@ http.interceptors.response.use(
   (error) => {
     const status = error.response?.status;
     const payload = error.response?.data || {};
-    const requestError = new Error(payload.message || error.message || "request failed");
+    const requestError = new Error(payload.message || DEFAULT_ERROR_MESSAGE);
     requestError.code = payload.code ?? status ?? 500;
     requestError.data = payload.data ?? null;
 

@@ -97,7 +97,7 @@ class AdminVerificationControllerTests {
                                 """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("reason is required when rejecting application"));
+                .andExpect(jsonPath("$.message").value("驳回申请时请填写原因"));
     }
 
     @Test
