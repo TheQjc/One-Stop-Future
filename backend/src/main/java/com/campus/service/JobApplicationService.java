@@ -53,14 +53,14 @@ public class JobApplicationService {
         User applicant = userService.requireByIdentity(identity);
         Long resumeId = request == null ? null : request.resumeId();
         if (resumeId == null) {
-            throw new BusinessException(400, "resume is required");
+            throw new BusinessException(400, "请选择简历");
         }
 
         JobPosting job = requirePublishedJob(jobId);
         JobApplicationMapper.ResumeSnapshotSource resume = requireOwnedResume(applicant.getId(), resumeId);
 
         if (jobApplicationMapper.selectByJobIdAndApplicantUserId(job.getId(), applicant.getId()) != null) {
-            throw new BusinessException(400, "already applied to this job");
+            throw new BusinessException(400, "已投递过该岗位");
         }
 
         String snapshotStorageKey = copyResumeSnapshot(resume);
@@ -85,7 +85,7 @@ public class JobApplicationService {
             jobApplicationMapper.insert(application);
         } catch (DuplicateKeyException exception) {
             tryDeleteSnapshotFile(snapshotStorageKey);
-            throw new BusinessException(400, "already applied to this job");
+            throw new BusinessException(400, "已投递过该岗位");
         } catch (RuntimeException exception) {
             tryDeleteSnapshotFile(snapshotStorageKey);
             throw exception;
@@ -109,20 +109,20 @@ public class JobApplicationService {
     public DownloadedApplicationResume downloadSnapshot(String identity, Long applicationId) {
         User applicant = userService.requireByIdentity(identity);
         JobApplication application = requireOwnedApplication(applicant.getId(), applicationId);
-        return openSnapshot(application, "application resume snapshot unavailable");
+        return openSnapshot(application, "申请简历快照不可用");
     }
 
     public ApplicationSnapshotPreviewService.PreviewFile previewSnapshot(String identity, Long applicationId) {
         User applicant = userService.requireByIdentity(identity);
         JobApplication application = requireOwnedApplication(applicant.getId(), applicationId);
         return applicationSnapshotPreviewService.preview(application,
-                () -> openSnapshotInputStream(application, "application resume preview unavailable"));
+                () -> openSnapshotInputStream(application, "申请简历预览不可用"));
     }
 
     private JobPosting requirePublishedJob(Long jobId) {
         JobPosting job = jobPostingMapper.selectById(jobId);
         if (job == null || !JobPostingStatus.PUBLISHED.name().equals(job.getStatus())) {
-            throw new BusinessException(404, "job not found");
+            throw new BusinessException(404, "岗位不存在");
         }
         return job;
     }
@@ -130,7 +130,7 @@ public class JobApplicationService {
     private JobApplicationMapper.ResumeSnapshotSource requireOwnedResume(Long userId, Long resumeId) {
         JobApplicationMapper.ResumeSnapshotSource resume = jobApplicationMapper.selectOwnedResume(resumeId, userId);
         if (resume == null) {
-            throw new BusinessException(404, "resume not found");
+            throw new BusinessException(404, "简历不存在");
         }
         return resume;
     }
@@ -138,7 +138,7 @@ public class JobApplicationService {
     private JobApplication requireOwnedApplication(Long userId, Long applicationId) {
         JobApplication application = jobApplicationMapper.selectById(applicationId);
         if (application == null || !userId.equals(application.getApplicantUserId())) {
-            throw new BusinessException(404, "application not found");
+            throw new BusinessException(404, "申请不存在");
         }
         return application;
     }
@@ -147,7 +147,7 @@ public class JobApplicationService {
         try (InputStream inputStream = resourceFileStorage.open(resume.getStorageKey())) {
             return resourceFileStorage.store(resume.getFileName(), inputStream);
         } catch (IOException exception) {
-            throw new BusinessException(500, "failed to store application resume snapshot");
+            throw new BusinessException(500, "保存申请简历快照失败");
         }
     }
 

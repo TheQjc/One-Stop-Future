@@ -48,7 +48,7 @@ class AdminVerificationControllerTests {
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.pendingCount").value(1))
                 .andExpect(jsonPath("$.data.reviewedToday").value(1))
-                .andExpect(jsonPath("$.data.latestPendingApplications[0].applicantNickname").value("NormalUser"));
+                .andExpect(jsonPath("$.data.latestPendingApplications[0].applicantNickname").value("普通用户"));
 
         mockMvc.perform(get("/api/admin/verifications"))
                 .andExpect(status().isOk())
@@ -97,7 +97,7 @@ class AdminVerificationControllerTests {
                                 """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("reason is required when rejecting application"));
+                .andExpect(jsonPath("$.message").value("驳回申请时必须填写原因"));
     }
 
     @Test

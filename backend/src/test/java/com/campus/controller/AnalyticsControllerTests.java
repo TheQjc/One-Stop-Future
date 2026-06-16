@@ -59,6 +59,6 @@ class AnalyticsControllerTests {
         mockMvc.perform(get("/api/analytics/summary").param("period", "90D"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("invalid period"));
+                .andExpect(jsonPath("$.message").value("无效的时间段"));
     }
 }

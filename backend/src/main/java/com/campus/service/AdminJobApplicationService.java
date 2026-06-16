@@ -51,19 +51,19 @@ public class AdminJobApplicationService {
 
     public DownloadedApplicationResume downloadResumeSnapshot(Long applicationId) {
         JobApplication application = requireApplication(applicationId);
-        return openSnapshot(application, "application resume snapshot unavailable");
+        return openSnapshot(application, "申请简历快照不可用");
     }
 
     public ApplicationSnapshotPreviewService.PreviewFile previewResumeSnapshot(Long applicationId) {
         JobApplication application = requireApplication(applicationId);
         return applicationSnapshotPreviewService.preview(application,
-                () -> openSnapshotInputStream(application, "application resume preview unavailable"));
+                () -> openSnapshotInputStream(application, "申请简历预览不可用"));
     }
 
     private JobApplication requireApplication(Long applicationId) {
         JobApplication application = jobApplicationMapper.selectById(applicationId);
         if (application == null) {
-            throw new BusinessException(404, "application not found");
+            throw new BusinessException(404, "申请不存在");
         }
         return application;
     }

@@ -77,10 +77,10 @@ public class AdminUserService {
     private User requireManageableUser(Long userId) {
         User target = userMapper.selectById(userId);
         if (target == null) {
-            throw new BusinessException(404, "user not found");
+            throw new BusinessException(404, "用户不存在");
         }
         if (UserRole.ADMIN.name().equals(target.getRole())) {
-            throw new BusinessException(400, "admin account status cannot be changed");
+            throw new BusinessException(400, "管理员账号状态不可更改");
         }
         return target;
     }

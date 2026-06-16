@@ -51,14 +51,14 @@ public class AdminResourceService {
         User admin = userService.requireByIdentity(identity);
         ResourceItem resource = requireResource(resourceId);
         if (ResourceStatus.REJECTED.name().equals(resource.getStatus())) {
-            throw new BusinessException(400, "rejected resource cannot be published");
+            throw new BusinessException(400, "已驳回的资料不能直接发布");
         }
         if (ResourceStatus.PUBLISHED.name().equals(resource.getStatus())) {
             return resourceService.getResourceDetail(resource.getId(), identity);
         }
         if (!ResourceStatus.PENDING.name().equals(resource.getStatus())
                 && !ResourceStatus.OFFLINE.name().equals(resource.getStatus())) {
-            throw new BusinessException(400, "resource is not ready for publish");
+            throw new BusinessException(400, "资料未准备好，无法发布");
         }
         validatePublishable(resource);
         LocalDateTime now = LocalDateTime.now();
@@ -70,8 +70,8 @@ public class AdminResourceService {
         resource.setUpdatedAt(now);
         resourceItemMapper.updateById(resource);
         notifyResourceOwner(resource, NotificationType.RESOURCE_APPROVED,
-                "Your resource was published",
-                "Your resource \"" + resource.getTitle() + "\" is now visible to other students.");
+                "您的资料已发布",
+                "您的资料 \"" + resource.getTitle() + "\" 已通过审核，现已对其他同学可见。");
         return resourceService.getResourceDetail(resource.getId(), identity);
     }
 
@@ -80,10 +80,10 @@ public class AdminResourceService {
         User admin = userService.requireByIdentity(identity);
         ResourceItem resource = requireResource(resourceId);
         if (!ResourceStatus.PENDING.name().equals(resource.getStatus())) {
-            throw new BusinessException(400, "only pending resource can be rejected");
+            throw new BusinessException(400, "只有待审核的资料才能被驳回");
         }
         if (reason == null || reason.isBlank()) {
-            throw new BusinessException(400, "reason is required when rejecting resource");
+            throw new BusinessException(400, "驳回资料时必须填写原因");
         }
         LocalDateTime now = LocalDateTime.now();
         resource.setStatus(ResourceStatus.REJECTED.name());
@@ -93,8 +93,8 @@ public class AdminResourceService {
         resource.setUpdatedAt(now);
         resourceItemMapper.updateById(resource);
         notifyResourceOwner(resource, NotificationType.RESOURCE_REJECTED,
-                "Your resource needs revision",
-                "Your resource \"" + resource.getTitle() + "\" was rejected: " + reason.trim());
+                "您的资料需要修改",
+                "您的资料 \"" + resource.getTitle() + "\" 未通过审核，原因：" + reason.trim());
         return resourceService.getResourceDetail(resource.getId(), identity);
     }
 
@@ -106,7 +106,7 @@ public class AdminResourceService {
             return resourceService.getResourceDetail(resource.getId(), identity);
         }
         if (!ResourceStatus.PUBLISHED.name().equals(resource.getStatus())) {
-            throw new BusinessException(400, "only published resource can be offlined");
+            throw new BusinessException(400, "只有已发布的资料才能下线");
         }
         resource.setStatus(ResourceStatus.OFFLINE.name());
         resource.setReviewedBy(admin.getId());
@@ -115,8 +115,8 @@ public class AdminResourceService {
         resource.setUpdatedAt(now);
         resourceItemMapper.updateById(resource);
         notifyResourceOwner(resource, NotificationType.RESOURCE_OFFLINED,
-                "Your resource was taken offline",
-                "Your resource \"" + resource.getTitle() + "\" is no longer visible to other students.");
+                "您的资料已下线",
+                "您的资料 \"" + resource.getTitle() + "\" 已被下线，不再对其他同学可见。");
         return resourceService.getResourceDetail(resource.getId(), identity);
     }
 
@@ -136,7 +136,7 @@ public class AdminResourceService {
     private ResourceItem requireResource(Long resourceId) {
         ResourceItem resource = resourceItemMapper.selectById(resourceId);
         if (resource == null) {
-            throw new BusinessException(404, "resource not found");
+            throw new BusinessException(404, "资料不存在");
         }
         return resource;
     }
@@ -144,7 +144,7 @@ public class AdminResourceService {
     private void validatePublishable(ResourceItem resource) {
         if (isBlank(resource.getTitle()) || isBlank(resource.getCategory()) || isBlank(resource.getSummary())
                 || isBlank(resource.getFileName()) || isBlank(resource.getStorageKey())) {
-            throw new BusinessException(400, "resource is not ready for publish");
+            throw new BusinessException(400, "资料未准备好，无法发布");
         }
     }
 

@@ -104,7 +104,7 @@ class AdminJobSyncControllerTests {
         mockMvc.perform(post("/api/admin/jobs/sync"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(500))
-                .andExpect(jsonPath("$.message").value("invalid job sync feed"));
+                .andExpect(jsonPath("$.message").value("无效的岗位同步数据源"));
     }
 
     private void serveJson(String body) {

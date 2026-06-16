@@ -71,31 +71,31 @@ public class DecisionSchoolService {
 
     public DecisionSchoolCompareResponse compare(DecisionSchoolCompareRequest request) {
         if (request == null || request.schoolIds() == null) {
-            throw new BusinessException(400, "invalid request");
+            throw new BusinessException(400, "无效请求");
         }
 
         List<Long> schoolIds = request.schoolIds();
         if (schoolIds.stream().anyMatch(Objects::isNull)) {
-            throw new BusinessException(400, "invalid request");
+            throw new BusinessException(400, "无效请求");
         }
 
         if (schoolIds.size() < MIN_COMPARE) {
-            throw new BusinessException(400, "at least 2 schools required");
+            throw new BusinessException(400, "对比院校最少需要选择2所");
         }
         if (schoolIds.size() > MAX_COMPARE) {
-            throw new BusinessException(400, "at most 4 schools allowed");
+            throw new BusinessException(400, "对比院校最多支持选择4所");
         }
 
         Set<Long> deduped = Set.copyOf(schoolIds);
         if (deduped.size() != schoolIds.size()) {
-            throw new BusinessException(400, "duplicate school ids");
+            throw new BusinessException(400, "请勿选择重复的院校");
         }
 
         List<DecisionSchoolProfile> profiles = profileMapper.selectList(new LambdaQueryWrapper<DecisionSchoolProfile>()
                 .eq(DecisionSchoolProfile::getIsActive, ACTIVE)
                 .in(DecisionSchoolProfile::getId, schoolIds));
         if (profiles.size() != schoolIds.size()) {
-            throw new BusinessException(400, "school not found");
+            throw new BusinessException(400, "未找到对应的院校");
         }
 
         Map<Long, DecisionSchoolProfile> profileById = new LinkedHashMap<>();
@@ -146,7 +146,7 @@ public class DecisionSchoolService {
             }
         }
 
-        String highlightSummary = "Comparison ready. Review the table and charts to pick trade-offs.";
+        String highlightSummary = "对比数据准备就绪。查看表格和图表以进行对比决策。";
         return new DecisionSchoolCompareResponse(schools, definitionItems, tableRows, chartSeries, highlightSummary);
     }
 
@@ -170,12 +170,12 @@ public class DecisionSchoolService {
         for (Long id : requestedIds) {
             DecisionSchoolProfile profile = profileById.get(id);
             if (profile == null) {
-                throw new BusinessException(400, "school not found");
+                throw new BusinessException(400, "未找到对应的院校");
             }
             if (track == null) {
                 track = profile.getTrack();
             } else if (!track.equals(profile.getTrack())) {
-                throw new BusinessException(400, "mixed school tracks");
+                throw new BusinessException(400, "无法同时对比不同类型的院校");
             }
         }
         return normalizeTrack(track);
@@ -223,11 +223,11 @@ public class DecisionSchoolService {
 
     private String normalizeTrack(String track) {
         if (track == null || track.isBlank()) {
-            throw new BusinessException(400, "track is required");
+            throw new BusinessException(400, "规划方向是必填项");
         }
         String normalized = track.trim().toUpperCase(Locale.ROOT);
         if (!"EXAM".equals(normalized) && !"ABROAD".equals(normalized)) {
-            throw new BusinessException(400, "invalid track");
+            throw new BusinessException(400, "无效的规划方向");
         }
         return normalized;
     }

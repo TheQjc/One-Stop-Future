@@ -100,7 +100,7 @@ public class DiscoverService {
         try {
             return DiscoverContentType.valueOf(tab.trim().toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException exception) {
-            throw new BusinessException(400, "invalid discover tab");
+            throw new BusinessException(400, "无效的发现标签页");
         }
     }
 
@@ -111,7 +111,7 @@ public class DiscoverService {
         try {
             return DiscoverPeriodType.valueOf(period.trim().toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException exception) {
-            throw new BusinessException(400, "invalid discover period");
+            throw new BusinessException(400, "无效的发现时间范围");
         }
     }
 
@@ -120,7 +120,7 @@ public class DiscoverService {
             return DEFAULT_LIMIT;
         }
         if (limit < 1 || limit > MAX_LIMIT) {
-            throw new BusinessException(400, "invalid discover limit");
+            throw new BusinessException(400, "无效的发现数量限制");
         }
         return limit;
     }
@@ -147,8 +147,8 @@ public class DiscoverService {
                 resource.getPublishedAt(),
                 resourceHotScore(resource),
                 periodType == DiscoverPeriodType.WEEK
-                        ? "\u672c\u5468\u9ad8\u9891\u4e0b\u8f7d"
-                        : "\u957f\u671f\u70ed\u95e8\u8d44\u6599");
+                        ? "本周高频下载"
+                        : "长期热门资料");
     }
 
     private DiscoverItemView toPostItem(CommunityPost post, DiscoverPeriodType periodType) {
@@ -178,8 +178,8 @@ public class DiscoverService {
                 job.getPublishedAt(),
                 jobHotScore(job, favoriteCount),
                 periodType == DiscoverPeriodType.WEEK
-                        ? "\u672c\u5468\u5173\u6ce8"
-                        : "\u6301\u7eed\u5173\u6ce8");
+                        ? "本周关注"
+                        : "持续关注");
     }
 
     private double resourceHotScore(ResourceItem resource) {
@@ -232,8 +232,8 @@ public class DiscoverService {
             return post.getTag();
         }
         return (post.getTag() == null || post.getTag().isBlank())
-                ? "Experience Post"
-                : post.getTag() + " / Experience Post";
+                ? "经验贴"
+                : post.getTag() + " / 经验贴";
     }
 
     private String postSummary(CommunityPost post) {
@@ -259,7 +259,7 @@ public class DiscoverService {
 
     private String postHotLabel(CommunityPost post, DiscoverPeriodType periodType) {
         if (Boolean.TRUE.equals(post.getIsExperiencePost())) {
-            return periodType == DiscoverPeriodType.WEEK ? "Weekly experience pick" : "Evergreen experience note";
+            return periodType == DiscoverPeriodType.WEEK ? "本周经验精选" : "常青经验贴";
         }
         return periodType == DiscoverPeriodType.WEEK
                 ? "\u672c\u5468\u70ed\u8bae"

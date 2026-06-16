@@ -27,12 +27,12 @@ class SearchControllerTests {
     @Test
     void guestCanUsePublicSearchEndpointForResources() throws Exception {
         mockMvc.perform(get("/api/search")
-                        .param("q", "resume")
+                        .param("q", "简历")
                         .param("type", "RESOURCE")
                         .param("sort", "RELEVANCE"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.data.query").value("resume"))
+                .andExpect(jsonPath("$.data.query").value("简历"))
                 .andExpect(jsonPath("$.data.type").value("RESOURCE"))
                 .andExpect(jsonPath("$.data.sort").value("RELEVANCE"))
                 .andExpect(jsonPath("$.data.totals.resource").value(1))
@@ -42,10 +42,10 @@ class SearchControllerTests {
 
     @Test
     void defaultsTypeAndSortWhenOptionalParamsMissing() throws Exception {
-        mockMvc.perform(get("/api/search").param("q", " resume "))
+        mockMvc.perform(get("/api/search").param("q", " 简历 "))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.data.query").value("resume"))
+                .andExpect(jsonPath("$.data.query").value("简历"))
                 .andExpect(jsonPath("$.data.type").value("ALL"))
                 .andExpect(jsonPath("$.data.sort").value("RELEVANCE"))
                 .andExpect(jsonPath("$.data.totals.all").value(1))
@@ -57,20 +57,20 @@ class SearchControllerTests {
         mockMvc.perform(get("/api/search").param("q", "   "))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("search query is required"));
+                .andExpect(jsonPath("$.message").value("搜索查询词必填"));
     }
 
     @Test
     void invalidTypeAndSortReturnBusinessErrors() throws Exception {
-        mockMvc.perform(get("/api/search").param("q", "resume").param("type", "ARTICLE"))
+        mockMvc.perform(get("/api/search").param("q", "简历").param("type", "ARTICLE"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("invalid search type"));
+                .andExpect(jsonPath("$.message").value("无效的搜索类型"));
 
-        mockMvc.perform(get("/api/search").param("q", "resume").param("sort", "HOT"))
+        mockMvc.perform(get("/api/search").param("q", "简历").param("sort", "HOT"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("invalid search sort"));
+                .andExpect(jsonPath("$.message").value("无效的搜索排序方式"));
     }
 
     @Test

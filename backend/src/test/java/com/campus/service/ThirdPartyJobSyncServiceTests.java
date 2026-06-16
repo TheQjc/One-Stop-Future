@@ -168,7 +168,7 @@ class ThirdPartyJobSyncServiceTests {
         assertThatThrownBy(() -> service.syncJobs("1"))
                 .isInstanceOfSatisfying(BusinessException.class, exception -> {
                     assertThat(exception.getCode()).isEqualTo(500);
-                    assertThat(exception).hasMessage("invalid job sync feed");
+                    assertThat(exception).hasMessage("无效的岗位同步数据源");
                 });
 
         assertThat(jdbcTemplate.queryForObject(
@@ -216,7 +216,7 @@ class ThirdPartyJobSyncServiceTests {
         assertThatThrownBy(() -> service.syncJobs("1"))
                 .isInstanceOfSatisfying(BusinessException.class, exception -> {
                     assertThat(exception.getCode()).isEqualTo(500);
-                    assertThat(exception).hasMessage("invalid job sync feed");
+                    assertThat(exception).hasMessage("无效的岗位同步数据源");
                 });
     }
 
@@ -227,7 +227,7 @@ class ThirdPartyJobSyncServiceTests {
         assertThatThrownBy(() -> service.syncJobs("1"))
                 .isInstanceOfSatisfying(BusinessException.class, exception -> {
                     assertThat(exception.getCode()).isEqualTo(500);
-                    assertThat(exception).hasMessage("job sync unavailable");
+                    assertThat(exception).hasMessage("岗位同步不可用");
                 });
     }
 

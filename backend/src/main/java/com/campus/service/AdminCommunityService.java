@@ -43,7 +43,7 @@ public class AdminCommunityService {
     public void hidePost(Long postId) {
         CommunityPost post = requirePost(postId);
         if (CommunityPostStatus.DELETED.name().equals(post.getStatus())) {
-            throw new BusinessException(400, "deleted post cannot be hidden");
+            throw new BusinessException(400, "已删除的帖子不能被隐藏");
         }
         if (CommunityPostStatus.HIDDEN.name().equals(post.getStatus())) {
             return;
@@ -67,7 +67,7 @@ public class AdminCommunityService {
     private CommunityPost requirePost(Long postId) {
         CommunityPost post = communityPostMapper.selectById(postId);
         if (post == null) {
-            throw new BusinessException(404, "community post not found");
+            throw new BusinessException(404, "帖子不存在");
         }
         return post;
     }

@@ -20,10 +20,10 @@ public class JobPostingFieldNormalizer {
     public String requiredText(String value, int maxLength, String fieldName) {
         String normalized = normalizeText(value);
         if (normalized == null || normalized.isEmpty()) {
-            throw new IllegalArgumentException("value is required");
+            throw new IllegalArgumentException("值不能为空");
         }
         if (normalized.length() > maxLength) {
-            throw new IllegalArgumentException("value exceeds max length");
+            throw new IllegalArgumentException("值超出最大长度限制");
         }
         return normalized;
     }
@@ -34,7 +34,7 @@ public class JobPostingFieldNormalizer {
             return null;
         }
         if (normalized.length() > maxLength) {
-            throw new IllegalArgumentException("value exceeds max length");
+            throw new IllegalArgumentException("值超出最大长度限制");
         }
         return normalized;
     }
@@ -44,7 +44,7 @@ public class JobPostingFieldNormalizer {
         try {
             return JobType.valueOf(normalized.toUpperCase(Locale.ROOT)).name();
         } catch (IllegalArgumentException exception) {
-            throw new IllegalArgumentException("invalid job type");
+            throw new IllegalArgumentException("无效的岗位类型");
         }
     }
 
@@ -53,7 +53,7 @@ public class JobPostingFieldNormalizer {
         try {
             return JobEducationRequirement.valueOf(normalized.toUpperCase(Locale.ROOT)).name();
         } catch (IllegalArgumentException exception) {
-            throw new IllegalArgumentException("invalid education requirement");
+            throw new IllegalArgumentException("无效的学历要求");
         }
     }
 
@@ -63,16 +63,16 @@ public class JobPostingFieldNormalizer {
             URI uri = URI.create(normalized);
             String scheme = uri.getScheme();
             if (scheme == null || (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme))) {
-                throw new IllegalArgumentException("invalid source url");
+                throw new IllegalArgumentException("无效的来源URL");
             }
             return normalized;
         } catch (IllegalArgumentException exception) {
-            if ("invalid source url".equals(exception.getMessage())
-                    || "value is required".equals(exception.getMessage())
-                    || "value exceeds max length".equals(exception.getMessage())) {
+            if ("无效的来源URL".equals(exception.getMessage())
+                    || "值不能为空".equals(exception.getMessage())
+                    || "值超出最大长度限制".equals(exception.getMessage())) {
                 throw exception;
             }
-            throw new IllegalArgumentException("invalid source url");
+            throw new IllegalArgumentException("无效的来源URL");
         }
     }
 
@@ -84,7 +84,7 @@ public class JobPostingFieldNormalizer {
         try {
             return LocalDateTime.parse(normalized, DEADLINE_FORMATTER);
         } catch (DateTimeParseException exception) {
-            throw new IllegalArgumentException("invalid deadline format");
+            throw new IllegalArgumentException("无效的截止日期格式");
         }
     }
 

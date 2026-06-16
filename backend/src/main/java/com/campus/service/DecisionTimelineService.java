@@ -92,25 +92,25 @@ public class DecisionTimelineService {
 
     private Long requireUserId(String identity) {
         if (identity == null || identity.isBlank()) {
-            throw new BusinessException(401, "unauthorized");
+            throw new BusinessException(401, "未授权");
         }
         if (!identity.matches("^\\d+$")) {
-            throw new BusinessException(401, "unauthorized");
+            throw new BusinessException(401, "未授权");
         }
         try {
             return Long.parseLong(identity);
         } catch (NumberFormatException ex) {
-            throw new BusinessException(401, "unauthorized");
+            throw new BusinessException(401, "未授权");
         }
     }
 
     private String normalizeTrack(String track) {
         if (track == null || track.isBlank()) {
-            throw new BusinessException(400, "track is required");
+            throw new BusinessException(400, "规划方向是必填项");
         }
         String normalized = track.trim().toUpperCase(Locale.ROOT);
         if (!"CAREER".equals(normalized) && !"EXAM".equals(normalized) && !"ABROAD".equals(normalized)) {
-            throw new BusinessException(400, "invalid track");
+            throw new BusinessException(400, "无效的规划方向");
         }
         return normalized;
     }

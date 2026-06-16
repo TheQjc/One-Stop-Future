@@ -225,7 +225,7 @@ class ResumeControllerTests {
         mockMvc.perform(get("/api/resumes/9003/preview"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("resume preview only supports pdf or docx"));
+                .andExpect(jsonPath("$.message").value("简历预览仅支持 pdf 或 docx 格式"));
     }
 
     @Test
@@ -242,7 +242,7 @@ class ResumeControllerTests {
         mockMvc.perform(get("/api/resumes/9004/preview"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(404))
-                .andExpect(jsonPath("$.message").value("resume not found"));
+                .andExpect(jsonPath("$.message").value("简历不存在"));
     }
 
     @Test
@@ -286,7 +286,7 @@ class ResumeControllerTests {
                         .param("title", "Zip Resume"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("unsupported resume file type"));
+                .andExpect(jsonPath("$.message").value("不支持的简历文件类型"));
     }
 
     @Test
@@ -303,7 +303,7 @@ class ResumeControllerTests {
         mockMvc.perform(delete("/api/resumes/9001"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(404))
-                .andExpect(jsonPath("$.message").value("resume not found"));
+                .andExpect(jsonPath("$.message").value("简历不存在"));
     }
 
     @Test
@@ -321,7 +321,7 @@ class ResumeControllerTests {
                         .param("title", "Too Large Resume"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("resume file is too large"));
+                .andExpect(jsonPath("$.message").value("简历文件过大"));
     }
 
     private byte[] samplePdfBytes() {

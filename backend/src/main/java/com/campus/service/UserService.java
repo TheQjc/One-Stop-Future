@@ -46,7 +46,7 @@ public class UserService {
     public User requireByPhone(String phone) {
         User user = findByPhone(phone);
         if (user == null) {
-            throw new BusinessException(404, "user not found");
+            throw new BusinessException(404, "用户不存在");
         }
         return user;
     }
@@ -58,14 +58,14 @@ public class UserService {
     public User requireByUserId(Long userId) {
         User user = findByUserId(userId);
         if (user == null) {
-            throw new BusinessException(404, "user not found");
+            throw new BusinessException(404, "用户不存在");
         }
         return user;
     }
 
     public User requireByIdentity(String identity) {
         if (identity == null || identity.isBlank()) {
-            throw new BusinessException(401, "unauthorized");
+            throw new BusinessException(401, "未授权");
         }
         User user;
         if (identity.matches("^\\d+$")) {
@@ -74,7 +74,7 @@ public class UserService {
                 ensureAccountIsActive(user);
                 return user;
             } catch (NumberFormatException | DataAccessException ex) {
-                throw new BusinessException(404, "user not found");
+                throw new BusinessException(404, "用户不存在");
             }
         }
         user = requireByPhone(identity);
@@ -107,7 +107,7 @@ public class UserService {
 
     public UserProfile updateProfile(String identity, UpdateProfileRequest request) {
         if (request == null) {
-            throw new BusinessException(400, "invalid request");
+            throw new BusinessException(400, "无效请求");
         }
         User user = requireByIdentity(identity);
         if (request.nickname() != null && !request.nickname().isBlank()) {
@@ -129,7 +129,7 @@ public class UserService {
 
     private void ensureAccountIsActive(User user) {
         if (UserStatus.BANNED.name().equals(user.getStatus())) {
-            throw new BusinessException(403, "account is banned");
+            throw new BusinessException(403, "该账号已被封禁");
         }
     }
 

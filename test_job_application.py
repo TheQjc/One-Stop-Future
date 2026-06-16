@@ -10,7 +10,7 @@ def login(page, phone):
     page.get_by_placeholder("请输入 11 位手机号").fill(phone)
     page.get_by_role("button", name="获取验证码").click()
     time.sleep(1.5)
-    debug_text = page.get_by_text("本次调试验证码：").inner_text()
+    debug_text = page.get_by_text("本次测试验证码：").inner_text()
     code = re.search(r'\d+', debug_text).group()
     page.get_by_placeholder("请输入 6 位验证码").fill(code)
     page.get_by_role("button", name="登录").click()
@@ -54,7 +54,7 @@ def run(playwright: Playwright) -> None:
     
     print(">>> 进入岗位详情并投递...")
     user_page.get_by_role("link", name=re.compile(r"就业方向")).click()
-    user_page.get_by_role("link", name=re.compile(r"Java Backend Intern")).click()
+    user_page.get_by_role("link", name=re.compile(r"后端开发实习生")).click()
     
     user_page.get_by_test_id("apply-toggle").click()
     user_page.get_by_text("中文简历模板.pdf").click()

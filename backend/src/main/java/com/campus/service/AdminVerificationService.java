@@ -73,10 +73,10 @@ public class AdminVerificationService {
     public void review(Long applicationId, String reviewerIdentity, AdminVerificationReviewRequest request) {
         VerificationApplication application = verificationApplicationMapper.selectById(applicationId);
         if (application == null) {
-            throw new BusinessException(404, "verification application not found");
+            throw new BusinessException(404, "认证申请不存在");
         }
         if (!VerificationStatus.PENDING.name().equals(application.getStatus())) {
-            throw new BusinessException(400, "verification application is not pending");
+            throw new BusinessException(400, "该认证申请已处理，无法重复审核");
         }
 
         User reviewer = userService.requireByIdentity(reviewerIdentity);
@@ -91,21 +91,21 @@ public class AdminVerificationService {
             applicant.setRealName(application.getRealName());
             applicant.setStudentId(application.getStudentId());
             notificationService.createNotification(applicant.getId(), NotificationType.VERIFICATION_APPROVED.name(),
-                    "Verification approved", "Your student verification has been approved.",
+                    "学生认证已通过", "您的学生身份认证申请已审核通过。",
                     "VERIFICATION_APPLICATION", application.getId());
         } else if ("REJECT".equals(action)) {
             if (request.reason() == null || request.reason().isBlank()) {
-                throw new BusinessException(400, "reason is required when rejecting application");
+                throw new BusinessException(400, "驳回申请时必须填写原因");
             }
             application.setStatus("REJECTED");
             application.setRejectReason(request.reason().trim());
             applicant.setVerificationStatus(VerificationStatus.UNVERIFIED.name());
             applicant.setStudentId(null);
             notificationService.createNotification(applicant.getId(), NotificationType.VERIFICATION_REJECTED.name(),
-                    "Verification rejected", "Your student verification was rejected: " + request.reason().trim(),
+                    "学生认证被驳回", "您的学生身份认证申请已被驳回：" + request.reason().trim(),
                     "VERIFICATION_APPLICATION", application.getId());
         } else {
-            throw new BusinessException(400, "invalid review action");
+            throw new BusinessException(400, "无效的审核操作");
         }
 
         application.setReviewerId(reviewer.getId());
@@ -118,7 +118,7 @@ public class AdminVerificationService {
 
     private String normalizeAction(String action) {
         if (action == null || action.isBlank()) {
-            throw new BusinessException(400, "invalid review action");
+            throw new BusinessException(400, "无效的审核操作");
         }
         return action.trim().toUpperCase(Locale.ROOT);
     }

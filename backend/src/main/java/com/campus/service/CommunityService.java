@@ -197,19 +197,19 @@ public class CommunityService {
         post.setIsExperiencePost(experiencePost);
         post.setExperienceTargetLabel(experiencePost
                 ? normalizeExperienceField(request.experienceTargetLabel(), EXPERIENCE_TARGET_LABEL_LIMIT,
-                        "invalid experience target label")
+                        "无效的经验目标标签")
                 : null);
         post.setExperienceOutcomeLabel(experiencePost
                 ? normalizeExperienceField(request.experienceOutcomeLabel(), EXPERIENCE_OUTCOME_LABEL_LIMIT,
-                        "invalid experience outcome label")
+                        "无效的经验成果标签")
                 : null);
         post.setExperienceTimelineSummary(experiencePost
                 ? normalizeExperienceField(request.experienceTimelineSummary(), EXPERIENCE_TIMELINE_SUMMARY_LIMIT,
-                        "invalid experience timeline summary")
+                        "无效的经验时间线总结")
                 : null);
         post.setExperienceActionSummary(experiencePost
                 ? normalizeExperienceField(request.experienceActionSummary(), EXPERIENCE_ACTION_SUMMARY_LIMIT,
-                        "invalid experience action summary")
+                        "无效的经验行动总结")
                 : null);
         post.setCreatedAt(now);
         post.setUpdatedAt(now);
@@ -242,7 +242,7 @@ public class CommunityService {
         User author = userService.requireByIdentity(identity);
         CommunityComment targetComment = requireVisibleComment(targetCommentId);
         if (targetComment.getParentCommentId() != null) {
-            throw new BusinessException(400, "cannot reply to a reply");
+            throw new BusinessException(400, "无法在回复下直接回复");
         }
 
         CommunityPost post = requirePublishedPost(targetComment.getPostId());
@@ -262,8 +262,8 @@ public class CommunityService {
             notificationService.createNotification(
                     targetComment.getAuthorId(),
                     NotificationType.COMMUNITY_REPLY_RECEIVED.name(),
-                    "Your comment received a reply",
-                    author.getNickname() + " replied to your comment under \"" + post.getTitle() + "\"",
+                    "您的评论收到了回复",
+                    author.getNickname() + " 在《" + post.getTitle() + "》下回复了您的评论",
                     "COMMUNITY_POST",
                     post.getId());
         }
@@ -286,8 +286,8 @@ public class CommunityService {
                 notificationService.createNotification(
                         post.getAuthorId(),
                         NotificationType.COMMUNITY_POST_LIKED.name(),
-                        "Your post received a like",
-                        viewer.getNickname() + " liked your post \"" + post.getTitle() + "\"",
+                        "您的帖子收到了点赞",
+                        viewer.getNickname() + " 点赞了您的帖子《" + post.getTitle() + "》",
                         "COMMUNITY_POST",
                         post.getId());
             }
@@ -346,7 +346,7 @@ public class CommunityService {
     private CommunityPost requirePublishedPost(Long postId) {
         CommunityPost post = communityPostMapper.selectById(postId);
         if (post == null || !CommunityPostStatus.PUBLISHED.name().equals(post.getStatus())) {
-            throw new BusinessException(404, "community post not found");
+            throw new BusinessException(404, "帖子不存在");
         }
         return post;
     }
@@ -354,14 +354,14 @@ public class CommunityService {
     private String normalizeTag(String tag, boolean required) {
         if (tag == null || tag.isBlank()) {
             if (required) {
-                throw new BusinessException(400, "invalid community tag");
+                throw new BusinessException(400, "无效的社区标签");
             }
             return null;
         }
         try {
             return CommunityTag.valueOf(tag.trim().toUpperCase(Locale.ROOT)).name();
         } catch (IllegalArgumentException exception) {
-            throw new BusinessException(400, "invalid community tag");
+            throw new BusinessException(400, "无效的社区标签");
         }
     }
 
@@ -372,7 +372,7 @@ public class CommunityService {
         try {
             return CommunityHotPeriodType.valueOf(period.trim().toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException exception) {
-            throw new BusinessException(400, "invalid community hot period");
+            throw new BusinessException(400, "无效的社区热门时间范围");
         }
     }
 
@@ -381,7 +381,7 @@ public class CommunityService {
             return DEFAULT_HOT_LIMIT;
         }
         if (limit < 1 || limit > MAX_HOT_LIMIT) {
-            throw new BusinessException(400, "invalid community hot limit");
+            throw new BusinessException(400, "无效的社区热门数量限制");
         }
         return limit;
     }
@@ -393,7 +393,7 @@ public class CommunityService {
         try {
             return FavoriteTargetType.valueOf(type.trim().toUpperCase(Locale.ROOT)).name();
         } catch (IllegalArgumentException exception) {
-            throw new BusinessException(400, "invalid favorite type");
+            throw new BusinessException(400, "无效的收藏类型");
         }
     }
 
@@ -414,7 +414,7 @@ public class CommunityService {
     private void recalculatePostStats(Long postId) {
         CommunityPost post = communityPostMapper.selectById(postId);
         if (post == null) {
-            throw new BusinessException(404, "community post not found");
+            throw new BusinessException(404, "帖子不存在");
         }
         int commentCount = communityCommentMapper.selectCount(new LambdaQueryWrapper<CommunityComment>()
                 .eq(CommunityComment::getPostId, postId)
@@ -434,7 +434,7 @@ public class CommunityService {
     private CommunityComment requireVisibleComment(Long commentId) {
         CommunityComment comment = communityCommentMapper.selectById(commentId);
         if (comment == null || !CommunityCommentStatus.VISIBLE.name().equals(comment.getStatus())) {
-            throw new BusinessException(404, "community comment not found");
+            throw new BusinessException(404, "评论不存在");
         }
         return comment;
     }
@@ -490,9 +490,9 @@ public class CommunityService {
 
     private String hotLabelFor(CommunityHotPeriodType periodType) {
         return switch (periodType) {
-            case DAY -> "Today spotlight";
-            case WEEK -> "Weekly discussion";
-            case ALL -> "Sustained discussion";
+            case DAY -> "今日焦点";
+            case WEEK -> "本周热议";
+            case ALL -> "持续热议";
         };
     }
 

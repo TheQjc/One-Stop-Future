@@ -59,7 +59,7 @@ class JobImportCsvParserTests {
                     assertThat(exception.response().totalRows()).isEqualTo(201);
                     assertThat(exception.response().errors())
                             .extracting(AdminJobImportValidationError::message)
-                            .containsExactly("job import row limit exceeded");
+                            .containsExactly("超出岗位导入行数限制");
                 });
     }
 
@@ -75,7 +75,7 @@ class JobImportCsvParserTests {
                 .isInstanceOfSatisfying(JobImportValidationException.class, exception -> {
                     assertThat(exception.response().errors())
                             .extracting(AdminJobImportValidationError::message)
-                            .containsExactly("csv file must be utf-8 encoded");
+                            .containsExactly("CSV文件必须使用UTF-8编码");
                 });
     }
 

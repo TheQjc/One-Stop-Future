@@ -24,7 +24,7 @@ export const demoUsers = [
   {
     id: 3,
     phone: "13800000002",
-    realName: "Verified User",
+    realName: "认证同学",
     nickname: "认证同学",
     role: "USER",
     status: "ACTIVE",

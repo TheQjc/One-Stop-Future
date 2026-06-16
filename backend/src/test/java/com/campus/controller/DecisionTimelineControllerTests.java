@@ -36,7 +36,7 @@ class DecisionTimelineControllerTests {
         mockMvc.perform(get("/api/decision/timeline").param("track", "NOPE"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("invalid track"));
+                .andExpect(jsonPath("$.message").value("无效的规划方向"));
     }
 
     @Test
@@ -45,7 +45,7 @@ class DecisionTimelineControllerTests {
         mockMvc.perform(get("/api/decision/timeline"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("track is required"));
+                .andExpect(jsonPath("$.message").value("规划方向是必填项"));
     }
 
     @Test
@@ -82,7 +82,7 @@ class DecisionTimelineControllerTests {
                         .param("anchorDate", "2026/05/01"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("invalid anchorDate"));
+                .andExpect(jsonPath("$.message").value("无效的基准日期"));
     }
 
     @Test

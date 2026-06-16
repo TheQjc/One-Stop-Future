@@ -98,7 +98,7 @@ class AdminJobApplicationControllerTests {
                 .andExpect(jsonPath("$.data.uniqueJobs").value(1))
                 .andExpect(jsonPath("$.data.applications[0].id").value(applicationId))
                 .andExpect(jsonPath("$.data.applications[0].jobTitle").value("后端开发实习生"))
-                .andExpect(jsonPath("$.data.applications[0].applicantNickname").value("NormalUser"))
+                .andExpect(jsonPath("$.data.applications[0].applicantNickname").value("普通用户"))
                 .andExpect(jsonPath("$.data.applications[0].previewAvailable").value(true))
                 .andExpect(jsonPath("$.data.applications[0].previewKind").value("FILE"));
 
@@ -151,7 +151,7 @@ class AdminJobApplicationControllerTests {
         mockMvc.perform(get("/api/admin/applications/{id}/resume/preview", applicationId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("application resume preview only supports pdf or docx"));
+                .andExpect(jsonPath("$.message").value("申请简历预览仅支持 pdf 或 docx 格式"));
     }
 
     @Test

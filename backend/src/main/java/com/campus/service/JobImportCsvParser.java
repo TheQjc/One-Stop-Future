@@ -33,15 +33,15 @@ public class JobImportCsvParser {
 
     private static final int MAX_DATA_ROWS = 200;
     private static final String FILE_COLUMN = "file";
-    private static final String MESSAGE_FILE_REQUIRED = "file is required";
-    private static final String MESSAGE_FILE_EMPTY = "csv file is empty";
-    private static final String MESSAGE_FILE_TYPE = "job import only supports csv files";
-    private static final String MESSAGE_FILE_NAME = "csv file name is required";
-    private static final String MESSAGE_FILE_UTF8 = "csv file must be utf-8 encoded";
-    private static final String MESSAGE_ROW_LIMIT = "job import row limit exceeded";
-    private static final String MESSAGE_MISSING_HEADER = "missing required header";
-    private static final String MESSAGE_DUPLICATE_HEADER = "duplicate header";
-    private static final String MESSAGE_UNSUPPORTED_HEADER = "unsupported header";
+    private static final String MESSAGE_FILE_REQUIRED = "请选择文件";
+    private static final String MESSAGE_FILE_EMPTY = "CSV文件内容为空";
+    private static final String MESSAGE_FILE_TYPE = "岗位导入仅支持CSV文件";
+    private static final String MESSAGE_FILE_NAME = "CSV文件名不能为空";
+    private static final String MESSAGE_FILE_UTF8 = "CSV文件必须使用UTF-8编码";
+    private static final String MESSAGE_ROW_LIMIT = "超出岗位导入行数限制";
+    private static final String MESSAGE_MISSING_HEADER = "缺少必要的表头";
+    private static final String MESSAGE_DUPLICATE_HEADER = "重复的表头";
+    private static final String MESSAGE_UNSUPPORTED_HEADER = "不支持的表头";
 
     private static final List<String> REQUIRED_HEADERS = List.of(
             "title",
@@ -88,7 +88,7 @@ public class JobImportCsvParser {
         } catch (CharacterCodingException exception) {
             throw validationFailure(fileName, 0, error(1, FILE_COLUMN, MESSAGE_FILE_UTF8));
         } catch (IOException exception) {
-            throw new BusinessException(500, "job import file unavailable");
+            throw new BusinessException(500, "岗位导入文件不可用");
         }
     }
 

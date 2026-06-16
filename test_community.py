@@ -23,7 +23,7 @@ def run(playwright: Playwright) -> None:
     
     # 自动识别页面上的调试验证码
     time.sleep(1.5)
-    debug_text = page.get_by_text("本次调试验证码：").inner_text()
+    debug_text = page.get_by_text("本次测试验证码：").inner_text()
     code = re.search(r'\d+', debug_text).group()
     print(f">>> 识别到系统调试码: {code}")
     

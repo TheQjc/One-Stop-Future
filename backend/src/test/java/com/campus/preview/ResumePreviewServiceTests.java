@@ -86,7 +86,7 @@ class ResumePreviewServiceTests {
         assertThatThrownBy(() -> service.previewDocx(resume,
                 () -> new ByteArrayInputStream("docx".getBytes(StandardCharsets.UTF_8))))
                 .isInstanceOf(BusinessException.class)
-                .hasMessage("resume preview unavailable");
+                .hasMessage("简历预览不可用");
     }
 
     private static class NoopStorage implements ResourcePreviewArtifactStorage {

@@ -77,7 +77,7 @@ class AdminDashboardControllerTests {
                 .andExpect(jsonPath("$.data.verification.latestPendingApplications[0].id").value(302))
                 .andExpect(jsonPath("$.data.verification.latestPendingApplications[1].id").value(301))
                 .andExpect(jsonPath("$.data.verification.latestPendingApplications[0].applicantNickname")
-                        .value("VerifiedUser"))
+                        .value("认证用户"))
                 .andExpect(jsonPath("$.data.community.totalCount").value(3))
                 .andExpect(jsonPath("$.data.community.publishedCount").value(1))
                 .andExpect(jsonPath("$.data.community.hiddenCount").value(1))

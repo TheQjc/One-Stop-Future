@@ -52,17 +52,17 @@ class DiscoverControllerTests {
         mockMvc.perform(get("/api/discover").param("tab", "ARTICLE"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("invalid discover tab"));
+                .andExpect(jsonPath("$.message").value("无效的发现标签页"));
 
         mockMvc.perform(get("/api/discover").param("period", "MONTH"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("invalid discover period"));
+                .andExpect(jsonPath("$.message").value("无效的发现时间范围"));
 
         mockMvc.perform(get("/api/discover").param("limit", "0"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(400))
-                .andExpect(jsonPath("$.message").value("invalid discover limit"));
+                .andExpect(jsonPath("$.message").value("无效的发现数量限制"));
     }
 
     @Test
@@ -146,8 +146,8 @@ class DiscoverControllerTests {
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.total").value(2))
                 .andExpect(jsonPath("$.data.items[0].id").value(102))
-                .andExpect(jsonPath("$.data.items[0].secondaryMeta").value("EXAM / Experience Post"))
-                .andExpect(jsonPath("$.data.items[0].hotLabel").value("Weekly experience pick"))
+                .andExpect(jsonPath("$.data.items[0].secondaryMeta").value("EXAM / 经验贴"))
+                .andExpect(jsonPath("$.data.items[0].hotLabel").value("本周经验精选"))
                 .andExpect(jsonPath("$.data.items[1].id").value(101));
     }
 
