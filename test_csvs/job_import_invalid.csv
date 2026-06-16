@@ -1,0 +1,4 @@
+title,companyName,city,jobType,educationRequirement,sourcePlatform,sourceUrl,summary,content,deadlineAt
+C++研发工程师,腾讯,深圳,FULL_TIME,BACHELOR,官网,https://careers.tencent.com/jobs/4,参与核心分布式存储系统的研发与性能优化。,职责：\n1. 负责存储引擎核心模块开发；\n2. 解决大吞吐高并发性能瓶颈。,2026-12-31 23:59:59
+数据分析实习生,字节跳动,上海,INTERNSHIP,BACHELOR,内推,https://jobs.bytedance.com/jobs/5,负责字节跳动核心业务数据指标体系的设计与追踪。,职责：\n1. 参与业务数据大盘报表搭建；\n2. 开展专项业务数据分析建模。,2026-12-31 23:59:59
+无效类型岗位（测试回滚）,阿里,杭州,PART_TIME,MASTER,官网,https://jobs.alibaba.com/jobs/6,测试用例 - 该行由于 jobType=PART_TIME 不合规，应该触发全量回滚。,职责：\n1. 测试回滚；\n2. 保证整个文件没有任何数据落库。,2026-12-31 23:59:59
