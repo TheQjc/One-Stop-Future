@@ -81,6 +81,27 @@ test("loads resumes and supports upload/download/delete actions", async () => {
   expect(deleteResume).toHaveBeenCalledWith(1);
 });
 
+test("rejects unsupported resume files before upload", async () => {
+  getMyResumes.mockResolvedValue({ total: 0, resumes: [] });
+
+  const wrapper = mount(ProfileResumesView);
+  await flushPromises();
+
+  const file = new File(["archive"], "portfolio.zip", { type: "application/zip" });
+  await wrapper.find('input[name="title"]').setValue("Portfolio Archive");
+  const fileInput = wrapper.find('input[name="file"]');
+  Object.defineProperty(fileInput.element, "files", {
+    value: [file],
+    configurable: true,
+  });
+  await fileInput.trigger("change");
+  await wrapper.find("form").trigger("submit.prevent");
+  await flushPromises();
+
+  expect(createResume).not.toHaveBeenCalled();
+  expect(wrapper.text()).toContain("仅支持 PDF、DOC、DOCX 简历文件。");
+});
+
 test("pdf and docx resumes show preview while doc stays download-only", async () => {
   getMyResumes.mockResolvedValue({
     total: 3,

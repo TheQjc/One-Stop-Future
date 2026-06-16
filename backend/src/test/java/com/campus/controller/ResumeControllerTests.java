@@ -290,6 +290,16 @@ class ResumeControllerTests {
     }
 
     @Test
+    @WithMockUser(username = "2", roles = "USER")
+    void resumeUploadMissingFileReturnsChineseValidationError() throws Exception {
+        mockMvc.perform(multipart("/api/resumes")
+                        .param("title", "Intern Resume"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(400))
+                .andExpect(jsonPath("$.message").value("请先选择文件"));
+    }
+
+    @Test
     @WithMockUser(username = "3", roles = "USER")
     void userCannotDeleteAnotherUsersResume() throws Exception {
         jdbcTemplate.update(

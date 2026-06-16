@@ -22,6 +22,8 @@ const form = reactive({
   title: "",
 });
 
+const ALLOWED_RESUME_EXTENSIONS = new Set(["pdf", "doc", "docx"]);
+
 const statCards = computed(() => [
   {
     label: "简历总数",
@@ -123,6 +125,15 @@ function handleFileChange(event) {
   selectedFile.value = event.target.files?.[0] || null;
 }
 
+function isAllowedResumeFile(file) {
+  const name = file?.name || "";
+  const dotIndex = name.lastIndexOf(".");
+  if (dotIndex < 0 || dotIndex === name.length - 1) {
+    return false;
+  }
+  return ALLOWED_RESUME_EXTENSIONS.has(name.slice(dotIndex + 1).toLowerCase());
+}
+
 async function handleUpload() {
   actionMessage.value = "";
   actionError.value = "";
@@ -134,6 +145,11 @@ async function handleUpload() {
 
   if (!selectedFile.value) {
     actionError.value = "请先选择一份简历文件。";
+    return;
+  }
+
+  if (!isAllowedResumeFile(selectedFile.value)) {
+    actionError.value = "仅支持 PDF、DOC、DOCX 简历文件。";
     return;
   }
 
