@@ -162,7 +162,7 @@ class ResumeControllerTests {
                 9002L, 2L, "Docx Resume", "resume.docx", "docx",
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document", 100L, "seed/resume.docx");
         Files.createDirectories(STORAGE_ROOT.resolve("seed"));
-        Files.write(STORAGE_ROOT.resolve("seed/resume.docx"), "PKdocx".getBytes(StandardCharsets.UTF_8));
+        Files.write(STORAGE_ROOT.resolve("seed/resume.docx"), new byte[] {0x50, 0x4B, 0x03, 0x04, 'd', 'o', 'c', 'x'});
 
         mockMvc.perform(get("/api/resumes/9002/preview"))
                 .andExpect(status().isOk())
